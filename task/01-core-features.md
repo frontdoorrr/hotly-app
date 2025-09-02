@@ -92,12 +92,31 @@ class ScrapingTimeoutError(ContentExtractionError):
 #### 1-1-2. Google Gemini AI 연동 및 프롬프트 엔지니어링
 **상세**: Gemini Pro Vision 멀티모달 분석, 프롬프트 템플릿 관리
 
+**🎯 AI 모듈화 설계 전략**:
+- **Phase 1 (현재)**: Gemini 직접 구현으로 빠른 MVP 개발
+- **Phase 2 (확장시)**: Abstract Interface 도입으로 AI 모델 교체 지원
+- **핵심 원칙**: 비즈니스 로직과 AI 호출 분리, 나중에 추상화 쉽게 구성
+
+**AI 모듈화 장점**:
+- ✅ AI 모델 교체 용이성 (Gemini ↔ OpenAI ↔ Claude)
+- ✅ A/B 테스트 지원 (모델별 성능 비교)
+- ✅ Mock 테스트 간편 (실제 AI API 없이 테스트)
+- ✅ Fallback 전략 (메인 AI 장애시 백업 AI 사용)
+- ✅ 비용 최적화 (모델별 비용/성능 고려 선택)
+
+**AI 모듈화 단점**:
+- ❌ 초기 복잡성 증가 (추상화 레이어 구현 비용)
+- ❌ 과도한 엔지니어링 위험 (YAGNI 원칙 위배 가능성)
+- ❌ 모델별 특화 기능 제약 (Gemini Vision 고유 기능 활용 제한)
+
 **TDD 구현 순서**:
-1. **RED**: AI 분석 응답 및 예외 테스트
-2. **GREEN**: 최소 Gemini API 연동
-3. **REFACTOR**: 프롬프트 엔지니어링 및 성능 최적화
+1. **RED**: AI 분석 응답 및 예외 테스트 (Mock 기반)
+2. **GREEN**: Gemini 직접 구현 (`GeminiAnalyzer` 클래스)
+3. **REFACTOR**: 비즈니스 로직 분리 및 프롬프트 최적화
 
 **구현 체크리스트**:
+- [ ] `PlaceAnalysisService` 비즈니스 로직 클래스
+- [ ] `GeminiAnalyzer` AI 분석 전용 클래스  
 - [ ] AI 분석 테스트 작성 (Mock 응답 포함)
 - [ ] Google AI SDK 연동 (타임아웃 60초, 레이트 리미트 대응)
 - [ ] 프롬프트 템플릿 버저닝 시스템
@@ -108,13 +127,32 @@ class ScrapingTimeoutError(ContentExtractionError):
 - [ ] 민감정보 비저장 원칙 (입력 데이터 최소화)
 
 **결과물**: 
-- `app/services/ai_analyzer.py` - AI 분석 서비스
+- `app/services/place_analysis_service.py` - 장소 분석 비즈니스 로직
+- `app/services/ai/gemini_analyzer.py` - Gemini 전용 AI 분석기
 - `app/prompts/` - 프롬프트 템플릿 관리
 - `app/schemas/ai.py` - AI 요청/응답 스키마
 
+**🏗️ 아키텍처 설계**:
+```
+ContentExtractor → PlaceAnalysisService → GeminiAnalyzer → Gemini API
+     ↓                    ↓                    ↓
+ 스크래핑 결과      비즈니스 로직 처리     AI 모델 호출
+```
+
+**실용적 모듈화 접근법**:
+1. **Phase 1**: Gemini 직접 구현 (`GeminiAnalyzer` 클래스)
+   - 빠른 MVP 개발 및 Gemini Vision 특화 기능 최대 활용
+   - 비즈니스 로직과 AI 호출 분리로 테스트 용이성 확보
+
+2. **Phase 2**: 필요시 추상화 도입 (`AIAnalyzer` 인터페이스)
+   - 두 번째 AI 모델 필요성 발생시 Abstract Interface 추가
+   - 기존 Gemini 코드를 인터페이스 뒤로 이동
+
 **API**: `POST /api/v1/ai/analyze-place`
 
-**데이터모델**: GeminiRequest(content, images), GeminiResponse(places, confidence)
+**데이터모델**: 
+- Input: `PlaceAnalysisRequest(content_metadata, images)`
+- Output: `PlaceAnalysisResponse(place_info, confidence, analysis_time)`
 
 **도메인 예외 클래스**:
 ```python
@@ -129,6 +167,27 @@ class RateLimitError(AIAnalysisError):
 class InvalidResponseError(AIAnalysisError):
     """AI response format invalid"""
     pass
+```
+
+**🎨 프롬프트 엔지니어링 전략**:
+```
+당신은 SNS 콘텐츠에서 장소 정보를 추출하는 전문가입니다.
+
+다음 콘텐츠를 분석하여 장소 정보를 JSON 형태로 추출해주세요:
+- 장소명 (정확한 상호명)
+- 주소 (도로명주소 우선) 
+- 카테고리 (음식점/카페/관광지 등)
+- 특징 키워드 (분위기, 메뉴, 가격대)
+- 추천도 점수 (1-10)
+
+응답은 반드시 다음 JSON 스키마를 따라주세요:
+{schema_here}
+```
+
+**멀티모달 분석 파이프라인**:
+```
+스크래핑 콘텐츠 → 프롬프트 조합 → Gemini Pro Vision → JSON 응답 → 검증
+(텍스트+이미지)    (템플릿+데이터)     (AI 분석)       (구조화)     (스키마)
 ```
 
 **레이트 리미트 정책**:
