@@ -292,8 +292,8 @@ Elasticsearch 인덱스 구조:
 ## 12. 외부 연동
 
 ### 12-1. 검색 엔진
-- **주 사용:** Elasticsearch (전문 검색)
-- **보조:** MongoDB Atlas Search (백업)
+- **주 사용:** PostgreSQL trigram + Elasticsearch (전문 검색)
+- **보조:** PostgreSQL full-text search (백업)
 - **실시간:** Redis (자동완성, 캐싱)
 
 ### 12-2. 위치 서비스

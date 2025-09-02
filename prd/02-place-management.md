@@ -192,8 +192,8 @@
 ---
 
 ## 12. 기술 제약
-- **저장소:** MongoDB (도큐먼트 기반)
-- **검색 엔진:** Elasticsearch (전문 검색)
+- **저장소:** PostgreSQL (관계형 + JSONB)
+- **검색 엔진:** PostgreSQL trigram + Elasticsearch (전문 검색)
 - **이미지:** CDN 캐싱 (썸네일 자동 생성)
 - **동기화:** 실시간 상태 업데이트
 

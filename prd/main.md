@@ -117,4 +117,4 @@
 
 ## 10. 기술 제약(요약)
 - 모바일: Flutter (iOS/Android)
-- 백엔드: FastAPI, MongoDB, 캐시/큐: Redis/RabbitMQ, 지도: Kakao Map, 인증/알림: Firebase, AI: Gemini
+- 백엔드: FastAPI, PostgreSQL, 캐시/큐: Redis/RabbitMQ, 지도: Kakao Map, 인증/알림: Firebase, AI: Gemini
