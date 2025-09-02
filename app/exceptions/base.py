@@ -6,10 +6,10 @@ class HotlyException(Exception):
     """Base exception for all Hotly app exceptions."""
 
     def __init__(
-        self, 
-        message: str, 
-        code: Optional[str] = None, 
-        details: Optional[Dict[str, Any]] = None
+        self,
+        message: str,
+        code: Optional[str] = None,
+        details: Optional[Dict[str, Any]] = None,
     ):
         self.message = message
         self.code = code or self.__class__.__name__

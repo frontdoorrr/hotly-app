@@ -6,7 +6,7 @@ Follows backend_reference pattern with Pydantic v1 syntax.
 import secrets
 from typing import List, Optional, Union
 
-from pydantic import BaseSettings, Field, validator
+from pydantic import BaseSettings, Field, validator  # type: ignore
 
 
 class Settings(BaseSettings):
@@ -45,7 +45,7 @@ class Settings(BaseSettings):
     def SQLALCHEMY_DATABASE_URI(self) -> str:
         """Assemble PostgreSQL database URI."""
         return (
-            f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
+            f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
             f"@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
         )
 

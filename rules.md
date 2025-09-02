@@ -136,7 +136,7 @@
      - 핫픽스: `hotfix/<description>` (예: `hotfix/critical-security-patch`)
      - 릴리즈: `release/v<version>` (예: `release/v1.2.0`)
  3-5-3. 커밋 메시지 상세 규칙
-     - 제목: 50자 이내, 명령형 현재 시제 (영어), 끝에 마침표 없음
+     - 제목: 50자 이내, 명령형 현재 시제 (한국어), 끝에 마침표 없음
      - 본문: 72자로 줄바꿈, 변경 사유 설명 (What & Why, not How)
      - 푸터: 이슈 참조 `Closes #123`, `Refs #456`
      - 템플릿:

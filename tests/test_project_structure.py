@@ -2,7 +2,7 @@
 from pathlib import Path
 
 
-def test_project_structure_exists():
+def test_project_structure_exists() -> None:
     """Test that all required directories exist."""
     base_path = Path(__file__).parent.parent
     required_dirs = [
@@ -25,7 +25,7 @@ def test_project_structure_exists():
         assert (base_path / dir_path).exists(), f"Directory {dir_path} should exist"
 
 
-def test_init_files_exist():
+def test_init_files_exist() -> None:
     """Test that __init__.py files exist in Python packages."""
     base_path = Path(__file__).parent.parent
     required_init_files = [
@@ -47,19 +47,19 @@ def test_init_files_exist():
         assert (base_path / init_file).exists(), f"Init file {init_file} should exist"
 
 
-def test_main_app_file_exists():
+def test_main_app_file_exists() -> None:
     """Test that main application file exists."""
     base_path = Path(__file__).parent.parent
     assert (base_path / "app/main.py").exists(), "app/main.py should exist"
 
 
-def test_pyproject_toml_exists():
+def test_pyproject_toml_exists() -> None:
     """Test that Poetry configuration exists."""
     base_path = Path(__file__).parent.parent
     assert (base_path / "pyproject.toml").exists(), "pyproject.toml should exist"
 
 
-def test_env_example_exists():
+def test_env_example_exists() -> None:
     """Test that environment template exists."""
     base_path = Path(__file__).parent.parent
     assert (base_path / ".env.example").exists(), ".env.example should exist"
