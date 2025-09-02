@@ -124,9 +124,44 @@
  3-4. 보안/개인정보
      - PII/토큰/프롬프트는 로그에 마스킹. 외부 전송 전 최소화/암호화.
      - 레이트리밋/입력 검증 필수(URL, 좌표, 텍스트 길이 등).
- 3-5. 커밋/브랜치
-     - Conventional Commits: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`
-     - 브랜치: `feat/<scope>`, `fix/<scope>`
+ 3-5. 커밋/브랜치 규칙
+ 3-5-1. Conventional Commits 의무 준수
+     - 형식: `<type>(<scope>): <description>`
+     - 타입: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `perf`, `ci`, `build`
+     - 예시: `feat(places): add place duplicate detection algorithm`
+     - Breaking Change: `feat!:` 또는 `BREAKING CHANGE:` 푸터 추가
+ 3-5-2. 브랜치 네이밍
+     - 기능: `feat/<scope>-<description>` (예: `feat/places-duplicate-detection`)
+     - 버그픽스: `fix/<scope>-<description>` (예: `fix/auth-token-validation`)
+     - 핫픽스: `hotfix/<description>` (예: `hotfix/critical-security-patch`)
+     - 릴리즈: `release/v<version>` (예: `release/v1.2.0`)
+ 3-5-3. 커밋 메시지 상세 규칙
+     - 제목: 50자 이내, 명령형 현재 시제 (영어), 끝에 마침표 없음
+     - 본문: 72자로 줄바꿈, 변경 사유 설명 (What & Why, not How)
+     - 푸터: 이슈 참조 `Closes #123`, `Refs #456`
+     - 템플릿:
+       ```
+       feat(scope): add feature description
+       
+       Explain the reason for this change and what problem it solves.
+       Include any breaking changes or migration notes.
+       
+       Closes #123
+       ```
+ 3-5-4. 커밋 품질 기준
+     - 원자적 커밋: 하나의 논리적 변경사항만 포함
+     - 테스트 포함: 기능 커밋 시 관련 테스트 코드 함께 커밋
+     - 빌드 가능: 각 커밋에서 빌드/테스트 성공 보장
+     - 의미 있는 커밋: WIP, temp 등 임시 커밋 지양
+ 3-5-5. PR/MR 규칙
+     - 제목: 커밋 메시지와 동일한 컨벤션
+     - 설명: 변경사항 요약, 테스트 방법, 스크린샷(UI 변경 시)
+     - 리뷰어: 최소 1명 승인 필요
+     - 체크리스트: CI 통과, 테스트 커버리지 80% 이상, 문서 업데이트
+ 3-5-6. 머지 전략
+     - Squash and Merge: 기능 브랜치 → 메인 브랜치
+     - 커밋 히스토리 정리: 의미 있는 커밋만 유지
+     - 브랜치 삭제: 머지 후 자동 삭제
 
  4. 모바일(Flutter / Dart)
  4-1. 스타일/린트
