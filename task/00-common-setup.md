@@ -17,12 +17,12 @@
 ### 완료 정의 (DoD)
 - [x] Backend FastAPI 프로젝트 구조 완성 (Poetry + 가상환경)
 - [x] 코드 품질 도구 설정 (black, isort, flake8, mypy)
-- [ ] Pre-commit hooks 및 GitHub Actions CI/CD 파이프라인 구축
-- [ ] 테스트 커버리지 80% 이상 유지 설정 (pytest-cov)
-- [ ] Docker 개발 환경 및 docker-compose.yml 구성
-- [ ] 보안 스캔 도구 설정 (bandit, safety)
-- [ ] API 문서 자동화 (OpenAPI/Swagger)
-- [ ] 환경변수 스키마 검증 (Pydantic BaseSettings)
+- [x] Pre-commit hooks 및 GitHub Actions CI/CD 파이프라인 구축
+- [x] 테스트 커버리지 80% 이상 유지 설정 (pytest-cov) - 90% 달성
+- [x] Docker 개발 환경 및 docker-compose.yml 구성
+- [x] 보안 스캔 도구 설정 (bandit, safety)
+- [x] API 문서 자동화 (OpenAPI/Swagger)
+- [x] 환경변수 스키마 검증 (Pydantic BaseSettings)
 
 ### 수용 기준
 - Given 새로운 개발자가 프로젝트를 클론함, When `make setup` 실행함, Then 5분 내에 개발 환경이 구축됨
