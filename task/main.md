@@ -9,34 +9,81 @@
   - 코드 품질 도구 설정 (black, isort, flake8, mypy)
   - Pre-commit hooks 및 GitHub Actions CI/CD 파이프라인 구축
   - 테스트 커버리지 80% 이상 유지 설정
+  - Docker 개발 환경 및 docker-compose.yml 구성
 - **수용 기준**:
-  - Given 새로운 개발자가 프로젝트를 클론함, When 초기 설정 스크립트를 실행함, Then 5분 내에 개발 환경이 구축됨
+  - Given 새로운 개발자가 프로젝트를 클론함, When `make setup` 실행함, Then 5분 내에 개발 환경이 구축됨
   - Given 코드를 커밋함, When pre-commit hook이 실행됨, Then 모든 린트/포맷 검사를 통과함
+  - Given `docker-compose up`을 실행함, When 서비스가 시작됨, Then 헬스체크 엔드포인트가 200 응답함
 - **하위 작업**:
   - 0-1-1. FastAPI 프로젝트 구조 생성 및 Poetry 설정
+    - **상세**: `app/main.py`, `app/api/`, `app/core/`, `app/models/`, `app/schemas/`, `app/services/`, `app/db/`, `tests/` 디렉터리 구조
+    - **결과물**: `pyproject.toml`, 가상환경 설정, 개발 의존성 패키지 설치
+    - **테스트**: Poetry 명령어로 패키지 설치 및 가상환경 활성화 확인
   - 0-1-2. 코드 품질 도구 설정 (black, isort, flake8, mypy)
+    - **상세**: `pyproject.toml`에 각 도구별 설정 추가, VS Code 설정 파일
+    - **결과물**: `.flake8`, `mypy.ini`, VS Code `settings.json`
+    - **테스트**: 의도적 포맷 오류 코드로 각 도구 동작 확인
   - 0-1-3. Pre-commit hooks 설정
+    - **상세**: `.pre-commit-config.yaml` 작성, black/isort/flake8/mypy 훅 설정
+    - **결과물**: 커밋 시 자동 코드 품질 검사 실행
+    - **테스트**: 의도적 오류 코드 커밋하여 훅 차단 확인
   - 0-1-4. GitHub Actions CI/CD 파이프라인 구성
+    - **상세**: `.github/workflows/ci.yml`, 테스트/린트/빌드/배포 단계
+    - **결과물**: PR 생성시 자동 CI 실행, 마스터 브랜치 머지시 배포
+    - **테스트**: 의도적 테스트 실패로 CI 차단 확인
   - 0-1-5. 테스트 프레임워크 및 커버리지 설정
-- **참고 문서**: `prd/main.md`, `trd/main.md` (개발 환경 요구사항)
+    - **상세**: pytest, pytest-cov, pytest-asyncio 설정
+    - **결과물**: `pytest.ini`, 커버리지 리포트 HTML 생성
+    - **테스트**: 샘플 테스트 실행하여 80% 커버리지 달성 확인
+  - 0-1-6. Docker 개발 환경 설정
+    - **상세**: `Dockerfile`, `docker-compose.yml` (FastAPI + PostgreSQL + Redis)
+    - **결과물**: 원클릭 개발 환경 구축
+    - **테스트**: `docker-compose up`으로 전체 스택 실행 확인
+- **참고 문서**: `prd/main.md`, `trd/main.md` (개발 환경 요구사항), `backend_reference/` (기존 구조 참고)
 
 ### 0-2. 공통 데이터베이스 및 캐시 설정
-- **목표**: MongoDB, Redis 연결 및 기본 스키마 구축
+- **목표**: PostgreSQL과 Redis를 이용한 확장 가능한 데이터베이스 환경 구축
 - **완료 정의 (DoD)**:
-  - MongoDB 연결 설정 및 기본 컬렉션 스키마 정의
+  - PostgreSQL 연결 설정 및 기본 테이블 스키마 정의
   - Redis 연결 설정 및 키 네임스페이스 정의
-  - Database migrations 시스템 구축
+  - Alembic migrations 시스템 구축
   - 연결 상태 헬스체크 엔드포인트 구현
+  - 데이터베이스 인덱스 최적화 및 성능 튜닝
 - **수용 기준**:
   - Given 애플리케이션이 시작됨, When 데이터베이스 연결을 확인함, Then 2초 내에 연결 상태 응답
   - Given 스키마 변경이 필요함, When 마이그레이션을 실행함, Then 데이터 무결성을 유지하며 스키마 업데이트
+  - Given 1000개 장소 데이터가 있음, When 검색 쿼리를 실행함, Then 100ms 내에 결과 반환
 - **하위 작업**:
-  - 0-2-1. MongoDB 연결 설정 및 모델 정의
+  - 0-2-1. PostgreSQL 연결 설정 및 모델 정의
+    - **상세**: asyncpg 비동기 드라이버, SQLAlchemy ORM 설정, 연결 풀 최적화
+    - **결과물**: `app/db/postgresql.py`, `app/models/` SQLAlchemy 모델들
+    - **API**: `GET /health/db` - PostgreSQL 연결 상태 확인
+    - **테스트**: 연결 실패 시나리오, 트랜잭션 롤백, 타임아웃 처리
   - 0-2-2. Redis 연결 설정 및 키 네임스페이스 정의
-  - 0-2-3. 데이터베이스 마이그레이션 시스템 구축
+    - **상세**: aioredis 설정, 클러스터 지원, 키 네이밍 컨벤션 `hotly:{service}:{key}`
+    - **결과물**: `app/db/redis.py`, 캐시 매니저 클래스
+    - **API**: `GET /health/cache` - Redis 연결 상태 확인
+    - **테스트**: Redis 장애 시 graceful degradation 확인
+  - 0-2-3. Alembic 마이그레이션 시스템 구축
+    - **상세**: Alembic 기반 스키마 버전 관리, 자동 마이그레이션 생성
+    - **결과물**: `alembic/versions/`, `alembic.ini`, 마이그레이션 실행 스크립트
+    - **API**: `POST /admin/migrate` - 마이그레이션 실행 (관리자 전용)
+    - **테스트**: 마이그레이션 up/down, 스키마 변경, 데이터 보존
   - 0-2-4. 헬스체크 엔드포인트 구현
-  - 0-2-5. 데이터베이스 설정 테스트 코드 작성
-- **참고 문서**: `trd/02-place-management.md` (데이터베이스 설계), `trd/11-cache-performance.md` (캐시 전략)
+    - **상세**: 데이터베이스, 캐시, 외부 서비스 상태 종합 확인
+    - **결과물**: `app/api/health.py`, Kubernetes 레디니스 프로브 지원
+    - **API**: `GET /health`, `GET /health/detailed`
+    - **테스트**: 각 서비스별 장애 시나리오 시뮬레이션
+  - 0-2-5. PostgreSQL 인덱스 및 확장 설정
+    - **상세**: B-tree/GIN/GiST 인덱스, PostGIS 확장, pg_trgm 유사도 검색
+    - **결과물**: 인덱스 생성 마이그레이션, PostGIS 설정, 성능 모니터링
+    - **API**: `GET /admin/indexes` - 인덱스 상태 확인
+    - **테스트**: 공간 쿼리, 전문 검색, 인덱스 성능, EXPLAIN ANALYZE
+  - 0-2-6. 데이터베이스 설정 테스트 코드 작성
+    - **상세**: 연결 테스트, 기본 CRUD 테스트, 트랜잭션 테스트
+    - **결과물**: `tests/test_database.py`, 통합 테스트 시나리오
+    - **테스트**: DB 장애 복구, 연결 풀 exhaustion 처리
+- **참고 문서**: `trd/02-place-management.md` (데이터베이스 설계), `trd/11-cache-performance.md` (캐시 전략), `backend_reference/app/db/` (기존 PostgreSQL 설정)
 
 ### 0-3. 공통 인증 및 보안 설정
 - **목표**: JWT 인증, 환경변수 관리, API 보안 기본 설정
@@ -61,42 +108,142 @@
 ### 1-1. SNS 링크 분석 백엔드 개발
 - **목표**: Instagram, 블로그 등 SNS 링크를 분석하여 장소 정보를 추출하는 AI 기반 시스템 구축
 - **완료 정의 (DoD)**:
-  - URL 파싱 및 메타데이터 추출 API
-  - Google Gemini AI 연동 서비스
+  - URL 파싱 및 메타데이터 추출 API (30초 이내 응답)
+  - Google Gemini AI 연동 서비스 (90% 이상 정확도)
   - 장소 정보 추출 및 저장 로직
-  - Redis 기반 캐싱 시스템
+  - Redis 기반 캐싱 시스템 (40% 이상 캐시 적중률)
   - 분석 결과 조회 API
-  - 90% 이상 정확도의 장소 추출 성능
+  - Circuit Breaker 패턴으로 외부 서비스 장애 대응
+  - 동시 분석 요청 100건/분 처리 가능
 - **수용 기준**:
-  - Given Instagram URL 입력, When 링크 분석 요청, Then 3초 이내 장소 정보 반환
+  - Given Instagram URL 입력, When 링크 분석 요청, Then 30초 이내 장소 정보 반환 (p90)
   - Given 중복 URL 요청, When 캐시 조회, Then 1초 이내 캐시된 결과 반환
+  - Given AI 서비스 장애, When Circuit Breaker 활성화, Then 우아한 실패 처리 및 재시도 안내
 - **하위 작업**:
   - 1-1-1. URL 링크 파싱 및 메타데이터 추출 서비스
+    - **상세**: Playwright 기반 웹 스크래핑, Instagram/YouTube/네이버블로그 지원
+    - **구현**: `app/services/content_extractor.py`, 플랫폼별 스크래퍼 클래스
+    - **API**: `POST /api/v1/links/extract-content`
+    - **데이터모델**: ContentData(url, title, description, images, text_content)
+    - **에러처리**: UnsupportedPlatformError, ContentExtractionError
+    - **테스트**: 각 플랫폼별 실제 URL 테스트, 타임아웃 처리, 봇 감지 회피
   - 1-1-2. Google Gemini AI 연동 및 프롬프트 엔지니어링
+    - **상세**: Gemini Pro Vision 멀티모달 분석, 프롬프트 템플릿 관리
+    - **구현**: `app/services/ai_analyzer.py`, 프롬프트 버전 관리
+    - **API**: `POST /api/v1/ai/analyze-place`
+    - **데이터모델**: GeminiRequest(content, images), GeminiResponse(places, confidence)
+    - **에러처리**: AIAnalysisError, RateLimitError, 지수 백오프 재시도
+    - **테스트**: Mock Gemini 응답, 다양한 콘텐츠 타입, 에러 시나리오
   - 1-1-3. 장소 정보 추출 및 구조화 로직
+    - **상세**: AI 응답 파싱, 데이터 검증, 신뢰도 계산
+    - **구현**: `app/services/place_extractor.py`, Pydantic 스키마 검증
+    - **API**: 내부 서비스 (직접 API 노출 안함)
+    - **데이터모델**: PlaceExtraction(place_name, address, category, confidence)
+    - **에러처리**: ValidationError, 필수 필드 누락 처리
+    - **테스트**: 다양한 AI 응답 형태, 신뢰도 경계값, 데이터 품질 검증
   - 1-1-4. Redis 캐싱 및 중복 방지 시스템
+    - **상세**: URL 해시 기반 캐싱, 분산 락, TTL 관리
+    - **구현**: `app/services/cache_manager.py`, 다계층 캐시 (L1: 로컬, L2: Redis)
+    - **API**: 내부 서비스 (캐시 통계는 `/admin/cache-stats`에서 확인)
+    - **데이터모델**: CacheEntry(data, ttl, created_at), CacheStats(hit_rate, miss_count)
+    - **에러처리**: CacheConnectionError, graceful degradation
+    - **테스트**: 캐시 적중/미적중 시나리오, TTL 만료, 분산 락 경합
   - 1-1-5. 링크 분석 API 엔드포인트 구현
-  - 1-1-6. SNS 링크 분석 테스트 코드 작성
-- **참고 문서**: `prd/01-sns-link-analysis.md`, `trd/01-sns-link-analysis.md`
+    - **상세**: 비동기 분석 큐, 상태 조회, 웹훅 지원
+    - **구현**: `app/api/v1/endpoints/link_analysis.py`
+    - **API**: 
+      - `POST /api/v1/links/analyze` - 분석 요청
+      - `GET /api/v1/analyses/{analysis_id}` - 결과 조회
+      - `DELETE /api/v1/analyses/{analysis_id}` - 분석 취소
+    - **데이터모델**: LinkAnalyzeRequest, AnalysisResponse, AnalysisStatus
+    - **에러처리**: 400(잘못된 URL), 429(레이트 리미트), 503(서비스 장애)
+    - **테스트**: E2E 분석 플로우, 동시 요청 처리, 레이트 리미팅
+  - 1-1-6. SNS 링크 분석 종합 테스트 코드 작성
+    - **상세**: TDD 기반 전체 플로우 테스트, 성능 테스트, 부하 테스트
+    - **구현**: `tests/test_link_analysis.py`, `tests/performance/test_link_analysis_load.py`
+    - **커버리지**: 전체 링크 분석 기능 85% 이상 (중요 기능은 95%)
+    - **단위 테스트**: 각 서비스별 독립 테스트 (외부 의존성 목킹)
+    - **통합 테스트**: E2E 분석 플로우 (URL 입력 → 결과 저장)
+    - **성능 테스트**: 100개 동시 요청, 캐시 적중률, 메모리 사용량
+    - **시나리오**: 정상 분석, 캐시 적중/미적중, AI 장애, 네트워크 장애
+- **참고 문서**: `prd/01-sns-link-analysis.md` (요구사항), `trd/01-sns-link-analysis.md` (기술 설계)
 
 ### 1-2. 장소 관리 백엔드 개발
 - **목표**: 사용자가 발견한 장소를 저장, 분류, 검색할 수 있는 백엔드 시스템 구축
 - **완료 정의 (DoD)**:
-  - 장소 CRUD API 구현 (1초 이내 응답)
-  - 중복 장소 방지 로직 (95% 정확도)
-  - 카테고리/태그 관리 및 필터 기능
-  - 지리적 검색 (위도/경도 기반)
+  - 장소 CRUD API 구현 (p95 1초 이내 응답)
+  - 중복 장소 방지 로직 (95% 정확도, 이름+주소+좌표 기반)
+  - AI 기반 자동 카테고리 분류 (80% 이상 정확도)
+  - 사용자 정의 태그 관리 및 자동완성
+  - 지리적 검색 (2dsphere 인덱스, 50km 반경)
+  - Elasticsearch 기반 전문 검색 (500ms 이내)
 - **수용 기준**:
-  - Given 사용자가 장소를 등록함, When 중복 검사를 실행함, Then 중복 확률 5% 미만으로 처리
+  - Given 사용자가 장소를 등록함, When 중복 검사를 실행함, Then 95% 정확도로 중복 감지
   - Given 장소 목록 요청, When 50km 반경 검색함, Then 거리순으로 20개씩 페이지네이션
+  - Given 100개 장소 데이터, When 키워드 검색함, Then 500ms 내 관련도순 결과 반환
+  - Given 태그 입력, When 자동완성 요청, Then 사용 빈도순 10개 태그 제안
 - **하위 작업**:
-  - 1-2-1. MongoDB 장소 스키마 및 인덱스 설계
+  - 1-2-1. PostgreSQL 장소 스키마 및 인덱스 설계
+    - **상세**: PostGIS 좌표, 사용자별 파티셔닝, 복합 인덱스 최적화
+    - **구현**: `app/models/place.py`, SQLAlchemy ORM 모델
+    - **스키마**: places 테이블 (user_id, place_id, name, coordinates, category, tags, status)
+    - **인덱스**: GiST(coordinates), B-tree(user_id+category), GIN(name+address+tags)
+    - **성능**: 지리 검색 50ms, 텍스트 검색 100ms, 필터링 50ms
+    - **테스트**: 인덱스 성능 벤치마크, 쿼리 실행 계획 분석
   - 1-2-2. 장소 중복 방지 알고리즘 (이름+주소 정규화)
-  - 1-2-3. 카테고리 및 태그 관리 시스템
-  - 1-2-4. 장소 CRUD API 및 검색/필터 기능
-  - 1-2-5. 지리적 검색 및 거리 계산 로직
-  - 1-2-6. 장소 관리 테스트 코드 작성
-- **참고 문서**: `prd/02-place-management.md`, `trd/02-place-management.md`
+    - **상세**: 레벤슈타인 거리, 지리적 거리, 퍼지 매칭 조합
+    - **구현**: `app/services/duplicate_detector.py`, 다단계 중복 검사
+    - **알고리즘**: 1차(이름 정규화+유사도), 2차(주소 매칭), 3차(좌표 50m 반경)
+    - **성능**: 중복 검사 200ms 이내, 정확도 95% 이상
+    - **API**: `POST /api/v1/places/check-duplicate`
+    - **테스트**: 정확/유사/다른 장소 시나리오, 성능 벤치마크
+  - 1-2-3. AI 기반 자동 카테고리 분류 시스템
+    - **상세**: scikit-learn RandomForest, TF-IDF 벡터화, 온라인 학습
+    - **구현**: `app/services/place_classifier.py`, 모델 버전 관리
+    - **모델**: TF-IDF + RandomForest (6개 카테고리 분류)
+    - **성능**: 분류 시간 50ms, 정확도 80% 이상
+    - **API**: `POST /api/v1/places/classify`
+    - **테스트**: 카테고리별 분류 정확도, 신뢰도 임계값, 모델 업데이트
+  - 1-2-4. 사용자 정의 태그 관리 및 자동완성
+    - **상세**: 태그 정규화, 사용 통계, 자동완성 제안
+    - **구현**: `app/services/tag_service.py`, Redis 기반 실시간 통계
+    - **기능**: 태그 추가/삭제, 자동완성, 인기 태그 추천
+    - **성능**: 자동완성 100ms, 태그 통계 실시간 업데이트
+    - **API**: `GET /api/v1/tags/suggestions`, `POST /api/v1/places/{id}/tags`
+    - **테스트**: 태그 정규화, 자동완성 정확도, 사용 통계 업데이트
+  - 1-2-5. 장소 CRUD API 및 검색/필터 기능
+    - **상세**: RESTful API, 페이지네이션, 정렬, 다중 필터
+    - **구현**: `app/api/v1/endpoints/places.py`, FastAPI 라우터
+    - **API**: 
+      - `POST /api/v1/places` - 장소 생성
+      - `GET /api/v1/places` - 목록 조회 (필터/정렬/페이지네이션)
+      - `GET /api/v1/places/{id}` - 상세 조회
+      - `PUT /api/v1/places/{id}` - 정보 수정
+      - `DELETE /api/v1/places/{id}` - 삭제
+      - `PUT /api/v1/places/{id}/status` - 상태 변경
+    - **성능**: CRUD 작업 p95 1초 이내
+    - **테스트**: 전체 CRUD 플로우, 권한 검증, 입력 검증
+  - 1-2-6. 지리적 검색 및 거리 계산 로직
+    - **상세**: PostgreSQL PostGIS 확장, GeoPy 거리 계산
+    - **구현**: `app/services/geo_service.py`, 지리 검색 최적화
+    - **기능**: 반경 검색, 거리순 정렬, 지역별 클러스터링
+    - **성능**: 지리 검색 100ms, 1000개 장소 대상 성능 유지
+    - **API**: `GET /api/v1/places/nearby?lat={lat}&lng={lng}&radius={km}`
+    - **테스트**: 다양한 반경/위치, 거리 계산 정확도, 경계값 테스트
+  - 1-2-7. PostgreSQL 전문 검색 및 Elasticsearch 연동
+    - **상세**: PostgreSQL full-text search, 한국어 형태소 분석기(nori), Elasticsearch 하이브리드 검색
+    - **구현**: `app/services/search_service.py`, PostgreSQL tsvector 및 ES 인덱스 관리
+    - **기능**: 전문 검색, 퍼지 매칭, 검색어 하이라이팅, 자동완성
+    - **성능**: 검색 응답 500ms 이내, 자동완성 100ms
+    - **API**: `GET /api/v1/places/search?q={query}&category={cat}&tags={tags}`
+    - **테스트**: 검색 정확도, 한국어 검색, 복합 필터, 성능 테스트
+  - 1-2-8. 장소 관리 종합 테스트 코드 작성
+    - **상세**: 전체 플로우 통합 테스트, 성능 테스트, 부하 테스트
+    - **구현**: `tests/test_place_management.py`, E2E 시나리오
+    - **커버리지**: 전체 장소 관리 기능 80% 이상
+    - **시나리오**: 생성→검색→수정→삭제, 중복 처리, 상태 전이
+    - **성능**: 동시 사용자 100명, 메모리 누수 검사
+- **참고 문서**: `prd/02-place-management.md` (요구사항), `trd/02-place-management.md` (기술 설계)
 
 ### 1-3. AI 기반 코스 추천 백엔드 개발
 - **목표**: 사용자 취향 및 위치 기반으로 최적화된 데이트 코스를 AI가 추천하는 시스템
