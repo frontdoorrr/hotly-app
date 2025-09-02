@@ -451,14 +451,51 @@
 
 ---
 
+## Backend Reference 활용 가이드
+
+### 사용자 경험 기능 참고
+`backend_reference/app/app/`에서 다음 패턴들 활용:
+
+**사용자 관리**:
+```python
+# users.py 참고 - 사용자 CRUD 패턴
+@router.get("/me", response_model=schemas.User)
+def read_user_me(
+    db: Session = Depends(deps.get_db),
+    current_user: models.User = Depends(deps.get_current_active_user),
+) -> Any:
+    return current_user
+```
+
+**알림 시스템**:
+- `worker.py` Celery 비동기 작업 패턴
+- `core/celery_app.py` Celery 설정 참고
+- `email-templates/` 템플릿 관리 방식
+
+**설정 및 보안**:
+- `core/config.py` 환경변수 검증 패턴
+- `core/security.py` JWT 및 비밀번호 처리
+
 ## 참고 문서
+
+### 요구사항 문서
 - `prd/06-onboarding-flow.md` - 온보딩 요구사항
 - `prd/07-notification-system.md` - 알림 시스템 요구사항
 - `prd/08-search-filter.md` - 검색 필터 요구사항
+
+### 기술 설계 문서
 - `trd/06-onboarding-flow.md` - 온보딩 기술 설계
 - `trd/07-notification-system.md` - 알림 시스템 기술 설계
 - `trd/08-search-filter.md` - 검색 필터 기술 설계
+
+### 구현 참고 자료
+- **`backend_reference/app/`** - FastAPI UX 기능 참고
+  - 사용자 관리: `api/api_v1/endpoints/users.py`
+  - 비동기 작업: `worker.py`, `core/celery_app.py`
+  - 이메일 템플릿: `email-templates/`
+  - 인증 미들웨어: `api/deps.py`
 - `database-schema.md` - 데이터베이스 스키마
+- `ui-design-system.md` - UI 컴포넌트 가이드
 - `rules.md` - 개발 규칙
 
 ---

@@ -316,10 +316,47 @@
 
 ---
 
+## Backend Reference 활용 가이드
+
+### 성능 최적화 참고
+`backend_reference/app/app/`에서 다음 패턴들 활용:
+
+**데이터베이스 연결**:
+```python
+# db/session.py 참고 - 연결 풀 설정
+engine = create_engine(SQLALCHEMY_DATABASE_URI, pool_pre_ping=True)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+```
+
+**비동기 작업**:
+```python
+# worker.py 참고 - Celery 작업자 패턴
+from app.core.celery_app import celery_app
+
+@celery_app.task
+def example_task(word: str) -> str:
+    return f"test task return {word}"
+```
+
+**모니터링 기초**:
+- `core/config.py` SENTRY_DSN 설정 참고
+- `utils.py` 헬퍼 함수 활용
+
 ## 참고 문서
+
+### 요구사항 문서
 - `prd/11-cache-performance.md` - 성능 최적화 요구사항
+
+### 기술 설계 문서
 - `trd/11-cache-performance.md` - 성능 최적화 기술 설계
 - `trd/main.md` - 모니터링 인프라 요구사항
+
+### 구현 참고 자료
+- **`backend_reference/app/`** - 성능 및 인프라 참고
+  - 데이터베이스: `db/session.py` (연결 풀)
+  - 비동기: `worker.py`, `core/celery_app.py`
+  - 모니터링: `core/config.py` (Sentry 설정)
+  - 스크립트: `scripts/` (테스트, 린트)
 - `database-schema.md` - 데이터베이스 스키마
 - `rules.md` - 개발 규칙
 

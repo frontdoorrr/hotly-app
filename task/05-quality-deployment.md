@@ -313,10 +313,59 @@ TDD 방법론으로 신뢰성 높은 코드 품질 및 버그 방지 시스템 �
 
 ---
 
+## Backend Reference 활용 가이드
+
+### 테스트 및 배포 참고
+`backend_reference/app/`에서 다음 패턴들 활용:
+
+**테스트 구조**:
+```python
+# tests/conftest.py 참고 - 테스트 픽처 패턴
+@pytest.fixture(scope="session")
+def db() -> Generator:
+    yield TestingSessionLocal()
+
+@pytest.fixture(scope="module")
+def client() -> Generator:
+    with TestClient(app) as c:
+        yield c
+```
+
+**API 테스트**:
+```python
+# tests/api/api_v1/test_items.py 참고
+def test_create_item(client: TestClient, superuser_token_headers: dict) -> None:
+    data = {"title": "Foo", "description": "Fighters"}
+    response = client.post(
+        f"{settings.API_V1_STR}/items/", 
+        headers=superuser_token_headers, 
+        json=data,
+    )
+    assert response.status_code == 200
+```
+
+**린트 및 테스트 스크립트**:
+- `scripts/test.sh` - 테스트 실행 스크립트
+- `scripts/lint.sh` - 코드 품질 검사
+- `scripts/format.sh` - 코드 포맷팅
+
+**배포 설정**:
+- `pyproject.toml` 의존성 및 도구 설정
+- `prestart.sh` 애플리케이션 시작 스크립트
+
 ## 참고 문서
-- `rules.md` - TDD 가이드라인 및 코드 품질 기준
+
+### 가이드라인
+- `rules.md` - **TDD 가이드라인 및 코드 품질 기준**
+
+### 기술 요구사항
 - `trd/main.md` - 배포 인프라 요구사항
-- `backend_reference/` - 기존 테스트 구조 참고
+
+### 구현 참고 자료
+- **`backend_reference/app/`** - 테스트 및 배포 참고
+  - 테스트: `tests/` (구조, conftest.py, API 테스트)
+  - 스크립트: `scripts/` (테스트, 린트, 포맷)
+  - 설정: `pyproject.toml` (의존성, 도구)
 - `.github/workflows/` - 기존 GitHub Actions 워크플로우
 
 ---

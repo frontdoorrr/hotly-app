@@ -305,12 +305,60 @@
 
 ---
 
+## Backend Reference 활용 가이드
+
+### 인증 시스템 참고
+`backend_reference/app/app/`에서 다음 패턴들 활용:
+
+**JWT 인증 패턴**:
+```python
+# core/security.py 참고
+def create_access_token(subject: Union[str, Any], expires_delta: timedelta = None) -> str:
+    # 기존 JWT 생성 로직 활용
+    
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    # 비밀번호 검증 로직 활용
+```
+
+**사용자 관리**:
+```python
+# api/api_v1/endpoints/users.py 참고
+@router.put("/me", response_model=schemas.User)
+def update_user_me(
+    *,
+    db: Session = Depends(deps.get_db),
+    password: str = Body(None),
+    full_name: str = Body(None),
+    email: EmailStr = Body(None),
+    current_user: models.User = Depends(deps.get_current_active_user),
+) -> Any:
+    # 기존 사용자 업데이트 패턴 활용
+```
+
+**데이터 모델**:
+- `models/user.py` - User 모델 구조 참고
+- `schemas/user.py` - Pydantic 스키마 참고
+- `crud/crud_user.py` - CRUD 작업 패턴
+
 ## 참고 문서
+
+### 요구사항 문서
 - `prd/09-authentication.md` - 인증 시스템 요구사항
 - `prd/10-user-profile.md` - 사용자 프로필 요구사항
+
+### 기술 설계 문서
 - `trd/09-authentication.md` - 인증 시스템 기술 설계
 - `trd/10-user-profile.md` - 사용자 프로필 기술 설계
+
+### 구현 참고 자료
+- **`backend_reference/app/`** - 인증 및 사용자 관리 참고
+  - JWT 인증: `core/security.py`
+  - 사용자 API: `api/api_v1/endpoints/users.py`
+  - 인증 미들웨어: `api/deps.py`
+  - 데이터 모델: `models/user.py`, `schemas/user.py`
+  - CRUD: `crud/crud_user.py`
 - `database-schema.md` - 데이터베이스 스키마
+- `ui-design-system.md` - UI 컴포넌트 가이드
 - `rules.md` - 개발 규칙
 
 ---

@@ -646,17 +646,62 @@ class InvalidResponseError(AIAnalysisError):
 
 ---
 
+## Backend Reference 활용 가이드
+
+### API 구조 참고
+`backend_reference/app/app/api/api_v1/endpoints/`에서 참고할 패턴:
+
+**엔드포인트 구조**:
+```python
+# items.py 참고 - CRUD API 패턴
+@router.post("/", response_model=schemas.Item)
+def create_item(
+    *,
+    db: Session = Depends(deps.get_db),
+    item_in: schemas.ItemCreate,
+    current_user: models.User = Depends(deps.get_current_active_user),
+) -> Any:
+    item = crud.item.create_with_owner(db=db, obj_in=item_in, owner_id=current_user.id)
+    return item
+```
+
+**인증 미들웨어 참고**:
+```python
+# deps.py 참고 - JWT 토큰 검증
+def get_current_user(
+    db: Session = Depends(get_db), 
+    token: str = Depends(reusable_oauth2)
+) -> models.User:
+    # 기존 JWT 검증 로직 활용
+```
+
+**CRUD 베이스 클래스**:
+```python
+# crud/base.py 참고 - Generic CRUD 패턴
+class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
+    def __init__(self, model: Type[ModelType]):
+        self.model = model
+        
+    def get(self, db: Session, id: Any) -> Optional[ModelType]:
+        return db.query(self.model).filter(self.model.id == id).first()
+```
+
+### 적용 방법
+1. **기존 패턴 활용**: `backend_reference/app/app/` 구조를 기본으로 참고
+2. **새 기능 확장**: 기존 CRUD/API 패턴을 확장하여 새 도메인 추가
+3. **설정 체계**: `core/config.py` 방식으로 환경변수 관리
+4. **테스트 구조**: `tests/` 디렉터리 구조 및 `conftest.py` 활용
+
 ## 참고 문서
-- `prd/01-sns-link-analysis.md` - SNS 링크 분석 요구사항
-- `prd/02-place-management.md` - 장소 관리 요구사항
-- `prd/03-course-recommendation.md` - 코스 추천 요구사항
-- `prd/04-map-visualization.md` - 지도 시각화 요구사항
-- `prd/05-sharing-system.md` - 공유 시스템 요구사항
-- `trd/01-sns-link-analysis.md` - SNS 링크 분석 기술 설계
-- `trd/02-place-management.md` - 장소 관리 기술 설계
-- `trd/03-course-recommendation.md` - 코스 추천 기술 설계
-- `trd/04-map-visualization.md` - 지도 시각화 기술 설계
-- `trd/05-sharing-system.md` - 공유 시스템 기술 설계
+- `prd/main.md` - 제품 요구사항
+- `trd/main.md` - 기술 요구사항
+- **`backend_reference/app/`** - 기준 FastAPI 구조 및 베스트 프렉티스
+  - 설정: `core/config.py` (Pydantic BaseSettings)
+  - API: `api/api_v1/` (라우터 모듈화)
+  - 모델: `models/` (SQLAlchemy ORM)
+  - CRUD: `crud/base.py` (Generic 베이스)
+  - 테스트: `tests/` (구조 및 픽처)
+  - 스크립트: `scripts/` (테스트, 린트, 포맷)
 - `database-schema.md` - 데이터베이스 스키마
 - `rules.md` - 개발 규칙
 
