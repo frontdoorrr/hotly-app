@@ -26,7 +26,7 @@
       ↓                        ↑
 [User Preferences] ←→ [Analytics & ML Engine]
       ↓
-[MongoDB + Redis]
+[PostgreSQL + Redis]
 ```
 
 ### 2-2. 마이크로서비스 구성
@@ -716,10 +716,13 @@ class PersonalizationEngine:
         """사용자 행동 패턴 분석"""
         
         # 과거 30일간의 알림 반응 데이터
-        interactions = await self.db.notification_interactions.find({
-            'user_id': user_id,
-            'created_at': {'$gte': datetime.utcnow() - timedelta(days=30)}
-        }).to_list(None)
+        interactions = await self.db.fetch(
+            """
+            SELECT * FROM notification_interactions 
+            WHERE user_id = $1 AND timestamp >= $2
+            """,
+            user_id, datetime.utcnow() - timedelta(days=30)
+        )
         
         if not interactions:
             return {'pattern': 'new_user'}
@@ -988,11 +991,13 @@ class APNSClient:
         if not user_id:
             return 0
         
-        unread_count = await self.db.notifications.count_documents({
-            'user_id': user_id,
-            'read': False,
-            'created_at': {'$gte': datetime.utcnow() - timedelta(days=7)}
-        })
+        unread_count = await self.db.fetch_val(
+            """
+            SELECT COUNT(*) FROM notifications 
+            WHERE user_id = $1 AND read = false AND created_at >= $2
+            """,
+            user_id, datetime.utcnow() - timedelta(days=7)
+        )
         
         return min(unread_count, 99)  # iOS 배지 최대값
     
@@ -1363,17 +1368,16 @@ class NotificationAnalytics:
         """알림 전송 추적"""
         
         # DB에 전송 기록
-        await self.db.notification_logs.insert_one({
-            'notification_id': notification.id,
-            'user_id': notification.user_id,
-            'type': notification.type,
-            'priority': notification.priority,
-            'sent_at': datetime.utcnow(),
-            'success': result.success,
-            'platform': result.platform,
-            'error': result.error if not result.success else None,
-            'message_id': result.message_id
-        })
+        await self.db.execute(
+            """
+            INSERT INTO notification_logs (notification_id, user_id, type, priority, sent_at, 
+                                         success, platform, error, message_id)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            """,
+            notification.id, notification.user_id, notification.type, notification.priority,
+            datetime.utcnow(), result.success, result.platform, 
+            result.error if not result.success else None, result.message_id
+        )
         
         # Prometheus 메트릭
         self.metrics_collector.notification_sent.labels(
@@ -1402,12 +1406,13 @@ class NotificationAnalytics:
         timestamp = timestamp or datetime.utcnow()
         
         # DB에 상호작용 기록
-        await self.db.notification_interactions.insert_one({
-            'notification_id': notification_id,
-            'user_id': user_id,
-            'interaction_type': interaction_type,  # opened, clicked, dismissed
-            'timestamp': timestamp
-        })
+        await self.db.execute(
+            """
+            INSERT INTO notification_interactions (notification_id, user_id, interaction_type, timestamp)
+            VALUES ($1, $2, $3, $4)
+            """,
+            notification_id, user_id, interaction_type, timestamp
+        )
         
         # 메트릭 업데이트
         self.metrics_collector.notification_interactions.labels(

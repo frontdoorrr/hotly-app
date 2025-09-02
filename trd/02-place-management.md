@@ -4,8 +4,8 @@
 **목적:** PRD 02-place-management 요구사항을 충족하기 위한 장소 데이터 관리, 분류, 검색 시스템 설계
 
 **핵심 기술 스택:**
-- Database: MongoDB (문서 기반 NoSQL)
-- Search: Elasticsearch (전문 검색)
+- Database: PostgreSQL (관계형 + JSONB)
+- Search: PostgreSQL trigram + Elasticsearch (전문 검색)
 - Cache: Redis (분산 캐싱)
 - API: FastAPI + Pydantic
 - ML: scikit-learn (자동 분류)
@@ -26,7 +26,7 @@
     ├── [Duplicate Detector] (중복 방지)
     └── [State Manager] (상태 관리)
          ↓
-[MongoDB] + [Elasticsearch] + [Redis Cache]
+[PostgreSQL] + [Elasticsearch] + [Redis Cache]
 ```
 
 ### 2-2. 마이크로서비스 분해
@@ -56,63 +56,60 @@
 
 ## 3. 데이터베이스 설계
 
-### 3-1. MongoDB 스키마
-```javascript
-// places 컬렉션
-{
-  "_id": ObjectId,
-  "user_id": "string",
-  "place_id": "string", // UUID
-  "name": "string",
-  "address": "string?",
-  "coordinates": {
-    "type": "Point",
-    "coordinates": [lng, lat] // GeoJSON 형식
-  },
-  "category": "enum[cafe|restaurant|tourist|shopping|culture|activity]",
-  "auto_category_confidence": "number", // 0.0-1.0
-  "user_tags": ["string"], // 사용자 정의 태그
-  "system_tags": ["string"], // 시스템 자동 태그
-  "status": "enum[wishlist|favorite|planned|visited]",
-  "rating": "number?", // 1-5
-  "memo": "string?",
-  "image_url": "string?",
-  "business_hours": "string?",
-  "price_range": "enum[under_10k|10k_20k|20k_30k|30k_50k|over_50k]?",
-  "visit_count": "number", // 기본값: 0
-  "last_visited_at": "ISODate?",
-  "created_at": "ISODate",
-  "updated_at": "ISODate",
-  "metadata": {
-    "source": "sns_analysis|manual|import",
-    "source_url": "string?",
-    "extraction_confidence": "number?"
-  }
-}
+### 3-1. PostgreSQL 스키마
+```sql
+-- places 테이블
+CREATE TABLE places (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL,
+    place_id UUID NOT NULL DEFAULT gen_random_uuid(),
+    name VARCHAR(100) NOT NULL,
+    address TEXT NULL,
+    coordinates POINT NULL, -- PostGIS 지원
+    category VARCHAR(20) NOT NULL CHECK (category IN ('cafe', 'restaurant', 'tourist', 'shopping', 'culture', 'activity')),
+    auto_category_confidence DECIMAL(3,2) NOT NULL DEFAULT 0.0,
+    user_tags TEXT[] NOT NULL DEFAULT '{}',
+    system_tags TEXT[] NOT NULL DEFAULT '{}',
+    status VARCHAR(20) NOT NULL DEFAULT 'wishlist' CHECK (status IN ('wishlist', 'favorite', 'planned', 'visited')),
+    rating DECIMAL(2,1) NULL CHECK (rating >= 1.0 AND rating <= 5.0),
+    memo TEXT NULL,
+    image_url TEXT NULL,
+    business_hours TEXT NULL,
+    price_range VARCHAR(20) NULL CHECK (price_range IN ('under_10k', '10k_20k', '20k_30k', '30k_50k', 'over_50k')),
+    visit_count INTEGER NOT NULL DEFAULT 0,
+    last_visited_at TIMESTAMPTZ NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    metadata JSONB NOT NULL DEFAULT '{}',
+    UNIQUE(user_id, place_id)
+);
 
-// 인덱스 정의
-db.places.createIndex({"user_id": 1, "created_at": -1})
-db.places.createIndex({"user_id": 1, "category": 1})
-db.places.createIndex({"user_id": 1, "status": 1})
-db.places.createIndex({"user_id": 1, "user_tags": 1})
-db.places.createIndex({"coordinates": "2dsphere"}) // 지리 검색
-db.places.createIndex({"name": "text", "address": "text", "user_tags": "text"}) // 전문 검색
+-- 인덱스 정의
+CREATE INDEX idx_places_user_created ON places(user_id, created_at DESC);
+CREATE INDEX idx_places_user_category ON places(user_id, category);
+CREATE INDEX idx_places_user_status ON places(user_id, status);
+CREATE INDEX idx_places_user_tags ON places USING GIN(user_tags);
+CREATE INDEX idx_places_coordinates ON places USING GIST(coordinates); -- PostGIS 지리 검색
+CREATE INDEX idx_places_search ON places USING GIN(to_tsvector('korean', name || ' ' || COALESCE(address, ''))); -- 전문 검색
+CREATE INDEX idx_places_trigram ON places USING GIN(name gin_trgm_ops); -- trigram 유사도 검색
 
-// 사용자별 태그 통계 컬렉션
-{
-  "_id": ObjectId,
-  "user_id": "string",
-  "tag": "string",
-  "usage_count": "number",
-  "last_used": "ISODate",
-  "category_distribution": {
-    "cafe": "number",
-    "restaurant": "number",
-    // ...
-  }
-}
+-- 사용자별 태그 통계 테이블
+CREATE TABLE user_tags (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL,
+    tag VARCHAR(50) NOT NULL,
+    usage_count INTEGER NOT NULL DEFAULT 1,
+    last_used TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    category_distribution JSONB NOT NULL DEFAULT '{}',
+    UNIQUE(user_id, tag)
+);
 
-db.user_tags.createIndex({"user_id": 1, "usage_count": -1})
+CREATE INDEX idx_user_tags_user_usage ON user_tags(user_id, usage_count DESC);
+CREATE INDEX idx_user_tags_tag ON user_tags USING GIN(tag gin_trgm_ops);
+
+-- PostGIS 확장 및 trigram 확장 필요
+-- CREATE EXTENSION IF NOT EXISTS postgis;
+-- CREATE EXTENSION IF NOT EXISTS pg_trgm;
 ```
 
 ### 3-2. Elasticsearch 인덱스
@@ -1096,7 +1093,7 @@ class TestDuplicateDetector:
 ```python
 class TestPlaceManagementIntegration:
     @pytest.mark.integration
-    async def test_place_crud_workflow(self, test_client, mongodb, redis_client):
+    async def test_place_crud_workflow(self, test_client, postgresql, redis_client):
         # 장소 생성
         create_response = await test_client.post(
             "/api/v1/places",
@@ -1210,24 +1207,28 @@ class PerformanceMonitor:
     
     async def monitor_database_performance(self):
         """DB 쿼리 성능 모니터링"""
-        # MongoDB 프로파일러 활성화
-        await self.mongodb.admin.command({
-            "profile": 2,  # 모든 연산 프로파일링
-            "slowms": 100  # 100ms 이상 쿼리 기록
-        })
+        # PostgreSQL 쿼리 로깅 활성화
+        await self.postgresql.execute("""
+            ALTER SYSTEM SET log_min_duration_statement = 100;
+            SELECT pg_reload_conf();
+        """)
     
     async def check_slow_queries(self):
         """느린 쿼리 감지 및 알림"""
-        slow_queries = await self.mongodb.db.system.profile.find({
-            "millis": {"$gt": self.slow_query_threshold * 1000}
-        }).to_list(length=10)
+        slow_queries = await self.postgresql.fetch("""
+            SELECT query, total_time, calls, mean_time
+            FROM pg_stat_statements 
+            WHERE mean_time > $1
+            ORDER BY mean_time DESC
+            LIMIT 10
+        """, self.slow_query_threshold * 1000)
         
         for query in slow_queries:
             logger.warning(
                 "Slow query detected",
-                operation=query.get("command"),
-                duration_ms=query.get("millis"),
-                namespace=query.get("ns")
+                query=query["query"][:100],  # 쿼리 앞부분만
+                duration_ms=query["mean_time"],
+                calls=query["calls"]
             )
     
     async def monitor_cache_hit_rates(self):
@@ -1252,7 +1253,7 @@ class PerformanceMonitor:
 ---
 
 ## 12. 용어 사전(Technical)
-- **Document Store:** MongoDB와 같은 문서 지향 NoSQL 데이터베이스
+- **JSONB:** PostgreSQL의 효율적인 JSON 바이너리 저장 형식
 - **Full-text Search:** 문서 내 모든 텍스트를 대상으로 하는 검색
 - **Fuzzy Matching:** 완전 일치하지 않아도 유사한 문자열을 찾는 기법
 - **N-gram:** 연속된 N개의 문자 또는 단어로 구성된 시퀀스

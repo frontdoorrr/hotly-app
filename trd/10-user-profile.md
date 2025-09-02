@@ -25,7 +25,7 @@
 │ External APIs   │    │   Data Store    │    │ Analytics       │
 │                 │    │                 │    │ Service         │
 │ ┌─────────────┐ │    │ ┌─────────────┐ │    │ ┌─────────────┐ │
-│ │ Image CDN   │ │───►│ │ MongoDB     │ │◄───┤ │ User Stats  │ │
+│ │ Image CDN   │ │───►│ │ PostgreSQL  │ │◄───┤ │ User Stats  │ │
 │ │ (Cloudinary)│ │    │ │User Profiles│ │    │ │ Aggregator  │ │
 │ └─────────────┘ │    │ └─────────────┘ │    │ └─────────────┘ │
 │ ┌─────────────┐ │    │ ┌─────────────┐ │    │ ┌─────────────┐ │
@@ -50,7 +50,7 @@ Backend:
   File Upload: Multer, Sharp (이미지 처리)
   
 Database:
-  Primary: MongoDB (user profiles, settings)
+  Primary: PostgreSQL (user profiles, settings)
   Cache: Redis Cluster (settings, preferences)
   Analytics: ClickHouse (user activity tracking)
   Search: Elasticsearch (user search)
@@ -63,7 +63,7 @@ Storage:
 Security:
   Encryption: AES-256-GCM (sensitive data)
   Privacy: GDPR compliance toolkit
-  Audit: Winston + MongoDB (audit logs)
+  Audit: Winston + PostgreSQL (audit logs)
   
 Client:
   State Management: Redux Toolkit (profile state)
@@ -74,110 +74,95 @@ Client:
 
 ## 2. 데이터베이스 설계
 
-### 2-1. 사용자 프로필 스키마 (MongoDB)
-```typescript
-interface UserProfile {
-  _id: ObjectId;
-  userId: string; // Firebase Auth UID
+### 2-1. 사용자 프로필 스키마 (PostgreSQL)
+```sql
+CREATE TABLE user_profiles (
+  id SERIAL PRIMARY KEY,
+  user_id VARCHAR(128) UNIQUE NOT NULL, -- Firebase Auth UID
   
-  // 공개 프로필 정보
-  profile: {
-    displayName: string;
-    photoURL?: string;
-    bio?: string;
-    location?: string;
-    interests: string[];
-    joinedAt: Date;
-    lastActiveAt: Date;
-  };
+  -- 공개 프로필 정보
+  display_name VARCHAR(50) NOT NULL,
+  photo_url TEXT,
+  bio TEXT CHECK (LENGTH(bio) <= 500),
+  location VARCHAR(100),
+  interests TEXT[], -- PostgreSQL array type
+  joined_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  last_active_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   
-  // 개인정보 (비공개)
-  personalInfo: {
-    email: string;
-    phoneNumber?: string;
-    dateOfBirth?: Date;
-    gender?: 'male' | 'female' | 'other' | 'prefer_not_to_say';
-    verified: {
-      email: boolean;
-      phone: boolean;
-    };
-  };
+  -- 개인정보 (비공개)
+  email VARCHAR(255) NOT NULL,
+  phone_number VARCHAR(20),
+  date_of_birth DATE,
+  gender VARCHAR(20) CHECK (gender IN ('male', 'female', 'other', 'prefer_not_to_say')),
+  email_verified BOOLEAN NOT NULL DEFAULT FALSE,
+  phone_verified BOOLEAN NOT NULL DEFAULT FALSE,
   
-  // 개인화 설정
-  preferences: {
-    dating: {
-      region: string[];
-      transport: ('walking' | 'public_transport' | 'car' | 'bicycle')[];
-      timeSlots: ('morning' | 'afternoon' | 'evening' | 'night')[];
-      companionType: ('couple' | 'friend' | 'solo' | 'family')[];
-      budget: {
-        min: number;
-        max: number;
-        currency: string;
-      };
-    };
-    
-    recommendations: {
-      categoryRatings: {
-        cafe: number; // 1-5
-        restaurant: number;
-        tourist: number;
-        shopping: number;
-        culture: number;
-        activity: number;
-      };
-      atmospherePreference: {
-        quiet_lively: number; // -5 to 5
-        traditional_modern: number;
-        popular_unique: number;
-        indoor_outdoor: number;
-      };
-      discoveryMode: 'conservative' | 'moderate' | 'adventurous';
-    };
-  };
+  -- 개인화 설정 (JSONB로 저장)
+  dating_preferences JSONB DEFAULT '{}',
+  recommendation_preferences JSONB DEFAULT '{}',
   
-  // 알림 설정
-  notificationSettings: {
-    push: {
-      enabled: boolean;
-      dateReminders: boolean;
-      recommendations: boolean;
-      social: boolean;
-      system: boolean;
-    };
-    email: {
-      enabled: boolean;
-      weekly_summary: boolean;
-      monthly_report: boolean;
-      marketing: boolean;
-    };
-    quietHours: {
-      enabled: boolean;
-      start: string; // "HH:mm"
-      end: string;
-      timezone: string;
-    };
-  };
+  -- 예시 JSONB 구조:
+  -- dating_preferences: {
+  --   "region": ["seoul", "busan"],
+  --   "transport": ["walking", "public_transport"],
+  --   "timeSlots": ["evening", "night"],
+  --   "companionType": ["couple"],
+  --   "budget": {"min": 30000, "max": 100000, "currency": "KRW"}
+  -- }
+  -- recommendation_preferences: {
+  --   "categoryRatings": {"cafe": 4, "restaurant": 5, "tourist": 3},
+  --   "atmospherePreference": {"quiet_lively": 2, "traditional_modern": -1},
+  --   "discoveryMode": "moderate"
+  -- }
   
-  // 프라이버시 설정
-  privacySettings: {
-    profileVisibility: 'public' | 'friends' | 'private';
-    activityVisibility: 'public' | 'friends' | 'private';
-    locationSharing: boolean;
-    analyticsOptIn: boolean;
-    marketingOptIn: boolean;
-    dataRetention: 'minimal' | 'standard' | 'extended';
-  };
+  -- 알림 설정
+  notification_settings JSONB DEFAULT '{
+    "push": {
+      "enabled": true,
+      "dateReminders": true,
+      "recommendations": true,
+      "social": true,
+      "system": true
+    },
+    "email": {
+      "enabled": true,
+      "weekly_summary": false,
+      "monthly_report": false,
+      "marketing": false
+    },
+    "quietHours": {
+      "enabled": false,
+      "start": "22:00",
+      "end": "08:00",
+      "timezone": "Asia/Seoul"
+    }
+  }',
   
-  // 메타데이터
-  metadata: {
-    createdAt: Date;
-    updatedAt: Date;
-    version: number;
-    lastSyncedAt: Date;
-    deviceIds: string[];
-  };
-}
+  -- 프라이버시 설정
+  privacy_settings JSONB DEFAULT '{
+    "profileVisibility": "friends",
+    "activityVisibility": "friends", 
+    "locationSharing": true,
+    "analyticsOptIn": true,
+    "marketingOptIn": false,
+    "dataRetention": "standard"
+  }',
+  
+  -- 메타데이터
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  version INTEGER NOT NULL DEFAULT 1,
+  last_synced_at TIMESTAMP WITH TIME ZONE,
+  device_ids TEXT[] DEFAULT '{}'
+);
+
+-- 인덱스 생성
+CREATE INDEX idx_user_profiles_user_id ON user_profiles(user_id);
+CREATE INDEX idx_user_profiles_last_active ON user_profiles(last_active_at DESC);
+CREATE INDEX idx_user_profiles_updated_at ON user_profiles(updated_at DESC);
+CREATE INDEX idx_user_profiles_display_name ON user_profiles USING gin(to_tsvector('english', display_name));
+CREATE INDEX idx_user_profiles_preferences ON user_profiles USING gin(dating_preferences);
+CREATE INDEX idx_user_profiles_privacy ON user_profiles((privacy_settings->>'profileVisibility'));
 ```
 
 ### 2-2. 사용자 통계 스키마 (ClickHouse)
@@ -210,23 +195,27 @@ CREATE TABLE user_behavior_events (
 ORDER BY (user_id, timestamp);
 ```
 
-### 2-3. 설정 변경 이력 스키마 (MongoDB)
-```typescript
-interface SettingChangeLog {
-  _id: ObjectId;
-  userId: string;
-  changeType: 'profile' | 'preferences' | 'notifications' | 'privacy';
-  field: string;
-  oldValue: any;
-  newValue: any;
-  source: 'user' | 'system' | 'migration';
-  deviceInfo: {
-    deviceId: string;
-    platform: string;
-    appVersion: string;
-  };
-  timestamp: Date;
-}
+### 2-3. 설정 변경 이력 스키마 (PostgreSQL)
+```sql
+CREATE TABLE setting_change_logs (
+  id SERIAL PRIMARY KEY,
+  user_id VARCHAR(128) NOT NULL,
+  change_type VARCHAR(20) CHECK (change_type IN ('profile', 'preferences', 'notifications', 'privacy')),
+  field_name VARCHAR(100) NOT NULL,
+  old_value JSONB,
+  new_value JSONB,
+  source VARCHAR(20) CHECK (source IN ('user', 'system', 'migration')),
+  device_info JSONB,
+  timestamp TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+-- 인덱스 생성
+CREATE INDEX idx_setting_logs_user_id ON setting_change_logs(user_id);
+CREATE INDEX idx_setting_logs_timestamp ON setting_change_logs(timestamp DESC);
+CREATE INDEX idx_setting_logs_change_type ON setting_change_logs(change_type);
+
+-- 자동 삭제를 위한 파티션 테이블 (선택사항)
+CREATE TABLE setting_change_logs_old (LIKE setting_change_logs);
 ```
 
 ## 3. API 설계
@@ -423,7 +412,7 @@ interface DeactivateAccountRequest {
 // profile-service.ts
 class ProfileService {
   constructor(
-    private mongodb: MongoClient,
+    private postgresql: Pool,
     private redis: Redis,
     private imageService: ImageService,
     private auditLogger: AuditLogger
@@ -437,13 +426,16 @@ class ProfileService {
     }
 
     // 2. DB에서 조회
-    const profile = await this.mongodb
-      .collection<UserProfile>('user_profiles')
-      .findOne({ userId });
-
-    if (!profile) {
+    const result = await this.postgresql.query(
+      'SELECT * FROM user_profiles WHERE user_id = $1',
+      [userId]
+    );
+    
+    if (result.rows.length === 0) {
       throw new NotFoundError('Profile not found');
     }
+    
+    const profile = result.rows[0];
 
     // 3. 캐시 저장 (1시간 TTL)
     await this.redis.setex(
@@ -480,12 +472,31 @@ class ProfileService {
       }
     };
 
-    await this.mongodb
-      .collection('user_profiles')
-      .updateOne(
-        { userId },
-        { $set: updatedProfile }
-      );
+    await this.postgresql.query(`
+      UPDATE user_profiles 
+      SET 
+        display_name = COALESCE($2, display_name),
+        bio = COALESCE($3, bio),
+        location = COALESCE($4, location),
+        interests = COALESCE($5, interests),
+        phone_number = COALESCE($6, phone_number),
+        date_of_birth = COALESCE($7, date_of_birth),
+        dating_preferences = COALESCE($8, dating_preferences),
+        recommendation_preferences = COALESCE($9, recommendation_preferences),
+        updated_at = NOW(),
+        version = version + 1
+      WHERE user_id = $1
+    `, [
+      userId,
+      updates.profile?.displayName,
+      updates.profile?.bio,
+      updates.profile?.location,
+      updates.profile?.interests,
+      updates.personalInfo?.phoneNumber,
+      updates.personalInfo?.dateOfBirth,
+      updates.preferences?.dating ? JSON.stringify(updates.preferences.dating) : null,
+      updates.preferences?.recommendations ? JSON.stringify(updates.preferences.recommendations) : null
+    ]);
 
     // 5. 캐시 무효화
     await this.redis.del(`profile:${userId}`);
@@ -602,7 +613,7 @@ class ProfileService {
 // settings-service.ts
 class SettingsService {
   constructor(
-    private mongodb: MongoClient,
+    private postgresql: Pool,
     private redis: Redis,
     private eventBus: EventBus
   ) {}
@@ -618,27 +629,29 @@ class SettingsService {
     }
 
     // DB에서 조회
-    const profile = await this.mongodb
-      .collection<UserProfile>('user_profiles')
-      .findOne(
-        { userId },
-        { 
-          projection: { 
-            preferences: 1, 
-            notificationSettings: 1, 
-            privacySettings: 1 
-          } 
-        }
-      );
+    const result = await this.postgresql.query(`
+      SELECT 
+        dating_preferences,
+        recommendation_preferences,
+        notification_settings,
+        privacy_settings
+      FROM user_profiles 
+      WHERE user_id = $1
+    `, [userId]);
 
-    if (!profile) {
+    if (result.rows.length === 0) {
       throw new NotFoundError('User settings not found');
     }
+    
+    const profile = result.rows[0];
 
     const settings = {
-      preferences: profile.preferences,
-      notifications: profile.notificationSettings,
-      privacy: profile.privacySettings
+      preferences: {
+        dating: profile.dating_preferences,
+        recommendations: profile.recommendation_preferences
+      },
+      notifications: profile.notification_settings,
+      privacy: profile.privacy_settings
     };
 
     // Redis에 캐시 (설정은 자주 변경되므로 짧은 TTL)
@@ -657,15 +670,48 @@ class SettingsService {
     this.validateSettings(settingType, updates);
 
     // 2. DB 업데이트
-    const updateQuery = {
-      [`${settingType}`]: updates,
-      'metadata.updatedAt': new Date(),
-      $inc: { 'metadata.version': 1 }
-    };
+    let updateQuery: string;
+    let queryParams: any[];
+    
+    switch (settingType) {
+      case 'preferences':
+        updateQuery = `
+          UPDATE user_profiles 
+          SET dating_preferences = COALESCE($2, dating_preferences),
+              recommendation_preferences = COALESCE($3, recommendation_preferences),
+              updated_at = NOW(),
+              version = version + 1
+          WHERE user_id = $1
+        `;
+        queryParams = [
+          userId, 
+          updates.dating ? JSON.stringify(updates.dating) : null,
+          updates.recommendations ? JSON.stringify(updates.recommendations) : null
+        ];
+        break;
+      case 'notifications':
+        updateQuery = `
+          UPDATE user_profiles 
+          SET notification_settings = $2,
+              updated_at = NOW(),
+              version = version + 1
+          WHERE user_id = $1
+        `;
+        queryParams = [userId, JSON.stringify(updates)];
+        break;
+      case 'privacy':
+        updateQuery = `
+          UPDATE user_profiles 
+          SET privacy_settings = $2,
+              updated_at = NOW(),
+              version = version + 1
+          WHERE user_id = $1
+        `;
+        queryParams = [userId, JSON.stringify(updates)];
+        break;
+    }
 
-    await this.mongodb
-      .collection('user_profiles')
-      .updateOne({ userId }, { $set: updateQuery });
+    await this.postgresql.query(updateQuery, queryParams);
 
     // 3. 캐시 업데이트
     await this.updateSettingsCache(userId, settingType, updates);
@@ -722,20 +768,64 @@ class SettingsService {
     };
 
     if (settingType === 'all') {
-      updateQuery = {
-        ...updateQuery,
-        preferences: defaultSettings.preferences,
-        notificationSettings: defaultSettings.notifications,
-        privacySettings: defaultSettings.privacy
-      };
+      updateQuery = `
+        UPDATE user_profiles 
+        SET dating_preferences = $2,
+            recommendation_preferences = $3,
+            notification_settings = $4,
+            privacy_settings = $5,
+            updated_at = NOW(),
+            version = version + 1
+        WHERE user_id = $1
+      `;
+      queryParams = [
+        userId,
+        JSON.stringify(defaultSettings.preferences.dating),
+        JSON.stringify(defaultSettings.preferences.recommendations),
+        JSON.stringify(defaultSettings.notifications),
+        JSON.stringify(defaultSettings.privacy)
+      ];
     } else {
-      updateQuery[settingType === 'notifications' ? 'notificationSettings' : `${settingType}Settings`] = 
-        defaultSettings[settingType];
+      switch (settingType) {
+        case 'preferences':
+          updateQuery = `
+            UPDATE user_profiles 
+            SET dating_preferences = $2,
+                recommendation_preferences = $3,
+                updated_at = NOW(),
+                version = version + 1
+            WHERE user_id = $1
+          `;
+          queryParams = [
+            userId,
+            JSON.stringify(defaultSettings.preferences.dating),
+            JSON.stringify(defaultSettings.preferences.recommendations)
+          ];
+          break;
+        case 'notifications':
+          updateQuery = `
+            UPDATE user_profiles 
+            SET notification_settings = $2,
+                updated_at = NOW(),
+                version = version + 1
+            WHERE user_id = $1
+          `;
+          queryParams = [userId, JSON.stringify(defaultSettings.notifications)];
+          break;
+        case 'privacy':
+          updateQuery = `
+            UPDATE user_profiles 
+            SET privacy_settings = $2,
+                updated_at = NOW(),
+                version = version + 1
+            WHERE user_id = $1
+          `;
+          queryParams = [userId, JSON.stringify(defaultSettings.privacy)];
+          break;
+      }
     }
 
-    await this.mongodb
-      .collection('user_profiles')
-      .updateOne({ userId }, { $set: updateQuery });
+    await this.postgresql.query(updateQuery, queryParams);
 
     // 캐시 초기화
     await this.redis.del(`settings:${userId}`);
@@ -810,7 +900,7 @@ class SettingsService {
 class UserAnalyticsService {
   constructor(
     private clickhouse: ClickHouseClient,
-    private mongodb: MongoClient,
+    private postgresql: Pool,
     private redis: Redis
   ) {}
 
@@ -1164,7 +1254,7 @@ class PersonalizationEngine {
 // data-management-service.ts
 class DataManagementService {
   constructor(
-    private mongodb: MongoClient,
+    private postgresql: Pool,
     private clickhouse: ClickHouseClient,
     private s3Client: S3Client,
     private encryptionService: EncryptionService
@@ -1210,16 +1300,20 @@ class DataManagementService {
       });
 
       // 6. 내보내기 기록 저장
-      await this.mongodb.collection('data_exports').insertOne({
+      await this.postgresql.query(`
+        INSERT INTO data_exports (
+          export_id, user_id, status, download_url, 
+          file_size, format, expires_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `, [
         exportId,
         userId,
-        status: 'completed',
+        'completed',
         downloadUrl,
-        fileSize: Buffer.byteLength(encryptedData),
-        format: options.format,
-        createdAt: new Date(),
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000)
-      });
+        Buffer.byteLength(encryptedData),
+        options.format,
+        new Date(Date.now() + 24 * 60 * 60 * 1000)
+      ]);
 
       // 7. 사용자에게 이메일 알림
       await this.sendExportNotification(userId, {
@@ -1239,13 +1333,10 @@ class DataManagementService {
       console.error('Data export failed:', error);
       
       // 실패 기록
-      await this.mongodb.collection('data_exports').insertOne({
-        exportId,
-        userId,
-        status: 'failed',
-        error: error.message,
-        createdAt: new Date()
-      });
+      await this.postgresql.query(`
+        INSERT INTO data_exports (export_id, user_id, status, error)
+        VALUES ($1, $2, $3, $4)
+      `, [exportId, userId, 'failed', error.message]);
 
       throw new DataExportError('Failed to export user data');
     }
@@ -1310,13 +1401,11 @@ class DataManagementService {
     deletionDate.setDate(deletionDate.getDate() + deleteAfterDays);
 
     // 삭제 스케줄 저장
-    await this.mongodb.collection('scheduled_deletions').insertOne({
-      userId,
-      scheduledAt: new Date(),
-      executionDate: deletionDate,
-      reason,
-      status: 'scheduled'
-    });
+    await this.postgresql.query(`
+      INSERT INTO scheduled_deletions (
+        user_id, scheduled_at, execution_date, reason, status
+      ) VALUES ($1, NOW(), $2, $3, 'scheduled')
+    `, [userId, deletionDate, reason]);
 
     // 계정 일시 비활성화
     await this.deactivateAccount(userId);
@@ -1327,10 +1416,11 @@ class DataManagementService {
 
   async restoreAccount(userId: string): Promise<void> {
     // 1. 스케줄된 삭제 취소
-    await this.mongodb.collection('scheduled_deletions').updateOne(
-      { userId, status: 'scheduled' },
-      { $set: { status: 'cancelled', cancelledAt: new Date() } }
-    );
+    await this.postgresql.query(`
+      UPDATE scheduled_deletions 
+      SET status = 'cancelled', cancelled_at = NOW()
+      WHERE user_id = $1 AND status = 'scheduled'
+    `, [userId]);
 
     // 2. 계정 재활성화
     await this.reactivateAccount(userId);
@@ -1346,21 +1436,20 @@ class DataManagementService {
     const data: UserExportData = {};
 
     if (options.includeProfile) {
-      data.profile = await this.mongodb
-        .collection('user_profiles')
-        .findOne({ userId });
+      const profileResult = await this.postgresql.query(
+        'SELECT * FROM user_profiles WHERE user_id = $1',
+        [userId]
+      );
+      data.profile = profileResult.rows[0];
     }
 
     if (options.includeActivity) {
-      data.places = await this.mongodb
-        .collection('places')
-        .find({ userId })
-        .toArray();
-        
-      data.courses = await this.mongodb
-        .collection('courses')
-        .find({ userId })
-        .toArray();
+      const [placesResult, coursesResult] = await Promise.all([
+        this.postgresql.query('SELECT * FROM places WHERE user_id = $1', [userId]),
+        this.postgresql.query('SELECT * FROM courses WHERE user_id = $1', [userId])
+      ]);
+      data.places = placesResult.rows;
+      data.courses = coursesResult.rows;
     }
 
     if (options.includeAnalytics) {
@@ -1380,11 +1469,11 @@ class DataManagementService {
 
   private async deleteAllUserData(userId: string): Promise<void> {
     await Promise.all([
-      // MongoDB 데이터 삭제
-      this.mongodb.collection('user_profiles').deleteOne({ userId }),
-      this.mongodb.collection('places').deleteMany({ userId }),
-      this.mongodb.collection('courses').deleteMany({ userId }),
-      this.mongodb.collection('user_sessions').deleteMany({ userId }),
+      // PostgreSQL 데이터 삭제
+      this.postgresql.query('DELETE FROM user_profiles WHERE user_id = $1', [userId]),
+      this.postgresql.query('DELETE FROM places WHERE user_id = $1', [userId]),
+      this.postgresql.query('DELETE FROM courses WHERE user_id = $1', [userId]),
+      this.postgresql.query('DELETE FROM user_sessions WHERE user_id = $1', [userId]),
       
       // ClickHouse 데이터 삭제
       this.clickhouse.query('DELETE FROM user_behavior_events WHERE user_id = ?', [userId]),
@@ -1502,20 +1591,24 @@ class GDPRComplianceService {
   }
 
   async checkConsentStatus(userId: string): Promise<ConsentStatus> {
-    const profile = await this.mongodb
-      .collection('user_profiles')
-      .findOne({ userId });
+    const result = await this.postgresql.query(`
+      SELECT privacy_settings, dating_preferences, updated_at
+      FROM user_profiles 
+      WHERE user_id = $1
+    `, [userId]);
 
-    if (!profile) {
+    if (result.rows.length === 0) {
       throw new Error('User profile not found');
     }
 
+    const profile = result.rows[0];
+    
     return {
       essential: true, // 서비스 운영에 필수
-      analytics: profile.privacySettings.analyticsOptIn,
-      marketing: profile.privacySettings.marketingOptIn,
-      personalization: profile.preferences !== null,
-      lastUpdated: profile.metadata.updatedAt
+      analytics: profile.privacy_settings.analyticsOptIn,
+      marketing: profile.privacy_settings.marketingOptIn,
+      personalization: profile.dating_preferences !== null,
+      lastUpdated: profile.updated_at
     };
   }
 
@@ -1526,17 +1619,17 @@ class GDPRComplianceService {
   ): Promise<void> {
     const updateField = this.getConsentField(consentType);
     
-    await this.mongodb
-      .collection('user_profiles')
-      .updateOne(
-        { userId },
-        { 
-          $set: { 
-            [updateField]: granted,
-            'metadata.updatedAt': new Date()
-          }
-        }
-      );
+    const updateQuery = `
+      UPDATE user_profiles 
+      SET privacy_settings = privacy_settings || $2,
+          updated_at = NOW()
+      WHERE user_id = $1
+    `;
+    
+    await this.postgresql.query(updateQuery, [
+      userId, 
+      JSON.stringify({ [this.getConsentField(consentType)]: granted })
+    ]);
 
     // 동의 철회 시 관련 데이터 처리 중단
     if (!granted) {
@@ -1744,73 +1837,59 @@ class ProfileCacheManager {
 // database-optimization.ts
 class DatabaseOptimizer {
   async createIndexes(): Promise<void> {
-    const userProfilesIndexes = [
-      { userId: 1 }, // Primary lookup
-      { 'profile.lastActiveAt': -1 }, // Activity sorting
-      { 'metadata.updatedAt': -1 }, // Recent changes
-      { 
-        'profile.displayName': 'text', 
-        'profile.bio': 'text' 
-      }, // Text search
-      {
-        'preferences.dating.region': 1,
-        'profile.lastActiveAt': -1
-      }, // Region-based queries
-      {
-        'privacySettings.profileVisibility': 1,
-        'profile.lastActiveAt': -1
-      } // Visibility filtering
+    // 복합 인덱스는 이미 테이블 생성 시 정의됨
+    
+    // 추가 최적화 인덱스들
+    const additionalIndexes = [
+      `CREATE INDEX CONCURRENTLY idx_user_profiles_region_activity 
+       ON user_profiles USING gin((dating_preferences->'region'), last_active_at DESC);`,
+      
+      `CREATE INDEX CONCURRENTLY idx_user_profiles_visibility_activity 
+       ON user_profiles((privacy_settings->>'profileVisibility'), last_active_at DESC);`,
+       
+      `CREATE INDEX CONCURRENTLY idx_setting_logs_user_timestamp 
+       ON setting_change_logs(user_id, timestamp DESC);`
     ];
-
-    // 복합 인덱스 생성
-    for (const index of userProfilesIndexes) {
-      await this.mongodb
-        .collection('user_profiles')
-        .createIndex(index, { background: true });
+    
+    for (const indexQuery of additionalIndexes) {
+      try {
+        await this.postgresql.query(indexQuery);
+      } catch (error) {
+        console.warn('Index creation failed (may already exist):', error.message);
+      }
     }
-
-    // TTL 인덱스 (일정 기간 후 자동 삭제)
-    await this.mongodb
-      .collection('setting_change_logs')
-      .createIndex(
-        { timestamp: 1 }, 
-        { expireAfterSeconds: 90 * 24 * 60 * 60 } // 90일
+    
+    // 자동 삭제를 위한 파티션 설정 (PostgreSQL 11+)
+    await this.postgresql.query(`
+      SELECT cron.schedule('cleanup-old-logs', '0 2 * * *', 
+        'DELETE FROM setting_change_logs WHERE timestamp < NOW() - INTERVAL ''90 days'''
       );
+    `);
   }
 
   async optimizeQueries(): Promise<void> {
     // 자주 사용되는 쿼리들을 위한 Aggregation Pipeline 최적화
     
-    // 사용자 통계 집계를 위한 최적화된 파이프라인
-    const userStatsAggregation = [
-      { $match: { userId: '$userId' } },
-      { $facet: {
-        placesCount: [
-          { $lookup: {
-            from: 'places',
-            localField: 'userId',
-            foreignField: 'userId',
-            as: 'places'
-          }},
-          { $project: { count: { $size: '$places' } } }
-        ],
-        coursesCount: [
-          { $lookup: {
-            from: 'courses',
-            localField: 'userId',
-            foreignField: 'userId',
-            as: 'courses'
-          }},
-          { $project: { count: { $size: '$courses' } } }
-        ]
-      }}
-    ];
-
-    // 파이프라인을 뷰로 저장하여 재사용
-    await this.mongodb.createCollection('user_stats_view', {
-      viewOn: 'user_profiles',
-      pipeline: userStatsAggregation
-    });
+    // 사용자 통계 집계를 위한 최적화된 뷰
+    const createUserStatsView = `
+      CREATE MATERIALIZED VIEW user_stats_view AS
+      SELECT 
+        up.user_id,
+        up.display_name,
+        up.last_active_at,
+        COUNT(DISTINCT p.id) as places_count,
+        COUNT(DISTINCT c.id) as courses_count,
+        COUNT(DISTINCT s.id) as shares_count
+      FROM user_profiles up
+      LEFT JOIN places p ON up.user_id = p.user_id
+      LEFT JOIN courses c ON up.user_id = c.user_id  
+      LEFT JOIN shares s ON up.user_id = s.user_id
+      GROUP BY up.user_id, up.display_name, up.last_active_at;
+    `;
+    
+    // 인덱스와 함께 뷰 생성
+    await this.postgresql.query(createUserStatsView);
+    await this.postgresql.query('CREATE INDEX idx_user_stats_view_user_id ON user_stats_view(user_id);');
   }
 
   // 파티셔닝 전략 (시간별 데이터 분할)
@@ -1959,7 +2038,7 @@ class ProfileMonitoringService {
   private async checkDatabaseHealth(): Promise<ServiceHealth> {
     try {
       const start = Date.now();
-      await this.mongodb.admin().ping();
+      await this.postgresql.query('SELECT 1');
       const responseTime = Date.now() - start;
 
       return {
@@ -1990,7 +2069,7 @@ services:
     build: ./services/profile
     environment:
       - NODE_ENV=production
-      - MONGODB_URI=${MONGODB_URI}
+      - POSTGRESQL_URI=${POSTGRESQL_URI}
       - REDIS_URI=${REDIS_URI}
     ports:
       - "3001:3000"
@@ -2008,7 +2087,7 @@ services:
     build: ./services/settings
     environment:
       - NODE_ENV=production
-      - MONGODB_URI=${MONGODB_URI}
+      - POSTGRESQL_URI=${POSTGRESQL_URI}
       - REDIS_URI=${REDIS_URI}
     ports:
       - "3002:3000"
@@ -2065,11 +2144,11 @@ spec:
         ports:
         - containerPort: 3000
         env:
-        - name: MONGODB_URI
+        - name: POSTGRESQL_URI
           valueFrom:
             secretKeyRef:
               name: database-secrets
-              key: mongodb-uri
+              key: postgresql-uri
         - name: REDIS_URI
           valueFrom:
             secretKeyRef:

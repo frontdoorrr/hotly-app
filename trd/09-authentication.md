@@ -31,7 +31,7 @@
 │ ┌─────────────┐ │    │ ┌─────────────┐ │    
 │ │ Apple       │ │    │ │ User        │ │    
 │ │ Sign In     │ │    │ │ Profiles    │ │    
-│ └─────────────┘ │    │ │ (MongoDB)   │ │    
+│ └─────────────┘ │    │ │ (PostgreSQL)│ │    
 │ ┌─────────────┐ │    │ └─────────────┘ │    
 │ │ Kakao       │ │    │ ┌─────────────┐ │    
 │ │ Login       │ │    │ │ Session     │ │    
@@ -52,7 +52,7 @@ Backend:
   Runtime: Node.js 18+ (TypeScript)
   Framework: Express.js
   Session Store: Redis Cluster
-  Database: MongoDB (user profiles), Firebase Auth (credentials)
+  Database: PostgreSQL (user profiles), Firebase Auth (credentials)
   
 Security:
   Encryption: AES-256-GCM (local storage)
@@ -1667,11 +1667,11 @@ interface AuthMetrics {
 }
 
 class AuthAnalytics {
-  private mongodb: MongoClient;
+  private postgresql: Pool;
   private redis: Redis;
 
-  constructor(mongoClient: MongoClient, redisClient: Redis) {
-    this.mongodb = mongoClient;
+  constructor(pgPool: Pool, redisClient: Redis) {
+    this.postgresql = pgPool;
     this.redis = redisClient;
   }
 
@@ -1723,50 +1723,28 @@ class AuthAnalytics {
         break;
     }
 
-    const pipeline = [
-      { $match: { 
-        timestamp: { $gte: startDate, $lte: endDate }
-      }},
-      { $group: {
-        _id: null,
-        totalSignups: { $sum: { $cond: [{ $eq: ['$type', 'signup'] }, 1, 0] }},
-        totalLogins: { $sum: { $cond: [{ $eq: ['$type', 'signin'] }, 1, 0] }},
-        socialLogins: { $sum: { $cond: [
-          { $and: [
-            { $eq: ['$type', 'signin'] },
-            { $ne: ['$provider', 'email'] }
-          ]}, 1, 0
-        ]}},
-        guestConversions: { $sum: { $cond: [{ $eq: ['$type', 'guest_conversion'] }, 1, 0] }},
-        failedLogins: { $sum: { $cond: [{ $eq: ['$type', 'signin_failed'] }, 1, 0] }}
-      }},
-      { $project: {
-        totalSignups: 1,
-        totalLogins: 1,
-        socialLoginRatio: { 
-          $cond: [
-            { $gt: ['$totalLogins', 0] },
-            { $multiply: [{ $divide: ['$socialLogins', '$totalLogins'] }, 100] },
-            0
-          ]
-        },
-        failedLoginRate: {
-          $cond: [
-            { $gt: [{ $add: ['$totalLogins', '$failedLogins'] }, 0] },
-            { $multiply: [
-              { $divide: ['$failedLogins', { $add: ['$totalLogins', '$failedLogins'] }] }, 
-              100 
-            ]},
-            0
-          ]
-        }
-      }}
-    ];
+    const query = `
+      SELECT 
+        COUNT(CASE WHEN type = 'signup' THEN 1 END) as total_signups,
+        COUNT(CASE WHEN type = 'signin' THEN 1 END) as total_logins,
+        COUNT(CASE WHEN type = 'signin' AND provider != 'email' THEN 1 END) as social_logins,
+        COUNT(CASE WHEN type = 'guest_conversion' THEN 1 END) as guest_conversions,
+        COUNT(CASE WHEN type = 'signin_failed' THEN 1 END) as failed_logins,
+        CASE 
+          WHEN COUNT(CASE WHEN type = 'signin' THEN 1 END) > 0 
+          THEN (COUNT(CASE WHEN type = 'signin' AND provider != 'email' THEN 1 END)::float / COUNT(CASE WHEN type = 'signin' THEN 1 END) * 100)
+          ELSE 0 
+        END as social_login_ratio,
+        CASE 
+          WHEN (COUNT(CASE WHEN type = 'signin' THEN 1 END) + COUNT(CASE WHEN type = 'signin_failed' THEN 1 END)) > 0
+          THEN (COUNT(CASE WHEN type = 'signin_failed' THEN 1 END)::float / (COUNT(CASE WHEN type = 'signin' THEN 1 END) + COUNT(CASE WHEN type = 'signin_failed' THEN 1 END)) * 100)
+          ELSE 0
+        END as failed_login_rate
+      FROM auth_logs 
+      WHERE timestamp >= $1 AND timestamp <= $2
+    `;
 
-    const result = await this.mongodb
-      .collection('auth_logs')
-      .aggregate(pipeline)
-      .toArray();
+    const result = await this.postgresql.query(query, [startDate, endDate]);
 
     return result[0] || this.getDefaultMetrics();
   }
@@ -1774,28 +1752,17 @@ class AuthAnalytics {
   async getTopFailureReasons(): Promise<{ reason: string; count: number }[]> {
     const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-    const pipeline = [
-      { $match: { 
-        type: 'signin_failed',
-        timestamp: { $gte: oneWeekAgo }
-      }},
-      { $group: {
-        _id: '$error_code',
-        count: { $sum: 1 }
-      }},
-      { $sort: { count: -1 } },
-      { $limit: 10 },
-      { $project: {
-        reason: '$_id',
-        count: 1,
-        _id: 0
-      }}
-    ];
+    const query = `
+      SELECT error_code as reason, COUNT(*) as count
+      FROM auth_logs 
+      WHERE type = 'signin_failed' AND timestamp >= $1
+      GROUP BY error_code
+      ORDER BY count DESC
+      LIMIT 10
+    `;
 
-    return await this.mongodb
-      .collection('auth_logs')
-      .aggregate(pipeline)
-      .toArray();
+    const result = await this.postgresql.query(query, [oneWeekAgo]);
+    return result.rows;
   }
 
   async generateAuthReport(period: 'daily' | 'weekly' | 'monthly'): Promise<AuthReport> {

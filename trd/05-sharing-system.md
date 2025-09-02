@@ -26,7 +26,7 @@
     ↓                        ↓
 [Share Link Service] ↔ [Comment/Edit Sync Service]
     ↓                        ↓
-[MongoDB] + [Redis] ↔ [WebSocket Cluster]
+[PostgreSQL] + [Redis] ↔ [WebSocket Cluster]
 ```
 
 ### 2-2. 마이크로서비스 구성
@@ -514,7 +514,10 @@ class PermissionManager:
     ) -> UserPermission:
         """사용자 권한 계산"""
         
-        share_info = await self.db.shares.find_one({"share_id": share_id})
+        share_info = await self.db.fetch_row(
+            "SELECT * FROM shares WHERE share_id = $1",
+            share_id
+        )
         if not share_info:
             raise ShareNotFoundError(f"Share {share_id} not found")
         
@@ -631,7 +634,16 @@ class ShareLinkGenerator:
             "last_accessed_at": None
         }
         
-        await self.db.shares.insert_one(share_data)
+        await self.db.execute(
+            """
+            INSERT INTO shares (share_id, course_id, created_by, permission_level, expires_at, 
+                              allow_comments, allow_edit, password_hash, created_at, access_count)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            """,
+            share_data["share_id"], share_data["course_id"], share_data["created_by"],
+            share_data["permission_level"], share_data["expires_at"], share_data["allow_comments"],
+            share_data["allow_edit"], share_data["password_hash"], share_data["created_at"], 0
+        )
         
         # 캐시에도 저장
         await self.redis_client.setex(
@@ -661,7 +673,10 @@ class ShareLinkGenerator:
             return json.loads(cached)
         
         # DB에서 조회
-        share_info = await self.db.shares.find_one({"share_id": share_id})
+        share_info = await self.db.fetch_row(
+            "SELECT * FROM shares WHERE share_id = $1",
+            share_id
+        )
         if share_info:
             # 캐시에 저장
             await self.redis_client.setex(
@@ -678,12 +693,13 @@ class ShareLinkGenerator:
         current_time = datetime.utcnow()
         
         # DB 업데이트
-        await self.db.shares.update_one(
-            {"share_id": share_id},
-            {
-                "$inc": {"access_count": 1},
-                "$set": {"last_accessed_at": current_time}
-            }
+        await self.db.execute(
+            """
+            UPDATE shares 
+            SET access_count = access_count + 1, last_accessed_at = $1 
+            WHERE share_id = $2
+            """,
+            current_time, share_id
         )
         
         # 캐시 무효화
@@ -852,7 +868,16 @@ class CommentManager:
             "is_deleted": False
         }
         
-        await self.db.comments.insert_one(comment_data)
+        await self.db.execute(
+            """
+            INSERT INTO comments (id, share_id, place_id, content, author_id, parent_id, 
+                                reactions, created_at, is_deleted)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            """,
+            comment_id, comment_data["share_id"], comment_data["place_id"],
+            comment_data["content"], comment_data["author_id"], comment_data["parent_id"],
+            json.dumps(comment_data["reactions"]), comment_data["created_at"], False
+        )
         
         # 작성자 정보 조회
         author_info = await self._get_user_info(user_id)
@@ -1601,7 +1626,7 @@ class TestSharingSystem:
 ```python
 class TestSharingIntegration:
     @pytest.mark.integration
-    async def test_full_sharing_workflow(self, test_client, mongodb, redis_client):
+    async def test_full_sharing_workflow(self, test_client, postgresql, redis_client):
         # Given
         user1_token = await create_test_user_token("user1")
         user2_token = await create_test_user_token("user2")
@@ -1834,10 +1859,10 @@ spec:
             secretKeyRef:
               name: redis-secret
               key: url
-        - name: MONGODB_URL
+        - name: DATABASE_URL
           valueFrom:
             secretKeyRef:
-              name: mongodb-secret
+              name: postgresql-secret
               key: url
         - name: WEBSOCKET_MAX_CONNECTIONS
           value: "1000"

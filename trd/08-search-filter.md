@@ -22,7 +22,7 @@
 │ │Maps API     │ │    │ │Search Cache │ │    │ └─────────────┘ │
 │ │Analytics    │ │    │ └─────────────┘ │    │ ┌─────────────┐ │
 │ └─────────────┘ │    │ ┌─────────────┐ │    │ │ Sort &      │ │
-└─────────────────┘    │ │ MongoDB     │ │◄───┤ │ Pagination  │ │
+└─────────────────┘    │ │ PostgreSQL  │ │◄───┤ │ Pagination  │ │
                        │ │Places       │ │    │ └─────────────┘ │
                        │ │Courses      │ │    └─────────────────┘
                        │ │SearchHistory│ │
@@ -41,7 +41,7 @@ Backend:
   Runtime: Node.js 18+ (TypeScript)
   Framework: Express.js + Fastify (high-performance endpoints)
   Cache: Redis Cluster
-  Database: MongoDB (metadata), PostgreSQL (analytics)
+  Database: PostgreSQL (metadata), PostgreSQL (analytics)
   
 Client:
   Debouncing: Lodash debounce (300ms)
@@ -1061,7 +1061,12 @@ interface SearchLog {
 class SearchAnalytics {
   async logSearch(log: SearchLog): Promise<void> {
     // 검색 로그 저장
-    await this.mongodb.collection('search_logs').insertOne(log);
+    await this.db.execute(
+      `INSERT INTO search_logs (id, user_id, query, filters, results_count, clicked_results, search_time, timestamp, session_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      log.id, log.userId, log.query, JSON.stringify(log.filters), log.results_count, 
+      JSON.stringify(log.clicked_results), log.search_time, log.timestamp, log.session_id
+    );
     
     // 실시간 메트릭 업데이트
     await this.updateSearchMetrics(log);
@@ -1090,8 +1095,16 @@ class SearchAnalytics {
       }}
     ];
 
-    const result = await this.mongodb.collection('search_logs')
-      .aggregate(pipeline).toArray();
+    const result = await this.db.fetch(
+      `SELECT 
+         COUNT(*) as total_searches,
+         AVG(search_time) as avg_response_time,
+         AVG(CASE WHEN results_count = 0 THEN 1 ELSE 0 END) * 100 as zero_result_rate,
+         AVG(results_count) as avg_results_per_search
+       FROM search_logs 
+       WHERE timestamp >= $1`,
+      startDate
+    );
 
     return result[0] || this.getDefaultInsights();
   }
@@ -1117,8 +1130,18 @@ class SearchAnalytics {
       }}
     ];
 
-    return await this.mongodb.collection('search_logs')
-      .aggregate(pipeline).toArray();
+    return await this.db.fetch(
+      `SELECT query, 
+              COUNT(*) as count,
+              AVG(results_count) as avg_results,
+              AVG(CASE WHEN array_length(clicked_results, 1) > 0 THEN 1 ELSE 0 END) * 100 as click_through_rate
+       FROM search_logs 
+       WHERE timestamp >= $1
+       GROUP BY query 
+       ORDER BY count DESC 
+       LIMIT $2`,
+      new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), limit
+    );
   }
 
   // 검색 개선 제안
@@ -1203,14 +1226,11 @@ class SearchExperimentManager {
     event: string,
     metadata?: any
   ): Promise<void> {
-    await this.mongodb.collection('experiment_events').insertOne({
-      userId,
-      experimentId,
-      variant,
-      event,
-      metadata,
-      timestamp: new Date()
-    });
+    await this.db.execute(
+      `INSERT INTO experiment_events (user_id, experiment_id, variant, event, metadata, timestamp)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      userId, experimentId, variant, event, JSON.stringify(metadata), new Date()
+    );
   }
 
   async getExperimentResults(experimentId: string): Promise<ExperimentResults> {
@@ -1226,8 +1246,13 @@ class SearchExperimentManager {
       }}
     ];
 
-    const results = await this.mongodb.collection('experiment_events')
-      .aggregate(pipeline).toArray();
+    const results = await this.db.fetch(
+      `SELECT variant, event, COUNT(*) as count
+       FROM experiment_events 
+       WHERE experiment_id = $1
+       GROUP BY variant, event`,
+      experimentId
+    );
 
     return this.calculateStatisticalSignificance(results);
   }
@@ -1305,14 +1330,12 @@ class SearchSecurityManager {
   }
 
   async auditSearchAccess(userId: string, request: SearchRequest): Promise<void> {
-    await this.mongodb.collection('search_audit_logs').insertOne({
-      userId,
-      query: request.query,
-      filters: request.filters,
-      timestamp: new Date(),
-      ip_address: request.ip_address,
-      user_agent: request.user_agent
-    });
+    await this.db.execute(
+      `INSERT INTO search_audit_logs (user_id, query, filters, timestamp, ip_address, user_agent)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      userId, request.query, JSON.stringify(request.filters), new Date(), 
+      request.ip_address, request.user_agent
+    );
   }
 }
 ```

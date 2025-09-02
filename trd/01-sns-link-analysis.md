@@ -28,7 +28,7 @@
     ↓
 [Content Scraper] → [AI Analyzer] → [Data Validator]
     ↓
-[MongoDB] + [Cache Update]
+[PostgreSQL] + [Cache Update]
 ```
 
 ### 2-2. 마이크로서비스 분리
@@ -103,42 +103,50 @@ class AnalysisResult(BaseModel):
 
 ## 4. 데이터베이스 설계
 
-### 4-1. MongoDB 컬렉션
-```javascript
-// analyses 컬렉션
-{
-  "_id": ObjectId,
-  "analysis_id": "string",
-  "url": "string",
-  "url_hash": "string", // 캐시 키
-  "user_id": "string?",
-  "status": "pending|processing|completed|failed",
-  "places": [
-    {
-      "place_name": "string",
-      "address": "string?",
-      "category": ["string"],
-      "business_hours": "string?",
-      "image_url": "string?",
-      "description": "string?",
-      "confidence": "number",
-      "coordinates": {
-        "lat": "number",
-        "lng": "number"
-      }
-    }
-  ],
-  "processing_time": "number",
-  "error_message": "string?",
-  "created_at": "ISODate",
-  "updated_at": "ISODate",
-  "expires_at": "ISODate" // TTL 인덱스
-}
+### 4-1. PostgreSQL 스키마
+```sql
+-- analyses 테이블
+CREATE TABLE analyses (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    analysis_id VARCHAR(255) NOT NULL UNIQUE,
+    url TEXT NOT NULL,
+    url_hash VARCHAR(64) NOT NULL UNIQUE,
+    user_id UUID NULL,
+    status VARCHAR(20) NOT NULL CHECK (status IN ('pending', 'processing', 'completed', 'failed')),
+    places JSONB NOT NULL DEFAULT '[]',
+    processing_time DECIMAL(10,3) NULL,
+    error_message TEXT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    expires_at TIMESTAMPTZ NOT NULL DEFAULT (NOW() + INTERVAL '7 days')
+);
 
-// 인덱스 정의
-db.analyses.createIndex({"url_hash": 1}, {"unique": true})
-db.analyses.createIndex({"user_id": 1, "created_at": -1})
-db.analyses.createIndex({"expires_at": 1}, {"expireAfterSeconds": 0})
+-- 인덱스 정의
+CREATE UNIQUE INDEX idx_analyses_url_hash ON analyses(url_hash);
+CREATE INDEX idx_analyses_user_created ON analyses(user_id, created_at DESC);
+CREATE INDEX idx_analyses_status ON analyses(status);
+CREATE INDEX idx_analyses_expires ON analyses(expires_at);
+
+-- 만료된 레코드 자동 삭제 (pg_cron 확장 필요)
+-- SELECT cron.schedule('cleanup-expired-analyses', '0 */6 * * *', 
+--   'DELETE FROM analyses WHERE expires_at < NOW()');
+
+-- places JSONB 구조 예시
+/*
+{
+  "place_name": "string",
+  "address": "string|null",
+  "category": ["string"],
+  "business_hours": "string|null", 
+  "image_url": "string|null",
+  "description": "string|null",
+  "confidence": number,
+  "coordinates": {
+    "lat": number,
+    "lng": number
+  }
+}
+*/
 ```
 
 ### 4-2. Redis 캐시 구조
@@ -354,10 +362,11 @@ class CacheInvalidator:
         """매일 실행되는 캐시 정리"""
         # 오래된 분석 결과 정리
         cutoff_date = datetime.utcnow() - timedelta(days=30)
-        await self.db.analyses.delete_many({
-            "created_at": {"$lt": cutoff_date},
-            "status": {"$in": ["completed", "failed"]}
-        })
+        async with self.db.begin() as conn:
+            await conn.execute(
+                text("DELETE FROM analyses WHERE created_at < :cutoff_date AND status IN ('completed', 'failed')"),
+                {"cutoff_date": cutoff_date}
+            )
 ```
 
 ---
@@ -781,7 +790,7 @@ class TestLinkAnalyzer:
 ```python
 class TestLinkAnalysisIntegration:
     @pytest.mark.integration
-    async def test_end_to_end_analysis(self, test_client, redis_client, mongodb):
+    async def test_end_to_end_analysis(self, test_client, redis_client, postgresql):
         # Given
         url = "https://www.instagram.com/p/real_post/"
         

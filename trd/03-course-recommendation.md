@@ -30,7 +30,7 @@
     ↓
 [Validation & Scoring]
     ↓
-[MongoDB] + [Redis Cache]
+[PostgreSQL] + [Redis Cache]
 ```
 
 ### 2-2. 마이크로서비스 분해
@@ -1199,10 +1199,10 @@ class TestCourseOptimizer:
 ```python
 class TestCourseGenerationIntegration:
     @pytest.mark.integration
-    async def test_end_to_end_course_generation(self, test_client, mongodb, redis_client):
+    async def test_end_to_end_course_generation(self, test_client, postgresql, redis_client):
         # Given
         # 테스트용 장소 데이터 준비
-        test_places = await setup_test_places(mongodb)
+        test_places = await setup_test_places(postgresql)
         user_id = "test_user_123"
         
         request_data = {
@@ -1243,7 +1243,7 @@ class TestCourseGenerationIntegration:
             assert current_departure <= next_arrival
     
     @pytest.mark.integration  
-    async def test_course_editing_updates_correctly(self, test_client, mongodb):
+    async def test_course_editing_updates_correctly(self, test_client, postgresql):
         # Given - 먼저 코스를 생성
         initial_course = await create_test_course(test_client)
         course_id = initial_course["course_id"]
@@ -1431,10 +1431,10 @@ spec:
             secretKeyRef:
               name: redis-secret
               key: url
-        - name: MONGODB_URL
+        - name: DATABASE_URL
           valueFrom:
             secretKeyRef:
-              name: mongodb-secret
+              name: postgresql-secret
               key: url
         - name: KAKAO_API_KEY
           valueFrom:
