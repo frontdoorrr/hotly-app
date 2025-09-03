@@ -15,7 +15,7 @@ def get_test_token_headers(user_id: str = "test_user") -> Dict[str, str]:
 def create_test_client_with_auth(user_id: str = "test_user") -> TestClient:
     """Create test client with authentication headers."""
     from app.main import app
-    
+
     client = TestClient(app)
     headers = get_test_token_headers(user_id)
     client.headers.update(headers)

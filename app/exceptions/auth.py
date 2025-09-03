@@ -7,7 +7,5 @@ class AuthenticationError(HotlyException):
     """Raised when authentication fails."""
 
 
-
 class AuthorizationError(HotlyException):
     """Raised when user lacks required permissions."""
-

@@ -8,7 +8,7 @@ PLACE_EXTRACTION_PROMPT_V1 = """
 **콘텐츠 정보:**
 - 플랫폼: {platform}
 - 제목: {title}
-- 설명: {description}  
+- 설명: {description}
 - 해시태그: {hashtags}
 
 **추출 요구사항:**
@@ -37,20 +37,25 @@ PLACE_EXTRACTION_JSON_SCHEMA = {
         "name": {"type": "string", "description": "Place name"},
         "address": {"type": ["string", "null"], "description": "Place address"},
         "category": {
-            "type": "string", 
-            "enum": ["restaurant", "cafe", "bar", "tourist_attraction", "shopping", "accommodation", "entertainment", "other"]
+            "type": "string",
+            "enum": [
+                "restaurant",
+                "cafe",
+                "bar",
+                "tourist_attraction",
+                "shopping",
+                "accommodation",
+                "entertainment",
+                "other",
+            ],
         },
-        "keywords": {
-            "type": "array",
-            "items": {"type": "string"},
-            "maxItems": 10
-        },
+        "keywords": {"type": "array", "items": {"type": "string"}, "maxItems": 10},
         "recommendation_score": {"type": "integer", "minimum": 1, "maximum": 10},
         "phone": {"type": ["string", "null"]},
         "website": {"type": ["string", "null"]},
         "opening_hours": {"type": ["string", "null"]},
-        "price_range": {"type": ["string", "null"]}
+        "price_range": {"type": ["string", "null"]},
     },
     "required": ["name", "category", "recommendation_score", "keywords"],
-    "additionalProperties": False
+    "additionalProperties": False,
 }

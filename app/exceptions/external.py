@@ -9,4 +9,3 @@ class UnsupportedPlatformError(HotlyException):
 
 class ExternalServiceError(HotlyException):
     """Raised when external service calls fail."""
-
