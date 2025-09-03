@@ -5,4 +5,4 @@
 from app.db.base_class import Base  # noqa
 
 # Import your models here as they are created
-# from app.models.user import User  # noqa
+from app.models.place import Place  # noqa

@@ -1,4 +1,5 @@
 """Test utilities for common testing operations."""
+
 from typing import Dict
 
 from fastapi.testclient import TestClient

@@ -1,4 +1,5 @@
 """Test AI analysis services."""
+
 import json
 from unittest.mock import patch
 

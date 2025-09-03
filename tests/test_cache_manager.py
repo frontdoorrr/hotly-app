@@ -6,6 +6,7 @@ Following TDD approach:
 2. GREEN: Implement minimal code to pass
 3. REFACTOR: Optimize and improve code quality
 """
+
 from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock, patch
 

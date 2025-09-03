@@ -1,4 +1,5 @@
 """Integration tests for API endpoints."""
+
 import pytest
 from fastapi.testclient import TestClient
 from tests.utils import get_test_token_headers

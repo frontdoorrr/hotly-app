@@ -10,6 +10,7 @@ Features:
 
 Follows hotly:{domain}:{key} naming convention.
 """
+
 import hashlib
 import logging
 from datetime import datetime, timedelta, timezone

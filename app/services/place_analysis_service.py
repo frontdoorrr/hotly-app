@@ -1,4 +1,5 @@
 """Place analysis service that orchestrates content extraction and AI analysis."""
+
 import time
 from typing import List
 

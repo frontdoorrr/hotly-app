@@ -3,6 +3,7 @@ Link analysis API endpoints with integrated caching.
 
 Combines content extraction + AI analysis + caching for complete workflow.
 """
+
 import logging
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
@@ -85,9 +86,11 @@ async def analyze_link(
 
         # Prepare result for caching and response
         result_data = {
-            "place_info": analysis_result.place_info.dict()
-            if analysis_result.place_info
-            else None,
+            "place_info": (
+                analysis_result.place_info.dict()
+                if analysis_result.place_info
+                else None
+            ),
             "confidence": analysis_result.confidence,
             "analysis_time": analysis_result.analysis_time,
             "content_metadata": {

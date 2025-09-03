@@ -1,4 +1,5 @@
 """AI analysis schemas for place information extraction."""
+
 from enum import Enum
 from typing import List, Optional
 

@@ -1,4 +1,5 @@
 """Health check endpoints."""
+
 from typing import Any, Dict
 
 from fastapi import APIRouter, Depends

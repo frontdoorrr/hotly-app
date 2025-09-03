@@ -1,4 +1,5 @@
 """Gemini AI analyzer for place information extraction."""
+
 import asyncio
 import json
 import time

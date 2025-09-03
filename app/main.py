@@ -3,6 +3,7 @@ Hotly App FastAPI application.
 
 Main application entry point following backend_reference patterns.
 """
+
 from typing import Dict
 
 from fastapi import FastAPI

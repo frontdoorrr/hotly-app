@@ -1,4 +1,5 @@
 """Base exception classes for the application."""
+
 from typing import Any, Dict, Optional
 
 

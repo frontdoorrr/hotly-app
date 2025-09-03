@@ -1,4 +1,5 @@
 """Test main FastAPI application setup."""
+
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 

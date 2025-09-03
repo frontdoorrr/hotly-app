@@ -1,4 +1,5 @@
 """Test configuration and shared fixtures."""
+
 from typing import Generator
 
 import pytest

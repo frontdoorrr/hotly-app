@@ -1,4 +1,5 @@
 """Content extraction service for SNS link analysis."""
+
 import asyncio
 import time
 from urllib.parse import urlparse

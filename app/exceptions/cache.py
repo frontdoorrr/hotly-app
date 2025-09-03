@@ -3,6 +3,7 @@ Cache-related exception classes.
 
 Follows domain-driven design with specific cache exceptions.
 """
+
 from app.exceptions.base import HotlyException
 
 

@@ -3,6 +3,7 @@ API dependencies for database sessions and authentication.
 
 Common dependencies used across API endpoints.
 """
+
 from typing import Generator
 
 from sqlalchemy.orm import Session

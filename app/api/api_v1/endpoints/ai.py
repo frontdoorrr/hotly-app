@@ -1,4 +1,5 @@
 """AI analysis API endpoints."""
+
 from fastapi import APIRouter, HTTPException
 
 from app.exceptions.ai import AIAnalysisError, RateLimitError

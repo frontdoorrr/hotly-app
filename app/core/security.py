@@ -1,4 +1,5 @@
 """Security utilities for JWT and password handling."""
+
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional, Union
 

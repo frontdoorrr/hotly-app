@@ -1,4 +1,5 @@
 """Test security and authentication functionality."""
+
 from datetime import timedelta
 
 from app.core.security import create_access_token, get_password_hash, verify_password

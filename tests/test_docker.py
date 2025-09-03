@@ -1,4 +1,5 @@
 """Test Docker configuration files."""
+
 from pathlib import Path
 
 

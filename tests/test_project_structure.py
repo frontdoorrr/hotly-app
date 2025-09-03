@@ -1,4 +1,5 @@
 """Test project structure and basic setup."""
+
 from pathlib import Path
 
 

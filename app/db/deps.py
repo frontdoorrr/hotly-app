@@ -1,4 +1,5 @@
 """Database dependencies for FastAPI."""
+
 from typing import Generator
 
 from app.db.session import SessionLocal

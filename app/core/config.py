@@ -3,6 +3,7 @@ Application configuration using Pydantic Settings.
 
 Follows backend_reference pattern with Pydantic v1 syntax.
 """
+
 import secrets
 from typing import List, Optional, Union
 

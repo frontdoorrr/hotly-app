@@ -3,6 +3,7 @@ Link analysis request/response schemas.
 
 Combines content extraction and AI analysis for complete workflow.
 """
+
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional

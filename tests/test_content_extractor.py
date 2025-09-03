@@ -1,4 +1,5 @@
 """Test content extractor service for SNS link analysis."""
+
 from unittest.mock import patch
 
 import pytest

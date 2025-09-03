@@ -1,4 +1,5 @@
 """Test database connection and basic operations."""
+
 import pytest
 
 
