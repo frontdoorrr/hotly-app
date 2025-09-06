@@ -9,7 +9,6 @@ from uuid import uuid4
 
 from sqlalchemy.orm import Session
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -86,9 +85,9 @@ class CourseSharingService:
                 "share_link": share_link,
                 "share_id": share_id,
                 "expires_at": expires_at.isoformat(),
-                "access_level": "public"
-                if share_settings.get("public_access")
-                else "private",
+                "access_level": (
+                    "public" if share_settings.get("public_access") else "private"
+                ),
                 "permissions": {
                     "can_copy": share_settings.get("allow_copy", True),
                     "can_comment": share_settings.get("allow_comments", True),
@@ -480,12 +479,12 @@ class PersonalCourseStorageService:
 
             organization_result = {
                 "folder_id": folder_id,
-                "courses_moved": len(organized_courses)
-                if organization_type == "move"
-                else 0,
-                "courses_copied": len(organized_courses)
-                if organization_type == "copy"
-                else 0,
+                "courses_moved": (
+                    len(organized_courses) if organization_type == "move" else 0
+                ),
+                "courses_copied": (
+                    len(organized_courses) if organization_type == "copy" else 0
+                ),
                 "organization_type": organization_type,
                 "folder_updated_at": target_folder["updated_at"],
                 "new_course_count": target_folder["course_count"],
@@ -888,9 +887,9 @@ class CourseDiscoveryService:
                     "recent_views": 150 - i * 10,
                     "engagement_rate": 0.85 - i * 0.05,
                     "location": location_filter or "seoul",
-                    "trending_reason": "high_engagement"
-                    if i < 3
-                    else "growing_popularity",
+                    "trending_reason": (
+                        "high_engagement" if i < 3 else "growing_popularity"
+                    ),
                 }
                 for i in range(limit)
             ]

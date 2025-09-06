@@ -223,7 +223,10 @@ class UserPreferenceService:
             if behavior.tags_added and behavior.rating:
                 for tag in behavior.tags_added:
                     # Categorize ambiance-related tags
-                    if any(amb in tag for amb in ["조용", "분위기", "로맨틱", "활기", "편안"]):
+                    if any(
+                        amb in tag
+                        for amb in ["조용", "분위기", "로맨틱", "활기", "편안"]
+                    ):
                         ambiance_tags[tag].append(behavior.rating)
 
         # Calculate preferences
@@ -538,9 +541,11 @@ class UserPreferenceService:
                             "preference_type": "cuisine",
                             "category": category,
                             "change": current_score - past_score,
-                            "trend": "increasing"
-                            if current_score > past_score
-                            else "decreasing",
+                            "trend": (
+                                "increasing"
+                                if current_score > past_score
+                                else "decreasing"
+                            ),
                         }
                     )
 

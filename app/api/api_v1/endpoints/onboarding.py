@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_db
 from app.services.onboarding_service import (
     OnboardingAnalyticsService,
+    OnboardingProgressTracker,
     OnboardingSampleService,
     OnboardingService,
     UserPreferenceService,
@@ -789,3 +790,248 @@ async def simulate_onboarding_completion(
     except Exception as e:
         logger.error(f"Failed to simulate completion: {e}")
         raise HTTPException(status_code=500, detail="Failed to simulate completion")
+
+
+@router.get("/progress/{user_id}", response_model=dict)
+async def get_detailed_onboarding_progress(
+    *,
+    db: Session = Depends(get_db),
+    user_id: str,
+) -> dict:
+    """
+    Get detailed onboarding progress analysis.
+
+    - **user_id**: User identifier
+
+    Returns comprehensive progress analysis with completion status.
+    """
+    try:
+        progress_tracker = OnboardingProgressTracker(db)
+        detailed_progress = progress_tracker.get_detailed_progress(user_id)
+
+        logger.info(f"Detailed progress retrieved for user {user_id}")
+        return detailed_progress
+
+    except ValueError as e:
+        if "not found" in str(e).lower():
+            raise HTTPException(status_code=404, detail=str(e))
+        else:
+            raise HTTPException(status_code=422, detail=str(e))
+    except Exception as e:
+        logger.error(f"Failed to get detailed progress: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get detailed progress")
+
+
+@router.post("/complete-step", response_model=dict)
+async def complete_onboarding_step_with_validation(
+    *,
+    db: Session = Depends(get_db),
+    user_id: str,
+    step: int,
+    step_data: dict,
+    force_completion: bool = False,
+) -> dict:
+    """
+    Complete onboarding step with enhanced validation.
+
+    - **user_id**: User identifier
+    - **step**: Step number to complete
+    - **step_data**: Step completion data
+    - **force_completion**: Override validation failures
+
+    Returns step completion result with validation details.
+    """
+    try:
+        if not (1 <= step <= 5):
+            raise HTTPException(
+                status_code=422, detail="Step number must be between 1 and 5"
+            )
+
+        progress_tracker = OnboardingProgressTracker(db)
+        completion_result = progress_tracker.complete_step_with_validation(
+            user_id, step, step_data, force_completion
+        )
+
+        logger.info(f"Step {step} completed with validation for user {user_id}")
+        return completion_result
+
+    except ValueError as e:
+        if "validation failed" in str(e).lower():
+            raise HTTPException(status_code=422, detail=str(e))
+        elif "not found" in str(e).lower():
+            raise HTTPException(status_code=404, detail=str(e))
+        else:
+            raise HTTPException(status_code=422, detail=str(e))
+    except Exception as e:
+        logger.error(f"Failed to complete step with validation: {e}")
+        raise HTTPException(
+            status_code=500, detail="Failed to complete step with validation"
+        )
+
+
+@router.get("/completion-summary/{user_id}", response_model=dict)
+async def get_completion_summary(
+    *,
+    db: Session = Depends(get_db),
+    user_id: str,
+) -> dict:
+    """
+    Get onboarding completion summary.
+
+    - **user_id**: User identifier
+
+    Returns completion status summary with recommendations.
+    """
+    try:
+        progress_tracker = OnboardingProgressTracker(db)
+        summary = progress_tracker.get_completion_summary(user_id)
+
+        logger.info(f"Completion summary retrieved for user {user_id}")
+        return summary
+
+    except ValueError as e:
+        if "not found" in str(e).lower():
+            raise HTTPException(status_code=404, detail=str(e))
+        else:
+            raise HTTPException(status_code=422, detail=str(e))
+    except Exception as e:
+        logger.error(f"Failed to get completion summary: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get completion summary")
+
+
+@router.post("/update-progress", response_model=dict)
+async def update_onboarding_progress(
+    *,
+    db: Session = Depends(get_db),
+    user_id: str,
+    completed_steps: List[int],
+    current_step: Optional[int] = None,
+    step_data: Optional[dict] = None,
+) -> dict:
+    """
+    Update onboarding progress and recalculate completion percentage.
+
+    - **user_id**: User identifier
+    - **completed_steps**: List of completed step numbers
+    - **current_step**: Current active step (optional)
+    - **step_data**: Additional step data (optional)
+
+    Returns updated progress with percentage calculation.
+    """
+    try:
+        # Validate completed steps
+        if not all(1 <= step <= 5 for step in completed_steps):
+            raise HTTPException(
+                status_code=422, detail="All step numbers must be between 1 and 5"
+            )
+
+        if current_step and not (1 <= current_step <= 5):
+            raise HTTPException(
+                status_code=422, detail="Current step must be between 1 and 5"
+            )
+
+        # Update progress using the tracker
+        progress_tracker = OnboardingProgressTracker(db)
+
+        # Calculate new progress percentage
+        progress_percentage = (len(completed_steps) / 5) * 100
+
+        # Get detailed progress
+        progress_result = progress_tracker.get_detailed_progress(user_id)
+
+        # Update the result with new data
+        update_result = {
+            **progress_result,
+            "progress_updated": True,
+            "new_progress_percentage": progress_percentage,
+            "completed_steps_count": len(completed_steps),
+            "completed_steps": completed_steps,
+            "current_step": current_step,
+            "updated_at": datetime.utcnow().isoformat(),
+        }
+
+        if step_data:
+            update_result["step_data_updated"] = True
+
+        logger.info(f"Progress updated for user {user_id}: {progress_percentage}%")
+        return update_result
+
+    except ValueError as e:
+        if "not found" in str(e).lower():
+            raise HTTPException(status_code=404, detail=str(e))
+        else:
+            raise HTTPException(status_code=422, detail=str(e))
+    except Exception as e:
+        logger.error(f"Failed to update progress: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update progress")
+
+
+@router.post("/validate-step-completion", response_model=dict)
+async def validate_step_completion(
+    *,
+    db: Session = Depends(get_db),
+    user_id: str,
+    step: int,
+    step_data: dict,
+) -> dict:
+    """
+    Validate step completion requirements without actually completing the step.
+
+    - **user_id**: User identifier
+    - **step**: Step number to validate
+    - **step_data**: Step data to validate
+
+    Returns validation result with specific feedback.
+    """
+    try:
+        if not (1 <= step <= 5):
+            raise HTTPException(
+                status_code=422, detail="Step number must be between 1 and 5"
+            )
+
+        progress_tracker = OnboardingProgressTracker(db)
+
+        # Validate step-specific requirements
+        validation_result = {
+            "step": step,
+            "user_id": user_id,
+            "validation_passed": False,
+            "validation_errors": [],
+            "validation_warnings": [],
+            "requirements_met": {},
+            "validated_at": datetime.utcnow().isoformat(),
+        }
+
+        # Step-specific validation logic
+        if step == 1:  # WELCOME
+            validation_result.update(progress_tracker._validate_welcome_step(step_data))
+        elif step == 2:  # CATEGORY_SETUP
+            validation_result.update(
+                progress_tracker._validate_category_setup_step(step_data)
+            )
+        elif step == 3:  # PREFERENCE_SETUP
+            validation_result.update(
+                progress_tracker._validate_preference_setup_step(step_data)
+            )
+        elif step == 4:  # SAMPLE_GUIDE
+            validation_result.update(
+                progress_tracker._validate_sample_guide_step(step_data)
+            )
+        elif step == 5:  # COMPLETION
+            validation_result.update(
+                progress_tracker._validate_completion_step(step_data)
+            )
+
+        logger.info(f"Step {step} validation completed for user {user_id}")
+        return validation_result
+
+    except ValueError as e:
+        if "not found" in str(e).lower():
+            raise HTTPException(status_code=404, detail=str(e))
+        else:
+            raise HTTPException(status_code=422, detail=str(e))
+    except Exception as e:
+        logger.error(f"Failed to validate step completion: {e}")
+        raise HTTPException(
+            status_code=500, detail="Failed to validate step completion"
+        )

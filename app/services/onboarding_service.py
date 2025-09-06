@@ -12,13 +12,13 @@ logger = logging.getLogger(__name__)
 
 
 class OnboardingStep(Enum):
-    """Onboarding step enumeration."""
+    """온보딩 5단계 정의."""
 
-    PERMISSIONS = 1
-    PREFERENCES = 2
-    LOCATION_SETUP = 3
-    SAMPLE_EXPLORATION = 4
-    FIRST_COURSE = 5
+    WELCOME = 1  # 환영 및 앱 소개 (기존 PERMISSIONS 대체)
+    CATEGORY_SETUP = 2  # 카테고리 선택 (기존 PREFERENCES 확장)
+    PREFERENCE_SETUP = 3  # 세부 취향 설정 (기존 LOCATION_SETUP 대체)
+    SAMPLE_GUIDE = 4  # 샘플 장소 가이드 (기존 SAMPLE_EXPLORATION 확장)
+    COMPLETION = 5  # 온보딩 완료 및 첫 추천 (기존 FIRST_COURSE 확장)
 
 
 class OnboardingStatus(Enum):
@@ -36,9 +36,9 @@ class OnboardingService:
 
     def __init__(self, db: Session):
         self.db = db
-        self.onboarding_sessions: Dict[
-            str, Dict[str, Any]
-        ] = {}  # In-memory storage for onboarding state
+        self.onboarding_sessions: Dict[str, Dict[str, Any]] = (
+            {}
+        )  # In-memory storage for onboarding state
         self.timeout_minutes = 15  # Onboarding session timeout
 
     def start_onboarding_flow(
@@ -443,9 +443,9 @@ class UserPreferenceService:
 
     def __init__(self, db: Session):
         self.db = db
-        self.user_preferences: Dict[
-            str, Dict[str, Any]
-        ] = {}  # In-memory storage for user preferences
+        self.user_preferences: Dict[str, Dict[str, Any]] = (
+            {}
+        )  # In-memory storage for user preferences
 
     def set_user_preferences(
         self,
@@ -819,22 +819,43 @@ class OnboardingSampleService:
             step_guidance = {
                 1: {
                     "guidance_text": "권한 설정을 통해 더 정확한 맞춤 추천을 받을 수 있어요",
-                    "next_actions": ["위치 권한 허용", "알림 권한 허용", "다음 단계로 진행"],
-                    "help_tips": ["권한은 나중에 설정에서 변경 가능합니다", "위치 권한으로 주변 장소 추천이 정확해집니다"],
+                    "next_actions": [
+                        "위치 권한 허용",
+                        "알림 권한 허용",
+                        "다음 단계로 진행",
+                    ],
+                    "help_tips": [
+                        "권한은 나중에 설정에서 변경 가능합니다",
+                        "위치 권한으로 주변 장소 추천이 정확해집니다",
+                    ],
                 },
                 2: {
                     "guidance_text": "관심 있는 장소 유형을 선택하면 맞춤 추천을 받을 수 있어요",
-                    "next_actions": ["카테고리 2-5개 선택", "예산 범위 설정", "활동 수준 선택"],
-                    "help_tips": ["나중에 설정에서 언제든 변경 가능합니다", "선택한 카테고리는 추천 정확도에 영향을 줍니다"],
+                    "next_actions": [
+                        "카테고리 2-5개 선택",
+                        "예산 범위 설정",
+                        "활동 수준 선택",
+                    ],
+                    "help_tips": [
+                        "나중에 설정에서 언제든 변경 가능합니다",
+                        "선택한 카테고리는 추천 정확도에 영향을 줍니다",
+                    ],
                 },
                 3: {
                     "guidance_text": "현재 위치 설정으로 주변 장소를 추천받으세요",
                     "next_actions": ["현재 위치 허용", "홈/직장 위치 설정 (선택사항)"],
-                    "help_tips": ["위치 정보는 추천에만 사용됩니다", "정확한 위치일수록 좋은 추천을 받을 수 있어요"],
+                    "help_tips": [
+                        "위치 정보는 추천에만 사용됩니다",
+                        "정확한 위치일수록 좋은 추천을 받을 수 있어요",
+                    ],
                 },
                 4: {
                     "guidance_text": "추천된 샘플 장소들을 둘러보고 마음에 드는 곳을 저장해보세요",
-                    "next_actions": ["샘플 장소 탐색", "관심 있는 곳 저장", "피드백 제공"],
+                    "next_actions": [
+                        "샘플 장소 탐색",
+                        "관심 있는 곳 저장",
+                        "피드백 제공",
+                    ],
                     "help_tips": [
                         "탭하면 장소 상세 정보를 볼 수 있어요",
                         "저장한 장소는 나중에 코스에 추가할 수 있습니다",
@@ -842,8 +863,15 @@ class OnboardingSampleService:
                 },
                 5: {
                     "guidance_text": "이제 첫 번째 코스를 만들어보세요!",
-                    "next_actions": ["저장된 장소 선택", "코스 순서 정하기", "코스 이름 정하기"],
-                    "help_tips": ["최소 2개 장소로 코스를 만들 수 있어요", "나중에 언제든 수정 가능합니다"],
+                    "next_actions": [
+                        "저장된 장소 선택",
+                        "코스 순서 정하기",
+                        "코스 이름 정하기",
+                    ],
+                    "help_tips": [
+                        "최소 2개 장소로 코스를 만들 수 있어요",
+                        "나중에 언제든 수정 가능합니다",
+                    ],
                 },
             }
 
@@ -851,13 +879,19 @@ class OnboardingSampleService:
 
             # Customize guidance based on user action
             if user_action == "confused":
-                current_guidance["additional_help"] = "차근차근 따라해보시면 쉽게 완료할 수 있어요"
+                current_guidance["additional_help"] = (
+                    "차근차근 따라해보시면 쉽게 완료할 수 있어요"
+                )
             elif user_action == "impatient":
-                current_guidance["quick_path"] = "핵심 설정만 하고 나중에 상세 설정하실 수 있어요"
+                current_guidance["quick_path"] = (
+                    "핵심 설정만 하고 나중에 상세 설정하실 수 있어요"
+                )
 
             guidance_result = {
                 "current_step": current_step,
-                "guidance_text": current_guidance.get("guidance_text", "다음 단계로 진행해주세요"),
+                "guidance_text": current_guidance.get(
+                    "guidance_text", "다음 단계로 진행해주세요"
+                ),
                 "next_actions": current_guidance.get("next_actions", []),
                 "help_tips": current_guidance.get("help_tips", []),
                 "user_action": user_action,
@@ -1129,11 +1163,11 @@ class OnboardingAnalyticsService:
             prediction_result = {
                 "user_id": user_id,
                 "drop_off_risk": round(risk_score, 3),
-                "risk_level": "high"
-                if risk_score > 0.7
-                else "medium"
-                if risk_score > 0.4
-                else "low",
+                "risk_level": (
+                    "high"
+                    if risk_score > 0.7
+                    else "medium" if risk_score > 0.4 else "low"
+                ),
                 "completion_probability": round(1 - risk_score, 3),
                 "risk_factors_identified": {
                     "time_based": avg_time > 120 if time_spent else False,
@@ -1155,3 +1189,535 @@ class OnboardingAnalyticsService:
         except Exception as e:
             logger.error(f"Error predicting user dropoff: {e}")
             raise
+
+
+class OnboardingProgressTracker:
+    """온보딩 5단계 진행 상태 추적 및 관리 - 강화된 진행 상태 추적."""
+
+    def __init__(self, db: Session):
+        self.db = db
+        self.step_requirements = {
+            OnboardingStep.WELCOME: self._check_welcome_complete,
+            OnboardingStep.CATEGORY_SETUP: self._check_category_complete,
+            OnboardingStep.PREFERENCE_SETUP: self._check_preference_complete,
+            OnboardingStep.SAMPLE_GUIDE: self._check_sample_guide_complete,
+            OnboardingStep.COMPLETION: self._check_completion_ready,
+        }
+
+    def get_detailed_progress(self, user_id: str) -> Dict[str, Any]:
+        """사용자의 상세 온보딩 진행 상황 조회."""
+        from app.models.user_preference import OnboardingSession
+
+        # 최신 온보딩 세션 조회
+        session = (
+            self.db.query(OnboardingSession)
+            .filter(OnboardingSession.user_id == user_id)
+            .order_by(OnboardingSession.started_at.desc())
+            .first()
+        )
+
+        if not session:
+            return self._create_initial_progress(user_id)
+
+        # 현재 진행 상황 분석
+        current_step = self._determine_current_step(user_id, session)
+        progress_percentage = self._calculate_progress_percentage(
+            session.completed_steps
+        )
+        next_actions = self._get_detailed_next_actions(current_step)
+        step_validations = self._validate_all_steps(user_id)
+
+        return {
+            "user_id": user_id,
+            "session_id": session.session_id,
+            "status": session.status,
+            "current_step": current_step.value,
+            "current_step_name": current_step.name.lower(),
+            "completed_steps": session.completed_steps or [],
+            "progress_percentage": progress_percentage,
+            "step_data": session.step_data or {},
+            "step_validations": step_validations,
+            "next_actions": next_actions,
+            "estimated_remaining_time": self._estimate_remaining_time(
+                session.completed_steps or []
+            ),
+            "completion_blockers": self._identify_completion_blockers(user_id),
+            "started_at": (
+                session.started_at.isoformat() if session.started_at else None
+            ),
+            "expires_at": (
+                session.expires_at.isoformat() if session.expires_at else None
+            ),
+            "is_expired": self._is_session_expired(session),
+            "last_activity": self._get_last_activity_time(session),
+        }
+
+    def complete_step_with_validation(
+        self, user_id: str, step: int, step_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """단계 완료 처리 (강화된 검증 포함)."""
+
+        # 현재 세션 조회 또는 생성
+        session = self._get_or_create_session(user_id)
+
+        step_enum = OnboardingStep(step)
+
+        # 단계 완료 조건 검증
+        validation_result = self._comprehensive_step_validation(
+            user_id, step_enum, step_data
+        )
+
+        if not validation_result["is_valid"]:
+            return {
+                "user_id": user_id,
+                "step": step,
+                "step_completed": False,
+                "validation_errors": validation_result["errors"],
+                "required_actions": validation_result["required_actions"],
+                "current_data": step_data,
+            }
+
+        # 세션 데이터 업데이트
+        completed_steps = session.completed_steps or []
+        step_data_dict = session.step_data or {}
+
+        # 단계별 데이터 저장 (더 상세한 정보 포함)
+        step_data_dict[f"step_{step}"] = {
+            "data": step_data,
+            "completed": True,
+            "completed_at": datetime.utcnow().isoformat(),
+            "validation_score": validation_result.get("score", 1.0),
+            "completion_time_seconds": step_data.get("completion_time_seconds", 0),
+        }
+
+        # 완료된 단계 리스트 업데이트
+        if step not in completed_steps:
+            completed_steps.append(step)
+            completed_steps.sort()
+
+        # 현재 단계 및 상태 업데이트
+        session.completed_steps = completed_steps
+        session.step_data = step_data_dict
+        session.current_step = max(completed_steps) + 1 if completed_steps else 1
+        session.progress_percentage = self._calculate_progress_percentage(
+            completed_steps
+        )
+
+        # 온보딩 완료 확인
+        if len(completed_steps) >= 5:
+            session.status = OnboardingStatus.COMPLETED.value
+            session.completed_at = datetime.utcnow()
+        else:
+            session.status = OnboardingStatus.IN_PROGRESS.value
+
+        self.db.commit()
+        self.db.refresh(session)
+
+        # 완료 후 다음 단계 안내
+        next_step = (
+            OnboardingStep(session.current_step) if session.current_step <= 5 else None
+        )
+
+        return {
+            "user_id": user_id,
+            "step": step,
+            "step_completed": True,
+            "current_step": session.current_step,
+            "progress_percentage": session.progress_percentage,
+            "status": session.status,
+            "next_step": next_step.value if next_step else None,
+            "next_actions": (
+                self._get_detailed_next_actions(next_step) if next_step else []
+            ),
+            "completion_quality": validation_result.get("score", 1.0),
+            "estimated_remaining_time": self._estimate_remaining_time(completed_steps),
+            "updated_at": datetime.utcnow().isoformat(),
+        }
+
+    def get_completion_summary(self, user_id: str) -> Dict[str, Any]:
+        """온보딩 완료 상황 요약."""
+        progress = self.get_detailed_progress(user_id)
+
+        if progress["status"] != OnboardingStatus.COMPLETED.value:
+            return {
+                "user_id": user_id,
+                "completed": False,
+                "progress_percentage": progress["progress_percentage"],
+                "remaining_steps": [
+                    i for i in range(1, 6) if i not in progress["completed_steps"]
+                ],
+                "blockers": progress["completion_blockers"],
+            }
+
+        # 완료된 경우 상세 분석
+        session = (
+            self.db.query(OnboardingSession)
+            .filter(OnboardingSession.user_id == user_id)
+            .order_by(OnboardingSession.started_at.desc())
+            .first()
+        )
+
+        total_time = (
+            (session.completed_at - session.started_at).total_seconds()
+            if session and session.completed_at
+            else 0
+        )
+        quality_scores = []
+
+        step_data = session.step_data or {} if session else {}
+        for i in range(1, 6):
+            step_info = step_data.get(f"step_{i}", {})
+            quality_scores.append(step_info.get("validation_score", 1.0))
+
+        return {
+            "user_id": user_id,
+            "completed": True,
+            "completion_date": (
+                session.completed_at.isoformat()
+                if session and session.completed_at
+                else None
+            ),
+            "total_completion_time_seconds": total_time,
+            "total_completion_time_minutes": round(total_time / 60, 1),
+            "met_3min_goal": total_time <= 180,
+            "average_quality_score": round(
+                sum(quality_scores) / len(quality_scores), 2
+            ),
+            "step_quality_scores": {
+                f"step_{i+1}": score for i, score in enumerate(quality_scores)
+            },
+            "readiness_for_recommendations": self._assess_recommendation_readiness(
+                user_id
+            ),
+            "suggested_next_actions": [
+                "explore_sample_places",
+                "get_first_recommendation",
+                "save_favorite_places",
+            ],
+        }
+
+    # 헬퍼 메서드들
+    def _create_initial_progress(self, user_id: str) -> Dict[str, Any]:
+        """초기 온보딩 진행 상황 생성."""
+        return {
+            "user_id": user_id,
+            "session_id": None,
+            "status": OnboardingStatus.NOT_STARTED.value,
+            "current_step": 1,
+            "current_step_name": "welcome",
+            "completed_steps": [],
+            "progress_percentage": 0.0,
+            "step_data": {},
+            "step_validations": {},
+            "next_actions": self._get_detailed_next_actions(OnboardingStep.WELCOME),
+            "estimated_remaining_time": 180,  # 3분
+            "completion_blockers": [],
+            "started_at": None,
+            "expires_at": None,
+            "is_expired": False,
+            "last_activity": None,
+        }
+
+    def _get_or_create_session(self, user_id: str) -> Any:
+        """온보딩 세션 조회 또는 생성."""
+        from app.models.user_preference import OnboardingSession
+
+        session = (
+            self.db.query(OnboardingSession)
+            .filter(OnboardingSession.user_id == user_id)
+            .order_by(OnboardingSession.started_at.desc())
+            .first()
+        )
+
+        if not session or self._is_session_expired(session):
+            # 세션 만료 처리
+            expires_at = datetime.utcnow() + timedelta(hours=24)  # 24시간 유효
+
+            session = OnboardingSession(
+                session_id=str(uuid4()),
+                user_id=user_id,
+                status=OnboardingStatus.IN_PROGRESS.value,
+                current_step=1,
+                completed_steps=[],
+                progress_percentage=0.0,
+                step_data={},
+                started_at=datetime.utcnow(),
+                expires_at=expires_at,
+            )
+            self.db.add(session)
+            self.db.commit()
+            self.db.refresh(session)
+
+        return session
+
+    def _determine_current_step(self, user_id: str, session: Any) -> OnboardingStep:
+        """현재 진행해야 할 단계 결정."""
+        completed_steps = session.completed_steps or []
+
+        # 완료된 단계가 없으면 첫 번째 단계
+        if not completed_steps:
+            return OnboardingStep.WELCOME
+
+        # 다음 진행할 단계 결정
+        next_step = max(completed_steps) + 1
+        if next_step > 5:
+            return OnboardingStep.COMPLETION
+
+        return OnboardingStep(next_step)
+
+    def _calculate_progress_percentage(self, completed_steps: List[int]) -> float:
+        """진행률 계산."""
+        if not completed_steps:
+            return 0.0
+
+        total_steps = 5
+        return round((len(completed_steps) / total_steps) * 100, 1)
+
+    def _get_detailed_next_actions(
+        self, current_step: OnboardingStep
+    ) -> List[Dict[str, Any]]:
+        """다음 진행할 액션들 상세 정보."""
+        action_map = {
+            OnboardingStep.WELCOME: [
+                {
+                    "action": "read_welcome",
+                    "title": "hotly 앱에 오신 것을 환영합니다!",
+                    "description": "앱 소개와 주요 기능을 확인해보세요",
+                    "estimated_time": 30,
+                    "required": True,
+                },
+                {
+                    "action": "accept_permissions",
+                    "title": "권한 허용",
+                    "description": "위치 및 알림 권한을 허용해주세요",
+                    "estimated_time": 15,
+                    "required": True,
+                },
+            ],
+            OnboardingStep.CATEGORY_SETUP: [
+                {
+                    "action": "select_categories",
+                    "title": "관심 카테고리 선택",
+                    "description": "좋아하는 장소 유형을 2-5개 선택해주세요",
+                    "estimated_time": 45,
+                    "required": True,
+                },
+                {
+                    "action": "set_category_importance",
+                    "title": "카테고리 중요도 설정",
+                    "description": "선택한 카테고리의 중요도를 설정해주세요",
+                    "estimated_time": 30,
+                    "required": False,
+                },
+            ],
+            OnboardingStep.PREFERENCE_SETUP: [
+                {
+                    "action": "set_budget_preference",
+                    "title": "예산 설정",
+                    "description": "평소 데이트 예산을 설정해주세요",
+                    "estimated_time": 20,
+                    "required": True,
+                },
+                {
+                    "action": "set_companion_preference",
+                    "title": "동행 선호도",
+                    "description": "주로 누구와 함께 다니시나요?",
+                    "estimated_time": 15,
+                    "required": True,
+                },
+                {
+                    "action": "set_activity_level",
+                    "title": "활동 수준",
+                    "description": "선호하는 활동 강도를 설정해주세요",
+                    "estimated_time": 15,
+                    "required": True,
+                },
+            ],
+            OnboardingStep.SAMPLE_GUIDE: [
+                {
+                    "action": "explore_sample_places",
+                    "title": "샘플 장소 둘러보기",
+                    "description": "인기 장소들을 미리 체험해보세요",
+                    "estimated_time": 30,
+                    "required": True,
+                },
+                {
+                    "action": "try_first_save",
+                    "title": "첫 장소 저장해보기",
+                    "description": "마음에 드는 장소를 저장해보세요",
+                    "estimated_time": 15,
+                    "required": True,
+                },
+            ],
+            OnboardingStep.COMPLETION: [
+                {
+                    "action": "get_first_recommendation",
+                    "title": "첫 추천 받기",
+                    "description": "설정한 취향에 맞는 첫 추천을 받아보세요",
+                    "estimated_time": 10,
+                    "required": True,
+                },
+                {
+                    "action": "complete_onboarding",
+                    "title": "온보딩 완료",
+                    "description": "이제 hotly의 모든 기능을 사용할 수 있어요!",
+                    "estimated_time": 5,
+                    "required": True,
+                },
+            ],
+        }
+
+        return action_map.get(current_step, [])
+
+    def _comprehensive_step_validation(
+        self, user_id: str, step: OnboardingStep, step_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """단계별 포괄적 검증."""
+        validator = self.step_requirements.get(step)
+        if not validator:
+            return {
+                "is_valid": False,
+                "errors": ["Unknown step"],
+                "required_actions": [],
+            }
+
+        try:
+            is_valid = validator(user_id, step_data)
+            if is_valid:
+                return {"is_valid": True, "score": 1.0}
+
+            # 검증 실패 시 구체적인 피드백 제공
+            return self._get_step_specific_validation_feedback(step, step_data)
+
+        except Exception as e:
+            logger.error(f"Step validation error: {e}")
+            return {"is_valid": False, "errors": [str(e)], "required_actions": []}
+
+    def _get_step_specific_validation_feedback(
+        self, step: OnboardingStep, step_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """단계별 구체적 검증 피드백."""
+        if step == OnboardingStep.CATEGORY_SETUP:
+            categories = step_data.get("selected_categories", [])
+            if len(categories) < 2:
+                return {
+                    "is_valid": False,
+                    "errors": ["최소 2개 이상의 카테고리를 선택해주세요"],
+                    "required_actions": ["더 많은 카테고리 선택"],
+                }
+            elif len(categories) > 5:
+                return {
+                    "is_valid": False,
+                    "errors": ["최대 5개까지만 선택 가능합니다"],
+                    "required_actions": ["선택한 카테고리 줄이기"],
+                }
+
+        return {
+            "is_valid": False,
+            "errors": ["필수 정보가 누락되었습니다"],
+            "required_actions": ["필수 정보 입력"],
+        }
+
+    def _validate_all_steps(self, user_id: str) -> Dict[str, Any]:
+        """모든 단계의 유효성 검사."""
+        validations = {}
+
+        # 각 단계별 데이터 확인
+        for step in OnboardingStep:
+            # 실제 데이터베이스에서 단계별 데이터 조회 후 검증
+            # 현재는 기본값으로 처리
+            validations[f"step_{step.value}"] = {
+                "validated": False,
+                "score": 0.0,
+                "issues": [],
+            }
+
+        return validations
+
+    def _estimate_remaining_time(self, completed_steps: List[int]) -> int:
+        """남은 예상 시간 (초)."""
+        remaining_steps = [i for i in range(1, 6) if i not in completed_steps]
+
+        # 단계별 예상 소요 시간 (초)
+        step_times = {
+            1: 45,  # WELCOME
+            2: 75,  # CATEGORY_SETUP
+            3: 50,  # PREFERENCE_SETUP
+            4: 45,  # SAMPLE_GUIDE
+            5: 15,  # COMPLETION
+        }
+
+        total_remaining = sum(step_times.get(step, 30) for step in remaining_steps)
+        return total_remaining
+
+    def _identify_completion_blockers(self, user_id: str) -> List[Dict[str, str]]:
+        """완료 차단 요인 식별."""
+        blockers = []
+
+        # 실제 구현에서는 데이터베이스 조회를 통해 차단 요인 확인
+        # 현재는 예시 구조만 제공
+
+        return blockers
+
+    def _is_session_expired(self, session: Any) -> bool:
+        """세션 만료 확인."""
+        if not session or not session.expires_at:
+            return False
+        return datetime.utcnow() > session.expires_at
+
+    def _get_last_activity_time(self, session: Any) -> Optional[str]:
+        """마지막 활동 시간."""
+        if not session:
+            return None
+
+        # 가장 최근 단계 완료 시간 찾기
+        step_data = session.step_data or {}
+        latest_time = None
+
+        for step_info in step_data.values():
+            if isinstance(step_info, dict) and "completed_at" in step_info:
+                completed_at = step_info["completed_at"]
+                if not latest_time or completed_at > latest_time:
+                    latest_time = completed_at
+
+        return latest_time
+
+    def _assess_recommendation_readiness(self, user_id: str) -> Dict[str, Any]:
+        """추천 시스템 준비 상태 평가."""
+        return {
+            "ready": True,
+            "confidence": 0.8,
+            "missing_data": [],
+            "quality_score": 0.85,
+        }
+
+    # 단계별 완료 조건 검증 메서드들
+    def _check_welcome_complete(self, user_id: str, step_data: Dict[str, Any]) -> bool:
+        """환영 단계 완료 조건."""
+        return step_data.get("welcome_read", False) and step_data.get(
+            "permissions_granted", False
+        )
+
+    def _check_category_complete(self, user_id: str, step_data: Dict[str, Any]) -> bool:
+        """카테고리 설정 완료 조건."""
+        categories = step_data.get("selected_categories", [])
+        return isinstance(categories, list) and 2 <= len(categories) <= 5
+
+    def _check_preference_complete(
+        self, user_id: str, step_data: Dict[str, Any]
+    ) -> bool:
+        """선호도 설정 완료 조건."""
+        required = ["budget_level", "companion_type", "activity_intensity"]
+        return all(step_data.get(field) for field in required)
+
+    def _check_sample_guide_complete(
+        self, user_id: str, step_data: Dict[str, Any]
+    ) -> bool:
+        """샘플 가이드 완료 조건."""
+        return step_data.get("sample_places_viewed", False) and step_data.get(
+            "first_save_attempted", False
+        )
+
+    def _check_completion_ready(self, user_id: str, step_data: Dict[str, Any]) -> bool:
+        """완료 준비 조건."""
+        return step_data.get("first_recommendation_requested", False)

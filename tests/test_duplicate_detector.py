@@ -235,8 +235,12 @@ class TestDuplicateDetector:
                 name=case["name"],
                 address=case["address"],
                 category=PlaceCategory.CAFE,
-                latitude=(37.4979462 if case["name"] == "카페베네 강남점" else 37.5013068),
-                longitude=(127.0276368 if case["name"] == "카페베네 강남점" else 127.0396597),
+                latitude=(
+                    37.4979462 if case["name"] == "카페베네 강남점" else 37.5013068
+                ),
+                longitude=(
+                    127.0276368 if case["name"] == "카페베네 강남점" else 127.0396597
+                ),
             )
 
             result = await detector.check_duplicate(new_place, existing_places)

@@ -143,9 +143,11 @@ class SearchService:
                 list(suggestions),
                 key=lambda x: (
                     len(x),
-                    x.lower().index(partial_query.lower())
-                    if partial_query.lower() in x.lower()
-                    else 999,
+                    (
+                        x.lower().index(partial_query.lower())
+                        if partial_query.lower() in x.lower()
+                        else 999
+                    ),
                 ),
             )
 

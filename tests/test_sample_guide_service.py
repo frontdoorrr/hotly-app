@@ -1,19 +1,13 @@
 """Tests for sample places and guide services."""
 
+from unittest.mock import Mock
+
 import pytest
-from unittest.mock import Mock, patch
-from datetime import datetime
-from typing import Dict, Any, List
 
 from app.services.sample_guide_service import (
-    SamplePlacesService,
-    GuideService,
     FirstCourseGuideService,
-)
-from app.schemas.preference import (
-    SamplePlaceSchema,
-    GuideStepResponse,
-    FirstCourseGuideResponse,
+    GuideService,
+    SamplePlacesService,
 )
 
 
@@ -47,14 +41,14 @@ class TestSamplePlacesService:
         # Then
         assert result["success"] is True
         assert len(result["sample_places"]) == 6
-        
+
         # Check diversity of categories
         categories_found = set()
         for place in result["sample_places"]:
             categories_found.add(place["category"])
-        
+
         assert len(categories_found) >= 3  # Should have diverse categories
-        
+
         # Check all places have required fields
         for place in result["sample_places"]:
             assert "id" in place
@@ -87,7 +81,7 @@ class TestSamplePlacesService:
         # Then
         assert result["success"] is True
         assert len(result["sample_places"]) == 5
-        
+
         for place in result["sample_places"]:
             assert "distance_km" in place
             assert place["distance_km"] <= 5
@@ -114,7 +108,7 @@ class TestSamplePlacesService:
         assert result["success"] is True
         assert result["category"] == category
         assert len(result["sample_places"]) >= 3
-        
+
         # All places should be in the requested category
         for place in result["sample_places"]:
             assert place["category"] == category
@@ -145,7 +139,7 @@ class TestSamplePlacesService:
         assert result["success"] is True
         assert len(result["sample_places"]) == 8
         assert result["personalization_applied"] is True
-        
+
         # Should include places similar to liked categories
         categories_found = [place["category"] for place in result["sample_places"]]
         assert "restaurant" in categories_found
@@ -166,7 +160,7 @@ class TestSamplePlacesService:
                 category=invalid_category,
                 user_location={"lat": 37.5665, "lng": 126.9780},
             )
-        
+
         assert "Invalid category" in str(exc_info.value)
 
 
@@ -194,7 +188,7 @@ class TestGuideService:
         assert result["current_step"] == current_step
         assert result["total_steps"] == 5
         assert len(result["guide_steps"]) >= 1
-        
+
         # Check current step details
         current_guide = result["guide_steps"][0]
         assert current_guide["step_number"] == current_step
@@ -221,7 +215,7 @@ class TestGuideService:
         assert result["feature"] == feature
         assert "tutorial_steps" in result
         assert len(result["tutorial_steps"]) >= 3
-        
+
         for step in result["tutorial_steps"]:
             assert "step_number" in step
             assert "title" in step
@@ -249,7 +243,7 @@ class TestGuideService:
         assert result["context"] == context
         assert "hints" in result
         assert len(result["hints"]) >= 1
-        
+
         for hint in result["hints"]:
             assert "message" in hint
             assert "importance" in hint
@@ -283,7 +277,7 @@ class TestGuideService:
         assert result["success"] is True
         assert "personalized_tips" in result
         assert len(result["personalized_tips"]) >= 3
-        
+
         for tip in result["personalized_tips"]:
             assert "category" in tip
             assert "message" in tip
@@ -321,7 +315,7 @@ class TestFirstCourseGuideService:
         assert result["success"] is True
         assert result["template_type"] == "first_course"
         assert "course_structure" in result
-        
+
         structure = result["course_structure"]
         assert "places" in structure
         assert len(structure["places"]) >= 2  # At least 2 places for a course
@@ -342,7 +336,7 @@ class TestFirstCourseGuideService:
         assert result["success"] is True
         assert "creation_steps" in result
         assert len(result["creation_steps"]) >= 4
-        
+
         # Check step structure
         for step in result["creation_steps"]:
             assert "step_number" in step
@@ -375,11 +369,11 @@ class TestFirstCourseGuideService:
         assert "feedback" in result
         assert "suggestions" in result
         assert "course_rating" in result
-        
+
         feedback = result["feedback"]
         assert "strengths" in feedback
         assert "improvements" in feedback
-        
+
         assert len(result["suggestions"]) >= 2
         for suggestion in result["suggestions"]:
             assert "type" in suggestion  # e.g., "timing", "budget", "variety"
@@ -407,10 +401,10 @@ class TestFirstCourseGuideService:
         assert "celebration_message" in result
         assert "achievements_unlocked" in result
         assert "next_steps" in result
-        
+
         assert len(result["achievements_unlocked"]) >= 1
         assert len(result["next_steps"]) >= 2
-        
+
         for achievement in result["achievements_unlocked"]:
             assert "title" in achievement
             assert "description" in achievement

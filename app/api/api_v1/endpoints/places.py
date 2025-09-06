@@ -701,9 +701,9 @@ async def advanced_search(
                 place_data["highlighted_name"] = search_service.highlight_search_terms(
                     place.name or "", q
                 )
-                place_data[
-                    "highlighted_description"
-                ] = search_service.highlight_search_terms(place.description or "", q)
+                place_data["highlighted_description"] = (
+                    search_service.highlight_search_terms(place.description or "", q)
+                )
 
             results.append(place_data)
 

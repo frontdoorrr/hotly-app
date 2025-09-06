@@ -245,7 +245,14 @@ class TagNormalizer:
         Returns:
             Dictionary with category as key and list of tags as value
         """
-        categories = {"장소타입": [], "분위기": [], "대상": [], "가격": [], "특징": [], "기타": []}
+        categories = {
+            "장소타입": [],
+            "분위기": [],
+            "대상": [],
+            "가격": [],
+            "특징": [],
+            "기타": [],
+        }
 
         # Category mapping based on synonym groups
         category_mapping = {

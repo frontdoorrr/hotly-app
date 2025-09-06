@@ -57,9 +57,9 @@ class TagService:
                     {
                         "tag": tag,
                         "usage_count": tag_data["count"],
-                        "match_type": "prefix"
-                        if tag.startswith(normalized_query)
-                        else "contains",
+                        "match_type": (
+                            "prefix" if tag.startswith(normalized_query) else "contains"
+                        ),
                     }
                 )
 
