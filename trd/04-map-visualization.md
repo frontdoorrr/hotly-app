@@ -61,11 +61,11 @@
 // kakao_map_plugin.dart
 class KakaoMapPlugin {
   static const MethodChannel _channel = MethodChannel('kakao_map_plugin');
-  
+
   static Future<void> initialize(String apiKey) async {
     await _channel.invokeMethod('initialize', {'apiKey': apiKey});
   }
-  
+
   static Future<void> showMap(MapOptions options) async {
     await _channel.invokeMethod('showMap', options.toJson());
   }
@@ -163,7 +163,7 @@ class MarkerManager {
 
   Future<void> addPlaceMarkers(List<Place> places) async {
     _clearMarkers();
-    
+
     final markers = places.map((place) => Marker(
       id: place.id,
       position: LatLng(place.latitude, place.longitude),
@@ -177,7 +177,7 @@ class MarkerManager {
 
     // 클러스터링 적용
     final clusteredMarkers = await _clusterer.cluster(markers);
-    
+
     for (final marker in clusteredMarkers) {
       _markers[marker.id] = marker;
       await _controller.addMarker(marker);
@@ -186,7 +186,7 @@ class MarkerManager {
 
   Future<void> addCourseMarkers(Course course) async {
     _clearMarkers();
-    
+
     for (int i = 0; i < course.places.length; i++) {
       final place = course.places[i];
       final marker = Marker(
@@ -199,7 +199,7 @@ class MarkerManager {
         ),
         zIndex: 100 + i,
       );
-      
+
       _markers[marker.id] = marker;
       await _controller.addMarker(marker);
     }
@@ -211,7 +211,7 @@ class MarkerManager {
   MarkerIcon _getMarkerIcon(PlaceCategory category) {
     final color = _getCategoryColor(category);
     final iconPath = _getCategoryIcon(category);
-    
+
     return MarkerIcon(
       imagePath: iconPath,
       size: const Size(40, 40),
@@ -223,7 +223,7 @@ class MarkerManager {
 
   MarkerIcon _getCourseMarkerIcon(int order, PlaceCategory category) {
     final color = _getCategoryColor(category);
-    
+
     return MarkerIcon(
       text: order.toString(),
       textStyle: const TextStyle(
@@ -289,7 +289,7 @@ class RouteRenderer {
     for (int i = 0; i < course.places.length - 1; i++) {
       final from = course.places[i];
       final to = course.places[i + 1];
-      
+
       final routePoints = await _calculator.calculateRoute(
         from: LatLng(from.latitude, from.longitude),
         to: LatLng(to.latitude, to.longitude),
@@ -390,7 +390,7 @@ class LocationTrackingService {
     distanceFilter: 1,
     timeLimit: Duration(minutes: 10),
   );
-  
+
   static const LocationSettings _settingsBalanced = LocationSettings(
     accuracy: LocationAccuracy.balanced,
     distanceFilter: 5,
@@ -398,7 +398,7 @@ class LocationTrackingService {
   );
 
   StreamSubscription<Position>? _positionSubscription;
-  final StreamController<UserLocation> _locationController = 
+  final StreamController<UserLocation> _locationController =
       StreamController<UserLocation>.broadcast();
 
   Stream<UserLocation> get locationStream => _locationController.stream;
@@ -406,7 +406,7 @@ class LocationTrackingService {
   Future<bool> initialize() async {
     // 권한 요청
     LocationPermission permission = await Geolocator.checkPermission();
-    
+
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
@@ -426,8 +426,8 @@ class LocationTrackingService {
       await stopTracking();
     }
 
-    final settings = mode == TrackingMode.navigation 
-        ? _settingsHigh 
+    final settings = mode == TrackingMode.navigation
+        ? _settingsHigh
         : _settingsBalanced;
 
     _positionSubscription = Geolocator.getPositionStream(
@@ -495,7 +495,7 @@ class NavigationService {
   final LocationTrackingService _locationService;
   final RouteCalculator _routeCalculator;
   final VoiceGuideService _voiceGuide;
-  
+
   Course? _currentCourse;
   int _currentDestinationIndex = 0;
   NavigationState _state = NavigationState.idle;
@@ -557,9 +557,9 @@ class NavigationService {
 
   void _handleArrival() async {
     final destination = _getCurrentDestination();
-    
+
     await _voiceGuide.announceArrival(destination);
-    
+
     // 마지막 목적지인지 확인
     if (_currentDestinationIndex >= _currentCourse!.places.length - 1) {
       await _completeNavigation();
@@ -592,7 +592,7 @@ class NavigationService {
 
   Future<void> _handleRouteDeviation(UserLocation location) async {
     await _voiceGuide.announceRouteRecalculation();
-    
+
     // 현재 위치에서 목적지까지 새로운 경로 계산
     await _calculateRouteToNextDestination(from: location);
   }
@@ -611,7 +611,7 @@ class NavigationService {
   Future<void> _calculateRouteToNextDestination({UserLocation? from}) async {
     final destination = _getCurrentDestination();
     final origin = from ?? await _locationService.getCurrentLocation();
-    
+
     final route = await _routeCalculator.calculateRoute(
       from: LatLng(origin.latitude, origin.longitude),
       to: LatLng(destination.latitude, destination.longitude),
@@ -641,7 +641,7 @@ class MapTileCache {
 
   final Directory _cacheDir;
   final Map<String, MapTile> _memoryCache = {};
-  
+
   MapTileCache(this._cacheDir);
 
   Future<void> initialize() async {
@@ -651,7 +651,7 @@ class MapTileCache {
 
   Future<Uint8List?> getTile(int x, int y, int zoom) async {
     final tileKey = _generateTileKey(x, y, zoom);
-    
+
     // 메모리 캐시 확인
     final memoryCachedTile = _memoryCache[tileKey];
     if (memoryCachedTile != null) {
@@ -701,7 +701,7 @@ class MapTileCache {
       if (await file.exists()) {
         final data = await file.readAsBytes();
         final metadata = await _loadTileMetadata(tileKey);
-        
+
         return MapTile(
           key: tileKey,
           data: data,
@@ -718,7 +718,7 @@ class MapTileCache {
     try {
       final file = File('${_cacheDir.path}/${tile.key}.tile');
       await file.writeAsBytes(tile.data);
-      
+
       await _saveTileMetadata(tile.key, {
         'createdAt': tile.createdAt.millisecondsSinceEpoch,
         'size': tile.data.length,
@@ -731,7 +731,7 @@ class MapTileCache {
   void _evictOldestTiles() {
     final entries = _memoryCache.entries.toList();
     entries.sort((a, b) => a.value.createdAt.compareTo(b.value.createdAt));
-    
+
     // 가장 오래된 20개 제거
     for (int i = 0; i < 20 && i < entries.length; i++) {
       _memoryCache.remove(entries[i].key);
@@ -740,7 +740,7 @@ class MapTileCache {
 
   Future<void> _checkCacheSize() async {
     final cacheSize = await _calculateCacheSize();
-    
+
     if (cacheSize > _maxCacheSize) {
       await _cleanupCache();
     }
@@ -749,21 +749,21 @@ class MapTileCache {
   Future<int> _calculateCacheSize() async {
     int totalSize = 0;
     final files = _cacheDir.listSync();
-    
+
     for (final file in files) {
       if (file is File && file.path.endsWith('.tile')) {
         final stat = await file.stat();
         totalSize += stat.size;
       }
     }
-    
+
     return totalSize;
   }
 
   Future<void> _cleanupCache() async {
     // LRU 기반 캐시 정리
     final files = <File>[];
-    
+
     await for (final entity in _cacheDir.list()) {
       if (entity is File && entity.path.endsWith('.tile')) {
         files.add(entity);
@@ -780,14 +780,14 @@ class MapTileCache {
     // 오래된 파일부터 삭제 (캐시 크기의 30% 정리)
     final targetSize = (_maxCacheSize * 0.7).round();
     int currentSize = await _calculateCacheSize();
-    
+
     for (final file in files) {
       if (currentSize <= targetSize) break;
-      
+
       final stat = await file.stat();
       currentSize -= stat.size;
       await file.delete();
-      
+
       // 메타데이터도 삭제
       final metadataFile = File(file.path.replaceAll('.tile', '.meta'));
       if (await metadataFile.exists()) {
@@ -803,21 +803,21 @@ class MapTileCache {
 class RouteCacheManager {
   static const String _cachePrefix = 'route_cache';
   static const Duration _cacheExpiry = Duration(hours: 6);
-  
+
   final CacheManager _cacheManager;
-  
+
   RouteCacheManager() : _cacheManager = DefaultCacheManager();
 
   Future<List<LatLng>?> getCachedRoute(RouteRequest request) async {
     final cacheKey = _generateRouteCacheKey(request);
-    
+
     try {
       final cacheInfo = await _cacheManager.getFileFromCache(cacheKey);
-      
+
       if (cacheInfo?.file != null) {
         final jsonString = await cacheInfo!.file.readAsString();
         final jsonData = json.decode(jsonString);
-        
+
         // 만료 확인
         final cachedTime = DateTime.parse(jsonData['cachedAt']);
         if (DateTime.now().difference(cachedTime) < _cacheExpiry) {
@@ -831,13 +831,13 @@ class RouteCacheManager {
     } catch (e) {
       logger.warning('Failed to load cached route: $e');
     }
-    
+
     return null;
   }
 
   Future<void> cacheRoute(RouteRequest request, List<LatLng> route) async {
     final cacheKey = _generateRouteCacheKey(request);
-    
+
     final cacheData = {
       'points': route.map((point) => {
         'latitude': point.latitude,
@@ -845,10 +845,10 @@ class RouteCacheManager {
       }).toList(),
       'cachedAt': DateTime.now().toIso8601String(),
     };
-    
+
     final jsonString = json.encode(cacheData);
     final bytes = utf8.encode(jsonString);
-    
+
     await _cacheManager.putFile(
       cacheKey,
       bytes,
@@ -864,10 +864,10 @@ class RouteCacheManager {
       request.destination.longitude.toStringAsFixed(4),
       request.transportMode.toString(),
     ];
-    
+
     final baseString = components.join('_');
     final hash = baseString.hashCode;
-    
+
     return '${_cachePrefix}_$hash';
   }
 }
@@ -882,7 +882,7 @@ class RouteCacheManager {
 class MarkerClusterer {
   static const double _clusterRadius = 100.0; // pixels
   static const int _maxMarkersPerCluster = 100;
-  
+
   Future<List<Marker>> cluster(List<Marker> markers) async {
     if (markers.length <= 10) {
       return markers; // 적은 수는 클러스터링 안함
@@ -963,15 +963,15 @@ class MarkerClusterer {
     final earthRadius = 6371000; // meters
     final latDiff = (pos2.latitude - pos1.latitude) * math.pi / 180;
     final lngDiff = (pos2.longitude - pos1.longitude) * math.pi / 180;
-    
+
     final a = math.sin(latDiff / 2) * math.sin(latDiff / 2) +
         math.cos(pos1.latitude * math.pi / 180) *
         math.cos(pos2.latitude * math.pi / 180) *
         math.sin(lngDiff / 2) * math.sin(lngDiff / 2);
-    
+
     final c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
     final distance = earthRadius * c;
-    
+
     // 대략적인 픽셀 변환 (줌 레벨 고려 필요)
     return distance * 0.01; // 임시 스케일링
   }
@@ -1004,9 +1004,9 @@ class BatteryOptimizedLocationService {
 
   Future<void> _adaptiveLocationUpdate() async {
     final currentTime = DateTime.now();
-    
+
     // 마지막 업데이트로부터 시간 계산
-    final timeSinceLastUpdate = _lastUpdateTime != null 
+    final timeSinceLastUpdate = _lastUpdateTime != null
         ? currentTime.difference(_lastUpdateTime!)
         : Duration.zero;
 
@@ -1050,7 +1050,7 @@ class BatteryOptimizedLocationService {
         _lastLocation = newLocation;
         _lastSpeed = position.speed;
         _lastUpdateTime = DateTime.now();
-        
+
         _locationController.add(newLocation);
       }
     } catch (e) {
@@ -1070,7 +1070,7 @@ class BatteryOptimizedLocationService {
 
   bool _isSignificantLocationChange(UserLocation? old, UserLocation newLoc) {
     if (old == null) return true;
-    
+
     final distance = Geolocator.distanceBetween(
       old.latitude,
       old.longitude,
@@ -1094,12 +1094,12 @@ class BatteryOptimizedLocationService {
 class KakaoMapPlugin : FlutterPlugin, MethodCallHandler {
     private lateinit var context: Context
     private lateinit var channel: MethodChannel
-    
+
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         context = flutterPluginBinding.applicationContext
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "kakao_map_plugin")
         channel.setMethodCallHandler(this)
-        
+
         // Kakao Map SDK 초기화
         KakaoSdk.init(context, BuildConfig.KAKAO_API_KEY)
     }
@@ -1134,11 +1134,11 @@ class KakaoMapView(
     id: Int,
     creationParams: Map<String, Any>?
 ) : PlatformView, MapView.MapViewEventListener {
-    
+
     private val mapView: MapView = MapView(context)
     private val kakaoMap: KakaoMap by lazy { mapView.kakaoMap }
     private val markerManager = MarkerManager()
-    
+
     init {
         mapView.start(object : MapLifeCycleCallback() {
             override fun onMapDestroy() {
@@ -1149,7 +1149,7 @@ class KakaoMapView(
                 Log.e("KakaoMapView", "Map error: ${error.message}")
             }
         }, this)
-        
+
         setupInitialOptions(creationParams)
     }
 
@@ -1164,17 +1164,17 @@ class KakaoMapView(
             markerData["latitude"] as Double,
             markerData["longitude"] as Double
         )
-        
+
         val marker = Marker.from(latLng).apply {
             setTag(markerData["id"])
-            
+
             // 커스텀 마커 이미지 설정
             val iconData = markerData["icon"] as? Map<String, Any>
             if (iconData != null) {
                 setImage(createMarkerImage(iconData))
             }
         }
-        
+
         kakaoMap.addMarker(marker)
         markerManager.addMarker(marker)
     }
@@ -1183,20 +1183,20 @@ class KakaoMapView(
         val size = iconData["size"] as? Map<String, Double>
         val width = size?.get("width")?.toInt() ?: 40
         val height = size?.get("height")?.toInt() ?: 40
-        
+
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
-        
+
         // 배경 그리기
         val backgroundColor = Color.parseColor(iconData["backgroundColor"] as String)
         val paint = Paint().apply {
             color = backgroundColor
             isAntiAlias = true
         }
-        
+
         val radius = width / 2f
         canvas.drawCircle(radius, radius, radius, paint)
-        
+
         // 텍스트 그리기 (숫자 마커의 경우)
         val text = iconData["text"] as? String
         if (text != null) {
@@ -1206,7 +1206,7 @@ class KakaoMapView(
                 textAlign = Paint.Align.CENTER
                 isAntiAlias = true
             }
-            
+
             canvas.drawText(
                 text,
                 radius,
@@ -1214,26 +1214,26 @@ class KakaoMapView(
                 textPaint
             )
         }
-        
+
         return bitmap
     }
 
     fun drawRoute(points: List<Map<String, Double>>, style: Map<String, Any>) {
-        val latLngs = points.map { 
+        val latLngs = points.map {
             LatLng.from(it["latitude"]!!, it["longitude"]!!)
         }
-        
+
         val polyline = Polyline.from(latLngs).apply {
             setStrokeWidth((style["width"] as Double).toFloat())
             setStrokeColor(Color.parseColor(style["color"] as String))
-            
+
             // 패턴 설정
             val pattern = style["pattern"] as? List<Double>
             if (pattern != null) {
                 setPattern(pattern.map { it.toFloat() }.toFloatArray())
             }
         }
-        
+
         kakaoMap.addPolyline(polyline)
     }
 }
@@ -1250,13 +1250,13 @@ public class KakaoMapPlugin: NSObject, FlutterPlugin {
         let channel = FlutterMethodChannel(name: "kakao_map_plugin", binaryMessenger: registrar.messenger())
         let instance = KakaoMapPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
-        
+
         registrar.register(
             KakaoMapViewFactory(messenger: registrar.messenger()),
             withId: "kakao_map_view"
         )
     }
-    
+
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
         case "initialize":
@@ -1270,13 +1270,13 @@ public class KakaoMapPlugin: NSObject, FlutterPlugin {
             result(FlutterMethodNotImplemented)
         }
     }
-    
+
     private func initializeKakaoMap(apiKey: String?, result: @escaping FlutterResult) {
         guard let key = apiKey ?? Bundle.main.object(forInfoDictionaryKey: "KakaoApiKey") as? String else {
             result(FlutterError(code: "INIT_ERROR", message: "API Key not found", details: nil))
             return
         }
-        
+
         KMController.shared().prepareEngine { error in
             if let error = error {
                 result(FlutterError(code: "INIT_ERROR", message: error.localizedDescription, details: nil))
@@ -1292,76 +1292,76 @@ class KakaoMapView: NSObject, FlutterPlatformView {
     private let mapView: KMViewContainer
     private var mapController: KMController?
     private let markerManager = MarkerManager()
-    
+
     init(frame: CGRect, viewId: Int64, args: Any?, messenger: FlutterBinaryMessenger) {
         mapView = KMViewContainer()
         super.init()
-        
+
         setupMap(args: args)
     }
-    
+
     func view() -> UIView {
         return mapView
     }
-    
+
     private func setupMap(args: Any?) {
         mapView.resizeWithParent(view: mapView)
-        
+
         mapController = KMController(viewContainer: mapView)!
         mapController?.delegate = self
         mapController?.prepareEngine()
-        
+
         if let params = args as? [String: Any] {
             configureInitialOptions(params)
         }
     }
-    
+
     func addMarker(markerData: [String: Any]) {
         guard let mapController = mapController else { return }
-        
+
         let latitude = markerData["latitude"] as! Double
         let longitude = markerData["longitude"] as! Double
         let position = MapPoint(longitude: longitude, latitude: latitude)
-        
+
         let marker = Marker(position: position)
-        
+
         // 커스텀 마커 이미지 설정
         if let iconData = markerData["icon"] as? [String: Any] {
             marker.image = createMarkerImage(iconData: iconData)
         }
-        
+
         marker.tag = markerData["id"] as? String
-        
+
         mapController.addMarker(marker)
         markerManager.addMarker(marker)
     }
-    
+
     private func createMarkerImage(iconData: [String: Any]) -> UIImage {
         let sizeData = iconData["size"] as? [String: Double]
         let width = CGFloat(sizeData?["width"] ?? 40)
         let height = CGFloat(sizeData?["height"] ?? 40)
-        
+
         let size = CGSize(width: width, height: height)
-        
+
         UIGraphicsBeginImageContextWithOptions(size, false, 0)
         guard let context = UIGraphicsGetCurrentContext() else {
             return UIImage()
         }
-        
+
         // 배경 원 그리기
         if let colorString = iconData["backgroundColor"] as? String {
             let color = UIColor(hexString: colorString)
             context.setFillColor(color.cgColor)
             context.fillEllipse(in: CGRect(origin: .zero, size: size))
         }
-        
+
         // 텍스트 그리기
         if let text = iconData["text"] as? String {
             let attributes: [NSAttributedString.Key: Any] = [
                 .font: UIFont.boldSystemFont(ofSize: 14),
                 .foregroundColor: UIColor.white
             ]
-            
+
             let textSize = text.size(withAttributes: attributes)
             let textRect = CGRect(
                 x: (width - textSize.width) / 2,
@@ -1369,36 +1369,36 @@ class KakaoMapView: NSObject, FlutterPlatformView {
                 width: textSize.width,
                 height: textSize.height
             )
-            
+
             text.draw(in: textRect, withAttributes: attributes)
         }
-        
+
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
-        
+
         return image ?? UIImage()
     }
-    
+
     func drawRoute(points: [[String: Double]], style: [String: Any]) {
         guard let mapController = mapController else { return }
-        
+
         let routePoints = points.map { point in
             MapPoint(
                 longitude: point["longitude"]!,
                 latitude: point["latitude"]!
             )
         }
-        
+
         let polyline = Polyline(points: routePoints)
-        
+
         if let width = style["width"] as? Double {
             polyline.strokeWidth = Float(width)
         }
-        
+
         if let colorString = style["color"] as? String {
             polyline.strokeColor = UIColor(hexString: colorString)
         }
-        
+
         mapController.addPolyline(polyline)
     }
 }
@@ -1408,7 +1408,7 @@ extension KakaoMapView: KMControllerDelegate {
         // 지도 엔진 초기화 완료
         controller.startRendering()
     }
-    
+
     func controller(_ controller: KMController, didFailToStartRenderingWithError error: Error) {
         print("Map rendering failed: \(error.localizedDescription)")
     }
@@ -1429,7 +1429,7 @@ class TestMapVisualizationService {
       Place(id: '1', name: 'Test Cafe', latitude: 37.5665, longitude: 126.9780, category: PlaceCategory.cafe),
       Place(id: '2', name: 'Test Restaurant', latitude: 37.5675, longitude: 126.9790, category: PlaceCategory.restaurant),
     ];
-    
+
     final mapController = MockKakaoMapController();
     final markerManager = MarkerManager(mapController);
 
@@ -1438,14 +1438,14 @@ class TestMapVisualizationService {
 
     // Then
     verify(mapController.addMarker(any)).called(2);
-    
+
     final capturedMarkers = verify(mapController.addMarker(captureAny))
         .captured.cast<Marker>();
-    
+
     expect(capturedMarkers.length, equals(2));
     expect(capturedMarkers[0].id, equals('1'));
     expect(capturedMarkers[1].id, equals('2'));
-    
+
     // 마커 위치 검증
     expect(capturedMarkers[0].position.latitude, closeTo(37.5665, 0.0001));
     expect(capturedMarkers[0].position.longitude, closeTo(126.9780, 0.0001));
@@ -1466,7 +1466,7 @@ class TestMapVisualizationService {
 
     final routeRenderer = RouteRenderer(mockMapController);
     final mockRouteCalculator = MockRouteCalculator();
-    
+
     when(mockRouteCalculator.calculateRoute(any, any, any)).thenAnswer((_) async => [
       LatLng(37.5665, 126.9780),
       LatLng(37.5670, 126.9785),
@@ -1478,7 +1478,7 @@ class TestMapVisualizationService {
 
     // Then
     verify(mockMapController.drawRoute(any, any)).called(2); // 3개 장소 = 2개 경로
-    
+
     final drawnRoutes = verify(mockMapController.drawRoute(captureAny, captureAny)).captured;
     expect(drawnRoutes.length, equals(4)); // points + style for each route
   }
@@ -1539,7 +1539,7 @@ class TestMapVisualizationService {
 
     // Then
     expect(clusteredMarkers.length, lessThan(markers.length));
-    
+
     // 클러스터 마커가 생성되었는지 확인
     final clusterMarkers = clusteredMarkers.where((m) => m.id.startsWith('cluster_'));
     expect(clusterMarkers.isNotEmpty, isTrue);
@@ -1554,7 +1554,7 @@ class TestMapIntegration {
   Future<void> testCourseMapIntegration(WidgetTester tester) async {
     // Given
     final course = await createTestCourse();
-    
+
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(
         body: CourseMapView(course: course),
@@ -1568,11 +1568,11 @@ class TestMapIntegration {
     // Then
     // 지도 위젯이 표시되는지 확인
     expect(find.byType(KakaoMapWidget), findsOneWidget);
-    
+
     // 마커들이 올바르게 표시되는지 확인 (네이티브 호출 모킹)
     final mapWidget = tester.widget<KakaoMapWidget>(find.byType(KakaoMapWidget));
     expect(mapWidget.options.initialMarkers?.length, equals(course.places.length));
-    
+
     // 경로가 그려지는지 확인
     await tester.pump(Duration(seconds: 1));
     // 경로 렌더링 검증 로직
@@ -1586,7 +1586,7 @@ class TestMapIntegration {
       mockRouteCalculator,
       mockVoiceGuide,
     );
-    
+
     await tester.pumpWidget(MaterialApp(
       home: NavigationScreen(navigationService: navigationService),
     ));
@@ -1669,17 +1669,17 @@ class TestMapPerformance {
     // Given
     final batteryService = BatteryOptimizedLocationService();
     final batteryMonitor = MockBatteryMonitor();
-    
+
     final initialBattery = 100.0;
     batteryMonitor.setBatteryLevel(initialBattery);
 
     // When - 1시간 추적 시뮬레이션
     await batteryService.startAdaptiveTracking();
-    
+
     // 정지 상태 시뮬레이션 (30분)
     batteryService.simulateSpeed(0.0);
     await Future.delayed(Duration(minutes: 30));
-    
+
     // 이동 상태 시뮬레이션 (30분)
     batteryService.simulateSpeed(5.0); // 도보
     await Future.delayed(Duration(minutes: 30));
@@ -1689,7 +1689,7 @@ class TestMapPerformance {
     // Then
     final finalBattery = batteryMonitor.getCurrentBatteryLevel();
     final batteryUsage = initialBattery - finalBattery;
-    
+
     expect(batteryUsage, lessThan(15.0)); // 15% 이하 소모
   }
 
@@ -1732,17 +1732,17 @@ class MapConfig {
     'KAKAO_API_KEY',
     defaultValue: '',
   );
-  
+
   static const bool enableOfflineMap = bool.fromEnvironment(
     'ENABLE_OFFLINE_MAP',
     defaultValue: true,
   );
-  
+
   static const int maxCacheSize = int.fromEnvironment(
     'MAP_CACHE_SIZE_MB',
     defaultValue: 50,
   ) * 1024 * 1024; // Convert to bytes
-  
+
   static const Duration locationUpdateInterval = Duration(
     seconds: int.fromEnvironment('LOCATION_UPDATE_INTERVAL_SEC', defaultValue: 3),
   );
@@ -1768,28 +1768,28 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
       with:
         flutter-version: '3.16.0'
-    
+
     - name: Install dependencies
       run: flutter pub get
-    
+
     - name: Run unit tests
       run: flutter test test/map/
       env:
         KAKAO_API_KEY: ${{ secrets.KAKAO_API_KEY }}
-    
+
     - name: Build Android
       run: flutter build apk --debug
       env:
         KAKAO_API_KEY: ${{ secrets.KAKAO_API_KEY }}
-    
+
     - name: Run integration tests on Android
       uses: reactivecircus/android-emulator-runner@v2
       with:
@@ -1801,18 +1801,18 @@ jobs:
   performance-test:
     runs-on: ubuntu-latest
     needs: test
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
       with:
         flutter-version: '3.16.0'
-    
+
     - name: Run performance tests
       run: flutter test test/map/performance/ --reporter=json > performance_results.json
-    
+
     - name: Analyze performance results
       run: |
         python scripts/analyze_performance.py performance_results.json
@@ -1830,7 +1830,7 @@ jobs:
 ```dart
 class MapAnalytics {
   static const String _eventPrefix = 'map';
-  
+
   static void trackMapLoad({
     required Duration loadTime,
     required int markerCount,
@@ -1843,7 +1843,7 @@ class MapAnalytics {
       'timestamp': DateTime.now().millisecondsSinceEpoch,
     });
   }
-  
+
   static void trackMarkerInteraction({
     required String markerId,
     required String action, // tap, info_window, cluster_expand
@@ -1856,7 +1856,7 @@ class MapAnalytics {
       'longitude': position.longitude,
     });
   }
-  
+
   static void trackNavigationUsage({
     required Duration sessionDuration,
     required double totalDistance,
@@ -1871,7 +1871,7 @@ class MapAnalytics {
       'completed': true,
     });
   }
-  
+
   static void trackPerformanceMetric({
     required String metric,
     required double value,
@@ -1882,11 +1882,11 @@ class MapAnalytics {
       'value': value,
       'timestamp': DateTime.now().millisecondsSinceEpoch,
     };
-    
+
     if (additionalData != null) {
       data.addAll(additionalData);
     }
-    
+
     Analytics.track('${_eventPrefix}_performance', data);
   }
 }

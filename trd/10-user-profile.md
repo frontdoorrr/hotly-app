@@ -48,7 +48,7 @@ Backend:
   Framework: Express.js
   Validation: Joi, express-validator
   File Upload: Multer, Sharp (이미지 처리)
-  
+
 Database:
   Primary: PostgreSQL (user profiles, settings)
   Cache: Redis Cluster (settings, preferences)
@@ -64,7 +64,7 @@ Security:
   Encryption: AES-256-GCM (sensitive data)
   Privacy: GDPR compliance toolkit
   Audit: Winston + PostgreSQL (audit logs)
-  
+
 Client:
   State Management: Redux Toolkit (profile state)
   Form Handling: React Hook Form + Yup
@@ -79,7 +79,7 @@ Client:
 CREATE TABLE user_profiles (
   id SERIAL PRIMARY KEY,
   user_id VARCHAR(128) UNIQUE NOT NULL, -- Firebase Auth UID
-  
+
   -- 공개 프로필 정보
   display_name VARCHAR(50) NOT NULL,
   photo_url TEXT,
@@ -88,7 +88,7 @@ CREATE TABLE user_profiles (
   interests TEXT[], -- PostgreSQL array type
   joined_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   last_active_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-  
+
   -- 개인정보 (비공개)
   email VARCHAR(255) NOT NULL,
   phone_number VARCHAR(20),
@@ -96,11 +96,11 @@ CREATE TABLE user_profiles (
   gender VARCHAR(20) CHECK (gender IN ('male', 'female', 'other', 'prefer_not_to_say')),
   email_verified BOOLEAN NOT NULL DEFAULT FALSE,
   phone_verified BOOLEAN NOT NULL DEFAULT FALSE,
-  
+
   -- 개인화 설정 (JSONB로 저장)
   dating_preferences JSONB DEFAULT '{}',
   recommendation_preferences JSONB DEFAULT '{}',
-  
+
   -- 예시 JSONB 구조:
   -- dating_preferences: {
   --   "region": ["seoul", "busan"],
@@ -114,7 +114,7 @@ CREATE TABLE user_profiles (
   --   "atmospherePreference": {"quiet_lively": 2, "traditional_modern": -1},
   --   "discoveryMode": "moderate"
   -- }
-  
+
   -- 알림 설정
   notification_settings JSONB DEFAULT '{
     "push": {
@@ -137,17 +137,17 @@ CREATE TABLE user_profiles (
       "timezone": "Asia/Seoul"
     }
   }',
-  
+
   -- 프라이버시 설정
   privacy_settings JSONB DEFAULT '{
     "profileVisibility": "friends",
-    "activityVisibility": "friends", 
+    "activityVisibility": "friends",
     "locationSharing": true,
     "analyticsOptIn": true,
     "marketingOptIn": false,
     "dataRetention": "standard"
   }',
-  
+
   -- 메타데이터
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
@@ -323,14 +323,14 @@ interface GetUserStatsResponse {
     totalShares: number;
     activeStreak: number; // 연속 활동 일수
   };
-  
+
   activity: {
     placesThisPeriod: number;
     coursesThisPeriod: number;
     avgPerWeek: number;
     trendDirection: 'up' | 'down' | 'stable';
   };
-  
+
   preferences: {
     topCategories: Array<{
       category: string;
@@ -347,7 +347,7 @@ interface GetUserStatsResponse {
       preferredHours: number[];
     };
   };
-  
+
   insights: {
     personalityType: string;
     explorationScore: number; // 0-100
@@ -430,11 +430,11 @@ class ProfileService {
       'SELECT * FROM user_profiles WHERE user_id = $1',
       [userId]
     );
-    
+
     if (result.rows.length === 0) {
       throw new NotFoundError('Profile not found');
     }
-    
+
     const profile = result.rows[0];
 
     // 3. 캐시 저장 (1시간 TTL)
@@ -473,8 +473,8 @@ class ProfileService {
     };
 
     await this.postgresql.query(`
-      UPDATE user_profiles 
-      SET 
+      UPDATE user_profiles
+      SET
         display_name = COALESCE($2, display_name),
         bio = COALESCE($3, bio),
         location = COALESCE($4, location),
@@ -578,7 +578,7 @@ class ProfileService {
     context: RequestContext
   ): Promise<void> {
     const changes = this.calculateChanges(oldProfile, updates);
-    
+
     for (const change of changes) {
       await this.auditLogger.log({
         userId,
@@ -620,29 +620,29 @@ class SettingsService {
 
   async getSettings(userId: string): Promise<UserSettings> {
     const cacheKey = `settings:${userId}`;
-    
+
     // Redis에서 설정 조회
     const cachedSettings = await this.redis.hgetall(cacheKey);
-    
+
     if (Object.keys(cachedSettings).length > 0) {
       return this.deserializeSettings(cachedSettings);
     }
 
     // DB에서 조회
     const result = await this.postgresql.query(`
-      SELECT 
+      SELECT
         dating_preferences,
         recommendation_preferences,
         notification_settings,
         privacy_settings
-      FROM user_profiles 
+      FROM user_profiles
       WHERE user_id = $1
     `, [userId]);
 
     if (result.rows.length === 0) {
       throw new NotFoundError('User settings not found');
     }
-    
+
     const profile = result.rows[0];
 
     const settings = {
@@ -672,11 +672,11 @@ class SettingsService {
     // 2. DB 업데이트
     let updateQuery: string;
     let queryParams: any[];
-    
+
     switch (settingType) {
       case 'preferences':
         updateQuery = `
-          UPDATE user_profiles 
+          UPDATE user_profiles
           SET dating_preferences = COALESCE($2, dating_preferences),
               recommendation_preferences = COALESCE($3, recommendation_preferences),
               updated_at = NOW(),
@@ -684,14 +684,14 @@ class SettingsService {
           WHERE user_id = $1
         `;
         queryParams = [
-          userId, 
+          userId,
           updates.dating ? JSON.stringify(updates.dating) : null,
           updates.recommendations ? JSON.stringify(updates.recommendations) : null
         ];
         break;
       case 'notifications':
         updateQuery = `
-          UPDATE user_profiles 
+          UPDATE user_profiles
           SET notification_settings = $2,
               updated_at = NOW(),
               version = version + 1
@@ -701,7 +701,7 @@ class SettingsService {
         break;
       case 'privacy':
         updateQuery = `
-          UPDATE user_profiles 
+          UPDATE user_profiles
           SET privacy_settings = $2,
               updated_at = NOW(),
               version = version + 1
@@ -741,14 +741,14 @@ class SettingsService {
         // 알림 서비스에 즉시 설정 반영
         await this.updateNotificationPreferences(userId, updates);
         break;
-        
+
       case 'privacy':
         // 프라이버시 설정 즉시 적용
         if (updates.profileVisibility) {
           await this.updateProfileVisibility(userId, updates.profileVisibility);
         }
         break;
-        
+
       case 'preferences':
         // 추천 엔진에 새로운 선호도 반영
         await this.updateRecommendationPreferences(userId, updates);
@@ -761,7 +761,7 @@ class SettingsService {
     settingType: 'all' | 'preferences' | 'notifications' | 'privacy'
   ): Promise<void> {
     const defaultSettings = this.getDefaultSettings();
-    
+
     let updateQuery: any = {
       'metadata.updatedAt': new Date(),
       $inc: { 'metadata.version': 1 }
@@ -769,7 +769,7 @@ class SettingsService {
 
     if (settingType === 'all') {
       updateQuery = `
-        UPDATE user_profiles 
+        UPDATE user_profiles
         SET dating_preferences = $2,
             recommendation_preferences = $3,
             notification_settings = $4,
@@ -789,7 +789,7 @@ class SettingsService {
       switch (settingType) {
         case 'preferences':
           updateQuery = `
-            UPDATE user_profiles 
+            UPDATE user_profiles
             SET dating_preferences = $2,
                 recommendation_preferences = $3,
                 updated_at = NOW(),
@@ -804,7 +804,7 @@ class SettingsService {
           break;
         case 'notifications':
           updateQuery = `
-            UPDATE user_profiles 
+            UPDATE user_profiles
             SET notification_settings = $2,
                 updated_at = NOW(),
                 version = version + 1
@@ -814,7 +814,7 @@ class SettingsService {
           break;
         case 'privacy':
           updateQuery = `
-            UPDATE user_profiles 
+            UPDATE user_profiles
             SET privacy_settings = $2,
                 updated_at = NOW(),
                 version = version + 1
@@ -851,7 +851,7 @@ class SettingsService {
           discoveryMode: Joi.string().valid('conservative', 'moderate', 'adventurous')
         })
       }),
-      
+
       notifications: Joi.object({
         push: Joi.object({
           enabled: Joi.boolean(),
@@ -870,7 +870,7 @@ class SettingsService {
           end: Joi.string().pattern(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/)
         })
       }),
-      
+
       privacy: Joi.object({
         profileVisibility: Joi.string().valid('public', 'friends', 'private'),
         activityVisibility: Joi.string().valid('public', 'friends', 'private'),
@@ -923,7 +923,7 @@ class UserAnalyticsService {
       // 2. Redis에서 일일 통계 증분 업데이트
       const today = new Date().toISOString().split('T')[0];
       const key = `user_stats:${userId}:${today}`;
-      
+
       await this.redis.hincrby(key, activity.type, 1);
       await this.redis.expire(key, 86400 * 7); // 7일 보관
 
@@ -941,7 +941,7 @@ class UserAnalyticsService {
     period: 'week' | 'month' | 'quarter' | 'year' = 'month'
   ): Promise<UserStats> {
     const cacheKey = `user_stats:${userId}:${period}`;
-    
+
     // 캐시 확인
     const cachedStats = await this.redis.get(cacheKey);
     if (cachedStats) {
@@ -950,7 +950,7 @@ class UserAnalyticsService {
 
     // ClickHouse에서 통계 계산
     const stats = await this.calculateUserStats(userId, period);
-    
+
     // 캐시 저장 (1시간 TTL)
     await this.redis.setex(cacheKey, 3600, JSON.stringify(stats));
 
@@ -962,7 +962,7 @@ class UserAnalyticsService {
     period: string
   ): Promise<UserStats> {
     const dateRange = this.getDateRange(period);
-    
+
     // 병렬로 여러 통계 쿼리 실행
     const [
       activitySummary,
@@ -997,7 +997,7 @@ class UserAnalyticsService {
     dateRange: { start: Date; end: Date }
   ): Promise<ActivitySummary> {
     const query = `
-      SELECT 
+      SELECT
         countIf(event_type = 'place_saved') as places_saved,
         countIf(event_type = 'course_created') as courses_created,
         countIf(event_type = 'place_visited') as places_visited,
@@ -1021,12 +1021,12 @@ class UserAnalyticsService {
     dateRange: { start: Date; end: Date }
   ): Promise<CategoryDistribution[]> {
     const query = `
-      SELECT 
+      SELECT
         JSONExtractString(event_data, 'category') as category,
         count(*) as count,
         count(*) * 100.0 / sum(count(*)) OVER() as percentage
       FROM user_behavior_events
-      WHERE user_id = ? 
+      WHERE user_id = ?
         AND event_type = 'place_saved'
         AND timestamp BETWEEN ? AND ?
       GROUP BY category
@@ -1066,13 +1066,13 @@ class UserAnalyticsService {
 
   private determinePersonalityType(stats: any): string {
     const { categoryDistribution, explorationMetrics, timePatterns } = stats;
-    
+
     // 카테고리 다양성 지수
     const diversityScore = this.calculateDiversityScore(categoryDistribution);
-    
+
     // 탐험성 지수
     const explorationScore = explorationMetrics.newPlacesRatio;
-    
+
     // 시간 패턴 분석
     const isEveningPerson = timePatterns.preferredHours.some(h => h >= 18);
     const isWeekendPerson = timePatterns.preferredDays.includes('weekend');
@@ -1090,10 +1090,10 @@ class UserAnalyticsService {
   async generateMonthlyReport(userId: string): Promise<MonthlyReport> {
     const lastMonth = new Date();
     lastMonth.setMonth(lastMonth.getMonth() - 1);
-    
+
     const stats = await this.getUserStats(userId, 'month');
     const profile = await this.getProfile(userId);
-    
+
     return {
       userId,
       period: {
@@ -1126,16 +1126,16 @@ class PersonalizationEngine {
   ): Promise<PersonalizedRecommendations> {
     // 1. 사용자 벡터 생성
     const userVector = await this.createUserVector(userProfile, userStats);
-    
+
     // 2. 유사한 사용자 찾기
     const similarUsers = await this.findSimilarUsers(userId, userVector);
-    
+
     // 3. 카테고리별 선호도 예측
     const categoryPreferences = await this.predictCategoryPreferences(
       userVector,
       similarUsers
     );
-    
+
     // 4. 시간/지역 패턴 기반 추천
     const contextualRecommendations = await this.generateContextualRecommendations(
       userId,
@@ -1160,7 +1160,7 @@ class PersonalizationEngine {
       categoryPreferences: this.normalizePreferences(
         profile.preferences.recommendations.categoryRatings
       ),
-      
+
       // 행동 패턴
       behaviorPattern: {
         explorationRate: stats.exploration.explorationScore / 100,
@@ -1168,7 +1168,7 @@ class PersonalizationEngine {
         activityLevel: Math.min(stats.summary.totalPlaces / 100, 1),
         consistency: this.calculateConsistencyScore(stats)
       },
-      
+
       // 상황적 선호도
       contextualPreferences: {
         timeSlots: profile.preferences.dating.timeSlots,
@@ -1192,7 +1192,7 @@ class PersonalizationEngine {
       ORDER BY similarity_score DESC
       LIMIT 20
     `;
-    
+
     const results = await this.clickhouse.query(query, [userId]);
     return results.rows.map(row => row.user_id);
   }
@@ -1205,12 +1205,12 @@ class PersonalizationEngine {
     if (feedback.type === 'explicit') {
       await this.updateExplicitPreferences(userId, feedback);
     }
-    
+
     // 암묵적 피드백 (클릭, 체류시간 등)
     if (feedback.type === 'implicit') {
       await this.updateImplicitPreferences(userId, feedback);
     }
-    
+
     // 선호도 모델 재학습 큐에 추가
     await this.scheduleModelRetraining(userId);
   }
@@ -1220,23 +1220,23 @@ class PersonalizationEngine {
     stats: UserStats
   ): string[] {
     const tips: string[] = [];
-    
+
     // 탐험성 기반 팁
     if (stats.insights.explorationScore < 30) {
       tips.push('새로운 지역도 탐험해보세요! 평소와 다른 분위기를 경험할 수 있어요.');
     }
-    
+
     // 카테고리 편중 분석
     const topCategory = stats.preferences.topCategories[0];
     if (topCategory.percentage > 60) {
       tips.push(`${topCategory.category} 외에도 다양한 카테고리를 시도해보세요.`);
     }
-    
+
     // 시간 패턴 분석
     if (stats.preferences.timePatterns.preferredDays.length <= 1) {
       tips.push('평일 데이트도 시도해보세요. 사람이 적어서 더 특별할 수 있어요.');
     }
-    
+
     // 소셜 활동 분석
     if (stats.insights.socialScore < 20) {
       tips.push('코스를 친구들과 공유해보세요. 새로운 아이디어를 얻을 수 있어요.');
@@ -1265,19 +1265,19 @@ class DataManagementService {
     options: ExportOptions
   ): Promise<ExportResult> {
     const exportId = this.generateExportId();
-    
+
     try {
       // 1. 내보낼 데이터 수집
       const userData = await this.collectUserData(userId, options);
-      
+
       // 2. 데이터 포맷팅
       const formattedData = await this.formatExportData(userData, options.format);
-      
+
       // 3. 암호화 (옵션)
-      const encryptedData = options.encrypt 
+      const encryptedData = options.encrypt
         ? await this.encryptionService.encrypt(formattedData)
         : formattedData;
-      
+
       // 4. S3에 업로드
       const fileName = `user-data-export-${userId}-${Date.now()}.${options.format}`;
       const uploadResult = await this.s3Client.upload({
@@ -1302,7 +1302,7 @@ class DataManagementService {
       // 6. 내보내기 기록 저장
       await this.postgresql.query(`
         INSERT INTO data_exports (
-          export_id, user_id, status, download_url, 
+          export_id, user_id, status, download_url,
           file_size, format, expires_at
         ) VALUES ($1, $2, $3, $4, $5, $6, $7)
       `, [
@@ -1331,7 +1331,7 @@ class DataManagementService {
 
     } catch (error) {
       console.error('Data export failed:', error);
-      
+
       // 실패 기록
       await this.postgresql.query(`
         INSERT INTO data_exports (export_id, user_id, status, error)
@@ -1363,17 +1363,17 @@ class DataManagementService {
             await this.deleteProfileData(userId);
             deletionResults.deletedItems.push('profile');
             break;
-            
+
           case 'activity':
             await this.deleteActivityData(userId);
             deletionResults.deletedItems.push('activity');
             break;
-            
+
           case 'analytics':
             await this.deleteAnalyticsData(userId);
             deletionResults.deletedItems.push('analytics');
             break;
-            
+
           case 'all':
             await this.deleteAllUserData(userId);
             deletionResults.deletedItems.push('all');
@@ -1417,7 +1417,7 @@ class DataManagementService {
   async restoreAccount(userId: string): Promise<void> {
     // 1. 스케줄된 삭제 취소
     await this.postgresql.query(`
-      UPDATE scheduled_deletions 
+      UPDATE scheduled_deletions
       SET status = 'cancelled', cancelled_at = NOW()
       WHERE user_id = $1 AND status = 'scheduled'
     `, [userId]);
@@ -1459,7 +1459,7 @@ class DataManagementService {
         WHERE user_id = ?
         ORDER BY timestamp DESC
       `;
-      
+
       const analyticsResult = await this.clickhouse.query(analyticsQuery, [userId]);
       data.analytics = analyticsResult.rows;
     }
@@ -1474,18 +1474,18 @@ class DataManagementService {
       this.postgresql.query('DELETE FROM places WHERE user_id = $1', [userId]),
       this.postgresql.query('DELETE FROM courses WHERE user_id = $1', [userId]),
       this.postgresql.query('DELETE FROM user_sessions WHERE user_id = $1', [userId]),
-      
+
       // ClickHouse 데이터 삭제
       this.clickhouse.query('DELETE FROM user_behavior_events WHERE user_id = ?', [userId]),
       this.clickhouse.query('DELETE FROM user_activity_stats WHERE user_id = ?', [userId]),
-      
+
       // Redis 캐시 삭제
       this.redis.del(`profile:${userId}`),
       this.redis.del(`settings:${userId}`),
       this.redis.keys(`user_stats:${userId}:*`).then(keys => {
         if (keys.length > 0) return this.redis.del(...keys);
       }),
-      
+
       // S3 파일 삭제 (프로필 이미지 등)
       this.deleteUserFiles(userId)
     ]);
@@ -1520,16 +1520,16 @@ class GDPRComplianceService {
     switch (requestType) {
       case 'access':
         return await this.handleAccessRequest(userId);
-        
+
       case 'rectification':
         return await this.handleRectificationRequest(userId, details);
-        
+
       case 'erasure':
         return await this.handleErasureRequest(userId);
-        
+
       case 'portability':
         return await this.handlePortabilityRequest(userId, details);
-        
+
       default:
         throw new Error('Unsupported request type');
     }
@@ -1538,7 +1538,7 @@ class GDPRComplianceService {
   private async handleAccessRequest(userId: string): Promise<DSRResult> {
     // 사용자가 접근할 수 있는 모든 개인 데이터 수집
     const personalData = await this.collectAllPersonalData(userId);
-    
+
     // 데이터 처리 목적과 법적 근거 포함
     const dataReport = {
       personalData,
@@ -1561,7 +1561,7 @@ class GDPRComplianceService {
   private async handleErasureRequest(userId: string): Promise<DSRResult> {
     // 삭제 권리 적용 가능성 검토
     const erasureCheck = await this.checkErasureEligibility(userId);
-    
+
     if (!erasureCheck.eligible) {
       return {
         status: 'rejected',
@@ -1593,7 +1593,7 @@ class GDPRComplianceService {
   async checkConsentStatus(userId: string): Promise<ConsentStatus> {
     const result = await this.postgresql.query(`
       SELECT privacy_settings, dating_preferences, updated_at
-      FROM user_profiles 
+      FROM user_profiles
       WHERE user_id = $1
     `, [userId]);
 
@@ -1602,7 +1602,7 @@ class GDPRComplianceService {
     }
 
     const profile = result.rows[0];
-    
+
     return {
       essential: true, // 서비스 운영에 필수
       analytics: profile.privacy_settings.analyticsOptIn,
@@ -1618,16 +1618,16 @@ class GDPRComplianceService {
     granted: boolean
   ): Promise<void> {
     const updateField = this.getConsentField(consentType);
-    
+
     const updateQuery = `
-      UPDATE user_profiles 
+      UPDATE user_profiles
       SET privacy_settings = privacy_settings || $2,
           updated_at = NOW()
       WHERE user_id = $1
     `;
-    
+
     await this.postgresql.query(updateQuery, [
-      userId, 
+      userId,
       JSON.stringify({ [this.getConsentField(consentType)]: granted })
     ]);
 
@@ -1655,12 +1655,12 @@ class GDPRComplianceService {
         // 분석 데이터 수집 중단
         await this.stopAnalyticsCollection(userId);
         break;
-        
+
       case 'marketing':
         // 마케팅 커뮤니케이션 중단
         await this.unsubscribeFromMarketing(userId);
         break;
-        
+
       case 'personalization':
         // 개인화 데이터 삭제
         await this.clearPersonalizationData(userId);
@@ -1733,13 +1733,13 @@ class ProfileCacheManager {
     if (cached) {
       return JSON.parse(cached);
     }
-    
+
     return null;
   }
 
   async setProfile(userId: string, profile: UserProfile): Promise<void> {
     const ttl = this.calculateTTL(profile);
-    
+
     await Promise.all([
       // 전체 프로필 캐시
       this.redis.setex(
@@ -1747,14 +1747,14 @@ class ProfileCacheManager {
         ttl,
         JSON.stringify(profile)
       ),
-      
+
       // 자주 접근하는 필드들 별도 캐시
       this.redis.hset(`profile_quick:${userId}`, {
         displayName: profile.profile.displayName,
         photoURL: profile.profile.photoURL || '',
         lastActiveAt: profile.profile.lastActiveAt.toISOString()
       }),
-      
+
       // 설정만 별도 캐시 (더 자주 변경됨)
       this.redis.setex(
         `settings:${userId}`,
@@ -1792,7 +1792,7 @@ class ProfileCacheManager {
     // 최근 활동 기반 TTL 계산
     const lastActive = new Date(profile.profile.lastActiveAt);
     const daysSinceActive = (Date.now() - lastActive.getTime()) / (1000 * 60 * 60 * 24);
-    
+
     if (daysSinceActive < 1) return 3600;      // 1시간 (활성 사용자)
     if (daysSinceActive < 7) return 7200;      // 2시간 (최근 활성)
     if (daysSinceActive < 30) return 14400;    // 4시간 (보통)
@@ -1812,14 +1812,14 @@ class ProfileCacheManager {
   // 배치로 여러 프로필 조회 (N+1 문제 해결)
   async getMultipleProfiles(userIds: string[]): Promise<Map<string, UserProfile>> {
     const pipeline = this.redis.pipeline();
-    
+
     userIds.forEach(userId => {
       pipeline.get(`profile:${userId}`);
     });
 
     const results = await pipeline.exec();
     const profiles = new Map<string, UserProfile>();
-    
+
     results?.forEach((result, index) => {
       if (result[1]) { // result[0]은 에러, result[1]은 값
         const profile = JSON.parse(result[1] as string);
@@ -1838,19 +1838,19 @@ class ProfileCacheManager {
 class DatabaseOptimizer {
   async createIndexes(): Promise<void> {
     // 복합 인덱스는 이미 테이블 생성 시 정의됨
-    
+
     // 추가 최적화 인덱스들
     const additionalIndexes = [
-      `CREATE INDEX CONCURRENTLY idx_user_profiles_region_activity 
+      `CREATE INDEX CONCURRENTLY idx_user_profiles_region_activity
        ON user_profiles USING gin((dating_preferences->'region'), last_active_at DESC);`,
-      
-      `CREATE INDEX CONCURRENTLY idx_user_profiles_visibility_activity 
+
+      `CREATE INDEX CONCURRENTLY idx_user_profiles_visibility_activity
        ON user_profiles((privacy_settings->>'profileVisibility'), last_active_at DESC);`,
-       
-      `CREATE INDEX CONCURRENTLY idx_setting_logs_user_timestamp 
+
+      `CREATE INDEX CONCURRENTLY idx_setting_logs_user_timestamp
        ON setting_change_logs(user_id, timestamp DESC);`
     ];
-    
+
     for (const indexQuery of additionalIndexes) {
       try {
         await this.postgresql.query(indexQuery);
@@ -1858,10 +1858,10 @@ class DatabaseOptimizer {
         console.warn('Index creation failed (may already exist):', error.message);
       }
     }
-    
+
     // 자동 삭제를 위한 파티션 설정 (PostgreSQL 11+)
     await this.postgresql.query(`
-      SELECT cron.schedule('cleanup-old-logs', '0 2 * * *', 
+      SELECT cron.schedule('cleanup-old-logs', '0 2 * * *',
         'DELETE FROM setting_change_logs WHERE timestamp < NOW() - INTERVAL ''90 days'''
       );
     `);
@@ -1869,11 +1869,11 @@ class DatabaseOptimizer {
 
   async optimizeQueries(): Promise<void> {
     // 자주 사용되는 쿼리들을 위한 Aggregation Pipeline 최적화
-    
+
     // 사용자 통계 집계를 위한 최적화된 뷰
     const createUserStatsView = `
       CREATE MATERIALIZED VIEW user_stats_view AS
-      SELECT 
+      SELECT
         up.user_id,
         up.display_name,
         up.last_active_at,
@@ -1882,11 +1882,11 @@ class DatabaseOptimizer {
         COUNT(DISTINCT s.id) as shares_count
       FROM user_profiles up
       LEFT JOIN places p ON up.user_id = p.user_id
-      LEFT JOIN courses c ON up.user_id = c.user_id  
+      LEFT JOIN courses c ON up.user_id = c.user_id
       LEFT JOIN shares s ON up.user_id = s.user_id
       GROUP BY up.user_id, up.display_name, up.last_active_at;
     `;
-    
+
     // 인덱스와 함께 뷰 생성
     await this.postgresql.query(createUserStatsView);
     await this.postgresql.query('CREATE INDEX idx_user_stats_view_user_id ON user_stats_view(user_id);');
@@ -2001,8 +2001,8 @@ class ProfileMonitoringService {
     const rule = rules[metric];
     if (!rule) return;
 
-    const shouldAlert = rule.operator === 'gt' 
-      ? value > rule.threshold 
+    const shouldAlert = rule.operator === 'gt'
+      ? value > rule.threshold
       : value < rule.threshold;
 
     if (shouldAlert) {

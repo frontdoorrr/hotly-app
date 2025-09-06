@@ -73,10 +73,12 @@ class AnalysisResult(BaseModel):
     )
 
     class Config:
-        alias_generator = lambda field_name: "".join(
-            word.capitalize() if i > 0 else word
-            for i, word in enumerate(field_name.split("_"))
-        )
+        def alias_generator(field_name: str) -> str:
+            return "".join(
+                word.capitalize() if i > 0 else word
+                for i, word in enumerate(field_name.split("_"))
+            )
+
         allow_population_by_field_name = True
 
 
@@ -96,10 +98,12 @@ class LinkAnalyzeResponse(BaseModel):
     )
 
     class Config:
-        alias_generator = lambda field_name: "".join(
-            word.capitalize() if i > 0 else word
-            for i, word in enumerate(field_name.split("_"))
-        )
+        def alias_generator(field_name: str) -> str:
+            return "".join(
+                word.capitalize() if i > 0 else word
+                for i, word in enumerate(field_name.split("_"))
+            )
+
         allow_population_by_field_name = True
 
 
@@ -117,10 +121,12 @@ class AnalysisStatusResponse(BaseModel):
     result: Optional[AnalysisResult] = Field(None, description="Result if completed")
 
     class Config:
-        alias_generator = lambda field_name: "".join(
-            word.capitalize() if i > 0 else word
-            for i, word in enumerate(field_name.split("_"))
-        )
+        def alias_generator(field_name: str) -> str:
+            return "".join(
+                word.capitalize() if i > 0 else word
+                for i, word in enumerate(field_name.split("_"))
+            )
+
         allow_population_by_field_name = True
 
 
@@ -158,8 +164,10 @@ class BulkAnalyzeResponse(BaseModel):
     )
 
     class Config:
-        alias_generator = lambda field_name: "".join(
-            word.capitalize() if i > 0 else word
-            for i, word in enumerate(field_name.split("_"))
-        )
+        def alias_generator(field_name: str) -> str:
+            return "".join(
+                word.capitalize() if i > 0 else word
+                for i, word in enumerate(field_name.split("_"))
+            )
+
         allow_population_by_field_name = True

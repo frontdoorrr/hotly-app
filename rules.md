@@ -53,13 +53,13 @@
 
 - 코드 작성 rule
 2. 모든 코드는 재사용이 가능하도록 설계되어야 함.
-2-1. 객체지향적이고 모듈화가 잘 이루어져야함. 
+2-1. 객체지향적이고 모듈화가 잘 이루어져야함.
 2-2. 모든 코드 작성 시, 예시 아키텍쳐를 잘 따라야 하고 예외 사항이 많지 않아야 함.
 2-3. 모든 코드는 테스트 코드 먼저 작성하며, TDD 기반으로 설계되어야 함.
     - Red-Green-Refactor 사이클 준수: 실패하는 테스트 → 최소 구현 → 리팩토링
     - 단위 테스트부터 시작하여 점진적으로 통합/E2E 테스트 추가
     - 테스트 케이스는 요구사항을 코드로 명세하는 역할 (Living Documentation)
-    - 테스트 우선 설계로 결합도 낮추고 테스트 가능한 구조 강제 
+    - 테스트 우선 설계로 결합도 낮추고 테스트 가능한 구조 강제
 2-4. "Python 코드 스타일은 PEP8을 준수하세요. 코드를 리뷰할 때 PEP8 위반 사항(들여쓰기, 라인 길이 등)을 지적하세요."
     "모든 함수와 클래스에는 docstring을 포함하고, 함수 정의에는 가능한 한 타입 힌트를 사용하세요."
     "예외 처리를 누락하지 않도록 하고, try/except 사용 시 발생 가능한 모든 예외를 적절히 처리하세요."
@@ -106,7 +106,7 @@
 2-13. 문서화
     - 공개 API는 Docstring과 OpenAPI에 반영. 변경 시 changelog와 ADR 남김.
 
- 
+
  - 코드 컨벤션 rule (기술 스택 기반)
  3. 공통 컨벤션
  3-1. 네이밍
@@ -142,10 +142,10 @@
      - 템플릿:
        ```
        feat(scope): add feature description
-       
+
        Explain the reason for this change and what problem it solves.
        Include any breaking changes or migration notes.
-       
+
        Closes #123
        ```
  3-5-4. 커밋 품질 기준

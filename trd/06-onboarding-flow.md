@@ -29,7 +29,7 @@
 ```
 OnboardingStateMachine
 ├── WelcomeState
-├── FeatureIntroState  
+├── FeatureIntroState
 ├── BasicSetupState
 ├── PreferencesState
 ├── FirstExperienceState
@@ -66,7 +66,7 @@ class OnboardingState {
   final Map<OnboardingStep, bool> skippedSteps;
   final UserPreferences preferences;
   final bool canSkip;
-  
+
   const OnboardingState({
     required this.currentStep,
     required this.totalSteps,
@@ -77,7 +77,7 @@ class OnboardingState {
   });
 
   double get progress => (completedSteps.values.where((v) => v).length) / totalSteps;
-  
+
   OnboardingState copyWith({
     OnboardingStep? currentStep,
     Map<OnboardingStep, bool>? completedSteps,
@@ -103,7 +103,7 @@ class UserPreferences {
   final Map<InterestCategory, int> interests;
   final NotificationSettings notifications;
   final String theme;
-  
+
   const UserPreferences({
     this.region,
     this.transportMethods = const [],
@@ -112,16 +112,16 @@ class UserPreferences {
     this.theme = 'system',
   });
 
-  bool get isComplete => 
-    region != null && 
-    transportMethods.isNotEmpty && 
+  bool get isComplete =>
+    region != null &&
+    transportMethods.isNotEmpty &&
     interests.isNotEmpty;
 }
 
 // 온보딩 컨트롤러 (Riverpod)
 class OnboardingController extends StateNotifier<OnboardingState> {
   OnboardingController() : super(_initialState);
-  
+
   static const _initialState = OnboardingState(
     currentStep: OnboardingStep.welcome,
     totalSteps: 6,
@@ -132,22 +132,22 @@ class OnboardingController extends StateNotifier<OnboardingState> {
 
   Future<void> nextStep() async {
     final currentIndex = OnboardingStep.values.indexOf(state.currentStep);
-    
+
     if (currentIndex < OnboardingStep.values.length - 1) {
       final nextStep = OnboardingStep.values[currentIndex + 1];
-      
+
       // 현재 단계 완료 표시
       final newCompletedSteps = Map<OnboardingStep, bool>.from(state.completedSteps);
       newCompletedSteps[state.currentStep] = true;
-      
+
       state = state.copyWith(
         currentStep: nextStep,
         completedSteps: newCompletedSteps,
       );
-      
+
       // 진행 상황 저장
       await _saveProgress();
-      
+
       // 분석 이벤트 전송
       await _trackStepCompleted(state.currentStep);
     }
@@ -155,7 +155,7 @@ class OnboardingController extends StateNotifier<OnboardingState> {
 
   Future<void> previousStep() async {
     final currentIndex = OnboardingStep.values.indexOf(state.currentStep);
-    
+
     if (currentIndex > 0) {
       final previousStep = OnboardingStep.values[currentIndex - 1];
       state = state.copyWith(currentStep: previousStep);
@@ -164,16 +164,16 @@ class OnboardingController extends StateNotifier<OnboardingState> {
 
   Future<void> skipStep() async {
     if (!state.canSkip) return;
-    
+
     // 현재 단계 건너뛰기 표시
     final newSkippedSteps = Map<OnboardingStep, bool>.from(state.skippedSteps);
     newSkippedSteps[state.currentStep] = true;
-    
+
     state = state.copyWith(skippedSteps: newSkippedSteps);
-    
+
     // 분석 이벤트
     await _trackStepSkipped(state.currentStep);
-    
+
     // 다음 단계로
     await nextStep();
   }
@@ -182,7 +182,7 @@ class OnboardingController extends StateNotifier<OnboardingState> {
     // 게스트 모드로 전환
     await _setGuestMode(true);
     await _trackOnboardingSkipped();
-    
+
     // 메인 앱으로 이동
     _navigateToMainApp();
   }
@@ -195,13 +195,13 @@ class OnboardingController extends StateNotifier<OnboardingState> {
   Future<void> completeOnboarding() async {
     // 온보딩 완료 표시
     await _setOnboardingCompleted(true);
-    
+
     // 최종 설정 서버 동기화
     await _syncUserPreferences();
-    
+
     // 완료 이벤트
     await _trackOnboardingCompleted();
-    
+
     // 첫 체험 준비
     await _prepareFirstExperience();
   }
@@ -251,7 +251,7 @@ class OnboardingScreen extends ConsumerWidget {
               progress: state.progress,
               currentStep: state.currentStep,
             ),
-            
+
             // 메인 콘텐츠
             Expanded(
               child: PageView.builder(
@@ -267,7 +267,7 @@ class OnboardingScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            
+
             // 하단 버튼
             OnboardingBottomBar(
               canGoBack: _canGoBack(state.currentStep),
@@ -308,7 +308,7 @@ class OnboardingProgressBar extends StatelessWidget {
               final index = entry.key;
               final step = entry.value;
               final isActive = index <= OnboardingStep.values.indexOf(currentStep);
-              
+
               return AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -321,18 +321,18 @@ class OnboardingProgressBar extends StatelessWidget {
               );
             }).toList(),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // 진행률 바
           LinearProgressIndicator(
             value: progress,
             backgroundColor: Colors.grey[200],
             valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           // 진행률 텍스트
           Text(
             '${(progress * 100).round()}% 완료',
@@ -384,9 +384,9 @@ class OnboardingBottomBar extends StatelessWidget {
               )
             else
               const SizedBox(width: 60),
-            
+
             const Spacer(),
-            
+
             // 전체 건너뛰기 (첫 번째 화면에만)
             if (canSkip)
               TextButton(
@@ -396,18 +396,18 @@ class OnboardingBottomBar extends StatelessWidget {
                   style: TextStyle(color: Colors.grey[600]),
                 ),
               ),
-            
+
             const SizedBox(width: 12),
-            
+
             // 건너뛰기 버튼
             if (canSkip)
               TextButton(
                 onPressed: onSkip,
                 child: const Text('건너뛰기'),
               ),
-            
+
             const SizedBox(width: 12),
-            
+
             // 다음/완료 버튼
             ElevatedButton(
               onPressed: onNext,
@@ -441,7 +441,7 @@ class _BasicSetupScreenState extends ConsumerState<BasicSetupScreen>
   late AnimationController _animationController;
   late Animation<double> _slideAnimation;
   late Animation<double> _fadeAnimation;
-  
+
   String? _selectedRegion;
   List<TransportMethod> _selectedTransportMethods = [];
   final Map<InterestCategory, int> _interestRatings = {};
@@ -499,18 +499,18 @@ class _BasicSetupScreenState extends ConsumerState<BasicSetupScreen>
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  
+
                   const SizedBox(height: 8),
-                  
+
                   Text(
                     '더 나은 추천을 위해 몇 가지만 알려주세요',
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: Colors.grey[600],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 32),
-                  
+
                   Expanded(
                     child: SingleChildScrollView(
                       child: Column(
@@ -518,14 +518,14 @@ class _BasicSetupScreenState extends ConsumerState<BasicSetupScreen>
                         children: [
                           // 지역 선택
                           _buildRegionSelection(),
-                          
+
                           const SizedBox(height: 32),
-                          
+
                           // 이동수단 선택
                           _buildTransportMethodSelection(),
-                          
+
                           const SizedBox(height: 32),
-                          
+
                           // 관심 분야 선택
                           _buildInterestSelection(),
                         ],
@@ -557,15 +557,15 @@ class _BasicSetupScreenState extends ConsumerState<BasicSetupScreen>
             ),
           ],
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         Wrap(
           spacing: 12,
           runSpacing: 12,
           children: _regions.map((region) {
             final isSelected = _selectedRegion == region.code;
-            
+
             return SelectableChip(
               label: region.name,
               isSelected: isSelected,
@@ -594,22 +594,22 @@ class _BasicSetupScreenState extends ConsumerState<BasicSetupScreen>
             ),
           ],
         ),
-        
+
         const SizedBox(height: 8),
-        
+
         Text(
           '여러 개 선택 가능합니다',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
             color: Colors.grey[600],
           ),
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         Column(
           children: TransportMethod.values.map((method) {
             final isSelected = _selectedTransportMethods.contains(method);
-            
+
             return TransportMethodTile(
               method: method,
               isSelected: isSelected,
@@ -637,18 +637,18 @@ class _BasicSetupScreenState extends ConsumerState<BasicSetupScreen>
             ),
           ],
         ),
-        
+
         const SizedBox(height: 8),
-        
+
         Text(
           '별점으로 관심도를 표현해주세요',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
             color: Colors.grey[600],
           ),
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         Column(
           children: InterestCategory.values.map((category) {
             return InterestRatingTile(
@@ -666,7 +666,7 @@ class _BasicSetupScreenState extends ConsumerState<BasicSetupScreen>
     setState(() {
       _selectedRegion = regionCode;
     });
-    
+
     _updatePreferences();
   }
 
@@ -678,7 +678,7 @@ class _BasicSetupScreenState extends ConsumerState<BasicSetupScreen>
         _selectedTransportMethods.add(method);
       }
     });
-    
+
     _updatePreferences();
   }
 
@@ -686,14 +686,14 @@ class _BasicSetupScreenState extends ConsumerState<BasicSetupScreen>
     setState(() {
       _interestRatings[category] = rating;
     });
-    
+
     _updatePreferences();
   }
 
   void _updatePreferences() {
     final controller = ref.read(onboardingControllerProvider.notifier);
     final currentPreferences = ref.read(onboardingControllerProvider).preferences;
-    
+
     controller.updatePreferences(
       currentPreferences.copyWith(
         region: _selectedRegion,
@@ -796,9 +796,9 @@ class InterestRatingTile extends StatelessWidget {
               size: 20,
             ),
           ),
-          
+
           const SizedBox(width: 16),
-          
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -818,15 +818,15 @@ class InterestRatingTile extends StatelessWidget {
               ],
             ),
           ),
-          
+
           const SizedBox(width: 16),
-          
+
           // 별점 선택
           Row(
             children: List.generate(5, (index) {
               final starIndex = index + 1;
               final isSelected = starIndex <= rating;
-              
+
               return GestureDetector(
                 onTap: () => onRatingChanged(starIndex),
                 child: Padding(
@@ -856,13 +856,13 @@ class InterestRatingTile extends StatelessWidget {
 class FirstExperienceController {
   final ApiService _apiService;
   final AnalyticsService _analytics;
-  
+
   FirstExperienceController(this._apiService, this._analytics);
 
   Future<void> startDemoExperience() async {
     // 데모 시나리오 시작
     await _analytics.trackEvent('demo_experience_started');
-    
+
     // 예시 링크 준비
     const demoLink = "https://www.instagram.com/p/demo123/";
     const expectedResult = DemoAnalysisResult(
@@ -872,7 +872,7 @@ class FirstExperienceController {
       features: ["루프탑", "인스타 감성", "야외 테라스"],
       confidence: 0.95,
     );
-    
+
     // 단계별 체험 실행
     await _runDemoSteps(demoLink, expectedResult);
   }
@@ -880,13 +880,13 @@ class FirstExperienceController {
   Future<void> _runDemoSteps(String demoLink, DemoAnalysisResult expectedResult) async {
     // 1단계: 링크 분석 시뮬레이션
     await _simulateLinkAnalysis(demoLink, expectedResult);
-    
+
     // 2단계: 장소 저장 체험
     await _simulatePlaceSaving(expectedResult);
-    
+
     // 3단계: 코스 생성 체험
     await _simulateCourseCreation(expectedResult);
-    
+
     // 4단계: 완료 축하
     await _showCompletionCelebration();
   }
@@ -894,58 +894,58 @@ class FirstExperienceController {
   Future<void> _simulateLinkAnalysis(String link, DemoAnalysisResult result) async {
     // UI에서 링크 입력 애니메이션
     await Future.delayed(Duration(milliseconds: 500));
-    
+
     // 분석 중 로딩 표시 (1-2초)
     await _showAnalysisLoading();
-    
+
     // 결과 카드 애니메이션으로 등장
     await _showAnalysisResult(result);
-    
+
     await _analytics.trackEvent('demo_analysis_completed');
   }
 
   Future<void> _simulatePlaceSaving(DemoAnalysisResult result) async {
     // 저장 버튼 하이라이트
     await _highlightSaveButton();
-    
+
     // 사용자 액션 대기 또는 자동 진행
     await _waitForUserActionOrTimeout(
       action: 'save_place',
       timeout: Duration(seconds: 5),
     );
-    
+
     // 위시리스트 추가 애니메이션
     await _showSaveAnimation();
-    
+
     await _analytics.trackEvent('demo_place_saved');
   }
 
   Future<void> _simulateCourseCreation(DemoAnalysisResult result) async {
     // 추천 장소들을 보여줌
     final recommendedPlaces = await _getRecommendedPlaces(result);
-    
+
     // "코스 만들기" 제안
     await _showCourseCreationSuggestion(recommendedPlaces);
-    
+
     // 자동으로 코스 생성 (또는 사용자 확인 후)
     final demoRoute = await _generateDemoCourse(result, recommendedPlaces);
-    
+
     // 지도에 경로 표시 애니메이션
     await _showRouteVisualization(demoRoute);
-    
+
     await _analytics.trackEvent('demo_course_created');
   }
 
   Future<void> _showCompletionCelebration() async {
     // 축하 애니메이션 (파티클 효과)
     await _playConfettiAnimation();
-    
+
     // 성과 요약 표시
     await _showAchievementSummary();
-    
+
     // 다음 단계 안내
     await _showNextStepsGuidance();
-    
+
     await _analytics.trackEvent('demo_experience_completed');
   }
 }
@@ -979,13 +979,13 @@ class _FirstExperienceScreenState extends State<FirstExperienceScreen>
     with TickerProviderStateMixin {
   late AnimationController _typewriterController;
   late Animation<double> _typewriterAnimation;
-  
+
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
-  
+
   ExperienceStep _currentStep = ExperienceStep.introduction;
   String _currentText = '';
-  
+
   @override
   void initState() {
     super.initState();
@@ -998,7 +998,7 @@ class _FirstExperienceScreenState extends State<FirstExperienceScreen>
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
-    
+
     _typewriterAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -1011,7 +1011,7 @@ class _FirstExperienceScreenState extends State<FirstExperienceScreen>
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    
+
     _pulseAnimation = Tween<double>(
       begin: 0.9,
       end: 1.1,
@@ -1038,14 +1038,14 @@ class _FirstExperienceScreenState extends State<FirstExperienceScreen>
                   Theme.of(context).primaryColor,
                 ),
               ),
-              
+
               const SizedBox(height: 32),
-              
+
               // 메인 콘텐츠
               Expanded(
                 child: _buildStepContent(),
               ),
-              
+
               // 하단 액션
               _buildBottomActions(),
             ],
@@ -1080,9 +1080,9 @@ class _FirstExperienceScreenState extends State<FirstExperienceScreen>
             fontWeight: FontWeight.bold,
           ),
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         Text(
           '인스타그램 링크 하나로 어떻게 데이트 코스가 만들어지는지 체험해보세요!',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -1090,9 +1090,9 @@ class _FirstExperienceScreenState extends State<FirstExperienceScreen>
             height: 1.5,
           ),
         ),
-        
+
         const SizedBox(height: 32),
-        
+
         // 예시 링크 카드
         Container(
           padding: const EdgeInsets.all(20),
@@ -1122,9 +1122,9 @@ class _FirstExperienceScreenState extends State<FirstExperienceScreen>
                   color: Colors.white,
                 ),
               ),
-              
+
               const SizedBox(width: 16),
-              
+
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1136,9 +1136,9 @@ class _FirstExperienceScreenState extends State<FirstExperienceScreen>
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    
+
                     const SizedBox(height: 4),
-                    
+
                     Text(
                       'instagram.com/p/hongdae_cafe',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -1149,7 +1149,7 @@ class _FirstExperienceScreenState extends State<FirstExperienceScreen>
                   ],
                 ),
               ),
-              
+
               Icon(
                 Icons.arrow_forward_ios,
                 color: Theme.of(context).primaryColor,
@@ -1158,9 +1158,9 @@ class _FirstExperienceScreenState extends State<FirstExperienceScreen>
             ],
           ),
         ),
-        
+
         const Spacer(),
-        
+
         // 시작 버튼
         SizedBox(
           width: double.infinity,
@@ -1181,9 +1181,9 @@ class _FirstExperienceScreenState extends State<FirstExperienceScreen>
             ),
           ),
         ),
-        
+
         const SizedBox(height: 12),
-        
+
         // 건너뛰기 옵션
         Center(
           child: TextButton(
@@ -1210,21 +1210,21 @@ class _FirstExperienceScreenState extends State<FirstExperienceScreen>
             fontWeight: FontWeight.bold,
           ),
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         // 분석 과정 시각화
         _buildAnalysisVisualization(),
-        
+
         const SizedBox(height: 32),
-        
+
         // 결과 카드 (애니메이션으로 등장)
         if (_currentStep == ExperienceStep.linkAnalysis)
           _buildAnalysisResultCard(),
       ],
     );
   }
-  
+
   Widget _buildAnalysisVisualization() {
     return Container(
       padding: const EdgeInsets.all(24),
@@ -1244,16 +1244,16 @@ class _FirstExperienceScreenState extends State<FirstExperienceScreen>
               _buildAnimatedIcon(Icons.place, Colors.green),
             ],
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // 진행 상황 텍스트
           AnimatedBuilder(
             animation: _typewriterAnimation,
             builder: (context, child) {
               final fullText = "링크 내용 분석 중... 장소 정보 추출 중... 완료!";
               final displayLength = (fullText.length * _typewriterAnimation.value).round();
-              
+
               return Text(
                 fullText.substring(0, displayLength),
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -1281,13 +1281,13 @@ class _FirstExperienceScreenState extends State<FirstExperienceScreen>
 class OnboardingProgress {
   @HiveField(0)
   final Map<String, bool> completedSteps;
-  
+
   @HiveField(1)
   final Map<String, bool> skippedSteps;
-  
+
   @HiveField(2)
   final DateTime lastUpdated;
-  
+
   @HiveField(3)
   final bool isCompleted;
 
@@ -1304,22 +1304,22 @@ class OnboardingProgress {
 class UserPreferencesHive {
   @HiveField(0)
   final String? region;
-  
+
   @HiveField(1)
   final List<String> transportMethods;
-  
+
   @HiveField(2)
   final Map<String, int> interests;
-  
+
   @HiveField(3)
   final Map<String, dynamic> notificationSettings;
-  
+
   @HiveField(4)
   final String theme;
-  
+
   @HiveField(5)
   final DateTime createdAt;
-  
+
   @HiveField(6)
   final DateTime updatedAt;
 
@@ -1338,17 +1338,17 @@ class UserPreferencesHive {
 class OnboardingLocalStorage {
   static const String _onboardingBoxName = 'onboarding';
   static const String _preferencesBoxName = 'preferences';
-  
+
   late Box<OnboardingProgress> _onboardingBox;
   late Box<UserPreferencesHive> _preferencesBox;
 
   Future<void> initialize() async {
     await Hive.initFlutter();
-    
+
     // 어댑터 등록
     Hive.registerAdapter(OnboardingProgressAdapter());
     Hive.registerAdapter(UserPreferencesHiveAdapter());
-    
+
     // 박스 열기
     _onboardingBox = await Hive.openBox<OnboardingProgress>(_onboardingBoxName);
     _preferencesBox = await Hive.openBox<UserPreferencesHive>(_preferencesBoxName);
@@ -1404,7 +1404,7 @@ class OnboardingLocalStorage {
 class OnboardingABTestManager {
   final FirebaseRemoteConfig _remoteConfig;
   final AnalyticsService _analytics;
-  
+
   OnboardingABTestManager(this._remoteConfig, this._analytics);
 
   Future<void> initialize() async {
@@ -1446,7 +1446,7 @@ class OnboardingABTestManager {
   }
 
   Future<void> trackVariantOutcome(
-    OnboardingVariant variant, 
+    OnboardingVariant variant,
     OnboardingOutcome outcome,
   ) async {
     await _analytics.trackEvent('onboarding_variant_outcome', parameters: {
@@ -1563,7 +1563,7 @@ class OnboardingResourceManager {
   Future<void> cleanupUnusedResources() async {
     // 사용하지 않는 리소스 정리
     PaintingBinding.instance.imageCache.clear();
-    
+
     // 메모리 정리
     await System.gc();
   }
@@ -1618,12 +1618,12 @@ class OptimizedImage extends StatelessWidget {
 class OnboardingAnalytics {
   final FirebaseAnalytics _analytics;
   final CustomAnalyticsCollector _customAnalytics;
-  
+
   OnboardingAnalytics(this._analytics, this._customAnalytics);
 
   Future<void> trackOnboardingStarted() async {
     final startTime = DateTime.now().millisecondsSinceEpoch;
-    
+
     await Future.wait([
       _analytics.logEvent(name: 'onboarding_started'),
       _customAnalytics.trackEvent('onboarding_flow', {
@@ -1632,7 +1632,7 @@ class OnboardingAnalytics {
         'user_type': 'new',
       }),
     ]);
-    
+
     // 시작 시간 저장 (완료 시간 계산용)
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('onboarding_start_time', startTime);
@@ -1678,7 +1678,7 @@ class OnboardingAnalytics {
     final prefs = await SharedPreferences.getInstance();
     final startTime = prefs.getInt('onboarding_start_time') ?? 0;
     final totalTime = DateTime.now().millisecondsSinceEpoch - startTime;
-    
+
     await Future.wait([
       _analytics.logEvent(
         name: 'onboarding_completed',
@@ -1696,7 +1696,7 @@ class OnboardingAnalytics {
         'user_preferences': data.preferences.toJson(),
       }),
     ]);
-    
+
     // 완료 후 리텐션 추적 스케줄링
     await _scheduleRetentionTracking();
   }
@@ -1705,7 +1705,7 @@ class OnboardingAnalytics {
     final prefs = await SharedPreferences.getInstance();
     final startTime = prefs.getInt('onboarding_start_time') ?? 0;
     final timeSpent = DateTime.now().millisecondsSinceEpoch - startTime;
-    
+
     await Future.wait([
       _analytics.logEvent(
         name: 'onboarding_abandoned',
@@ -1727,12 +1727,12 @@ class OnboardingAnalytics {
   Future<void> _scheduleRetentionTracking() async {
     // D1, D7 리텐션 추적을 위한 스케줄링
     final scheduler = NotificationScheduler();
-    
+
     await scheduler.scheduleRetentionCheck(
       checkDate: DateTime.now().add(Duration(days: 1)),
       type: 'D1',
     );
-    
+
     await scheduler.scheduleRetentionCheck(
       checkDate: DateTime.now().add(Duration(days: 7)),
       type: 'D7',
@@ -1768,7 +1768,7 @@ class TestOnboardingController {
   void testOnboardingStateTransitions() {
     // Given
     final controller = OnboardingController();
-    
+
     // When & Then - 초기 상태 확인
     expect(controller.state.currentStep, OnboardingStep.welcome);
     expect(controller.state.progress, 0.0);
@@ -1779,10 +1779,10 @@ class TestOnboardingController {
   void testNextStepProgression() async {
     // Given
     final controller = OnboardingController();
-    
+
     // When
     await controller.nextStep();
-    
+
     // Then
     expect(controller.state.currentStep, OnboardingStep.featureIntro);
     expect(controller.state.completedSteps[OnboardingStep.welcome], true);
@@ -1793,10 +1793,10 @@ class TestOnboardingController {
   void testSkipStepFunctionality() async {
     // Given
     final controller = OnboardingController();
-    
+
     // When
     await controller.skipStep();
-    
+
     // Then
     expect(controller.state.currentStep, OnboardingStep.featureIntro);
     expect(controller.state.skippedSteps[OnboardingStep.welcome], true);
@@ -1812,10 +1812,10 @@ class TestOnboardingController {
       transportMethods: [TransportMethod.walking],
       interests: {InterestCategory.cafe: 5},
     );
-    
+
     // When
     await controller.updatePreferences(preferences);
-    
+
     // Then
     expect(controller.state.preferences.region, 'seoul');
     expect(controller.state.preferences.transportMethods, contains(TransportMethod.walking));
@@ -1827,10 +1827,10 @@ class TestOnboardingController {
     // Given
     final controller = OnboardingController();
     final localStorage = MockOnboardingLocalStorage();
-    
+
     // When
     await controller.completeOnboarding();
-    
+
     // Then
     verify(localStorage.markOnboardingCompleted()).called(1);
     verify(analytics.trackOnboardingCompleted(any)).called(1);
@@ -1842,10 +1842,10 @@ class TestFirstExperienceController {
   void testDemoExperienceFlow() async {
     // Given
     final controller = FirstExperienceController(mockApiService, mockAnalytics);
-    
+
     // When
     await controller.startDemoExperience();
-    
+
     // Then
     verify(mockAnalytics.trackEvent('demo_experience_started')).called(1);
     verify(mockAnalytics.trackEvent('demo_analysis_completed')).called(1);
@@ -1885,11 +1885,11 @@ class TestOnboardingWidgets {
 
     // Then
     expect(find.byType(OnboardingProgressBar), findsOneWidget);
-    
+
     final progressBar = tester.widget<OnboardingProgressBar>(
       find.byType(OnboardingProgressBar),
     );
-    
+
     expect(progressBar.progress, closeTo(0.33, 0.01)); // 2/6 완료
     expect(progressBar.currentStep, OnboardingStep.basicSetup);
   }

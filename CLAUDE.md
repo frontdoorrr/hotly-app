@@ -28,7 +28,7 @@ uvicorn app.main:app --reload
 
 # Run with scripts
 ./scripts/test.sh          # Run tests with coverage
-./scripts/format.sh        # Format code (autoflake, black, isort)  
+./scripts/format.sh        # Format code (autoflake, black, isort)
 ./scripts/lint.sh          # Lint code (mypy, black --check, isort --check, flake8)
 ./scripts/test-cov-html.sh # Generate HTML coverage report
 ```
@@ -106,7 +106,7 @@ This project follows comprehensive coding standards defined in `rules.md`:
 
 The project uses a three-tier documentation system:
 - **PRD** (`prd/`): Product requirements with user personas, stories, acceptance criteria
-- **TRD** (`trd/`): Technical requirements and architecture decisions  
+- **TRD** (`trd/`): Technical requirements and architecture decisions
 - **Task** (`task/`): Implementation tasks linked to requirements
 
 Files follow `NN-topic-kebab-case.md` naming and maintain version consistency across tiers.

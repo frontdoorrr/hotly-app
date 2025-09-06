@@ -153,7 +153,7 @@
     },
     "types": {
       "dateReminder": "boolean",
-      "departureTime": "boolean", 
+      "departureTime": "boolean",
       "businessHours": "boolean",
       "weather": "boolean",
       "traffic": "boolean",
@@ -234,7 +234,7 @@
 │   ├── 데이트 전날 알림 ✅ (18:00)
 │   ├── 출발 시간 알림 ✅ (30분 전)
 │   └── 이동 시간 알림 ✅ (15분 전)
-├── ⚠️ 실시간 알림  
+├── ⚠️ 실시간 알림
 │   ├── 영업시간 변경 ✅
 │   ├── 날씨 변동 ✅
 │   └── 교통 지연 ✅

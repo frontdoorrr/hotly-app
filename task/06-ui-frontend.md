@@ -83,7 +83,7 @@
 
 **결과물**:
 - `src/components/atoms/Button/` - Button 컴포넌트
-- `src/components/atoms/Input/` - Input 컴포넌트  
+- `src/components/atoms/Input/` - Input 컴포넌트
 - `src/components/atoms/Icon/` - Icon 시스템
 - `src/hooks/useAccessibility.ts` - 접근성 훅
 
@@ -205,8 +205,8 @@
   </SearchHeader>
   <SearchResults>
     <ViewToggle mode={viewMode} onChange={setViewMode} />
-    {viewMode === 'list' ? 
-      <PlaceList places={results} /> : 
+    {viewMode === 'list' ?
+      <PlaceList places={results} /> :
       <MapView places={results} />
     }
   </SearchResults>
@@ -257,12 +257,12 @@
     <CourseTypeSelector types={courseTypes} />
   </CourseHeader>
   <CourseTimeline>
-    <DragDropList 
-      items={places} 
+    <DragDropList
+      items={places}
       onReorder={reorderPlaces}
       renderItem={({ place, index }) => (
-        <CoursePlace 
-          place={place} 
+        <CoursePlace
+          place={place}
           order={index + 1}
           onRemove={() => removePlace(place.id)}
         />
@@ -336,14 +336,14 @@
 
 **컴포넌트**:
 ```typescript
-<SwipeableRecommendation 
+<SwipeableRecommendation
   places={recommendations}
   onSwipeLeft={dislike}
   onSwipeRight={like}
   onSwipeUp={save}
 />
 
-<DragDropCourseBuilder 
+<DragDropCourseBuilder
   places={coursePlaces}
   onReorder={reorderPlaces}
 />
@@ -534,6 +534,6 @@ const PlaceCard = ({ place, onLike, onSave }) => (
 
 ---
 
-*작성일: 2025-01-XX*  
-*작성자: Claude*  
+*작성일: 2025-01-XX*
+*작성자: Claude*
 *버전: 1.0*

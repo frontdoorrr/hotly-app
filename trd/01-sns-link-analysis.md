@@ -16,13 +16,13 @@
 
 ### 2-1. 전체 아키텍처
 ```
-[Mobile App] 
+[Mobile App]
     ↓ POST /api/v1/links/analyze
 [API Gateway + Rate Limiter]
     ↓
 [FastAPI Service]
     ↓ (캐시 조회)
-[Redis Cache] 
+[Redis Cache]
     ↓ (캐시 미스 시)
 [Analysis Queue] → [Worker Processes]
     ↓
@@ -38,7 +38,7 @@
    - 캐시 조회/관리
    - 결과 집계
 
-2. Content Extraction Service  
+2. Content Extraction Service
    - SNS 플랫폼별 스크래핑
    - 메타데이터 추출
    - 이미지/텍스트 정규화
@@ -67,7 +67,7 @@ class LinkAnalyzeRequest(BaseModel):
     priority: Priority = Priority.NORMAL
     callback_url: Optional[str] = None
 
-# Response Schema  
+# Response Schema
 class LinkAnalyzeResponse(BaseModel):
     analysis_id: str
     status: AnalysisStatus
@@ -128,7 +128,7 @@ CREATE INDEX idx_analyses_status ON analyses(status);
 CREATE INDEX idx_analyses_expires ON analyses(expires_at);
 
 -- 만료된 레코드 자동 삭제 (pg_cron 확장 필요)
--- SELECT cron.schedule('cleanup-expired-analyses', '0 */6 * * *', 
+-- SELECT cron.schedule('cleanup-expired-analyses', '0 */6 * * *',
 --   'DELETE FROM analyses WHERE expires_at < NOW()');
 
 -- places JSONB 구조 예시
@@ -137,7 +137,7 @@ CREATE INDEX idx_analyses_expires ON analyses(expires_at);
   "place_name": "string",
   "address": "string|null",
   "category": ["string"],
-  "business_hours": "string|null", 
+  "business_hours": "string|null",
   "image_url": "string|null",
   "description": "string|null",
   "confidence": number,
@@ -168,21 +168,21 @@ class GeminiAnalyzer:
     def __init__(self):
         self.client = genai.GenerativeModel('gemini-pro-vision')
         self.prompt_template = self._load_prompt_template()
-    
+
     async def analyze_content(self, text: str, images: List[str]) -> AnalysisResult:
         prompt = self.prompt_template.format(
             content_text=text,
             instruction="장소 정보를 JSON 형태로 추출하세요"
         )
-        
+
         try:
             response = await self.client.generate_content([
                 prompt,
                 *[Image.open(img) for img in images]
             ])
-            
+
             return self._parse_response(response.text)
-        
+
         except Exception as e:
             logger.error(f"Gemini analysis failed: {e}")
             raise AnalysisError(f"AI 분석 실패: {str(e)}")
@@ -236,14 +236,14 @@ class ContentExtractor:
             'youtube.com': YouTubeScraper(),
             'blog.naver.com': NaverBlogScraper(),
         }
-    
+
     async def extract_content(self, url: str) -> ContentData:
         domain = urlparse(url).netloc
         scraper = self.scrapers.get(domain)
-        
+
         if not scraper:
             raise UnsupportedPlatformError(f"지원하지 않는 플랫폼: {domain}")
-        
+
         return await scraper.extract(url)
 
 class InstagramScraper:
@@ -251,19 +251,19 @@ class InstagramScraper:
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
             page = await browser.new_page()
-            
+
             # User-Agent 설정으로 봇 감지 회피
             await page.set_extra_http_headers({
                 'User-Agent': 'Mozilla/5.0 ...'
             })
-            
+
             await page.goto(url, wait_until='networkidle')
-            
+
             # 메타데이터 추출
             title = await page.locator('meta[property="og:title"]').get_attribute('content')
             description = await page.locator('meta[property="og:description"]').get_attribute('content')
             images = await page.locator('meta[property="og:image"]').all()
-            
+
             return ContentData(
                 url=url,
                 title=title,
@@ -280,13 +280,13 @@ class ContentNormalizer:
     def normalize(self, content: ContentData) -> ContentData:
         # 텍스트 정제
         clean_text = self._clean_text(content.text_content)
-        
+
         # 이미지 URL 검증 및 다운로드
         valid_images = self._validate_images(content.images)
-        
+
         # 메타데이터 보강
         enhanced_content = self._enhance_metadata(content)
-        
+
         return ContentData(
             url=content.url,
             title=enhanced_content.title,
@@ -295,18 +295,18 @@ class ContentNormalizer:
             text_content=clean_text,
             extracted_at=content.extracted_at
         )
-    
+
     def _clean_text(self, text: str) -> str:
         # 해시태그, 멘션 정리
         text = re.sub(r'#\w+', '', text)
         text = re.sub(r'@\w+', '', text)
-        
+
         # 이모지 제거 또는 변환
         text = emoji.demojize(text)
-        
+
         # 과도한 공백 정리
         text = re.sub(r'\s+', ' ', text).strip()
-        
+
         return text
 ```
 
@@ -320,22 +320,22 @@ class CacheManager:
     def __init__(self):
         self.redis = Redis.from_url(settings.REDIS_URL)
         self.local_cache = TTLCache(maxsize=1000, ttl=300)  # 5분
-    
+
     async def get_analysis_result(self, url_hash: str) -> Optional[AnalysisResult]:
         # L1: 로컬 캐시
         result = self.local_cache.get(url_hash)
         if result:
             return result
-        
+
         # L2: Redis 캐시
         cached = await self.redis.get(f"hotly:link_analysis:{url_hash}")
         if cached:
             result = AnalysisResult.parse_raw(cached)
             self.local_cache[url_hash] = result
             return result
-        
+
         return None
-    
+
     async def set_analysis_result(self, url_hash: str, result: AnalysisResult):
         # L1 + L2 동시 저장
         self.local_cache[url_hash] = result
@@ -352,12 +352,12 @@ class CacheInvalidator:
     async def invalidate_url(self, url: str):
         url_hash = self._generate_hash(url)
         await self.redis.delete(f"hotly:link_analysis:{url_hash}")
-    
+
     async def invalidate_pattern(self, pattern: str):
         keys = await self.redis.keys(pattern)
         if keys:
             await self.redis.delete(*keys)
-    
+
     async def scheduled_cleanup(self):
         """매일 실행되는 캐시 정리"""
         # 오래된 분석 결과 정리
@@ -381,32 +381,32 @@ def analyze_link_task(self, analysis_id: str, url: str, user_id: Optional[str]):
     try:
         # 분석 상태 업데이트
         update_analysis_status(analysis_id, AnalysisStatus.PROCESSING)
-        
+
         # 콘텐츠 추출
         extractor = ContentExtractor()
         content = await extractor.extract_content(url)
-        
+
         # AI 분석
         analyzer = GeminiAnalyzer()
         result = await analyzer.analyze_content(
-            content.text_content, 
+            content.text_content,
             content.images
         )
-        
+
         # 결과 저장
         await save_analysis_result(analysis_id, result)
-        
+
         # 캐시 업데이트
         cache_manager = CacheManager()
         await cache_manager.set_analysis_result(
-            generate_url_hash(url), 
+            generate_url_hash(url),
             result
         )
-        
+
     except Exception as exc:
         logger.error(f"Analysis failed for {analysis_id}: {exc}")
         update_analysis_status(analysis_id, AnalysisStatus.FAILED, str(exc))
-        
+
         # 재시도 로직
         if self.request.retries < 3:
             raise self.retry(countdown=60 * (2 ** self.request.retries))
@@ -418,10 +418,10 @@ class PriorityQueue:
     def __init__(self):
         self.queues = {
             Priority.HIGH: 'hotly.analysis.high',
-            Priority.NORMAL: 'hotly.analysis.normal', 
+            Priority.NORMAL: 'hotly.analysis.normal',
             Priority.LOW: 'hotly.analysis.low'
         }
-    
+
     async def enqueue(self, task_data: dict, priority: Priority):
         queue_name = self.queues[priority]
         await celery_app.send_task(
@@ -463,7 +463,7 @@ async def analysis_error_handler(request: Request, exc: AnalysisError):
         ContentExtractionError: "CONTENT_EXTRACTION_FAILED",
         AIAnalysisError: "AI_ANALYSIS_FAILED",
     }.get(type(exc), "ANALYSIS_ERROR")
-    
+
     return JSONResponse(
         status_code=422,
         content={
@@ -487,31 +487,31 @@ class GeminiCircuitBreaker:
         self.failure_count = 0
         self.last_failure_time = None
         self.state = CircuitState.CLOSED
-    
+
     async def call(self, func, *args, **kwargs):
         if self.state == CircuitState.OPEN:
             if time.time() - self.last_failure_time > self.recovery_timeout:
                 self.state = CircuitState.HALF_OPEN
             else:
                 raise CircuitBreakerOpenError("Gemini API circuit breaker is open")
-        
+
         try:
             result = await func(*args, **kwargs)
             self._on_success()
             return result
-        
+
         except Exception as e:
             self._on_failure()
             raise e
-    
+
     def _on_success(self):
         self.failure_count = 0
         self.state = CircuitState.CLOSED
-    
+
     def _on_failure(self):
         self.failure_count += 1
         self.last_failure_time = time.time()
-        
+
         if self.failure_count >= self.failure_threshold:
             self.state = CircuitState.OPEN
 ```
@@ -528,7 +528,7 @@ logger = structlog.get_logger()
 
 async def analyze_link(url: str, user_id: str):
     analysis_id = generate_analysis_id()
-    
+
     logger.info(
         "link_analysis_started",
         analysis_id=analysis_id,
@@ -536,12 +536,12 @@ async def analyze_link(url: str, user_id: str):
         user_id=user_id,
         timestamp=datetime.utcnow().isoformat()
     )
-    
+
     try:
         start_time = time.time()
         result = await _perform_analysis(url)
         processing_time = time.time() - start_time
-        
+
         logger.info(
             "link_analysis_completed",
             analysis_id=analysis_id,
@@ -549,9 +549,9 @@ async def analyze_link(url: str, user_id: str):
             places_found=len(result.places),
             cache_hit=result.cache_hit
         )
-        
+
         return result
-        
+
     except Exception as e:
         logger.error(
             "link_analysis_failed",
@@ -589,13 +589,13 @@ active_analyses_gauge = Gauge(
 class MetricsCollector:
     def record_analysis_request(self, platform: str, status: str):
         analysis_requests_total.labels(platform=platform, status=status).inc()
-    
+
     def record_analysis_duration(self, platform: str, duration: float, cache_hit: bool):
         analysis_duration_seconds.labels(
             platform=platform,
             cache_hit=cache_hit
         ).observe(duration)
-    
+
     def update_active_analyses(self, count: int):
         active_analyses_gauge.set(count)
 ```
@@ -612,25 +612,25 @@ class URLValidator:
         'youtube.com', 'www.youtube.com', 'youtu.be',
         'blog.naver.com'
     }
-    
+
     def validate(self, url: str) -> bool:
         try:
             parsed = urlparse(url)
-            
+
             # 프로토콜 검사
             if parsed.scheme not in ['http', 'https']:
                 raise ValidationError("HTTP/HTTPS URL만 지원됩니다")
-            
+
             # 도메인 허용 목록 검사
             if parsed.netloc not in self.ALLOWED_DOMAINS:
                 raise ValidationError(f"지원하지 않는 도메인: {parsed.netloc}")
-            
+
             # URL 길이 제한
             if len(url) > 2048:
                 raise ValidationError("URL 길이가 너무 깁니다")
-            
+
             return True
-            
+
         except Exception as e:
             raise ValidationError(f"유효하지 않은 URL: {str(e)}")
 
@@ -639,10 +639,10 @@ class RateLimiter:
     async def check_rate_limit(self, user_id: str) -> bool:
         key = f"hotly:rate_limit:{user_id}"
         current = await redis.get(key)
-        
+
         if current and int(current) >= settings.MAX_REQUESTS_PER_MINUTE:
             raise RateLimitExceededError("분당 요청 한도를 초과했습니다")
-        
+
         await redis.incr(key)
         await redis.expire(key, 60)
         return True
@@ -658,16 +658,16 @@ class DataMasker:
             r'\1-****-\4',
             content
         )
-        
+
         # 이메일 마스킹
         content = re.sub(
             r'\b([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\b',
             r'****@\2',
             content
         )
-        
+
         return content
-    
+
     def should_store_content(self, content: ContentData) -> bool:
         """개인정보 포함 여부 확인"""
         sensitive_patterns = [
@@ -675,13 +675,13 @@ class DataMasker:
             r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b',  # 이메일
             r'\b\d{6}-\d{7}\b',  # 주민번호
         ]
-        
+
         text = content.text_content + ' ' + (content.description or '')
-        
+
         for pattern in sensitive_patterns:
             if re.search(pattern, text):
                 return False  # 개인정보 포함으로 저장 안함
-        
+
         return True
 ```
 
@@ -698,15 +698,15 @@ class ConcurrentAnalyzer:
     def __init__(self, max_concurrent=10):
         self.semaphore = asyncio.Semaphore(max_concurrent)
         self.session = None
-    
+
     async def analyze_multiple(self, urls: List[str]) -> List[AnalysisResult]:
         async with ClientSession() as session:
             self.session = session
             tasks = [self._analyze_single(url) for url in urls]
             results = await asyncio.gather(*tasks, return_exceptions=True)
-            
+
             return [r for r in results if not isinstance(r, Exception)]
-    
+
     async def _analyze_single(self, url: str) -> AnalysisResult:
         async with self.semaphore:
             return await self.analyze_link(url)
@@ -719,19 +719,19 @@ class BatchProcessor:
         self.batch_size = batch_size
         self.timeout = timeout
         self.pending_requests = []
-    
+
     async def process_batch(self):
         if len(self.pending_requests) >= self.batch_size:
             batch = self.pending_requests[:self.batch_size]
             self.pending_requests = self.pending_requests[self.batch_size:]
-            
+
             # 배치로 AI API 호출 (비용 절약)
             results = await self._batch_analyze(batch)
-            
+
             # 개별 결과 처리
             for req, result in zip(batch, results):
                 await self._update_individual_result(req, result)
-    
+
     async def _batch_analyze(self, batch: List[AnalysisRequest]) -> List[AnalysisResult]:
         # Gemini API 배치 호출
         prompt = self._create_batch_prompt(batch)
@@ -756,7 +756,7 @@ class TestLinkAnalyzer:
             cache_manager=AsyncMock(),
             content_extractor=AsyncMock()
         )
-    
+
     async def test_analyze_instagram_link_success(self, analyzer):
         # Given
         url = "https://www.instagram.com/p/test123/"
@@ -766,20 +766,20 @@ class TestLinkAnalyzer:
             category=["카페"],
             confidence=0.95
         )
-        
+
         analyzer.content_extractor.extract_content.return_value = ContentData(
             url=url,
             text_content="테스트 카페에서 좋은 시간 보냈어요! #카페 #강남",
             images=["https://example.com/image.jpg"]
         )
-        
+
         analyzer.gemini_client.analyze_content.return_value = AnalysisResult(
             places=[expected_place]
         )
-        
+
         # When
         result = await analyzer.analyze_link(url)
-        
+
         # Then
         assert result.places[0].place_name == "테스트 카페"
         assert result.places[0].confidence >= 0.9
@@ -793,25 +793,25 @@ class TestLinkAnalysisIntegration:
     async def test_end_to_end_analysis(self, test_client, redis_client, postgresql):
         # Given
         url = "https://www.instagram.com/p/real_post/"
-        
+
         # When
         response = await test_client.post(
             "/api/v1/links/analyze",
             json={"url": url}
         )
-        
+
         # Then
         assert response.status_code == 202
         analysis_id = response.json()["analysis_id"]
-        
+
         # 비동기 처리 완료 대기
         await asyncio.sleep(5)
-        
+
         # 결과 확인
         result_response = await test_client.get(
             f"/api/v1/analyses/{analysis_id}"
         )
-        
+
         assert result_response.status_code == 200
         result = result_response.json()
         assert result["status"] == "completed"
@@ -825,17 +825,17 @@ class TestPerformance:
     async def test_cache_hit_performance(self, analyzer):
         # Given
         url = "https://www.instagram.com/p/cached_post/"
-        
+
         # 첫 번째 요청 (캐시 미스)
         start_time = time.time()
         result1 = await analyzer.analyze_link(url)
         first_request_time = time.time() - start_time
-        
+
         # 두 번째 요청 (캐시 히트)
         start_time = time.time()
         result2 = await analyzer.analyze_link(url)
         second_request_time = time.time() - start_time
-        
+
         # Then
         assert result2.cache_hit is True
         assert second_request_time < first_request_time / 10  # 10배 이상 빠름

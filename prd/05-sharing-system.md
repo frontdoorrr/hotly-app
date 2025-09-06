@@ -105,7 +105,7 @@ Query Parameters:
 권한 종류:
 ├── 🔒 Private: 링크 생성자만 접근
 ├── 👀 View Only: 링크 보유자 열람만 가능
-├── 💬 Comment: 열람 + 댓글 작성 가능  
+├── 💬 Comment: 열람 + 댓글 작성 가능
 ├── ✏️ Edit: 열람 + 댓글 + 코스 편집 가능
 └── 👑 Owner: 모든 권한 + 삭제 가능
 ```
@@ -123,7 +123,7 @@ Query Parameters:
   "comments": [
     {
       "id": "string",
-      "placeId": "string?", 
+      "placeId": "string?",
       "userId": "string",
       "content": "string",
       "createdAt": "timestamp",

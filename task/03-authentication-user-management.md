@@ -27,13 +27,13 @@
 - [ ] 이메일/비밀번호 로그인
 - [ ] 전화번호 인증 시스템
 
-**결과물**: 
+**결과물**:
 - `app/services/auth_service.py` - 인증 서비스
 - `app/integrations/firebase_auth.py` - Firebase 인증 연동
 - `app/integrations/oauth_providers.py` - OAuth 프로바이더
 - `app/models/user_auth.py` - 사용자 인증 모델
 
-**API**: 
+**API**:
 - `POST /api/v1/auth/login/google` - Google 로그인
 - `POST /api/v1/auth/login/apple` - Apple 로그인
 - `POST /api/v1/auth/login/kakao` - 카카오 로그인
@@ -52,13 +52,13 @@
 - [ ] 권한 기반 접근 제어
 - [ ] 다중 디바이스 세션 관리
 
-**결과물**: 
+**결과물**:
 - `app/core/security.py` - 보안 유틸리티
 - `app/services/session_service.py` - 세션 관리
 - `app/middleware/auth_middleware.py` - 인증 미들웨어
 - `app/models/user_session.py` - 세션 모델
 
-**API**: 
+**API**:
 - `POST /api/v1/auth/refresh` - 토큰 갱신
 - `POST /api/v1/auth/logout` - 로그아웃
 - `GET /api/v1/auth/sessions` - 세션 목록
@@ -76,12 +76,12 @@
 - [ ] 인증 실패 제한
 - [ ] 복구 메커니즘
 
-**결과물**: 
+**결과물**:
 - `app/services/biometric_service.py` - 생체 인증
 - `app/services/pin_service.py` - PIN 인증
 - `app/models/auth_method.py` - 인증 방법 모델
 
-**API**: 
+**API**:
 - `POST /api/v1/auth/biometric/setup` - 생체 인증 설정
 - `POST /api/v1/auth/pin/setup` - PIN 설정
 - `POST /api/v1/auth/verify` - 인증 검증
@@ -99,12 +99,12 @@
 - [ ] 게스트 권한 제한
 - [ ] 데이터 마이그레이션
 
-**결과물**: 
+**결과물**:
 - `app/services/guest_service.py` - 게스트 사용자 서비스
 - `app/models/guest_session.py` - 게스트 세션 모델
 - `app/services/account_linking.py` - 계정 연결 서비스
 
-**API**: 
+**API**:
 - `POST /api/v1/guest/session` - 게스트 세션 생성
 - `POST /api/v1/guest/link-account` - 계정 연결
 - `GET /api/v1/guest/data` - 게스트 데이터 조회
@@ -121,12 +121,12 @@
 - [ ] 이상 행동 감지
 - [ ] 보안 인시던트 대응
 
-**결과물**: 
+**결과물**:
 - `app/services/security_service.py` - 보안 서비스
 - `app/services/audit_service.py` - 감사 서비스
 - `app/utils/encryption.py` - 암호화 유틸리티
 
-**API**: 
+**API**:
 - `GET /api/v1/security/audit` - 보안 감사 로그
 - `POST /api/v1/security/report` - 보안 인시던트 신고
 - `GET /api/v1/security/status` - 보안 상태 조회
@@ -143,7 +143,7 @@
 - [ ] 다중 디바이스 테스트
 - [ ] 장애 복구 테스트
 
-**결과물**: 
+**결과물**:
 - `tests/test_authentication.py` - 인증 시스템 테스트
 - `tests/security/test_auth_security.py` - 보안 테스트
 - `tests/performance/test_auth_performance.py` - 성능 테스트
@@ -180,13 +180,13 @@
 - [ ] 데이터 삭제 요청 처리
 - [ ] 삭제 예약 시스템
 
-**결과물**: 
+**결과물**:
 - `app/api/v1/endpoints/profile.py` - 프로필 API
 - `app/services/profile_service.py` - 프로필 서비스
 - `app/services/image_service.py` - 이미지 관리
 - `app/models/user_profile.py` - 프로필 모델
 
-**API**: 
+**API**:
 - `GET /api/v1/profile` - 프로필 조회
 - `PUT /api/v1/profile` - 프로필 수정
 - `POST /api/v1/profile/image` - 프로필 이미지 업로드
@@ -204,12 +204,12 @@
 - [ ] 접근성 설정
 - [ ] 설정 동기화
 
-**결과물**: 
+**결과물**:
 - `app/services/user_settings.py` - 사용자 설정 서비스
 - `app/models/user_setting.py` - 설정 모델
 - `app/schemas/settings.py` - 설정 스키마
 
-**API**: 
+**API**:
 - `GET /api/v1/settings` - 설정 조회
 - `PUT /api/v1/settings/{category}` - 카테고리별 설정 변경
 - `POST /api/v1/settings/sync` - 설정 동기화
@@ -226,12 +226,12 @@
 - [ ] 데이터 내보내기 기능
 - [ ] 백업 복구 시스템
 
-**결과물**: 
+**결과물**:
 - `app/services/backup_service.py` - 백업 서비스
 - `app/analytics/user_analytics.py` - 사용자 분석
 - `app/services/export_service.py` - 데이터 내보내기
 
-**API**: 
+**API**:
 - `POST /api/v1/backup/create` - 백업 생성
 - `GET /api/v1/analytics/insights` - 개인 인사이트
 - `POST /api/v1/export/request` - 데이터 내보내기 요청
@@ -248,12 +248,12 @@
 - [ ] 정보 접근 권한 관리
 - [ ] 개인정보 처리 이력
 
-**결과물**: 
+**결과물**:
 - `app/services/privacy_service.py` - 프라이버시 서비스
 - `app/services/consent_service.py` - 동의 관리 서비스
 - `app/models/consent.py` - 동의 모델
 
-**API**: 
+**API**:
 - `GET /api/v1/privacy/policy` - 개인정보 정책
 - `POST /api/v1/privacy/consent` - 동의 처리
 - `GET /api/v1/privacy/data` - 개인정보 조회
@@ -271,12 +271,12 @@
 - [ ] 디바이스별 설정
 - [ ] 세션 보안 강화
 
-**결과물**: 
+**결과물**:
 - `app/services/multi_device_service.py` - 다중 디바이스 서비스
 - `app/services/sync_service.py` - 동기화 서비스
 - `app/models/device_session.py` - 디바이스 세션 모델
 
-**API**: 
+**API**:
 - `GET /api/v1/devices` - 디바이스 목록
 - `POST /api/v1/devices/register` - 디바이스 등록
 - `POST /api/v1/sync/trigger` - 동기화 트리거
@@ -294,7 +294,7 @@
 - [ ] 다중 디바이스 테스트
 - [ ] GDPR 준수 테스트
 
-**결과물**: 
+**결과물**:
 - `tests/test_user_profile.py` - 프로필 시스템 테스트
 - `tests/integration/test_profile_integration.py` - 통합 테스트
 - `tests/security/test_privacy_compliance.py` - 프라이버시 테스트
@@ -315,7 +315,7 @@
 # core/security.py 참고
 def create_access_token(subject: Union[str, Any], expires_delta: timedelta = None) -> str:
     # 기존 JWT 생성 로직 활용
-    
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     # 비밀번호 검증 로직 활용
 ```
@@ -363,6 +363,6 @@ def update_user_me(
 
 ---
 
-*작성일: 2025-01-XX*  
-*작성자: Claude*  
+*작성일: 2025-01-XX*
+*작성자: Claude*
 *버전: 1.0*

@@ -49,7 +49,7 @@
 - [ ] 도메인별 예외 클래스 정의 (`app/exceptions/`)
 - [ ] 로깅 설정 (구조화 JSON 로그)
 
-**결과물**: 
+**결과물**:
 - `pyproject.toml` - Poetry 설정 (의존성 버전 고정)
 - `app/` - feature-first 애플리케이션 구조
 - `tests/` - TDD 기반 테스트 코드
@@ -67,7 +67,7 @@
 - 의존성 설치: 2분 이내
 - 테스트 실행: 30초 이내
 
-**테스트**: 
+**테스트**:
 - 프로젝트 구조 검증 테스트
 - Poetry 가상환경 격리 테스트
 - 환경변수 스키마 검증 테스트
@@ -95,7 +95,7 @@
 - safety: 의존성 보안 취약점 검사
 - PII 데이터 하드코딩 검출
 
-**결과물**: 
+**결과물**:
 - `pyproject.toml` - 통합 도구 설정 (black, isort, mypy)
 - `.flake8` - Flake8 설정
 - `bandit.yaml` - 보안 스캔 설정
@@ -107,7 +107,7 @@
 - 타입 체크: 15초 이내
 - 보안 스캔: 30초 이내
 
-**테스트**: 
+**테스트**:
 - 의도적 품질 오류 코드로 각 도구 차단 확인
 - CI에서 품질 게이트 통과 여부 검증
 - 보안 취약점 검출 테스트
@@ -121,7 +121,7 @@
 - [ ] 린팅 훅 (flake8, mypy)
 - [ ] 커밋 메시지 검증 훅
 
-**결과물**: 
+**결과물**:
 - `.pre-commit-config.yaml` - Pre-commit 설정
 - 커밋 시 자동 코드 품질 검사 실행
 
@@ -136,7 +136,7 @@
 - [ ] 코드 품질 검사
 - [ ] 배포 자동화 (스테이징/프로덕션)
 
-**결과물**: 
+**결과물**:
 - `.github/workflows/ci.yml` - CI 워크플로우
 - `.github/workflows/deploy.yml` - 배포 워크플로우
 
@@ -151,7 +151,7 @@
 - [ ] 비동기 테스트 설정
 - [ ] 테스트 데이터베이스 설정
 
-**결과물**: 
+**결과물**:
 - `pytest.ini` - Pytest 설정
 - `tests/conftest.py` - 테스트 설정
 - 커버리지 리포트 HTML 생성
@@ -168,7 +168,7 @@
 - [ ] Redis 컨테이너 설정
 - [ ] 개발용 볼륨 마운트
 
-**결과물**: 
+**결과물**:
 - `Dockerfile` - FastAPI 컨테이너
 - `docker-compose.yml` - 전체 스택
 - `docker-compose.dev.yml` - 개발 환경
@@ -206,7 +206,7 @@ PostgreSQL과 Redis를 이용한 확장 가능한 데이터베이스 환경 구�
 - [ ] 기본 모델 클래스 정의
 - [ ] 타임스탬프 mixin 클래스
 
-**결과물**: 
+**결과물**:
 - `app/db/postgresql.py` - PostgreSQL 연결
 - `app/models/` - SQLAlchemy 모델들
 - `app/db/base.py` - 기본 모델 클래스
@@ -224,7 +224,7 @@ PostgreSQL과 Redis를 이용한 확장 가능한 데이터베이스 환경 구�
 - [ ] 캐시 매니저 클래스
 - [ ] TTL 관리 유틸리티
 
-**결과물**: 
+**결과물**:
 - `app/db/redis.py` - Redis 연결
 - `app/services/cache_manager.py` - 캐시 매니저
 
@@ -241,7 +241,7 @@ PostgreSQL과 Redis를 이용한 확장 가능한 데이터베이스 환경 구�
 - [ ] 자동 마이그레이션 생성 설정
 - [ ] 백업 및 복구 스크립트
 
-**결과물**: 
+**결과물**:
 - `alembic/` - 마이그레이션 디렉터리
 - `alembic.ini` - Alembic 설정
 - `scripts/migrate.sh` - 마이그레이션 스크립트
@@ -259,10 +259,10 @@ PostgreSQL과 Redis를 이용한 확장 가능한 데이터베이스 환경 구�
 - [ ] Kubernetes 레디니스/라이브니스 프로브
 - [ ] 메트릭 수집
 
-**결과물**: 
+**결과물**:
 - `app/api/health.py` - 헬스체크 API
 
-**API**: 
+**API**:
 - `GET /health` - 기본 헬스체크
 - `GET /health/detailed` - 상세 상태
 
@@ -278,7 +278,7 @@ PostgreSQL과 Redis를 이용한 확장 가능한 데이터베이스 환경 구�
 - [ ] 인덱스 생성 마이그레이션
 - [ ] 성능 모니터링 쿼리
 
-**결과물**: 
+**결과물**:
 - 확장 설치 마이그레이션
 - 인덱스 생성 마이그레이션
 - 성능 모니터링 스크립트
@@ -297,7 +297,7 @@ PostgreSQL과 Redis를 이용한 확장 가능한 데이터베이스 환경 구�
 - [ ] 성능 테스트
 - [ ] 장애 복구 테스트
 
-**결과물**: 
+**결과물**:
 - `tests/test_database.py` - 데이터베이스 테스트
 - `tests/test_redis.py` - Redis 테스트
 
@@ -364,7 +364,7 @@ JWT 인증, 환경변수 관리, API 보안 기본 설정
 ### 기존 구조 참고사항
 `backend_reference/app/`에서 다음 패턴들을 참고하여 구현:
 
-**프로젝트 구조**: 
+**프로젝트 구조**:
 - `app/main.py` - FastAPI 앱 진입점 및 CORS 설정
 - `app/core/config.py` - Pydantic BaseSettings 환경변수 관리 패턴
 - `app/core/security.py` - JWT 토큰 생성/검증 유틸리티
@@ -380,7 +380,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = secrets.token_urlsafe(32)
     POSTGRES_SERVER: str
     SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
-    
+
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
     def assemble_db_connection(cls, v, values):
         # 기존 패턴 활용
@@ -412,6 +412,6 @@ api_router.include_router(users.router, prefix="/users", tags=["users"])
 
 ---
 
-*작성일: 2025-01-XX*  
-*작성자: Claude*  
+*작성일: 2025-01-XX*
+*작성자: Claude*
 *버전: 1.0*

@@ -146,7 +146,7 @@
   "query": "string",
   "filters": {
     "categories": "string[]",
-    "regions": "string[]", 
+    "regions": "string[]",
     "tags": "string[]",
     "status": "string[]",
     "priceRange": "string[]"
@@ -263,7 +263,7 @@ Elasticsearch 인덱스 구조:
   "mappings": {
     "properties": {
       "name": {"type": "text", "analyzer": "korean"},
-      "address": {"type": "text", "analyzer": "korean"}, 
+      "address": {"type": "text", "analyzer": "korean"},
       "category": {"type": "keyword"},
       "tags": {"type": "keyword"},
       "location": {"type": "geo_point"},

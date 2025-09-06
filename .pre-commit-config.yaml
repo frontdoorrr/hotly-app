@@ -1,3 +1,4 @@
+exclude: ^backend_reference/
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
@@ -37,10 +38,11 @@ repos:
         args: [--ignore-missing-imports]
 
   - repo: https://github.com/pycqa/bandit
-    rev: 1.7.5
+    rev: 1.8.6
     hooks:
       - id: bandit
         args: [-c, bandit.yaml]
+        additional_dependencies: [pbr]
 
   - repo: https://github.com/pycqa/autoflake
     rev: v2.2.1

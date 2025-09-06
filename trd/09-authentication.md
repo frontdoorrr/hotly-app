@@ -20,25 +20,25 @@
 │ │ Auth        │ │    │ │ Management  │ │    │ │ Management  │ │
 │ └─────────────┘ │    │ └─────────────┘ │    │ └─────────────┘ │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
-                                              
-┌─────────────────┐    ┌─────────────────┐    
-│ External OAuth  │    │   Data Store    │    
-│                 │    │                 │    
-│ ┌─────────────┐ │    │ ┌─────────────┐ │    
-│ │ Google      │ │───►│ │ Firebase    │ │    
-│ │ OAuth       │ │    │ │ Auth        │ │    
-│ └─────────────┘ │    │ └─────────────┘ │    
-│ ┌─────────────┐ │    │ ┌─────────────┐ │    
-│ │ Apple       │ │    │ │ User        │ │    
-│ │ Sign In     │ │    │ │ Profiles    │ │    
-│ └─────────────┘ │    │ │ (PostgreSQL)│ │    
-│ ┌─────────────┐ │    │ └─────────────┘ │    
-│ │ Kakao       │ │    │ ┌─────────────┐ │    
-│ │ Login       │ │    │ │ Session     │ │    
-│ └─────────────┘ │    │ │ Store       │ │    
-└─────────────────┘    │ │ (Redis)     │ │    
-                       │ └─────────────┘ │    
-                       └─────────────────┘    
+
+┌─────────────────┐    ┌─────────────────┐
+│ External OAuth  │    │   Data Store    │
+│                 │    │                 │
+│ ┌─────────────┐ │    │ ┌─────────────┐ │
+│ │ Google      │ │───►│ │ Firebase    │ │
+│ │ OAuth       │ │    │ │ Auth        │ │
+│ └─────────────┘ │    │ └─────────────┘ │
+│ ┌─────────────┐ │    │ ┌─────────────┐ │
+│ │ Apple       │ │    │ │ User        │ │
+│ │ Sign In     │ │    │ │ Profiles    │ │
+│ └─────────────┘ │    │ │ (PostgreSQL)│ │
+│ ┌─────────────┐ │    │ └─────────────┘ │
+│ │ Kakao       │ │    │ ┌─────────────┐ │
+│ │ Login       │ │    │ │ Session     │ │
+│ └─────────────┘ │    │ │ Store       │ │
+└─────────────────┘    │ │ (Redis)     │ │
+                       │ └─────────────┘ │
+                       └─────────────────┘
 ```
 
 ### 1-2. 기술 스택
@@ -47,19 +47,19 @@ Authentication:
   Core: Firebase Authentication 9.x
   Social: Google Sign-In, Apple Sign In, Kakao Login
   Biometric: React Native Biometrics, Android Biometric API
-  
+
 Backend:
   Runtime: Node.js 18+ (TypeScript)
   Framework: Express.js
   Session Store: Redis Cluster
   Database: PostgreSQL (user profiles), Firebase Auth (credentials)
-  
+
 Security:
   Encryption: AES-256-GCM (local storage)
   Transport: TLS 1.3
   JWT: Firebase JWT with custom claims
   Rate Limiting: express-rate-limit + Redis
-  
+
 Client:
   iOS: Firebase iOS SDK, SwiftUI Biometrics
   Android: Firebase Android SDK, AndroidX Biometric
@@ -73,13 +73,13 @@ Client:
 // firebase-config.json
 {
   "apiKey": "${FIREBASE_API_KEY}",
-  "authDomain": "hotly-app.firebaseapp.com", 
+  "authDomain": "hotly-app.firebaseapp.com",
   "projectId": "hotly-app",
   "storageBucket": "hotly-app.appspot.com",
   "messagingSenderId": "${FCM_SENDER_ID}",
   "appId": "${FIREBASE_APP_ID}",
   "measurementId": "${GA_MEASUREMENT_ID}",
-  
+
   "auth": {
     "providers": {
       "email": {
@@ -87,7 +87,7 @@ Client:
         "passwordPolicy": {
           "minLength": 8,
           "requireLowercase": false,
-          "requireUppercase": false, 
+          "requireUppercase": false,
           "requireNumeric": true,
           "requireNonAlphanumeric": false
         },
@@ -135,7 +135,7 @@ service cloud.firestore {
       allow create: if request.auth != null && request.auth.uid == userId
         && validateUserProfile(resource.data);
     }
-    
+
     // 게스트 사용자 임시 데이터
     match /guest_data/{guestId} {
       allow read, write: if request.auth != null && request.auth.uid == guestId;
@@ -143,14 +143,14 @@ service cloud.firestore {
       allow create: if request.auth != null && request.auth.token.firebase.sign_in_provider == 'anonymous'
         && request.time < resource.data.expires_at;
     }
-    
+
     // 관리자만 접근 가능한 데이터
     match /admin/{document=**} {
-      allow read, write: if request.auth != null 
+      allow read, write: if request.auth != null
         && request.auth.token.admin == true;
     }
   }
-  
+
   function validateUserProfile(data) {
     return data.keys().hasAll(['displayName', 'createdAt']) &&
            data.displayName is string &&
@@ -209,8 +209,8 @@ class CustomClaimsManager {
 ```typescript
 // auth-service.ts
 import { initializeApp } from 'firebase/app';
-import { 
-  getAuth, 
+import {
+  getAuth,
   connectAuthEmulator,
   onAuthStateChanged,
   User
@@ -224,7 +224,7 @@ class FirebaseAuthService {
   constructor(config: FirebaseConfig) {
     const app = initializeApp(config);
     this.auth = getAuth(app);
-    
+
     // 개발 환경에서 에뮬레이터 연결
     if (process.env.NODE_ENV === 'development') {
       connectAuthEmulator(this.auth, 'http://localhost:9099');
@@ -236,7 +236,7 @@ class FirebaseAuthService {
   private setupAuthStateListener(): void {
     onAuthStateChanged(this.auth, async (user) => {
       this.currentUser = user;
-      
+
       if (user) {
         // 토큰 새로고침 및 커스텀 클레임 업데이트
         await this.refreshUserToken(user);
@@ -275,7 +275,7 @@ class FirebaseAuthService {
     this.authStateListeners.push(listener);
     // 즉시 현재 상태 전달
     listener(this.currentUser);
-    
+
     // 언서브스크라이브 함수 반환
     return () => {
       this.authStateListeners = this.authStateListeners.filter(l => l !== listener);
@@ -296,7 +296,7 @@ class FirebaseAuthService {
 ### 3-2. 이메일/비밀번호 인증
 ```typescript
 // email-auth.ts
-import { 
+import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   sendEmailVerification,
@@ -322,7 +322,7 @@ class EmailAuthService {
 
   async signUp(data: SignUpData): Promise<UserCredential> {
     this.validateSignUpData(data);
-    
+
     try {
       // 1. Firebase Auth 계정 생성
       const userCredential = await createUserWithEmailAndPassword(
@@ -431,7 +431,7 @@ class EmailAuthService {
     const hasLetter = /[a-zA-Z]/.test(password);
     const hasNumber = /\d/.test(password);
     const minLength = password.length >= 8;
-    
+
     return hasLetter && hasNumber && minLength;
   }
 }
@@ -440,11 +440,11 @@ class EmailAuthService {
 ### 3-3. 소셜 로그인 구현
 ```typescript
 // social-auth.ts
-import { 
-  GoogleAuthProvider, 
-  signInWithPopup, 
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
   signInWithRedirect,
-  OAuthProvider 
+  OAuthProvider
 } from 'firebase/auth';
 
 interface SocialProvider {
@@ -504,17 +504,17 @@ class SocialAuthService {
 
     try {
       let userCredential: UserCredential;
-      
+
       if (this.isMobile()) {
         // 모바일에서는 리다이렉트 방식 사용
         userCredential = await signInWithRedirect(
-          this.authService.auth, 
+          this.authService.auth,
           providerConfig.provider
         );
       } else {
         // 웹에서는 팝업 방식 사용
         userCredential = await signInWithPopup(
-          this.authService.auth, 
+          this.authService.auth,
           providerConfig.provider
         );
       }
@@ -546,13 +546,13 @@ class SocialAuthService {
     try {
       // 1. 카카오 SDK 로그인
       const kakaoToken = await this.kakaoLogin();
-      
+
       // 2. 백엔드로 토큰 전송하여 Firebase Custom Token 획득
       const customToken = await this.exchangeKakaoToken(kakaoToken);
-      
+
       // 3. Custom Token으로 Firebase 로그인
       const userCredential = await signInWithCustomToken(
-        this.authService.auth, 
+        this.authService.auth,
         customToken
       );
 
@@ -591,7 +591,7 @@ class SocialAuthService {
   }
 
   private async processSocialUserProfile(
-    userCredential: UserCredential, 
+    userCredential: UserCredential,
     providerId: string
   ): Promise<void> {
     const user = userCredential.user;
@@ -655,10 +655,10 @@ class GuestAuthService {
   async signInAsGuest(): Promise<UserCredential> {
     try {
       const userCredential = await signInAnonymously(this.authService.auth);
-      
+
       // 게스트 데이터 컨테이너 생성
       await this.initializeGuestData(userCredential.user.uid);
-      
+
       // 게스트 로그인 이벤트
       await this.logAuthEvent('guest_signin', userCredential.user.uid, {
         expires_at: Date.now() + this.GUEST_DATA_TTL
@@ -673,7 +673,7 @@ class GuestAuthService {
 
   async convertGuestToUser(credential: AuthCredential): Promise<UserCredential> {
     const currentUser = this.authService.getCurrentUser();
-    
+
     if (!currentUser || !currentUser.isAnonymous) {
       throw new Error('게스트 계정이 아닙니다.');
     }
@@ -681,13 +681,13 @@ class GuestAuthService {
     try {
       // 1. 게스트 데이터 백업
       const guestData = await this.getGuestData(currentUser.uid);
-      
+
       // 2. 익명 계정을 실제 계정으로 연결
       const userCredential = await linkWithCredential(currentUser, credential);
-      
+
       // 3. 게스트 데이터를 사용자 계정으로 이전
       await this.migrateGuestData(userCredential.user.uid, guestData);
-      
+
       // 4. 사용자 프로필 생성
       await this.createUserProfileFromGuest(userCredential.user, guestData);
 
@@ -749,7 +749,7 @@ class GuestAuthService {
         .doc(userUid)
         .collection('places')
         .doc();
-      
+
       batch.set(placeRef, {
         ...place,
         migrated_from_guest: true,
@@ -764,7 +764,7 @@ class GuestAuthService {
         .doc(userUid)
         .collection('courses')
         .doc();
-      
+
       batch.set(courseRef, {
         ...course,
         migrated_from_guest: true,
@@ -777,7 +777,7 @@ class GuestAuthService {
 
   async cleanupExpiredGuestData(): Promise<void> {
     const expiredThreshold = Date.now();
-    
+
     const expiredGuests = await firestore()
       .collection('guest_data')
       .where('expires_at', '<=', expiredThreshold)
@@ -829,9 +829,9 @@ class BiometricAuthService {
   private async initializeBiometrics(): Promise<void> {
     try {
       const { available, biometryType } = await this.rnBiometrics.isSensorAvailable();
-      
+
       this.isAvailable = available;
-      
+
       switch (biometryType) {
         case ReactNativeBiometrics.TouchID:
         case ReactNativeBiometrics.Fingerprint:
@@ -865,7 +865,7 @@ class BiometricAuthService {
     try {
       // 1. 키 쌍 생성
       const { keysExist } = await this.rnBiometrics.biometricKeysExist();
-      
+
       if (!keysExist) {
         const { publicKey } = await this.rnBiometrics.createKeys();
         // 공개 키를 서버에 저장 (선택사항)
@@ -905,7 +905,7 @@ class BiometricAuthService {
     try {
       const config = this.getBiometricConfig();
       const payload = `auth_${userId}_${Date.now()}`;
-      
+
       const { success, signature } = await this.rnBiometrics.createSignature({
         promptMessage: config.title,
         payload
@@ -928,10 +928,10 @@ class BiometricAuthService {
     try {
       // 1. 키 삭제
       await this.rnBiometrics.deleteKeys();
-      
+
       // 2. 설정 비활성화
       await this.saveBiometricPreference(userId, false);
-      
+
       // 3. 서버에서 공개 키 삭제
       await this.deleteBiometricPublicKey(userId);
     } catch (error) {
@@ -959,7 +959,7 @@ class BiometricAuthService {
       case BiometricType.FACE_ID:
         return {
           ...baseConfig,
-          subtitle: 'Face ID로 로그인', 
+          subtitle: 'Face ID로 로그인',
           description: '얼굴을 인식해주세요'
         };
       default:
@@ -1007,15 +1007,15 @@ class PinAuthService {
       // PIN을 해시화하여 저장
       const hashedPin = await this.hashPin(pinCode);
       const key = `pin_${userId}`;
-      
+
       await SecureStore.setItemAsync(key, hashedPin);
-      
+
       // PIN 설정 완료 표시
       await SecureStore.setItemAsync(`pin_enabled_${userId}`, 'true');
-      
+
       // 실패 횟수 초기화
       await this.resetFailedAttempts(userId);
-      
+
     } catch (error) {
       console.error('PIN setup failed:', error);
       throw new Error('PIN 설정에 실패했습니다.');
@@ -1032,13 +1032,13 @@ class PinAuthService {
     try {
       const key = `pin_${userId}`;
       const storedHash = await SecureStore.getItemAsync(key);
-      
+
       if (!storedHash) {
         throw new Error('PIN이 설정되지 않았습니다.');
       }
 
       const isValid = await this.verifyPin(pinCode, storedHash);
-      
+
       if (isValid) {
         await this.resetFailedAttempts(userId);
         return true;
@@ -1102,9 +1102,9 @@ class PinAuthService {
     const key = `pin_attempts_${userId}`;
     const currentAttempts = parseInt(await SecureStore.getItemAsync(key) || '0');
     const newAttempts = currentAttempts + 1;
-    
+
     await SecureStore.setItemAsync(key, newAttempts.toString());
-    
+
     if (newAttempts >= this.config.attempts) {
       const lockoutUntil = Date.now() + this.config.lockoutDuration;
       await SecureStore.setItemAsync(`pin_lockout_${userId}`, lockoutUntil.toString());
@@ -1119,15 +1119,15 @@ class PinAuthService {
   private async isAccountLocked(userId: string): Promise<boolean> {
     const lockoutKey = `pin_lockout_${userId}`;
     const lockoutUntil = await SecureStore.getItemAsync(lockoutKey);
-    
+
     if (!lockoutUntil) return false;
-    
+
     const lockoutTime = parseInt(lockoutUntil);
     if (Date.now() > lockoutTime) {
       await SecureStore.deleteItemAsync(lockoutKey);
       return false;
     }
-    
+
     return true;
   }
 }
@@ -1152,7 +1152,7 @@ class JWTValidator {
     try {
       // Firebase ID 토큰 검증
       const decodedToken = await auth().verifyIdToken(token, true);
-      
+
       // 추가 검증
       if (!this.isTokenValid(decodedToken)) {
         return { valid: false, error: 'Invalid token claims' };
@@ -1161,11 +1161,11 @@ class JWTValidator {
       return { valid: true, user: decodedToken };
     } catch (error) {
       console.error('Token validation failed:', error);
-      
+
       if (error.code === 'auth/id-token-expired') {
         return { valid: false, error: 'Token expired' };
       }
-      
+
       if (error.code === 'auth/id-token-revoked') {
         return { valid: false, error: 'Token revoked' };
       }
@@ -1198,7 +1198,7 @@ class JWTValidator {
   createAuthMiddleware() {
     return async (req: Request, res: Response, next: NextFunction) => {
       const authHeader = req.headers.authorization;
-      
+
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({ error: 'Missing or invalid authorization header' });
       }
@@ -1246,7 +1246,7 @@ class SessionManager {
 
   async createSession(userId: string, deviceInfo: any, req: Request): Promise<string> {
     const sessionId = this.generateSessionId();
-    
+
     const session: UserSession = {
       userId,
       deviceId: deviceInfo.deviceId,
@@ -1281,7 +1281,7 @@ class SessionManager {
   async getSession(sessionId: string): Promise<UserSession | null> {
     const sessionKey = `session:${sessionId}`;
     const sessionData = await this.redis.get(sessionKey);
-    
+
     if (!sessionData) {
       return null;
     }
@@ -1294,7 +1294,7 @@ class SessionManager {
     if (!session) return;
 
     session.lastActiveAt = new Date();
-    
+
     const sessionKey = `session:${sessionId}`;
     await this.redis.setex(
       sessionKey,
@@ -1306,9 +1306,9 @@ class SessionManager {
   async getUserActiveSessions(userId: string): Promise<UserSession[]> {
     const userSessionsKey = `user_sessions:${userId}`;
     const sessionIds = await this.redis.smembers(userSessionsKey);
-    
+
     const sessions: UserSession[] = [];
-    
+
     for (const sessionId of sessionIds) {
       const session = await this.getSession(sessionId);
       if (session && session.isActive) {
@@ -1339,7 +1339,7 @@ class SessionManager {
 
   async revokeAllUserSessions(userId: string): Promise<void> {
     const sessions = await this.getUserActiveSessions(userId);
-    
+
     for (const session of sessions) {
       await this.revokeSession(this.getSessionIdFromSession(session));
     }
@@ -1353,7 +1353,7 @@ class SessionManager {
     // 만료된 세션들을 정리하는 배치 작업
     const pattern = 'session:*';
     const keys = await this.redis.keys(pattern);
-    
+
     for (const key of keys) {
       const ttl = await this.redis.ttl(key);
       if (ttl === -2) { // 키가 만료됨
@@ -1584,9 +1584,9 @@ class AnomalyDetector {
   private async checkNewDevice(attempt: LoginAttempt): Promise<AnomalyAlert | null> {
     const key = `user_devices:${attempt.userId}`;
     const deviceFingerprint = this.generateDeviceFingerprint(attempt);
-    
+
     const isKnownDevice = await this.redis.sismember(key, deviceFingerprint);
-    
+
     if (!isKnownDevice) {
       // 새로운 기기 등록
       await this.redis.sadd(key, deviceFingerprint);
@@ -1640,12 +1640,12 @@ class AnomalyDetector {
   private async sendSecurityAlert(alert: AnomalyAlert): Promise<void> {
     // 보안 알림 발송 로직
     console.warn('Security Alert:', alert);
-    
+
     if (alert.severity === 'high') {
       // 즉시 알림 (이메일, Slack 등)
       await this.sendImmediateAlert(alert);
     }
-    
+
     // 보안 로그 저장
     await this.logSecurityEvent(alert);
   }
@@ -1678,7 +1678,7 @@ class AuthAnalytics {
   async recordAuthEvent(event: AuthEvent): Promise<void> {
     // 실시간 메트릭 업데이트
     await this.updateRealtimeMetrics(event);
-    
+
     // 상세 로그 저장
     await this.saveAuthLog(event);
   }
@@ -1686,7 +1686,7 @@ class AuthAnalytics {
   private async updateRealtimeMetrics(event: AuthEvent): Promise<void> {
     const today = new Date().toISOString().split('T')[0];
     const key = `auth_metrics:${today}`;
-    
+
     switch (event.type) {
       case 'signup':
         await this.redis.hincrby(key, 'total_signups', 1);
@@ -1710,7 +1710,7 @@ class AuthAnalytics {
   async getAuthMetrics(period: 'day' | 'week' | 'month'): Promise<AuthMetrics> {
     const endDate = new Date();
     const startDate = new Date();
-    
+
     switch (period) {
       case 'day':
         startDate.setDate(endDate.getDate() - 1);
@@ -1724,23 +1724,23 @@ class AuthAnalytics {
     }
 
     const query = `
-      SELECT 
+      SELECT
         COUNT(CASE WHEN type = 'signup' THEN 1 END) as total_signups,
         COUNT(CASE WHEN type = 'signin' THEN 1 END) as total_logins,
         COUNT(CASE WHEN type = 'signin' AND provider != 'email' THEN 1 END) as social_logins,
         COUNT(CASE WHEN type = 'guest_conversion' THEN 1 END) as guest_conversions,
         COUNT(CASE WHEN type = 'signin_failed' THEN 1 END) as failed_logins,
-        CASE 
-          WHEN COUNT(CASE WHEN type = 'signin' THEN 1 END) > 0 
+        CASE
+          WHEN COUNT(CASE WHEN type = 'signin' THEN 1 END) > 0
           THEN (COUNT(CASE WHEN type = 'signin' AND provider != 'email' THEN 1 END)::float / COUNT(CASE WHEN type = 'signin' THEN 1 END) * 100)
-          ELSE 0 
+          ELSE 0
         END as social_login_ratio,
-        CASE 
+        CASE
           WHEN (COUNT(CASE WHEN type = 'signin' THEN 1 END) + COUNT(CASE WHEN type = 'signin_failed' THEN 1 END)) > 0
           THEN (COUNT(CASE WHEN type = 'signin_failed' THEN 1 END)::float / (COUNT(CASE WHEN type = 'signin' THEN 1 END) + COUNT(CASE WHEN type = 'signin_failed' THEN 1 END)) * 100)
           ELSE 0
         END as failed_login_rate
-      FROM auth_logs 
+      FROM auth_logs
       WHERE timestamp >= $1 AND timestamp <= $2
     `;
 
@@ -1754,7 +1754,7 @@ class AuthAnalytics {
 
     const query = `
       SELECT error_code as reason, COUNT(*) as count
-      FROM auth_logs 
+      FROM auth_logs
       WHERE type = 'signin_failed' AND timestamp >= $1
       GROUP BY error_code
       ORDER BY count DESC
@@ -1872,7 +1872,7 @@ class AuthErrorHandler {
 
   handleAuthError(error: any): AuthError {
     const mappedError = this.errorMap.get(error.code);
-    
+
     if (mappedError) {
       return mappedError;
     }
@@ -1926,7 +1926,7 @@ class AuthErrorHandler {
         return await operation();
       } catch (error) {
         lastError = error as Error;
-        
+
         const authError = this.handleAuthError(error);
         if (!authError.retryable || attempt === maxRetries) {
           throw error;
@@ -2182,7 +2182,7 @@ describe('Authentication Integration', () => {
 
     it('should detect suspicious login patterns', async () => {
       const anomalyDetector = testServer.get(AnomalyDetector);
-      
+
       // 다른 지역에서 로그인 시도 시뮬레이션
       const normalLogin = {
         userId: testUser.id,

@@ -243,7 +243,7 @@ class CRUDPlace(CRUDBase[Place, PlaceCreate, PlaceUpdate]):
         # Verified percentage
         verified_count = (
             db.query(Place)
-            .filter(Place.user_id == user_id, Place.is_verified == True)
+            .filter(Place.user_id == user_id, Place.is_verified.is_(True))
             .count()
         )
 

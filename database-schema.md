@@ -7,7 +7,7 @@
 CREATE TABLE user_profiles (
   id SERIAL PRIMARY KEY,
   user_id VARCHAR(128) UNIQUE NOT NULL, -- Firebase Auth UID
-  
+
   -- 공개 프로필 정보
   display_name VARCHAR(50) NOT NULL,
   photo_url TEXT,
@@ -16,7 +16,7 @@ CREATE TABLE user_profiles (
   interests TEXT[], -- PostgreSQL array type
   joined_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   last_active_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-  
+
   -- 개인정보 (비공개)
   email VARCHAR(255) NOT NULL,
   phone_number VARCHAR(20),
@@ -24,11 +24,11 @@ CREATE TABLE user_profiles (
   gender VARCHAR(20) CHECK (gender IN ('male', 'female', 'other', 'prefer_not_to_say')),
   email_verified BOOLEAN NOT NULL DEFAULT FALSE,
   phone_verified BOOLEAN NOT NULL DEFAULT FALSE,
-  
+
   -- 개인화 설정 (JSONB로 저장)
   dating_preferences JSONB DEFAULT '{}',
   recommendation_preferences JSONB DEFAULT '{}',
-  
+
   -- 알림 설정
   notification_settings JSONB DEFAULT '{
     "push": {
@@ -51,17 +51,17 @@ CREATE TABLE user_profiles (
       "timezone": "Asia/Seoul"
     }
   }',
-  
+
   -- 프라이버시 설정
   privacy_settings JSONB DEFAULT '{
     "profileVisibility": "friends",
-    "activityVisibility": "friends", 
+    "activityVisibility": "friends",
     "locationSharing": true,
     "analyticsOptIn": true,
     "marketingOptIn": false,
     "dataRetention": "standard"
   }',
-  
+
   -- 메타데이터
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
@@ -85,45 +85,45 @@ CREATE TABLE places (
   id SERIAL PRIMARY KEY,
   user_id VARCHAR(128) NOT NULL,
   external_id VARCHAR(255), -- 외부 서비스 ID (Google Places, Kakao 등)
-  
+
   -- 기본 정보
   name VARCHAR(200) NOT NULL,
   address TEXT NOT NULL,
   phone VARCHAR(50),
   website TEXT,
-  
+
   -- 지리 정보 (PostGIS)
   coordinates GEOGRAPHY(POINT, 4326) NOT NULL,
   region VARCHAR(100),
   district VARCHAR(100),
-  
+
   -- 분류 정보
   category VARCHAR(50) NOT NULL CHECK (category IN ('cafe', 'restaurant', 'tourist', 'shopping', 'culture', 'activity')),
   tags TEXT[] DEFAULT '{}',
   atmosphere_tags TEXT[] DEFAULT '{}',
-  
+
   -- AI 분석 결과
   ai_confidence DECIMAL(3,2) CHECK (ai_confidence >= 0 AND ai_confidence <= 1),
   ai_analysis JSONB,
-  
+
   -- 사용자 평가
   personal_rating INTEGER CHECK (personal_rating >= 1 AND personal_rating <= 5),
   personal_notes TEXT,
   visited_at TIMESTAMP WITH TIME ZONE,
-  
+
   -- 소셜 정보
   likes_count INTEGER DEFAULT 0,
   saves_count INTEGER DEFAULT 0,
   shares_count INTEGER DEFAULT 0,
-  
+
   -- 상태 관리
   status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'deleted')),
   visibility VARCHAR(20) DEFAULT 'private' CHECK (visibility IN ('public', 'friends', 'private')),
-  
+
   -- 메타데이터
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-  
+
   FOREIGN KEY (user_id) REFERENCES user_profiles(user_id) ON DELETE CASCADE
 );
 
@@ -144,45 +144,45 @@ CREATE INDEX idx_places_region_category ON places(region, category);
 CREATE TABLE courses (
   id SERIAL PRIMARY KEY,
   user_id VARCHAR(128) NOT NULL,
-  
+
   -- 기본 정보
   title VARCHAR(200) NOT NULL,
   description TEXT,
   course_type VARCHAR(50) NOT NULL CHECK (course_type IN ('romantic', 'activity', 'food', 'culture', 'shopping', 'nature')),
-  
+
   -- 코스 설정
   duration_hours DECIMAL(3,1), -- 예상 소요시간
   difficulty_level INTEGER CHECK (difficulty_level >= 1 AND difficulty_level <= 5),
   budget_min INTEGER,
   budget_max INTEGER,
-  
+
   -- 참가자 정보
   companion_type VARCHAR(20) CHECK (companion_type IN ('couple', 'friend', 'solo', 'family')),
   group_size_min INTEGER DEFAULT 1,
   group_size_max INTEGER DEFAULT 2,
-  
+
   -- 시간 정보
   preferred_time_slots TEXT[] DEFAULT '{}', -- ['morning', 'afternoon', 'evening', 'night']
   seasonal_availability TEXT[] DEFAULT '{}', -- ['spring', 'summer', 'autumn', 'winter']
-  
+
   -- AI 추천 정보
   recommendation_score DECIMAL(3,2),
   recommendation_reasons TEXT[],
-  
+
   -- 소셜 정보
   likes_count INTEGER DEFAULT 0,
   saves_count INTEGER DEFAULT 0,
   shares_count INTEGER DEFAULT 0,
   views_count INTEGER DEFAULT 0,
-  
+
   -- 상태 관리
   status VARCHAR(20) DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'archived', 'deleted')),
   visibility VARCHAR(20) DEFAULT 'private' CHECK (visibility IN ('public', 'friends', 'private')),
-  
+
   -- 메타데이터
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-  
+
   FOREIGN KEY (user_id) REFERENCES user_profiles(user_id) ON DELETE CASCADE
 );
 
@@ -202,24 +202,24 @@ CREATE TABLE course_places (
   id SERIAL PRIMARY KEY,
   course_id INTEGER NOT NULL,
   place_id INTEGER NOT NULL,
-  
+
   -- 순서 정보
   sequence_order INTEGER NOT NULL,
-  
+
   -- 이동 정보
   travel_time_minutes INTEGER,
   travel_distance_km DECIMAL(5,2),
   travel_method VARCHAR(20) CHECK (travel_method IN ('walking', 'driving', 'public_transport', 'bicycle')),
-  
+
   -- 장소별 계획
   planned_duration_minutes INTEGER,
   planned_budget INTEGER,
   visit_notes TEXT,
-  
+
   -- 메타데이터
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-  
+
   FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
   FOREIGN KEY (place_id) REFERENCES places(id) ON DELETE CASCADE,
   UNIQUE(course_id, sequence_order)
@@ -238,23 +238,23 @@ CREATE INDEX idx_course_places_sequence ON course_places(course_id, sequence_ord
 CREATE TABLE link_analysis_results (
   id SERIAL PRIMARY KEY,
   user_id VARCHAR(128) NOT NULL,
-  
+
   -- 링크 정보
   original_url TEXT NOT NULL,
   url_hash VARCHAR(64) UNIQUE NOT NULL, -- SHA-256 해시
   platform VARCHAR(50) NOT NULL, -- 'instagram', 'youtube', 'blog', etc.
-  
+
   -- 추출된 컨텐츠
   title TEXT,
   description TEXT,
   images TEXT[], -- 이미지 URL 배열
   extracted_text TEXT,
-  
+
   -- AI 분석 결과
   analysis_status VARCHAR(20) DEFAULT 'pending' CHECK (analysis_status IN ('pending', 'processing', 'completed', 'failed')),
   ai_confidence DECIMAL(3,2),
   detected_places JSONB, -- AI가 감지한 장소들
-  
+
   -- 메타데이터
   processing_time_ms INTEGER,
   error_message TEXT,
@@ -262,7 +262,7 @@ CREATE TABLE link_analysis_results (
   expires_at TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-  
+
   FOREIGN KEY (user_id) REFERENCES user_profiles(user_id) ON DELETE CASCADE
 );
 
@@ -283,21 +283,21 @@ CREATE TABLE shares (
   user_id VARCHAR(128) NOT NULL, -- 공유한 사용자
   content_type VARCHAR(20) NOT NULL CHECK (content_type IN ('place', 'course')),
   content_id INTEGER NOT NULL, -- places.id 또는 courses.id
-  
+
   -- 공유 정보
   share_type VARCHAR(20) NOT NULL CHECK (share_type IN ('link', 'direct', 'social')),
   share_token VARCHAR(64) UNIQUE, -- 공유 링크용 토큰
   recipient_user_ids TEXT[], -- 직접 공유 시 수신자 ID들
-  
+
   -- 공유 설정
   expires_at TIMESTAMP WITH TIME ZONE,
   requires_auth BOOLEAN DEFAULT FALSE,
   view_count INTEGER DEFAULT 0,
-  
+
   -- 메타데이터
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-  
+
   FOREIGN KEY (user_id) REFERENCES user_profiles(user_id) ON DELETE CASCADE
 );
 
@@ -315,9 +315,9 @@ CREATE TABLE likes (
   user_id VARCHAR(128) NOT NULL,
   content_type VARCHAR(20) NOT NULL CHECK (content_type IN ('place', 'course')),
   content_id INTEGER NOT NULL,
-  
+
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-  
+
   FOREIGN KEY (user_id) REFERENCES user_profiles(user_id) ON DELETE CASCADE,
   UNIQUE(user_id, content_type, content_id)
 );
@@ -336,17 +336,17 @@ CREATE TABLE comments (
   content_type VARCHAR(20) NOT NULL CHECK (content_type IN ('place', 'course')),
   content_id INTEGER NOT NULL,
   parent_comment_id INTEGER, -- 대댓글용
-  
+
   -- 댓글 내용
   content TEXT NOT NULL CHECK (LENGTH(content) <= 1000),
-  
+
   -- 상태 관리
   status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'deleted', 'reported')),
-  
+
   -- 메타데이터
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-  
+
   FOREIGN KEY (user_id) REFERENCES user_profiles(user_id) ON DELETE CASCADE,
   FOREIGN KEY (parent_comment_id) REFERENCES comments(id) ON DELETE CASCADE
 );
@@ -365,25 +365,25 @@ CREATE INDEX idx_comments_created_at ON comments(created_at DESC);
 CREATE TABLE search_logs (
   id SERIAL PRIMARY KEY,
   user_id VARCHAR(128),
-  
+
   -- 검색 정보
   query TEXT NOT NULL,
   search_type VARCHAR(20) CHECK (search_type IN ('place', 'course', 'user', 'tag')),
   filters_applied JSONB,
-  
+
   -- 결과 정보
   results_count INTEGER,
   selected_result_id INTEGER,
   selected_result_position INTEGER,
-  
+
   -- 세션 정보
   session_id VARCHAR(64),
   device_type VARCHAR(20),
-  
+
   -- 메타데이터
   search_duration_ms INTEGER,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-  
+
   FOREIGN KEY (user_id) REFERENCES user_profiles(user_id) ON DELETE SET NULL
 );
 
@@ -399,12 +399,12 @@ CREATE TABLE popular_tags (
   id SERIAL PRIMARY KEY,
   tag_name VARCHAR(50) UNIQUE NOT NULL,
   category VARCHAR(50),
-  
+
   -- 통계 정보
   usage_count INTEGER DEFAULT 1,
   last_used_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   trending_score DECIMAL(5,2) DEFAULT 0,
-  
+
   -- 메타데이터
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
@@ -424,21 +424,21 @@ CREATE INDEX idx_popular_tags_trending ON popular_tags(trending_score DESC);
 CREATE TABLE user_preference_history (
   id SERIAL PRIMARY KEY,
   user_id VARCHAR(128) NOT NULL,
-  
+
   -- 선호도 정보
   content_type VARCHAR(20) NOT NULL CHECK (content_type IN ('place', 'course')),
   content_id INTEGER NOT NULL,
   interaction_type VARCHAR(20) NOT NULL CHECK (interaction_type IN ('like', 'save', 'share', 'visit', 'skip')),
-  
+
   -- 컨텍스트 정보
   context JSONB, -- 시간대, 날씨, 동반자 등
-  
+
   -- 가중치
   preference_weight DECIMAL(3,2) DEFAULT 1.0,
-  
+
   -- 메타데이터
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-  
+
   FOREIGN KEY (user_id) REFERENCES user_profiles(user_id) ON DELETE CASCADE
 );
 
@@ -454,24 +454,24 @@ CREATE INDEX idx_preference_history_created_at ON user_preference_history(create
 CREATE TABLE recommendation_results (
   id SERIAL PRIMARY KEY,
   user_id VARCHAR(128) NOT NULL,
-  
+
   -- 추천 정보
   recommendation_type VARCHAR(20) NOT NULL CHECK (recommendation_type IN ('place', 'course', 'hybrid')),
   context JSONB, -- 추천 요청 시 컨텍스트
-  
+
   -- 추천 결과
   recommended_items JSONB NOT NULL, -- 추천된 아이템들과 점수
   algorithm_version VARCHAR(20),
   confidence_score DECIMAL(3,2),
-  
+
   -- 사용자 반응
   user_feedback VARCHAR(20) CHECK (user_feedback IN ('accepted', 'rejected', 'ignored')),
   feedback_reason TEXT,
-  
+
   -- 메타데이터
   expires_at TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-  
+
   FOREIGN KEY (user_id) REFERENCES user_profiles(user_id) ON DELETE CASCADE
 );
 
@@ -488,33 +488,33 @@ CREATE INDEX idx_recommendation_results_created_at ON recommendation_results(cre
 CREATE TABLE notifications (
   id SERIAL PRIMARY KEY,
   user_id VARCHAR(128) NOT NULL,
-  
+
   -- 알림 정보
   notification_type VARCHAR(50) NOT NULL,
   title VARCHAR(200) NOT NULL,
   message TEXT NOT NULL,
-  
+
   -- 액션 정보
   action_type VARCHAR(20), -- 'open_place', 'open_course', 'open_url'
   action_data JSONB,
-  
+
   -- 발송 정보
   delivery_method VARCHAR(20) NOT NULL CHECK (delivery_method IN ('push', 'email', 'in_app')),
   delivery_status VARCHAR(20) DEFAULT 'pending' CHECK (delivery_status IN ('pending', 'sent', 'delivered', 'failed')),
   delivery_attempts INTEGER DEFAULT 0,
-  
+
   -- 사용자 상호작용
   read_at TIMESTAMP WITH TIME ZONE,
   clicked_at TIMESTAMP WITH TIME ZONE,
-  
+
   -- 스케줄링
   scheduled_for TIMESTAMP WITH TIME ZONE,
   expires_at TIMESTAMP WITH TIME ZONE,
-  
+
   -- 메타데이터
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-  
+
   FOREIGN KEY (user_id) REFERENCES user_profiles(user_id) ON DELETE CASCADE
 );
 
@@ -530,22 +530,22 @@ CREATE INDEX idx_notifications_created_at ON notifications(created_at DESC);
 ```sql
 CREATE TABLE notification_templates (
   id SERIAL PRIMARY KEY,
-  
+
   -- 템플릿 정보
   template_key VARCHAR(100) UNIQUE NOT NULL,
   template_name VARCHAR(200) NOT NULL,
-  
+
   -- 다국어 지원
   title_template JSONB NOT NULL, -- {"ko": "제목", "en": "Title"}
   message_template JSONB NOT NULL,
-  
+
   -- 설정
   default_delivery_method VARCHAR(20) DEFAULT 'push',
   priority_level INTEGER DEFAULT 3 CHECK (priority_level >= 1 AND priority_level <= 5),
-  
+
   -- 상태
   is_active BOOLEAN DEFAULT TRUE,
-  
+
   -- 메타데이터
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
@@ -584,23 +584,23 @@ CREATE TABLE data_exports (
   id SERIAL PRIMARY KEY,
   export_id VARCHAR(64) UNIQUE NOT NULL,
   user_id VARCHAR(128) NOT NULL,
-  
+
   -- 내보내기 정보
   export_type VARCHAR(20) NOT NULL CHECK (export_type IN ('full', 'profile', 'activity')),
   format VARCHAR(10) NOT NULL CHECK (format IN ('json', 'csv')),
-  
+
   -- 상태 정보
   status VARCHAR(20) DEFAULT 'processing' CHECK (status IN ('processing', 'completed', 'failed', 'expired')),
   download_url TEXT,
   file_size BIGINT,
-  
+
   -- 에러 정보
   error TEXT,
-  
+
   -- 메타데이터
   expires_at TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-  
+
   FOREIGN KEY (user_id) REFERENCES user_profiles(user_id) ON DELETE CASCADE
 );
 
@@ -615,17 +615,17 @@ CREATE INDEX idx_data_exports_status ON data_exports(status);
 CREATE TABLE scheduled_deletions (
   id SERIAL PRIMARY KEY,
   user_id VARCHAR(128) NOT NULL,
-  
+
   -- 삭제 정보
   scheduled_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   execution_date TIMESTAMP WITH TIME ZONE NOT NULL,
   reason TEXT,
-  
+
   -- 상태 관리
   status VARCHAR(20) DEFAULT 'scheduled' CHECK (status IN ('scheduled', 'executed', 'cancelled')),
   cancelled_at TIMESTAMP WITH TIME ZONE,
   executed_at TIMESTAMP WITH TIME ZONE,
-  
+
   FOREIGN KEY (user_id) REFERENCES user_profiles(user_id) ON DELETE CASCADE
 );
 
@@ -641,24 +641,24 @@ CREATE INDEX idx_scheduled_deletions_status ON scheduled_deletions(status);
 ```sql
 CREATE TABLE cache_statistics (
   id SERIAL PRIMARY KEY,
-  
+
   -- 캐시 정보
   cache_key_pattern VARCHAR(100) NOT NULL,
   cache_type VARCHAR(20) NOT NULL CHECK (cache_type IN ('redis', 'local', 'cdn')),
-  
+
   -- 통계 정보
   hit_count INTEGER DEFAULT 0,
   miss_count INTEGER DEFAULT 0,
   eviction_count INTEGER DEFAULT 0,
-  
+
   -- 성능 메트릭
   avg_response_time_ms DECIMAL(8,2),
   total_size_bytes BIGINT,
-  
+
   -- 시간 윈도우
   window_start TIMESTAMP WITH TIME ZONE NOT NULL,
   window_end TIMESTAMP WITH TIME ZONE NOT NULL,
-  
+
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
@@ -714,7 +714,7 @@ ORDER BY (user_id, date);
 ### 10.1 User Stats View
 ```sql
 CREATE MATERIALIZED VIEW user_stats_view AS
-SELECT 
+SELECT
   up.user_id,
   up.display_name,
   up.last_active_at,
@@ -733,7 +733,7 @@ CREATE INDEX idx_user_stats_view_user_id ON user_stats_view(user_id);
 ### 10.2 Popular Places View
 ```sql
 CREATE MATERIALIZED VIEW popular_places_view AS
-SELECT 
+SELECT
   p.id,
   p.name,
   p.category,
@@ -769,13 +769,13 @@ END;
 $$ language 'plpgsql';
 
 -- 트리거 적용
-CREATE TRIGGER update_user_profiles_updated_at BEFORE UPDATE ON user_profiles 
+CREATE TRIGGER update_user_profiles_updated_at BEFORE UPDATE ON user_profiles
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_places_updated_at BEFORE UPDATE ON places 
+CREATE TRIGGER update_places_updated_at BEFORE UPDATE ON places
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_courses_updated_at BEFORE UPDATE ON courses 
+CREATE TRIGGER update_courses_updated_at BEFORE UPDATE ON courses
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 ```
 
@@ -785,9 +785,9 @@ CREATE TRIGGER update_courses_updated_at BEFORE UPDATE ON courses
 CREATE OR REPLACE FUNCTION update_search_vector()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.search_vector = to_tsvector('korean', 
-        COALESCE(NEW.name, '') || ' ' || 
-        COALESCE(NEW.address, '') || ' ' || 
+    NEW.search_vector = to_tsvector('korean',
+        COALESCE(NEW.name, '') || ' ' ||
+        COALESCE(NEW.address, '') || ' ' ||
         COALESCE(array_to_string(NEW.tags, ' '), '')
     );
     RETURN NEW;
@@ -798,8 +798,8 @@ $$ language 'plpgsql';
 ALTER TABLE places ADD COLUMN search_vector tsvector;
 CREATE INDEX idx_places_search_vector ON places USING gin(search_vector);
 
-CREATE TRIGGER update_places_search_vector 
-    BEFORE INSERT OR UPDATE ON places 
+CREATE TRIGGER update_places_search_vector
+    BEFORE INSERT OR UPDATE ON places
     FOR EACH ROW EXECUTE FUNCTION update_search_vector();
 ```
 
@@ -826,23 +826,23 @@ CREATE EXTENSION IF NOT EXISTS pg_cron;
 ### 12.2 Cleanup Jobs
 ```sql
 -- 만료된 링크 분석 결과 정리 (매일 새벽 2시)
-SELECT cron.schedule('cleanup-expired-analysis', '0 2 * * *', 
+SELECT cron.schedule('cleanup-expired-analysis', '0 2 * * *',
   'DELETE FROM link_analysis_results WHERE expires_at < NOW()'
 );
 
 -- 오래된 설정 변경 로그 정리 (매일 새벽 3시)
-SELECT cron.schedule('cleanup-old-logs', '0 3 * * *', 
+SELECT cron.schedule('cleanup-old-logs', '0 3 * * *',
   'DELETE FROM setting_change_logs WHERE timestamp < NOW() - INTERVAL ''90 days'''
 );
 
 -- 만료된 알림 정리 (매시간)
-SELECT cron.schedule('cleanup-expired-notifications', '0 * * * *', 
+SELECT cron.schedule('cleanup-expired-notifications', '0 * * * *',
   'DELETE FROM notifications WHERE expires_at < NOW()'
 );
 ```
 
 ---
 
-*작성일: 2025-01-XX*  
-*작성자: Claude*  
+*작성일: 2025-01-XX*
+*작성자: Claude*
 *버전: 1.0*

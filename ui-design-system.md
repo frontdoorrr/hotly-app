@@ -23,18 +23,18 @@
 const colors = {
   primary: {
     50: '#FFF5F5',
-    100: '#FED7D7', 
+    100: '#FED7D7',
     500: '#E53E3E', // Main brand color
     600: '#C53030',
     900: '#742A2A'
   },
-  
+
   // Semantic Colors
   success: '#38A169',
-  warning: '#D69E2E', 
+  warning: '#D69E2E',
   error: '#E53E3E',
   info: '#3182CE',
-  
+
   // Neutral Colors
   gray: {
     50: '#F7FAFC',
@@ -54,17 +54,17 @@ const typography = {
     primary: 'Pretendard, -apple-system, sans-serif',
     monospace: 'JetBrains Mono, monospace'
   },
-  
+
   fontSize: {
     xs: '0.75rem',    // 12px
-    sm: '0.875rem',   // 14px  
+    sm: '0.875rem',   // 14px
     base: '1rem',     // 16px
     lg: '1.125rem',   // 18px
     xl: '1.25rem',    // 20px
     '2xl': '1.5rem',  // 24px
     '3xl': '1.875rem' // 30px
   },
-  
+
   fontWeight: {
     normal: 400,
     medium: 500,
@@ -96,7 +96,7 @@ const spacing = {
 const borderRadius = {
   none: '0',
   sm: '0.125rem',   // 2px
-  base: '0.25rem',  // 4px  
+  base: '0.25rem',  // 4px
   md: '0.375rem',   // 6px
   lg: '0.5rem',     // 8px
   xl: '0.75rem',    // 12px
@@ -143,7 +143,7 @@ interface InputProps {
 }
 
 // 사용 예시
-<Input 
+<Input
   type="search"
   placeholder="장소나 주소를 검색하세요"
   value={searchQuery}
@@ -201,7 +201,7 @@ interface SelectProps {
 }
 
 // 사용 예시
-<Select 
+<Select
   options={categoryOptions}
   value={selectedCategory}
   onChange={setSelectedCategory}
@@ -227,7 +227,7 @@ interface SearchBarProps {
 }
 
 // 내부 구성: Input + Button + AutoComplete
-<SearchBar 
+<SearchBar
   onSearch={handleSearch}
   onFilter={openFilterModal}
   suggestions={searchSuggestions}
@@ -246,7 +246,7 @@ interface FilterPanelProps {
 }
 
 // 내부 구성: FormField + Select + Slider + Checkbox
-<FilterPanel 
+<FilterPanel
   filters={availableFilters}
   values={currentFilters}
   onChange={setFilters}
@@ -266,7 +266,7 @@ interface PlaceCardProps {
 }
 
 // 내부 구성: Image + Text + ActionButtons
-<PlaceCard 
+<PlaceCard
   place={place}
   onLike={handleLike}
   variant="grid"
@@ -283,7 +283,7 @@ interface PlaceDetailProps {
 }
 
 // 내부 구성: Gallery + Info + Actions + Reviews
-<PlaceDetail 
+<PlaceDetail
   place={selectedPlace}
   reviews={placeReviews}
   onAddToCourse={addToCurrentCourse}
@@ -323,7 +323,7 @@ interface TopAppBarProps {
 }
 
 // 사용 예시
-<TopAppBar 
+<TopAppBar
   title="장소 검색"
   showBack
   actions={[
@@ -347,7 +347,7 @@ interface PlaceListProps {
 }
 
 // 내부 구성: PlaceCard[] + LoadingSpinner + EmptyState
-<PlaceList 
+<PlaceList
   places={searchResults}
   loading={isLoading}
   onLoadMore={loadNextPage}
@@ -365,7 +365,7 @@ interface CourseTimelineProps {
 }
 
 // 내부 구성: DraggableList + TimeBadge + DistanceBadge
-<CourseTimeline 
+<CourseTimeline
   places={coursePlaces}
   onReorder={handleReorder}
   editable={isEditing}
@@ -402,7 +402,7 @@ interface ModalLayoutProps {
   children: ReactNode;
 }
 
-<ModalLayout 
+<ModalLayout
   isOpen={showPlaceDetail}
   onClose={closePlaceDetail}
   title="장소 상세정보"
@@ -452,7 +452,7 @@ interface OnboardingStepProps {
   nextLabel?: string;
 }
 
-<OnboardingStep 
+<OnboardingStep
   step={1}
   totalSteps={5}
   title="관심사를 선택해주세요"
@@ -486,7 +486,7 @@ interface MapViewProps {
   clustering?: boolean;
 }
 
-<MapView 
+<MapView
   places={nearbyPlaces}
   center={currentLocation}
   onPlaceSelect={selectPlace}
@@ -527,7 +527,7 @@ interface CourseBuilderProps {
 }
 
 // 내부 구성: DragDropList + AddPlaceButton + CourseSettings
-<CourseBuilder 
+<CourseBuilder
   places={selectedPlaces}
   onAddPlace={addPlace}
   onSaveCourse={saveCourse}
@@ -562,7 +562,7 @@ interface SwipeableCardProps {
 }
 
 // 사용 예시: 장소 추천 카드
-<SwipeableCard 
+<SwipeableCard
   onSwipeLeft={rejectPlace}
   onSwipeRight={likePlace}
   onSwipeUp={savePlace}
@@ -641,7 +641,7 @@ interface EmptyStateProps {
   };
 }
 
-<EmptyState 
+<EmptyState
   icon={<SearchIcon />}
   title="검색 결과가 없어요"
   description="다른 키워드로 검색해보세요"
@@ -687,7 +687,7 @@ interface LinkInputCardProps {
   supportedPlatforms: Platform[];
 }
 
-<LinkInputCard 
+<LinkInputCard
   onSubmit={analyzeLik}
   loading={isAnalyzing}
   supportedPlatforms={['instagram', 'youtube', 'blog']}
@@ -747,7 +747,7 @@ describe('Button Component', () => {
     render(<Button variant="primary">Click me</Button>);
     expect(screen.getByRole('button')).toHaveClass('btn-primary');
   });
-  
+
   it('should_call_onClick_when_button_is_clicked', () => {
     const handleClick = jest.fn();
     render(<Button onClick={handleClick}>Click me</Button>);
@@ -759,7 +759,7 @@ describe('Button Component', () => {
 // 2. GREEN: 최소 구현
 const Button = ({ variant, children, onClick }) => {
   return (
-    <button 
+    <button
       className={`btn btn-${variant}`}
       onClick={onClick}
     >
@@ -770,11 +770,11 @@ const Button = ({ variant, children, onClick }) => {
 
 // 3. REFACTOR: 개선 및 최적화
 const Button = memo(({ variant, children, onClick, ...props }) => {
-  const className = useMemo(() => 
-    clsx('btn', `btn-${variant}`, props.className), 
+  const className = useMemo(() =>
+    clsx('btn', `btn-${variant}`, props.className),
     [variant, props.className]
   );
-  
+
   return <button className={className} onClick={onClick} {...props} />;
 });
 ```
@@ -848,11 +848,11 @@ const useAccessibility = () => ({
   announceToScreenReader: (message: string) => {
     // 스크린리더 알림
   },
-  
+
   getFocusableElements: (container: HTMLElement) => {
     // 포커스 가능한 요소 반환
   },
-  
+
   trapFocus: (container: HTMLElement) => {
     // 포커스 트랩 구현
   }
@@ -916,7 +916,7 @@ interface GridProps {
 - [ ] Atomic 컴포넌트 구현 (Button, Input, Icon)
 - [ ] Storybook 설정 및 기본 스토리
 
-### Phase 2: Molecules (1주)  
+### Phase 2: Molecules (1주)
 - [ ] Form 컴포넌트 구현 (SearchBar, FilterPanel)
 - [ ] Place 관련 컴포넌트 (PlaceCard, PlaceDetail)
 - [ ] 접근성 테스트 자동화
@@ -933,6 +933,6 @@ interface GridProps {
 
 ---
 
-*작성일: 2025-01-XX*  
-*작성자: Claude*  
+*작성일: 2025-01-XX*
+*작성자: Claude*
 *버전: 1.0*

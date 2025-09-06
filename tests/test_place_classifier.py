@@ -7,9 +7,7 @@ import pytest
 from app.models.place import PlaceCategory
 from app.schemas.place import PlaceCreate
 from app.services.ai.interfaces.classifier_interface import AIClassifierInterface
-from app.services.place_classification_service import (
-    PlaceClassificationService,
-)
+from app.services.place_classification_service import PlaceClassificationService
 
 
 class TestPlaceClassifier:

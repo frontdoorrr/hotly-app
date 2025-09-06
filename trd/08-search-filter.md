@@ -36,13 +36,13 @@ Search Engine:
   Primary: Elasticsearch 8.x
   Analyzer: Korean (nori), English (standard)
   Features: Full-text search, geo-spatial, aggregations
-  
+
 Backend:
   Runtime: Node.js 18+ (TypeScript)
   Framework: Express.js + Fastify (high-performance endpoints)
   Cache: Redis Cluster
   Database: PostgreSQL (metadata), PostgreSQL (analytics)
-  
+
 Client:
   Debouncing: Lodash debounce (300ms)
   State: Redux Toolkit (search state)
@@ -58,17 +58,17 @@ Client:
   "mappings": {
     "properties": {
       "id": { "type": "keyword" },
-      "name": { 
-        "type": "text", 
+      "name": {
+        "type": "text",
         "analyzer": "korean_analyzer",
         "fields": {
           "raw": { "type": "keyword" },
           "suggest": { "type": "completion" }
         }
       },
-      "description": { 
-        "type": "text", 
-        "analyzer": "korean_analyzer" 
+      "description": {
+        "type": "text",
+        "analyzer": "korean_analyzer"
       },
       "address": {
         "type": "text",
@@ -428,9 +428,9 @@ class SuggestService {
       }
     };
 
-    const response = await this.elasticsearch.search({ 
-      index: 'places', 
-      body: query 
+    const response = await this.elasticsearch.search({
+      index: 'places',
+      body: query
     });
 
     return this.formatSuggestions(response);
@@ -780,7 +780,7 @@ class CursorPaginator {
       id: lastItem.id,
       timestamp: Date.now()
     };
-    
+
     return Buffer.from(JSON.stringify(cursorData)).toString('base64');
   }
 
@@ -795,7 +795,7 @@ class CursorPaginator {
 
   buildSearchAfter(cursor: string, sortField: string): any[] {
     const { value, id } = this.decodeCursor(cursor);
-    
+
     // 정렬 필드에 따라 search_after 구성
     switch (sortField) {
       case 'distance':
@@ -824,7 +824,7 @@ interface CacheLayer {
 class SearchCacheManager {
   private l1Cache: Map<string, { value: any; expires: number }> = new Map();
   private l2Cache: Redis;
-  
+
   constructor(redisClient: Redis) {
     this.l2Cache = redisClient;
   }
@@ -870,7 +870,7 @@ class SearchCacheManager {
       page: params.page,
       userId: params.userId
     };
-    
+
     return `search:${Buffer.from(JSON.stringify(keyData)).toString('base64')}`;
   }
 
@@ -928,7 +928,7 @@ class CacheInvalidationManager {
   // 프로액티브 캐시 워밍
   async warmupCache(userId: string): Promise<void> {
     const popularQueries = await this.getPopularQueries(userId);
-    
+
     for (const query of popularQueries) {
       try {
         await this.searchService.search(query);
@@ -1064,24 +1064,24 @@ class SearchAnalytics {
     await this.db.execute(
       `INSERT INTO search_logs (id, user_id, query, filters, results_count, clicked_results, search_time, timestamp, session_id)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-      log.id, log.userId, log.query, JSON.stringify(log.filters), log.results_count, 
+      log.id, log.userId, log.query, JSON.stringify(log.filters), log.results_count,
       JSON.stringify(log.clicked_results), log.search_time, log.timestamp, log.session_id
     );
-    
+
     // 실시간 메트릭 업데이트
     await this.updateSearchMetrics(log);
   }
 
   async getSearchInsights(period: 'day' | 'week' | 'month'): Promise<SearchInsights> {
     const startDate = this.getStartDate(period);
-    
+
     const pipeline = [
       { $match: { timestamp: { $gte: startDate } } },
       { $group: {
         _id: null,
         total_searches: { $sum: 1 },
         avg_response_time: { $avg: '$search_time' },
-        zero_result_rate: { 
+        zero_result_rate: {
           $avg: { $cond: [{ $eq: ['$results_count', 0] }, 1, 0] }
         },
         popular_queries: { $push: '$query' },
@@ -1096,12 +1096,12 @@ class SearchAnalytics {
     ];
 
     const result = await this.db.fetch(
-      `SELECT 
+      `SELECT
          COUNT(*) as total_searches,
          AVG(search_time) as avg_response_time,
          AVG(CASE WHEN results_count = 0 THEN 1 ELSE 0 END) * 100 as zero_result_rate,
          AVG(results_count) as avg_results_per_search
-       FROM search_logs 
+       FROM search_logs
        WHERE timestamp >= $1`,
       startDate
     );
@@ -1116,7 +1116,7 @@ class SearchAnalytics {
         _id: '$query',
         count: { $sum: 1 },
         avg_results: { $avg: '$results_count' },
-        click_through_rate: { 
+        click_through_rate: {
           $avg: { $cond: [{ $gt: [{ $size: '$clicked_results' }, 0] }, 1, 0] }
         }
       }},
@@ -1131,14 +1131,14 @@ class SearchAnalytics {
     ];
 
     return await this.db.fetch(
-      `SELECT query, 
+      `SELECT query,
               COUNT(*) as count,
               AVG(results_count) as avg_results,
               AVG(CASE WHEN array_length(clicked_results, 1) > 0 THEN 1 ELSE 0 END) * 100 as click_through_rate
-       FROM search_logs 
+       FROM search_logs
        WHERE timestamp >= $1
-       GROUP BY query 
-       ORDER BY count DESC 
+       GROUP BY query
+       ORDER BY count DESC
        LIMIT $2`,
       new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), limit
     );
@@ -1201,14 +1201,14 @@ class SearchExperimentManager {
     // 사용자 ID 해싱을 통한 일관된 변형 할당
     const hash = this.hashUserId(userId + experimentId);
     const experiment = await this.getExperiment(experimentId);
-    
+
     if (!experiment || experiment.status !== 'active') {
       return 'control';
     }
 
     const bucket = hash % 100;
     let cumulative = 0;
-    
+
     for (let i = 0; i < experiment.variants.length; i++) {
       cumulative += experiment.traffic_split[i];
       if (bucket < cumulative) {
@@ -1220,9 +1220,9 @@ class SearchExperimentManager {
   }
 
   async trackExperimentEvent(
-    userId: string, 
-    experimentId: string, 
-    variant: string, 
+    userId: string,
+    experimentId: string,
+    variant: string,
     event: string,
     metadata?: any
   ): Promise<void> {
@@ -1248,7 +1248,7 @@ class SearchExperimentManager {
 
     const results = await this.db.fetch(
       `SELECT variant, event, COUNT(*) as count
-       FROM experiment_events 
+       FROM experiment_events
        WHERE experiment_id = $1
        GROUP BY variant, event`,
       experimentId
@@ -1282,11 +1282,11 @@ interface SearchPermission {
 
 class SearchSecurityManager {
   async validateSearchRequest(
-    userId: string, 
+    userId: string,
     request: SearchRequest
   ): Promise<{ valid: boolean; error?: string }> {
     const permissions = await this.getUserPermissions(userId);
-    
+
     // 1. Rate limiting 체크
     const rateLimitResult = await this.checkRateLimit(userId);
     if (!rateLimitResult.allowed) {
@@ -1317,10 +1317,10 @@ class SearchSecurityManager {
   async sanitizeQuery(query: string): Promise<string> {
     // 1. 특수 문자 이스케이핑
     let sanitized = query.replace(/[<>\"']/g, '');
-    
+
     // 2. Elasticsearch 특수 구문 제거
     sanitized = sanitized.replace(/[\[\]{}()~^]/g, '');
-    
+
     // 3. 길이 제한
     if (sanitized.length > 200) {
       sanitized = sanitized.substring(0, 200);
@@ -1333,7 +1333,7 @@ class SearchSecurityManager {
     await this.db.execute(
       `INSERT INTO search_audit_logs (user_id, query, filters, timestamp, ip_address, user_agent)
        VALUES ($1, $2, $3, $4, $5, $6)`,
-      userId, request.query, JSON.stringify(request.filters), new Date(), 
+      userId, request.query, JSON.stringify(request.filters), new Date(),
       request.ip_address, request.user_agent
     );
   }
@@ -1451,7 +1451,7 @@ elasticsearch:
       roles: ["data", "ingest"]
       heap_size: "8g"
     - name: "es-data-2"
-      roles: ["data", "ingest"]  
+      roles: ["data", "ingest"]
       heap_size: "8g"
 
 # 검색 서비스 스케일링
@@ -1515,7 +1515,7 @@ class SearchBenchmark {
 
     const totalTime = Date.now() - startTime;
     const avgResponseTime = responses.reduce((sum, r) => sum + r.time, 0) / responses.length;
-    
+
     responses.sort((a, b) => a.time - b.time);
     const p95Index = Math.floor(responses.length * 0.95);
     const p99Index = Math.floor(responses.length * 0.99);

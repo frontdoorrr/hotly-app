@@ -26,14 +26,14 @@ TDD 방법론으로 신뢰성 높은 코드 품질 및 버그 방지 시스템 �
 - [ ] 테스트 우선 작성 규칙
 - [ ] TDD 코드 리뷰 체크리스트
 
-**결과물**: 
+**결과물**:
 - `docs/tdd_guidelines.md` - TDD 가이드라인
 - `templates/test_template.py` - 테스트 템플릿
 - `scripts/tdd_workflow.sh` - TDD 워크플로우 스크립트
 
-**프로세스**: 
+**프로세스**:
 1. 실패하는 테스트 작성 (Red)
-2. 테스트를 통과하는 최소 코드 작성 (Green)  
+2. 테스트를 통과하는 최소 코드 작성 (Green)
 3. 코드 개선 및 리팩토링 (Refactor)
 
 **테스트**: TDD 적용 비율 90% 이상, 리팩토링 안전성 확보
@@ -48,7 +48,7 @@ TDD 방법론으로 신뢰성 높은 코드 품질 및 버그 방지 시스템 �
 - [ ] 품질 게이트 설정 (80% 최소)
 - [ ] 테스트 격리 보장
 
-**결과물**: 
+**결과물**:
 - `tests/unit/` - 단위 테스트 디렉터리
 - `pytest.ini` - pytest 설정
 - `tests/conftest.py` - 테스트 설정
@@ -70,12 +70,12 @@ TDD 방법론으로 신뢰성 높은 코드 품질 및 버그 방지 시스템 �
 - [ ] 테스트 데이터 관리
 - [ ] 통합 테스트 자동화
 
-**결과물**: 
+**결과물**:
 - `tests/integration/` - 통합 테스트 디렉터리
 - `tests/fixtures/` - 테스트 데이터 픽처
 - `tests/mocks/` - 외부 서비스 목킹
 
-**API**: 
+**API**:
 - 모든 API 엔드포인트 통합 테스트
 - 외부 API 연동 테스트
 - 데이터베이스 트랜잭션 테스트
@@ -92,12 +92,12 @@ TDD 방법론으로 신뢰성 높은 코드 품질 및 버그 방지 시스템 �
 - [ ] 테스트 데이터 시딩
 - [ ] 병렬 테스트 실행
 
-**결과물**: 
+**결과물**:
 - `tests/e2e/` - E2E 테스트 디렉터리
 - `tests/e2e/scenarios/` - 사용자 시나리오
 - `tests/e2e/fixtures/` - E2E 테스트 데이터
 
-**시나리오**: 
+**시나리오**:
 - 회원가입 → 온보딩 → 첫 장소 저장 → 코스 생성
 - 링크 분석 → 장소 추출 → 코스 추가 → 공유
 - 검색 → 필터 적용 → 장소 저장 → 알림 설정
@@ -114,7 +114,7 @@ TDD 방법론으로 신뢰성 높은 코드 품질 및 버그 방지 시스템 �
 - [ ] 실패 테스트 알림
 - [ ] 테스트 성능 모니터링
 
-**결과물**: 
+**결과물**:
 - `.github/workflows/test.yml` - 테스트 워크플로우
 - `scripts/test_runner.sh` - 테스트 실행 스크립트
 - `tests/reports/` - 테스트 리포트
@@ -133,7 +133,7 @@ TDD 방법론으로 신뢰성 높은 코드 품질 및 버그 방지 시스템 �
 - [ ] 테스트 코드 품질 검증
 - [ ] 테스트 문서화 자동화
 
-**결과물**: 
+**결과물**:
 - `app/testing/quality_metrics.py` - 테스트 품질 메트릭
 - `app/testing/flaky_test_detector.py` - 플레이키 테스트 감지
 - `docs/testing_guide.md` - 테스트 가이드
@@ -170,13 +170,13 @@ TDD 방법론으로 신뢰성 높은 코드 품질 및 버그 방지 시스템 �
 - [ ] 승인 프로세스 구성
 - [ ] 병렬 작업 최적화
 
-**결과물**: 
+**결과물**:
 - `.github/workflows/ci.yml` - CI 워크플로우
 - `.github/workflows/cd.yml` - CD 워크플로우
 - `.github/workflows/release.yml` - 릴리스 워크플로우
 - `scripts/deploy.sh` - 배포 스크립트
 
-**단계**: 
+**단계**:
 1. 테스트 및 품질 검사 (CI)
 2. 스테이징 배포 및 검증
 3. 승인 후 프로덕션 배포
@@ -194,12 +194,12 @@ TDD 방법론으로 신뢰성 높은 코드 품질 및 버그 방지 시스템 �
 - [ ] 설정 검증 및 테스트
 - [ ] 환경 동기화 자동화
 
-**결과물**: 
+**결과물**:
 - `config/environments/` - 환경별 설정
 - `scripts/env_setup.sh` - 환경 설정 스크립트
 - `app/config/environment.py` - 환경 설정 관리
 
-**환경**: 
+**환경**:
 - Development (local)
 - Staging (test)
 - Production (live)
@@ -216,7 +216,7 @@ TDD 방법론으로 신뢰성 높은 코드 품질 및 버그 방지 시스템 �
 - [ ] 컨테이너 레지스트리 연동
 - [ ] 이미지 스캔 및 보안 검사
 
-**결과물**: 
+**결과물**:
 - `Dockerfile` - 프로덕션 이미지
 - `Dockerfile.dev` - 개발 이미지
 - `docker-compose.yml` - 로컬 개발 환경
@@ -236,12 +236,12 @@ TDD 방법론으로 신뢰성 높은 코드 품질 및 버그 방지 시스템 �
 - [ ] 트래픽 라우팅 제어
 - [ ] 배포 상태 모니터링
 
-**결과물**: 
+**결과물**:
 - `scripts/canary_deploy.sh` - Canary 배포 스크립트
 - `scripts/blue_green_deploy.sh` - Blue-Green 배포
 - `app/services/deployment_service.py` - 배포 서비스
 
-**단계**: 
+**단계**:
 1. Canary (5% 트래픽)
 2. 부분 배포 (25% 트래픽)
 3. 확장 배포 (50% 트래픽)
@@ -259,12 +259,12 @@ TDD 방법론으로 신뢰성 높은 코드 품질 및 버그 방지 시스템 �
 - [ ] 자동 롤백 조건 정의
 - [ ] 롤백 후 알림 시스템
 
-**결과물**: 
+**결과물**:
 - `app/deployment/health_validator.py` - 배포 후 검증
 - `app/deployment/auto_rollback.py` - 자동 롤백
 - `app/monitoring/deployment_metrics.py` - 배포 지표
 
-**조건**: 
+**조건**:
 - 에러율 5% 초과 시 자동 롤백
 - 응답시간 p95 2배 증가 시 롤백
 - 핵심 API 가용성 95% 미만 시 롤백
@@ -281,7 +281,7 @@ TDD 방법론으로 신뢰성 높은 코드 품질 및 버그 방지 시스템 �
 - [ ] 캐시 활용 최적화
 - [ ] 파이프라인 모니터링
 
-**결과물**: 
+**결과물**:
 - `tests/pipeline/test_ci_cd.py` - 파이프라인 테스트
 - `scripts/pipeline_optimizer.sh` - 성능 최적화 스크립트
 - `monitoring/pipeline_metrics.py` - 파이프라인 지표
@@ -337,8 +337,8 @@ def client() -> Generator:
 def test_create_item(client: TestClient, superuser_token_headers: dict) -> None:
     data = {"title": "Foo", "description": "Fighters"}
     response = client.post(
-        f"{settings.API_V1_STR}/items/", 
-        headers=superuser_token_headers, 
+        f"{settings.API_V1_STR}/items/",
+        headers=superuser_token_headers,
         json=data,
     )
     assert response.status_code == 200
@@ -370,6 +370,6 @@ def test_create_item(client: TestClient, superuser_token_headers: dict) -> None:
 
 ---
 
-*작성일: 2025-01-XX*  
-*작성자: Claude*  
+*작성일: 2025-01-XX*
+*작성자: Claude*
 *버전: 1.0*
