@@ -15,7 +15,7 @@ TEST_USER_ID = "00000000-0000-0000-0000-000000000000"
 class TestOnboardingFlowStates:
     """Test onboarding flow state management and progression."""
 
-    def test_start_onboarding_flow(self):
+    def test_start_onboarding_flow(self) -> None:
         """Test: 온보딩 플로우 시작."""
         # Given: New user starting onboarding
         onboarding_start = {
@@ -597,7 +597,7 @@ class TestOnboardingPerformance:
         """Test: 동시 온보딩 세션 처리."""
         from concurrent.futures import ThreadPoolExecutor
 
-        def start_onboarding_session(user_index):
+        def start_onboarding_session(user_index: int) -> bool:
             session_data = {
                 "user_id": f"concurrent_user_{user_index}",
                 "platform": "mobile",
@@ -605,7 +605,7 @@ class TestOnboardingPerformance:
             try:
                 response = client.post("/api/v1/onboarding/start", json=session_data)
                 return response.status_code in [200, 404]
-            except:
+            except Exception:
                 return False
 
         # Simulate 20 concurrent onboarding starts

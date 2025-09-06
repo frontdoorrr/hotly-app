@@ -36,7 +36,9 @@ class OnboardingService:
 
     def __init__(self, db: Session):
         self.db = db
-        self.onboarding_sessions = {}  # In-memory storage for onboarding state
+        self.onboarding_sessions: Dict[
+            str, Dict[str, Any]
+        ] = {}  # In-memory storage for onboarding state
         self.timeout_minutes = 15  # Onboarding session timeout
 
     def start_onboarding_flow(
@@ -441,7 +443,9 @@ class UserPreferenceService:
 
     def __init__(self, db: Session):
         self.db = db
-        self.user_preferences = {}  # In-memory storage for user preferences
+        self.user_preferences: Dict[
+            str, Dict[str, Any]
+        ] = {}  # In-memory storage for user preferences
 
     def set_user_preferences(
         self,
@@ -536,7 +540,7 @@ class UserPreferenceService:
         home_location: Dict[str, Any],
         work_location: Optional[Dict[str, Any]] = None,
         preferred_radius_km: float = 15.0,
-        transportation_modes: List[str] = None,
+        transportation_modes: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """
         Configure location-based preferences.
@@ -658,7 +662,7 @@ class OnboardingSampleService:
                 # Mock sample place generation
                 sample_place = {
                     "sample_id": f"sample_{category}_{i}",
-                    "place_name": f"추천 {category} #{i+1}",
+                    "place_name": f"추천 {category} #{i + 1}",
                     "category": category,
                     "latitude": user_location["latitude"] + (i * 0.001),
                     "longitude": user_location["longitude"] + (i * 0.001),
@@ -689,6 +693,72 @@ class OnboardingSampleService:
             logger.error(f"Error generating sample places: {e}")
             raise
 
+    def _analyze_interactions(
+        self, sample_interactions: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """Analyze user interactions with samples."""
+        analysis = {
+            "total_interactions": len(sample_interactions),
+            "positive_interactions": 0,
+            "negative_interactions": 0,
+            "saved_samples": 0,
+            "category_feedback": {},
+        }
+
+        for interaction in sample_interactions:
+            action = interaction.get("action", "")
+            sample_category = interaction.get("sample_category", "unknown")
+
+            # Count positive/negative interactions
+            if action in ["liked", "saved"]:
+                analysis["positive_interactions"] += 1
+                if action == "saved":
+                    analysis["saved_samples"] += 1
+            elif action in ["disliked", "skipped"]:
+                analysis["negative_interactions"] += 1
+
+            # Track category feedback
+            if sample_category not in analysis["category_feedback"]:
+                analysis["category_feedback"][sample_category] = {
+                    "positive": 0,
+                    "negative": 0,
+                }
+
+            if action in ["liked", "saved"]:
+                analysis["category_feedback"][sample_category]["positive"] += 1
+            elif action in ["disliked", "skipped"]:
+                analysis["category_feedback"][sample_category]["negative"] += 1
+
+        return analysis
+
+    def _generate_refinements(
+        self, category_feedback: Dict[str, Dict[str, int]]
+    ) -> List[Dict[str, Any]]:
+        """Generate preference refinements from category feedback."""
+        refinements = []
+        for category, feedback in category_feedback.items():
+            total_feedback = feedback["positive"] + feedback["negative"]
+            if total_feedback > 0:
+                positivity_ratio = feedback["positive"] / total_feedback
+
+                if positivity_ratio >= 0.7:
+                    refinements.append(
+                        {
+                            "category": category,
+                            "adjustment": "increase_weight",
+                            "confidence": positivity_ratio,
+                        }
+                    )
+                elif positivity_ratio <= 0.3:
+                    refinements.append(
+                        {
+                            "category": category,
+                            "adjustment": "decrease_weight",
+                            "confidence": 1 - positivity_ratio,
+                        }
+                    )
+        return refinements
+
     def process_sample_feedback(
         self, user_id: str, sample_interactions: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
@@ -703,66 +773,10 @@ class OnboardingSampleService:
             Processed feedback and preference refinements
         """
         try:
-            # Analyze interaction patterns
-            interaction_analysis = {
-                "total_interactions": len(sample_interactions),
-                "positive_interactions": 0,
-                "negative_interactions": 0,
-                "saved_samples": 0,
-                "category_feedback": {},
-            }
-
-            for interaction in sample_interactions:
-                action = interaction.get("action", "")
-                interaction.get("reason", "")
-
-                if action in ["liked", "saved"]:
-                    interaction_analysis["positive_interactions"] += 1
-                    if action == "saved":
-                        interaction_analysis["saved_samples"] += 1
-                elif action in ["disliked", "skipped"]:
-                    interaction_analysis["negative_interactions"] += 1
-
-                # Track category-specific feedback
-                sample_category = interaction.get("sample_category", "unknown")
-                if sample_category not in interaction_analysis["category_feedback"]:
-                    interaction_analysis["category_feedback"][sample_category] = {
-                        "positive": 0,
-                        "negative": 0,
-                    }
-
-                if action in ["liked", "saved"]:
-                    interaction_analysis["category_feedback"][sample_category][
-                        "positive"
-                    ] += 1
-                elif action in ["disliked", "skipped"]:
-                    interaction_analysis["category_feedback"][sample_category][
-                        "negative"
-                    ] += 1
-
-            # Generate preference refinements
-            refinements = []
-            for category, feedback in interaction_analysis["category_feedback"].items():
-                total_feedback = feedback["positive"] + feedback["negative"]
-                if total_feedback > 0:
-                    positivity_ratio = feedback["positive"] / total_feedback
-
-                    if positivity_ratio >= 0.7:
-                        refinements.append(
-                            {
-                                "category": category,
-                                "adjustment": "increase_weight",
-                                "confidence": positivity_ratio,
-                            }
-                        )
-                    elif positivity_ratio <= 0.3:
-                        refinements.append(
-                            {
-                                "category": category,
-                                "adjustment": "decrease_weight",
-                                "confidence": 1 - positivity_ratio,
-                            }
-                        )
+            interaction_analysis = self._analyze_interactions(sample_interactions)
+            refinements = self._generate_refinements(
+                interaction_analysis["category_feedback"]
+            )
 
             feedback_result = {
                 "feedback_processed": True,
@@ -996,8 +1010,8 @@ class OnboardingSampleService:
 class OnboardingAnalyticsService:
     """Service for onboarding analytics and optimization."""
 
-    def __init__(self):
-        self.analytics_data = {}
+    def __init__(self) -> None:
+        self.analytics_data: Dict[str, Any] = {}
 
     def track_completion_analytics(
         self, time_period: str = "30_days", segment: str = "new_users"

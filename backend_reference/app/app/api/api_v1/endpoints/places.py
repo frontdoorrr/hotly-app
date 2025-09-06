@@ -425,416 +425,173 @@ async def classify_place(
         raise HTTPException(status_code=500, detail="Failed to classify place")
 
 
-@router.get("/geographic/clusters", response_model=List[dict])
-async def get_geographic_clusters(
+@router.put("/{place_id}/status", response_model=PlaceResponse)
+async def update_place_status(
     *,
     db: Session = Depends(get_db),
-    cluster_distance_km: float = Query(
-        2.0, ge=0.5, le=10, description="Cluster distance in km"
-    ),
-    min_cluster_size: int = Query(
-        2, ge=2, le=10, description="Minimum places per cluster"
-    ),
-) -> List[dict]:
+    place_id: UUID,
+    status: str,
+) -> PlaceResponse:
     """
-    Get geographic clusters of places.
+    Update place status (active/inactive).
 
-    - **cluster_distance_km**: Maximum distance between places in same cluster
-    - **min_cluster_size**: Minimum places required to form a cluster
+    - **place_id**: Place UUID
+    - **status**: New status ('active' or 'inactive')
 
-    Returns geographic clusters with center coordinates and place counts.
+    Allows soft activation/deactivation of places without deletion.
     """
     try:
-        from app.services.geo_service import GeoService
+        from app.models.place import PlaceStatus
 
-        geo_service = GeoService(db)
-        clusters = geo_service.cluster_places_by_region(
-            user_id=UUID(TEMP_USER_ID),
-            cluster_distance_km=cluster_distance_km,
-            min_cluster_size=min_cluster_size,
-        )
-
-        return [
-            {
-                "center_latitude": cluster.center_latitude,
-                "center_longitude": cluster.center_longitude,
-                "place_count": cluster.place_count,
-                "place_ids": cluster.place_ids,
-                "radius_km": cluster.radius_km,
-            }
-            for cluster in clusters
-        ]
-
-    except Exception as e:
-        logger.error(f"Failed to get geographic clusters: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get geographic clusters")
-
-
-@router.get("/geographic/statistics", response_model=dict)
-async def get_geographic_statistics(
-    *,
-    db: Session = Depends(get_db),
-) -> dict:
-    """
-    Get geographic statistics for user's places.
-
-    Returns coverage area, center point, and distribution metrics.
-    """
-    try:
-        import math
-
-        from app.services.geo_service import GeoService
-
-        # Get all places with coordinates
-        places = place_crud.get_multi_by_user(
-            db, user_id=UUID(TEMP_USER_ID), limit=10000
-        )
-
-        places_with_coords = [
-            p for p in places if p.latitude is not None and p.longitude is not None
-        ]
-
-        if not places_with_coords:
-            return {
-                "total_places_with_coordinates": 0,
-                "coverage_area_km2": 0,
-                "center_latitude": None,
-                "center_longitude": None,
-            }
-
-        geo_service = GeoService(db)
-
-        # Calculate statistics
-        lats = [p.latitude for p in places_with_coords]
-        lngs = [p.longitude for p in places_with_coords]
-
-        center_lat = sum(lats) / len(lats)
-        center_lng = sum(lngs) / len(lngs)
-
-        # Calculate coverage area (bounding box)
-        min_lat, max_lat = min(lats), max(lats)
-        min_lng, max_lng = min(lngs), max(lngs)
-
-        lat_range_km = (max_lat - min_lat) * 111.0  # 1 degree ≈ 111 km
-        lng_range_km = (
-            (max_lng - min_lng) * 111.0 * abs(math.cos(math.radians(center_lat)))
-        )
-        coverage_area = lat_range_km * lng_range_km
-
-        # Calculate average distance between places
-        total_distance = 0
-        pair_count = 0
-
-        for i, place1 in enumerate(places_with_coords):
-            for place2 in places_with_coords[i + 1 :]:
-                distance = geo_service.distance_calculator.haversine_distance(
-                    place1.latitude, place1.longitude, place2.latitude, place2.longitude
-                )
-                total_distance += distance
-                pair_count += 1
-
-        avg_distance = total_distance / pair_count if pair_count > 0 else 0
-
-        return {
-            "total_places_with_coordinates": len(places_with_coords),
-            "coverage_area_km2": round(coverage_area, 2),
-            "center_latitude": round(center_lat, 6),
-            "center_longitude": round(center_lng, 6),
-            "bounding_box": {
-                "min_latitude": min_lat,
-                "min_longitude": min_lng,
-                "max_latitude": max_lat,
-                "max_longitude": max_lng,
-            },
-            "average_distance_between_places_km": round(avg_distance, 2),
-        }
-
-    except Exception as e:
-        logger.error(f"Failed to get geographic statistics: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to get geographic statistics"
-        )
-
-
-@router.post("/geographic/route-search", response_model=List[dict])
-async def search_places_along_route(
-    *,
-    db: Session = Depends(get_db),
-    waypoints: List[dict],
-    buffer_km: float = Query(
-        1.0, ge=0.1, le=5, description="Buffer distance from route"
-    ),
-    category: str = Query(None, description="Category filter"),
-    limit: int = Query(50, ge=1, le=100, description="Maximum results"),
-) -> List[dict]:
-    """
-    Find places along a route with specified buffer distance.
-
-    - **waypoints**: List of coordinate points defining the route
-    - **buffer_km**: Buffer distance from route in kilometers
-    - **category**: Optional category filter
-
-    Returns places within buffer distance of the route, ordered by distance.
-    """
-    try:
-        from app.services.geo_service import GeoService
-
-        # Validate waypoints
-        if len(waypoints) < 2:
+        # Validate status
+        try:
+            new_status = PlaceStatus(status)
+        except ValueError:
             raise HTTPException(
-                status_code=422, detail="Route must have at least 2 waypoints"
+                status_code=422,
+                detail=f"Invalid status: {status}. Must be one of: {[s.value for s in PlaceStatus]}",
             )
 
-        # Convert waypoints to coordinate tuples
-        route_points = []
-        for wp in waypoints:
-            if "latitude" not in wp or "longitude" not in wp:
-                raise HTTPException(
-                    status_code=422,
-                    detail="Each waypoint must have latitude and longitude",
-                )
-            route_points.append((wp["latitude"], wp["longitude"]))
-
-        geo_service = GeoService(db)
-        places_with_distance = geo_service.get_places_along_route(
-            user_id=UUID(TEMP_USER_ID),
-            waypoints=route_points,
-            buffer_km=buffer_km,
-            limit=limit,
+        # Get and verify place ownership
+        place = place_crud.get_by_user(
+            db, user_id=UUID(TEMP_USER_ID), place_id=place_id
         )
 
-        response = []
-        for place, distance_to_route in places_with_distance:
-            if category is None or place.category == category:
-                response.append(
-                    {
-                        "place_id": str(place.id),
-                        "name": place.name,
-                        "description": place.description,
-                        "address": place.address,
-                        "category": place.category,
-                        "coordinates": {
-                            "latitude": place.latitude,
-                            "longitude": place.longitude,
-                        },
-                        "distance_to_route_km": round(distance_to_route, 3),
-                    }
-                )
+        if not place:
+            raise HTTPException(status_code=404, detail="Place not found")
 
-        logger.info(f"Found {len(response)} places along route")
-        return response
+        # Update status
+        place.status = new_status
+        db.commit()
+        db.refresh(place)
+
+        logger.info(f"Updated place {place_id} status to {new_status}")
+        return PlaceResponse.from_orm(place)
 
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Failed to search places along route: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to search places along route"
-        )
+        logger.error(f"Failed to update place status {place_id}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update place status")
 
 
-@router.get("/search/advanced", response_model=List[dict])
-async def advanced_search(
+@router.get("/{place_id}/related", response_model=List[PlaceResponse])
+async def get_related_places(
     *,
     db: Session = Depends(get_db),
-    q: str = Query(..., min_length=2, description="Search query"),
-    category: str = Query(None, description="Category filter"),
-    tags: List[str] = Query(None, description="Tag filters"),
-    enable_fuzzy: bool = Query(True, description="Enable fuzzy matching"),
-    enable_highlighting: bool = Query(
-        False, description="Enable search term highlighting"
-    ),
-    limit: int = Query(20, ge=1, le=100, description="Maximum results"),
-) -> List[dict]:
+    place_id: UUID,
+    limit: int = Query(10, ge=1, le=20, description="Maximum related places"),
+) -> List[PlaceResponse]:
     """
-    Advanced search with Korean text analysis, fuzzy matching, and highlighting.
+    Get places related to the given place based on tags, category, and location.
 
-    - **q**: Search query (minimum 2 characters)
-    - **category**: Optional category filter
-    - **tags**: Optional tag filters
-    - **enable_fuzzy**: Enable typo tolerance
-    - **enable_highlighting**: Highlight search terms in results
+    - **place_id**: Reference place UUID
+    - **limit**: Maximum number of related places
 
-    Returns search results with relevance scores and optional highlighting.
+    Returns places with similar characteristics ordered by relevance.
     """
     try:
-        from app.services.search_service import SearchService
-
-        search_service = SearchService(db)
-
-        # Perform advanced search
-        places_with_scores = search_service.full_text_search(
-            user_id=UUID(TEMP_USER_ID),
-            query=q,
-            category=category,
-            limit=limit,
-            enable_fuzzy=enable_fuzzy,
+        # Get the reference place
+        reference_place = place_crud.get_by_user(
+            db, user_id=UUID(TEMP_USER_ID), place_id=place_id
         )
 
-        # Filter by tags if specified
-        if tags:
-            filtered_results = []
-            for place, score in places_with_scores:
-                if any(tag in (place.tags or []) for tag in tags):
-                    filtered_results.append((place, score))
-            places_with_scores = filtered_results
+        if not reference_place:
+            raise HTTPException(status_code=404, detail="Place not found")
 
-        # Build response
-        results = []
-        for place, score in places_with_scores:
-            place_data = {
-                "place_id": str(place.id),
-                "name": place.name,
-                "description": place.description,
-                "address": place.address,
-                "category": place.category,
-                "tags": place.tags or [],
-                "coordinates": {
-                    "latitude": place.latitude,
-                    "longitude": place.longitude,
-                },
-                "relevance_score": round(score, 4),
-            }
+        # Find related places based on multiple criteria
+        related_places = place_crud.get_related_places(
+            db, user_id=UUID(TEMP_USER_ID), reference_place=reference_place, limit=limit
+        )
 
-            # Add highlighting if requested
-            if enable_highlighting:
-                place_data["highlighted_name"] = search_service.highlight_search_terms(
-                    place.name or "", q
-                )
-                place_data[
-                    "highlighted_description"
-                ] = search_service.highlight_search_terms(place.description or "", q)
+        return [PlaceResponse.from_orm(place) for place in related_places]
 
-            results.append(place_data)
-
-        logger.info(f"Advanced search for '{q}': {len(results)} results")
-        return results
-
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error(f"Failed advanced search: {e}")
-        raise HTTPException(status_code=500, detail="Failed to perform advanced search")
+        logger.error(f"Failed to get related places for {place_id}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get related places")
 
 
-@router.get("/search/autocomplete", response_model=List[str])
-async def search_autocomplete(
+@router.get("/export", response_model=dict)
+async def export_places(
     *,
     db: Session = Depends(get_db),
-    q: str = Query(..., min_length=1, max_length=50, description="Partial query"),
-    limit: int = Query(10, ge=1, le=20, description="Maximum suggestions"),
-) -> List[str]:
-    """
-    Get search autocomplete suggestions.
-
-    - **q**: Partial search query
-    - **limit**: Maximum number of suggestions
-
-    Returns list of autocomplete suggestions based on user's places.
-    """
-    try:
-        from app.services.search_service import SearchService
-
-        search_service = SearchService(db)
-        suggestions = search_service.autocomplete_suggestions(
-            user_id=UUID(TEMP_USER_ID), partial_query=q, limit=limit
-        )
-
-        logger.info(f"Autocomplete for '{q}': {len(suggestions)} suggestions")
-        return suggestions
-
-    except Exception as e:
-        logger.error(f"Failed autocomplete: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to get autocomplete suggestions"
-        )
-
-
-@router.get("/search/fuzzy", response_model=List[dict])
-async def fuzzy_search(
-    *,
-    db: Session = Depends(get_db),
-    q: str = Query(..., min_length=2, description="Search query"),
-    similarity: float = Query(
-        0.3, ge=0.1, le=1.0, description="Minimum similarity threshold"
-    ),
-    category: str = Query(None, description="Category filter"),
-    limit: int = Query(20, ge=1, le=50, description="Maximum results"),
-) -> List[dict]:
-    """
-    Fuzzy search for handling typos and variations.
-
-    - **q**: Search query
-    - **similarity**: Minimum similarity threshold (0.1-1.0)
-    - **category**: Optional category filter
-
-    Returns places matching with similarity scores above threshold.
-    """
-    try:
-        from app.services.search_service import SearchService
-
-        search_service = SearchService(db)
-        places_with_scores = search_service._fuzzy_search_fallback(
-            user_id=UUID(TEMP_USER_ID), query=q, category=category, limit=limit
-        )
-
-        # Filter by similarity threshold
-        filtered_results = [
-            (place, score) for place, score in places_with_scores if score >= similarity
-        ]
-
-        results = []
-        for place, score in filtered_results:
-            results.append(
-                {
-                    "place_id": str(place.id),
-                    "name": place.name,
-                    "description": place.description,
-                    "address": place.address,
-                    "category": place.category,
-                    "tags": place.tags or [],
-                    "similarity_score": round(score, 4),
-                    "match_type": "fuzzy",
-                }
-            )
-
-        logger.info(f"Fuzzy search for '{q}': {len(results)} results")
-        return results
-
-    except Exception as e:
-        logger.error(f"Failed fuzzy search: {e}")
-        raise HTTPException(status_code=500, detail="Failed to perform fuzzy search")
-
-
-@router.get("/search/analytics", response_model=dict)
-async def get_search_analytics(
-    *,
-    db: Session = Depends(get_db),
+    format: str = Query("json", description="Export format: json, csv"),
+    category: str = Query(None, description="Filter by category"),
+    tags: List[str] = Query(None, description="Filter by tags"),
 ) -> dict:
     """
-    Get search analytics and performance metrics.
+    Export user's places in specified format.
 
-    Returns search usage statistics and performance data.
+    - **format**: Export format (json, csv)
+    - **category**: Optional category filter
+    - **tags**: Optional tag filters
+
+    Returns export data or download link for large datasets.
     """
     try:
-        # Basic analytics implementation
-        # In production, this would read from search logs/metrics
+        from datetime import datetime, timedelta
 
-        return {
-            "total_searches_today": 0,
-            "average_response_time_ms": 150,
-            "top_queries": [
-                {"query": "카페", "count": 45},
-                {"query": "맛집", "count": 32},
-                {"query": "데이트", "count": 28},
-            ],
-            "no_results_rate": 0.05,
-            "fuzzy_match_usage_rate": 0.12,
-            "performance_metrics": {
-                "p50_response_time_ms": 120,
-                "p95_response_time_ms": 380,
-                "p99_response_time_ms": 450,
-            },
-        }
+        if format not in ["json", "csv"]:
+            raise HTTPException(
+                status_code=422, detail="Invalid format. Must be 'json' or 'csv'"
+            )
 
+        # Get user's places with filters
+        request = PlaceListRequest(
+            category=category,
+            tags=tags or [],
+            page=1,
+            page_size=10000,  # Large limit for export
+            sort_by="created_at",
+            sort_order="desc",
+        )
+
+        places, total = place_crud.get_list_with_filters(
+            db, request=request, user_id=UUID(TEMP_USER_ID)
+        )
+
+        if format == "json":
+            # Return JSON format
+            export_data = {
+                "export_info": {
+                    "total_places": total,
+                    "export_format": "json",
+                    "exported_at": datetime.utcnow().isoformat(),
+                    "filters": {"category": category, "tags": tags},
+                },
+                "places": [
+                    {
+                        "id": str(place.id),
+                        "name": place.name,
+                        "description": place.description,
+                        "address": place.address,
+                        "category": place.category,
+                        "tags": place.tags,
+                        "latitude": place.latitude,
+                        "longitude": place.longitude,
+                        "created_at": place.created_at.isoformat()
+                        if place.created_at
+                        else None,
+                    }
+                    for place in places
+                ],
+            }
+
+            return export_data
+
+        elif format == "csv":
+            # For CSV, return download instructions
+            return {
+                "message": "CSV export prepared",
+                "download_url": f"/api/v1/places/download-csv?category={category}&tags={','.join(tags or [])}",
+                "total_places": total,
+                "expires_at": (datetime.utcnow() + timedelta(hours=1)).isoformat(),
+            }
+
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error(f"Failed to get search analytics: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get search analytics")
+        logger.error(f"Failed to export places: {e}")
+        raise HTTPException(status_code=500, detail="Failed to export places")

@@ -26,6 +26,8 @@ gunicorn = "^21.2.0"
 jsonschema = "^4.25.1"
 google-generativeai = "^0.8.5"
 geoalchemy2 = "^0.15.0"
+scikit-learn = "^1.7.1"
+joblib = "^1.5.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
