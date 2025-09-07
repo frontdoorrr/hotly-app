@@ -7,7 +7,7 @@ course data, and real-time context. Follows TDD principles from rules.md.
 
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
 from fastapi import Depends
@@ -224,7 +224,7 @@ class NotificationScheduler:
 
     async def _create_move_notification(
         self, course_data: Dict[str, Any], settings: UserNotificationSettings
-    ) -> ScheduledNotificationRequest:
+    ) -> Optional[ScheduledNotificationRequest]:
         """Create move reminder notification between places."""
 
         places = course_data.get("places", [])
@@ -417,7 +417,7 @@ class NotificationScheduler:
         }
 
     async def schedule_batch_notifications(
-        self, notifications: List[ScheduledNotificationRequest]
+        self, user_courses: List[Dict[str, Any]], user_id: str
     ) -> NotificationBatchResult:
         """
         Schedule multiple notifications efficiently.
@@ -430,10 +430,20 @@ class NotificationScheduler:
         """
         success_count = 0
         error_count = 0
-        errors = []
+        errors: List[str] = []
 
         # Process in batches for efficiency
         batch_size = 50
+
+        # Convert user_courses to ScheduledNotificationRequest list
+        notifications: List[ScheduledNotificationRequest] = []
+        for course in user_courses:
+            try:
+                schedule = await self.schedule_course_notifications(course, user_id)
+                notifications.extend(schedule.scheduled_notifications)
+            except Exception as e:
+                error_count += 1
+                errors.append(f"Error scheduling course {course.get('course_id')}: {e}")
 
         for i in range(0, len(notifications), batch_size):
             batch = notifications[i : i + batch_size]
@@ -494,7 +504,9 @@ class NotificationScheduler:
             errors=errors,
         )
 
-    async def cancel_notification(self, notification_id: str) -> Dict[str, Any]:
+    async def cancel_notification(
+        self, notification_id: str, user_id: str
+    ) -> Dict[str, Any]:
         """
         Cancel a scheduled notification.
 

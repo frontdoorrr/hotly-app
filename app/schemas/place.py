@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
+from typing import Dict, List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field, validator
@@ -247,8 +247,10 @@ class PlaceStatsResponse(BaseModel):
     """Place statistics response schema."""
 
     total_places: int = Field(..., ge=0, description="Total number of places")
-    places_by_category: dict = Field(..., description="Place counts by category")
-    places_by_status: dict = Field(..., description="Place counts by status")
+    places_by_category: Dict[str, int] = Field(
+        ..., description="Place counts by category"
+    )
+    places_by_status: Dict[str, int] = Field(..., description="Place counts by status")
     average_confidence: float = Field(
         ..., ge=0.0, le=1.0, description="Average AI confidence"
     )

@@ -22,7 +22,7 @@ from app.db.base_class import Base
 class UserPreference(Base):
     """User preference settings and configuration."""
 
-    __tablename__ = "user_preferences"
+    __tablename__ = "user_preferences"  # type: ignore[assignment]
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), nullable=False, index=True)
@@ -63,7 +63,7 @@ class UserPreference(Base):
 class OnboardingSession(Base):
     """Onboarding session tracking."""
 
-    __tablename__ = "onboarding_sessions"
+    __tablename__ = "onboarding_sessions"  # type: ignore[assignment]
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     session_id = Column(String(100), unique=True, nullable=False, index=True)
@@ -93,7 +93,7 @@ class OnboardingSession(Base):
 class PreferenceSurvey(Base):
     """Preference survey instances."""
 
-    __tablename__ = "preference_surveys"
+    __tablename__ = "preference_surveys"  # type: ignore[assignment]
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     survey_id = Column(String(100), unique=True, nullable=False, index=True)
@@ -123,7 +123,7 @@ class PreferenceSurvey(Base):
 class PreferenceSurveyResponse(Base):
     """Individual survey question responses."""
 
-    __tablename__ = "preference_survey_responses"
+    __tablename__ = "preference_survey_responses"  # type: ignore[assignment]
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     survey_id = Column(
@@ -149,7 +149,7 @@ class PreferenceSurveyResponse(Base):
 class PreferenceLearningSession(Base):
     """User preference learning and improvement sessions."""
 
-    __tablename__ = "preference_learning_sessions"
+    __tablename__ = "preference_learning_sessions"  # type: ignore[assignment]
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), nullable=False, index=True)

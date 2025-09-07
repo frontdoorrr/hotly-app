@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, constr, validator
 
 
 class UserBehaviorCreate(BaseModel):
@@ -27,7 +27,7 @@ class UserBehaviorCreate(BaseModel):
     day_of_week: Optional[str] = Field(None, description="Day of week")
 
     @validator("action")
-    def validate_action(cls, v):
+    def validate_action(cls, v: str) -> str:
         valid_actions = [
             "visit",
             "save",
@@ -43,7 +43,7 @@ class UserBehaviorCreate(BaseModel):
         return v
 
     @validator("time_of_day")
-    def validate_time_of_day(cls, v):
+    def validate_time_of_day(cls, v: Optional[str]) -> Optional[str]:
         if v is not None:
             valid_times = ["morning", "afternoon", "evening", "night"]
             if v not in valid_times:
@@ -109,7 +109,7 @@ class UserProfileCreate(BaseModel):
     )
 
     @validator("budget_range")
-    def validate_budget_range(cls, v):
+    def validate_budget_range(cls, v: str) -> str:
         valid_ranges = ["budget", "moderate", "expensive"]
         if v not in valid_ranges:
             raise ValueError(f"Invalid budget_range. Must be one of: {valid_ranges}")
@@ -147,7 +147,7 @@ class FeedbackCreate(BaseModel):
     )
 
     @validator("rating")
-    def validate_rating(cls, v):
+    def validate_rating(cls, v: float) -> float:
         if not (1.0 <= v <= 5.0):
             raise ValueError("Rating must be between 1.0 and 5.0")
         return v
@@ -162,14 +162,14 @@ class PreferenceUpdateRequest(BaseModel):
     updates: Dict[str, float] = Field(..., description="Preference updates")
 
     @validator("preference_type")
-    def validate_preference_type(cls, v):
+    def validate_preference_type(cls, v: str) -> str:
         valid_types = ["cuisine", "ambiance", "price", "location", "time"]
         if v not in valid_types:
             raise ValueError(f"Invalid preference_type. Must be one of: {valid_types}")
         return v
 
     @validator("updates")
-    def validate_updates(cls, v):
+    def validate_updates(cls, v: Dict[str, float]) -> Dict[str, float]:
         for key, value in v.items():
             if not (0.0 <= value <= 1.0):
                 raise ValueError(
@@ -260,13 +260,15 @@ class CompanionPreferenceRequest(BaseModel):
     """Request for companion preference setup."""
 
     user_id: str
-    primary_companion_type: str = Field(
-        ..., regex="^(alone|romantic_partner|friends|family)$"
-    )
-    group_size_preference: str = Field(
-        ..., regex="^(solo|couple|small_group|large_group)$"
-    )
-    social_comfort_level: str = Field(..., regex="^(introverted|moderate|extroverted)$")
+    primary_companion_type: constr(
+        pattern=r"^(alone|romantic_partner|friends|family)$"
+    ) = Field(...)
+    group_size_preference: constr(
+        pattern=r"^(solo|couple|small_group|large_group)$"
+    ) = Field(...)
+    social_comfort_level: constr(
+        pattern=r"^(introverted|moderate|extroverted)$"
+    ) = Field(...)
     special_needs: Optional[List[str]] = []
 
 
@@ -274,7 +276,7 @@ class ActivityLevelRequest(BaseModel):
     """Request for activity level configuration."""
 
     user_id: str
-    activity_intensity: str = Field(..., regex="^(low|moderate|high)$")
+    activity_intensity: constr(pattern=r"^(low|moderate|high)$") = Field(...)
     walking_tolerance: Dict[str, Any]
     time_availability: Dict[str, Any]
     physical_considerations: Optional[List[str]] = []
@@ -311,7 +313,7 @@ class CategoryWeightingRequest(BaseModel):
 
     user_id: str
     category_weights: Dict[str, Dict[str, float]]
-    normalization_method: str = Field("softmax", regex="^(softmax|linear)$")
+    normalization_method: constr(pattern=r"^(softmax|linear)$") = Field("softmax")
 
 
 class PersonalizedOnboardingRequest(BaseModel):
@@ -329,10 +331,10 @@ class BudgetPreferenceRequest(BaseModel):
     """Request for budget preference setup."""
 
     user_id: str
-    budget_category: str = Field(..., regex="^(low|medium|high)$")
+    budget_category: constr(pattern=r"^(low|medium|high)$") = Field(...)
     per_place_range: Dict[str, Any]
     total_course_budget: Dict[str, Any]
-    budget_flexibility: str = Field(..., regex="^(strict|medium|flexible)$")
+    budget_flexibility: constr(pattern=r"^(strict|medium|flexible)$") = Field(...)
 
 
 class CategorySelectionRequest(BaseModel):
@@ -372,7 +374,7 @@ class SurveyCompletionRequest(BaseModel):
     """Request for survey completion."""
 
     user_id: str
-    survey_version: str = Field(..., regex="^(quick|standard|comprehensive)$")
+    survey_version: constr(pattern=r"^(quick|standard|comprehensive)$") = Field(...)
     responses: List[Dict[str, Any]]
     completion_time_minutes: float = Field(..., ge=0.0)
 

@@ -10,11 +10,15 @@ from app.models.user import User
 from app.schemas.notification import (
     DeviceTokenRequest,
     DeviceTokenResponse,
+    NotificationBatchResult,
     NotificationResponse,
+    NotificationScheduleResponse,
     NotificationStats,
     NotificationTemplateCreate,
     NotificationTemplateResponse,
     NotificationTemplateUpdate,
+    OptimalTimingPrediction,
+    PersonalizedTimingRequest,
     PushNotificationRequest,
     PushNotificationResponse,
     TemplatedNotificationRequest,
@@ -22,6 +26,10 @@ from app.schemas.notification import (
     UserNotificationPreferenceUpdate,
 )
 from app.services.fcm_service import FCMService, get_fcm_service
+from app.services.notification_scheduler import (
+    NotificationScheduler,
+    get_notification_scheduler,
+)
 from app.services.notification_service import (
     NotificationService,
     get_notification_service,
@@ -29,6 +37,12 @@ from app.services.notification_service import (
 from app.services.notification_template_service import (
     NotificationTemplateService,
     get_notification_template_service,
+)
+from app.services.personalization_engine import (
+    InsufficientDataError,
+    ModelPredictionError,
+    PersonalizationEngine,
+    get_personalization_engine,
 )
 
 logger = logging.getLogger(__name__)
@@ -454,4 +468,307 @@ async def cleanup_expired_tokens(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to cleanup expired tokens",
+        )
+
+
+# Course Notification Scheduling
+@router.post("/schedule/course", response_model=NotificationScheduleResponse)
+async def schedule_course_notifications(
+    course_data: Dict[str, Any],
+    current_user: User = Depends(get_current_user),
+    scheduler: NotificationScheduler = Depends(get_notification_scheduler),
+) -> NotificationScheduleResponse:
+    """Schedule notifications for a course (preparation, departure, move reminders)."""
+    try:
+        result = await scheduler.schedule_course_notifications(
+            course_data=course_data, user_id=str(current_user.id)
+        )
+
+        logger.info(
+            f"Scheduled {result.total_scheduled} notifications for user {current_user.id}"
+        )
+
+        return result
+
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        logger.error(f"Failed to schedule course notifications: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to schedule course notifications",
+        )
+
+
+@router.post("/schedule/batch", response_model=NotificationBatchResult)
+async def schedule_batch_notifications(
+    user_courses: List[Dict[str, Any]],
+    current_user: User = Depends(get_current_user),
+    scheduler: NotificationScheduler = Depends(get_notification_scheduler),
+) -> NotificationBatchResult:
+    """Schedule notifications for multiple courses in batch."""
+    try:
+        result = await scheduler.schedule_batch_notifications(
+            user_courses=user_courses, user_id=str(current_user.id)
+        )
+
+        logger.info(
+            f"Batch scheduled {result.success_count}/{result.total_scheduled} notifications "
+            f"for user {current_user.id}"
+        )
+
+        return result
+
+    except Exception as e:
+        logger.error(f"Failed to batch schedule notifications: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to batch schedule notifications",
+        )
+
+
+@router.delete("/schedule/{notification_id}")
+async def cancel_scheduled_notification(
+    notification_id: str,
+    current_user: User = Depends(get_current_user),
+    scheduler: NotificationScheduler = Depends(get_notification_scheduler),
+) -> Dict[str, str]:
+    """Cancel a scheduled notification."""
+    try:
+        success = await scheduler.cancel_notification(
+            notification_id=notification_id, user_id=str(current_user.id)
+        )
+
+        if not success:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Scheduled notification not found or already processed",
+            )
+
+        return {
+            "message": f"Scheduled notification {notification_id} cancelled successfully"
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to cancel scheduled notification: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to cancel scheduled notification",
+        )
+
+
+@router.get("/schedule/user")
+async def get_user_scheduled_notifications(
+    current_user: User = Depends(get_current_user),
+    scheduler: NotificationScheduler = Depends(get_notification_scheduler),
+) -> Dict[str, Any]:
+    """Get all scheduled notifications for the current user."""
+    try:
+        notifications = await scheduler.get_user_scheduled_notifications(
+            user_id=str(current_user.id)
+        )
+
+        return {
+            "user_id": str(current_user.id),
+            "scheduled_notifications": notifications,
+            "total_count": len(notifications),
+        }
+
+    except Exception as e:
+        logger.error(f"Failed to get user scheduled notifications: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to get scheduled notifications",
+        )
+
+
+# Personalized Timing Endpoints (Task 2-2-3)
+@router.post("/personalize/timing", response_model=OptimalTimingPrediction)
+async def predict_optimal_timing(
+    request: PersonalizedTimingRequest,
+    current_user: User = Depends(get_current_user),
+    personalization_engine: PersonalizationEngine = Depends(get_personalization_engine),
+) -> OptimalTimingPrediction:
+    """
+    Predict optimal notification timing for a user based on their behavior patterns.
+
+    This endpoint implements personalized timing optimization using ML models and
+    user engagement analysis to determine the best time to send notifications.
+    """
+    try:
+        # Override user_id with current authenticated user
+        request.user_id = str(current_user.id)
+
+        logger.info(f"Predicting optimal timing for user {current_user.id}")
+        prediction = await personalization_engine.predict_optimal_timing(request)
+
+        logger.info(
+            f"Optimal timing predicted: {prediction.predicted_time} "
+            f"(confidence: {prediction.confidence_score:.2f})"
+        )
+
+        return prediction
+
+    except InsufficientDataError as e:
+        logger.warning(f"Insufficient data for user {current_user.id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Insufficient user data for personalization: {str(e)}",
+        )
+    except ModelPredictionError as e:
+        logger.error(f"ML model prediction failed for user {current_user.id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Prediction model temporarily unavailable",
+        )
+    except Exception as e:
+        logger.error(f"Failed to predict optimal timing: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to predict optimal timing",
+        )
+
+
+@router.post("/personalize/timing/fallback", response_model=OptimalTimingPrediction)
+async def predict_timing_with_fallback(
+    request: PersonalizedTimingRequest,
+    current_user: User = Depends(get_current_user),
+    personalization_engine: PersonalizationEngine = Depends(get_personalization_engine),
+) -> OptimalTimingPrediction:
+    """
+    Predict optimal timing with fallback to default if ML model fails.
+
+    This endpoint provides a more robust version that always returns a timing
+    prediction, falling back to default timing if personalization fails.
+    """
+    try:
+        # Override user_id with current authenticated user
+        request.user_id = str(current_user.id)
+
+        logger.info(
+            f"Predicting optimal timing with fallback for user {current_user.id}"
+        )
+        prediction = await personalization_engine.predict_optimal_timing_with_fallback(
+            request
+        )
+
+        return prediction
+
+    except Exception as e:
+        logger.error(f"Failed to predict timing with fallback: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to predict timing",
+        )
+
+
+@router.post("/personalize/timing/engagement", response_model=OptimalTimingPrediction)
+async def optimize_timing_for_engagement(
+    request: PersonalizedTimingRequest,
+    current_user: User = Depends(get_current_user),
+    personalization_engine: PersonalizationEngine = Depends(get_personalization_engine),
+) -> OptimalTimingPrediction:
+    """
+    Optimize notification timing specifically for maximum user engagement.
+
+    This endpoint focuses on historical engagement patterns to find the
+    time when the user is most likely to interact with notifications.
+    """
+    try:
+        # Override user_id with current authenticated user
+        request.user_id = str(current_user.id)
+
+        logger.info(f"Optimizing timing for engagement for user {current_user.id}")
+        prediction = await personalization_engine.optimize_timing_for_engagement(
+            request
+        )
+
+        return prediction
+
+    except Exception as e:
+        logger.error(f"Failed to optimize timing for engagement: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to optimize timing for engagement",
+        )
+
+
+@router.get("/personalize/user-behavior", response_model=Dict[str, Any])
+async def get_user_behavior_analysis(
+    current_user: User = Depends(get_current_user),
+    personalization_engine: PersonalizationEngine = Depends(get_personalization_engine),
+) -> Dict[str, Any]:
+    """
+    Get analysis of user's notification interaction patterns.
+
+    Returns insights about the user's behavior patterns including
+    optimal hours, engagement rates, and preferred notification types.
+    """
+    try:
+        logger.info(f"Analyzing behavior patterns for user {current_user.id}")
+
+        behavior_metrics = await personalization_engine.analyze_user_behavior_patterns(
+            str(current_user.id)
+        )
+
+        return {
+            "user_id": str(current_user.id),
+            "behavior_analysis": behavior_metrics.dict(),
+            "recommendations": {
+                "optimal_hours": behavior_metrics.optimal_hours,
+                "best_days": behavior_metrics.preferred_days,
+                "engagement_level": behavior_metrics.overall_engagement_rate,
+                "suggested_frequency": "high"
+                if behavior_metrics.overall_engagement_rate > 0.7
+                else "moderate",
+            },
+        }
+
+    except InsufficientDataError as e:
+        logger.warning(
+            f"Insufficient data for user behavior analysis {current_user.id}: {e}"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Insufficient notification history for behavior analysis",
+        )
+    except Exception as e:
+        logger.error(f"Failed to analyze user behavior patterns: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to analyze behavior patterns",
+        )
+
+
+@router.post("/personalize/timing/batch", response_model=List[OptimalTimingPrediction])
+async def optimize_batch_timing(
+    requests: List[PersonalizedTimingRequest],
+    current_user: User = Depends(get_current_user),
+    personalization_engine: PersonalizationEngine = Depends(get_personalization_engine),
+) -> List[OptimalTimingPrediction]:
+    """
+    Optimize timing for multiple notifications in batch.
+
+    Efficiently processes multiple timing requests for better performance
+    when scheduling many notifications at once.
+    """
+    try:
+        # Ensure all requests are for the current user
+        for request in requests:
+            request.user_id = str(current_user.id)
+
+        logger.info(
+            f"Batch timing optimization for {len(requests)} requests, user {current_user.id}"
+        )
+        predictions = await personalization_engine.optimize_batch_timing(requests)
+
+        return predictions
+
+    except Exception as e:
+        logger.error(f"Failed to optimize batch timing: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to optimize batch timing",
         )

@@ -50,7 +50,7 @@ class NotificationPriority(str, Enum):
 class Notification(Base):
     """Notification model for tracking sent notifications."""
 
-    __tablename__ = "notifications"
+    __tablename__ = "notifications"  # type: ignore[assignment]
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
 
@@ -115,13 +115,13 @@ class Notification(Base):
     @property
     def delivery_rate(self) -> float:
         """Calculate delivery success rate."""
-        total = self.success_count + self.failure_count
-        return (self.success_count / total) if total > 0 else 0.0
+        total = int(self.success_count) + int(self.failure_count)
+        return (float(self.success_count) / float(total)) if total > 0 else 0.0
 
     @property
     def is_scheduled(self) -> bool:
         """Check if notification is scheduled for future delivery."""
-        return (
+        return bool(
             self.status == NotificationStatus.SCHEDULED.value
             and self.scheduled_at is not None
             and self.scheduled_at > datetime.utcnow()
@@ -130,7 +130,7 @@ class Notification(Base):
     @property
     def is_delivered(self) -> bool:
         """Check if notification has been delivered."""
-        return self.status == NotificationStatus.SENT.value
+        return bool(self.status == NotificationStatus.SENT.value)
 
     def mark_as_sending(self) -> None:
         """Mark notification as currently being sent."""
@@ -155,7 +155,7 @@ class Notification(Base):
 class NotificationTemplate(Base):
     """Notification template model for reusable notification content."""
 
-    __tablename__ = "notification_templates"
+    __tablename__ = "notification_templates"  # type: ignore[assignment]
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
 
@@ -215,7 +215,7 @@ class NotificationTemplate(Base):
 class UserNotificationPreference(Base):
     """User notification preference model."""
 
-    __tablename__ = "user_notification_preferences"
+    __tablename__ = "user_notification_preferences"  # type: ignore[assignment]
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     user_id = Column(String, nullable=False, unique=True, index=True)

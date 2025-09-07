@@ -12,7 +12,7 @@ from app.db.base_class import Base
 class UserBehavior(Base):
     """User behavior tracking for preference learning."""
 
-    __tablename__ = "user_behaviors"
+    __tablename__ = "user_behaviors"  # type: ignore[assignment]
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), nullable=False, index=True)
@@ -46,7 +46,7 @@ class UserBehavior(Base):
 class UserBehaviorProfile(Base):
     """User preference profile learned from behavior."""
 
-    __tablename__ = "user_behavior_profiles"
+    __tablename__ = "user_behavior_profiles"  # type: ignore[assignment]
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), unique=True, nullable=False, index=True)
@@ -80,7 +80,7 @@ class UserBehaviorProfile(Base):
 class UserFeedback(Base):
     """User feedback on recommendations for learning."""
 
-    __tablename__ = "user_feedbacks"
+    __tablename__ = "user_feedbacks"  # type: ignore[assignment]
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), nullable=False, index=True)
@@ -109,7 +109,7 @@ class UserFeedback(Base):
 class UserInteractionLog(Base):
     """Detailed interaction logging for analytics."""
 
-    __tablename__ = "user_interaction_logs"
+    __tablename__ = "user_interaction_logs"  # type: ignore[assignment]
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), nullable=False, index=True)
@@ -137,7 +137,7 @@ class UserInteractionLog(Base):
 class PreferenceLearningMetrics(Base):
     """Metrics for preference learning system performance."""
 
-    __tablename__ = "preference_learning_metrics"
+    __tablename__ = "preference_learning_metrics"  # type: ignore[assignment]
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), nullable=False, index=True)

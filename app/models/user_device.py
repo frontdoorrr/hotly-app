@@ -13,7 +13,7 @@ from app.db.base_class import Base
 class UserDevice(Base):
     """User device model for FCM token management."""
 
-    __tablename__ = "user_devices"
+    __tablename__ = "user_devices"  # type: ignore[assignment]
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     user_id = Column(String, nullable=False, index=True)
@@ -55,12 +55,12 @@ class UserDevice(Base):
     @property
     def is_ios(self) -> bool:
         """Check if device is iOS."""
-        return self.device_platform == "ios"
+        return bool(self.device_platform == "ios")
 
     @property
     def is_android(self) -> bool:
         """Check if device is Android."""
-        return self.device_platform == "android"
+        return bool(self.device_platform == "android")
 
     def is_in_quiet_hours(self, current_hour: int) -> bool:
         """Check if current time is in user's quiet hours."""

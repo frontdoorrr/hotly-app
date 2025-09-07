@@ -47,7 +47,7 @@ class PlaceCategory(str, Enum):
 class Place(Base):
     """Place model with geographical and metadata information."""
 
-    __tablename__ = "places"
+    __tablename__ = "places"  # type: ignore[assignment]
 
     # Primary identifier
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

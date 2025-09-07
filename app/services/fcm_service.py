@@ -8,40 +8,15 @@ from typing import Any, Dict, List, Optional
 import firebase_admin
 from fastapi import Depends
 from firebase_admin import credentials, messaging
-from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.db.deps import get_db
 from app.models.notification import Notification, NotificationStatus
 from app.models.user_device import UserDevice
+from app.schemas.notification import PushNotificationRequest, PushNotificationResponse
 
 logger = logging.getLogger(__name__)
-
-
-class PushNotificationRequest(BaseModel):
-    """Push notification request model."""
-
-    title: str
-    body: str
-    user_ids: List[str]
-    data: Optional[Dict[str, Any]] = None
-    image_url: Optional[str] = None
-    action_url: Optional[str] = None
-    notification_type: str = "general"
-    priority: str = "normal"  # normal, high
-    time_to_live: Optional[int] = None  # in seconds
-
-
-class FCMResponse(BaseModel):
-    """FCM service response model."""
-
-    success: bool
-    message_id: Optional[str] = None
-    success_count: int = 0
-    failure_count: int = 0
-    failed_tokens: List[str] = []
-    error: Optional[str] = None
 
 
 class FCMService:
@@ -62,6 +37,8 @@ class FCMService:
                     cred = credentials.Certificate(settings.FIREBASE_CREDENTIALS_PATH)
                 else:
                     # Use credentials from environment variable
+                    if settings.FIREBASE_CREDENTIALS_JSON is None:
+                        raise RuntimeError("FIREBASE_CREDENTIALS_JSON is not set")
                     firebase_config = json.loads(settings.FIREBASE_CREDENTIALS_JSON)
                     cred = credentials.Certificate(firebase_config)
 
@@ -175,7 +152,7 @@ class FCMService:
                 self.db.query(UserDevice)
                 .filter(
                     UserDevice.user_id == user_id,
-                    UserDevice.is_active == True,
+                    UserDevice.is_active.is_(True),
                     UserDevice.fcm_token.isnot(None),
                 )
                 .all()
@@ -187,7 +164,9 @@ class FCMService:
             logger.error(f"Failed to get device tokens for user {user_id}: {e}")
             return []
 
-    def send_push_notification(self, request: PushNotificationRequest) -> FCMResponse:
+    def send_push_notification(
+        self, request: PushNotificationRequest
+    ) -> PushNotificationResponse:
         """Send push notification to multiple users."""
         try:
             # Collect all device tokens for target users
@@ -198,7 +177,7 @@ class FCMService:
 
             if not all_tokens:
                 logger.warning("No active device tokens found for target users")
-                return FCMResponse(
+                return PushNotificationResponse(
                     success=False,
                     error="No active device tokens found",
                     failure_count=len(request.user_ids),
@@ -244,7 +223,7 @@ class FCMService:
                 f"{failure_count} failures"
             )
 
-            return FCMResponse(
+            return PushNotificationResponse(
                 success=success_count > 0,
                 success_count=success_count,
                 failure_count=failure_count,
@@ -253,7 +232,7 @@ class FCMService:
 
         except Exception as e:
             logger.error(f"Failed to send push notification: {e}")
-            return FCMResponse(
+            return PushNotificationResponse(
                 success=False, error=str(e), failure_count=len(request.user_ids)
             )
 
@@ -264,7 +243,7 @@ class FCMService:
         body: str,
         data: Optional[Dict[str, Any]] = None,
         **kwargs,
-    ) -> FCMResponse:
+    ) -> PushNotificationResponse:
         """Send push notification to a single device."""
         request = PushNotificationRequest(
             title=title,
@@ -280,11 +259,15 @@ class FCMService:
 
             logger.info(f"Single notification sent successfully: {response}")
 
-            return FCMResponse(success=True, message_id=response, success_count=1)
+            return PushNotificationResponse(
+                success=True, message_id=response, success_count=1
+            )
 
         except Exception as e:
             logger.error(f"Failed to send single notification: {e}")
-            return FCMResponse(success=False, error=str(e), failure_count=1)
+            return PushNotificationResponse(
+                success=False, error=str(e), failure_count=1
+            )
 
     def _build_fcm_message(
         self, request: PushNotificationRequest, token: str
@@ -403,15 +386,15 @@ class FCMService:
             total_failures = sum(n.failure_count for n in notifications)
 
             # Group by notification type
-            by_type = {}
+            by_type: Dict[str, Dict[str, int]] = {}
             for notification in notifications:
                 ntype = notification.notification_type
                 if ntype not in by_type:
                     by_type[ntype] = {"count": 0, "success": 0, "failures": 0}
 
                 by_type[ntype]["count"] += 1
-                by_type[ntype]["success"] += notification.success_count
-                by_type[ntype]["failures"] += notification.failure_count
+                by_type[ntype]["success"] += int(notification.success_count)
+                by_type[ntype]["failures"] += int(notification.failure_count)
 
             return {
                 "period_days": days,
@@ -440,7 +423,7 @@ class FCMService:
             inactive_devices = (
                 self.db.query(UserDevice)
                 .filter(
-                    UserDevice.last_active < cutoff_date, UserDevice.is_active == True
+                    UserDevice.last_active < cutoff_date, UserDevice.is_active.is_(True)
                 )
                 .all()
             )
@@ -449,7 +432,7 @@ class FCMService:
             inactive_count = len(inactive_devices)
             if inactive_count > 0:
                 self.db.query(UserDevice).filter(
-                    UserDevice.last_active < cutoff_date, UserDevice.is_active == True
+                    UserDevice.last_active < cutoff_date, UserDevice.is_active is True
                 ).update(
                     {"is_active": False, "unregistered_at": datetime.utcnow()},
                     synchronize_session=False,

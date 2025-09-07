@@ -6,7 +6,7 @@ Calculates travel time between locations considering various factors.
 
 import logging
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -14,15 +14,15 @@ logger = logging.getLogger(__name__)
 class TravelTimeCalculator:
     """Service for calculating travel times between locations."""
 
-    def __init__(self):
-        self.default_travel_time = 30  # Default 30 minutes
-        self.cache = {}  # Simple in-memory cache
+    def __init__(self) -> None:
+        self.default_travel_time: int = 30  # Default 30 minutes
+        self.cache: Dict[str, int] = {}  # Simple in-memory cache
 
     async def calculate(
         self,
         destination_place_id: str,
         arrival_time: datetime,
-        origin_coordinates: Optional[tuple] = None,
+        origin_coordinates: Optional[Tuple[float, float]] = None,
         transport_method: str = "walking",
     ) -> int:
         """
@@ -48,9 +48,14 @@ class TravelTimeCalculator:
 
             # For now, return mock travel times based on transport method
             # In real implementation, this would call external APIs
-            travel_times = {"walking": 45, "driving": 25, "transit": 35, "bicycle": 20}
+            travel_times: Dict[str, int] = {
+                "walking": 45,
+                "driving": 25,
+                "transit": 35,
+                "bicycle": 20,
+            }
 
-            calculated_time = travel_times.get(
+            calculated_time: int = travel_times.get(
                 transport_method, self.default_travel_time
             )
 
@@ -75,8 +80,8 @@ class TravelTimeCalculator:
 
     def _is_rush_hour(self, dt: datetime) -> bool:
         """Check if time is during rush hour."""
-        hour = dt.hour
-        weekday = dt.weekday()
+        hour: int = dt.hour
+        weekday: int = dt.weekday()
 
         # Weekday rush hours: 7-9 AM and 6-8 PM
         if weekday < 5:  # Monday to Friday
@@ -101,7 +106,7 @@ class TravelTimeCalculator:
             # Mock route information
             # In real implementation, this would call mapping APIs
 
-            base_info = {
+            base_info: Dict[str, Dict[str, Any]] = {
                 "walking": {
                     "distance_km": 2.5,
                     "duration_minutes": 45,
@@ -136,9 +141,9 @@ class TravelTimeCalculator:
             return {
                 "destination_place_id": destination_place_id,
                 "transport_method": transport_method,
-                "total_duration_minutes": info["duration_minutes"],
-                "total_distance_km": info["distance_km"],
-                "route_steps": info["steps"],
+                "total_duration_minutes": int(info["duration_minutes"]),
+                "total_distance_km": float(info["distance_km"]),
+                "route_steps": list(info["steps"]),
                 "calculated_at": datetime.now().isoformat(),
             }
 

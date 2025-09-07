@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 class RedisQueueService:
     """Service for managing notification queue with Redis."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.redis_client = Redis.from_url(settings.REDIS_URL, decode_responses=True)
         self.queue_name = "hotly:notifications"
         self.scheduled_set = "hotly:scheduled_notifications"
@@ -78,9 +78,9 @@ class RedisQueueService:
             pipe = self.redis_client.pipeline()
 
             for item in batch_items:
-                notification_id = item["notification_id"]
-                payload = item["payload"]
-                delay_seconds = item["delay_seconds"]
+                notification_id: str = item["notification_id"]
+                payload: Dict[str, Any] = item["payload"]
+                delay_seconds: int = int(item["delay_seconds"])
 
                 execute_at = datetime.now().timestamp() + delay_seconds
 
@@ -151,7 +151,7 @@ class RedisQueueService:
                 self.scheduled_set, 0, current_time
             )
 
-            notifications = []
+            notifications: List[Dict[str, Any]] = []
             pipe = self.redis_client.pipeline()
 
             for item in ready_items:
@@ -184,7 +184,7 @@ class RedisQueueService:
             Number of scheduled notifications
         """
         try:
-            return self.redis_client.zcard(self.scheduled_set)
+            return int(self.redis_client.zcard(self.scheduled_set))
         except Exception as e:
             logger.error(f"Failed to get scheduled count: {e}")
             return 0
@@ -203,11 +203,13 @@ class RedisQueueService:
             cutoff_time = datetime.now().timestamp() - (max_age_hours * 3600)
 
             # Remove items older than cutoff
-            removed_count = self.redis_client.zremrangebyscore(
-                self.scheduled_set,
-                0,
-                cutoff_time
-                - 86400,  # Only remove very old items to avoid removing current ones
+            removed_count = int(
+                self.redis_client.zremrangebyscore(
+                    self.scheduled_set,
+                    0,
+                    cutoff_time
+                    - 86400,  # Only remove very old items to avoid removing current ones
+                )
             )
 
             if removed_count > 0:
