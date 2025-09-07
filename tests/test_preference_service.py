@@ -696,7 +696,6 @@ class TestUserPreferenceService:
                 user_preference_service, "_analyze_time_preferences"
             ) as mock_time,
         ):
-
             mock_cuisine.return_value = {"restaurant": 0.8, "cafe": 0.6}
             mock_ambiance.return_value = {"romantic": 0.7}
             mock_price.return_value = {"moderate": 0.6}
@@ -731,7 +730,6 @@ class TestUserPreferenceService:
                 user_preference_service, "_get_current_time_of_day"
             ) as mock_time,
         ):
-
             mock_record.return_value = Mock()
             mock_update.return_value = None
             mock_time.return_value = "evening"

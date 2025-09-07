@@ -63,7 +63,6 @@ class TestExperimentManager:
             patch.object(experiment_manager, "_assign_variant") as mock_variant,
             patch.object(experiment_manager, "_log_assignment") as mock_log,
         ):
-
             mock_include.return_value = True
             mock_variant.return_value = "control"
             mock_log.return_value = None

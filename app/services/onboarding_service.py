@@ -1350,6 +1350,8 @@ class OnboardingProgressTracker:
             }
 
         # 완료된 경우 상세 분석
+        from app.models.user_preference import OnboardingSession
+
         session = (
             self.db.query(OnboardingSession)
             .filter(OnboardingSession.user_id == user_id)

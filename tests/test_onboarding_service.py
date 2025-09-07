@@ -6,7 +6,7 @@ from uuid import uuid4
 
 import pytest
 
-from app.schemas.onboarding import OnboardingStep, OnboardingStepRequest
+# from app.schemas.preference import OnboardingStepRequest
 from app.services.onboarding_service import (
     OnboardingFlowManager,
     OnboardingService,
