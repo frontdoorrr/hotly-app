@@ -66,9 +66,39 @@ class Settings(BaseSettings):
     FIREBASE_CREDENTIALS_PATH: Optional[str] = Field(
         default=None, description="Firebase service account credentials file path"
     )
+    FIREBASE_CREDENTIALS_JSON: Optional[str] = Field(
+        default=None, description="Firebase service account credentials JSON string"
+    )
+    FCM_PROJECT_ID: Optional[str] = Field(
+        default=None, description="Firebase Cloud Messaging project ID"
+    )
     KAKAO_API_KEY: Optional[str] = Field(default=None, description="Kakao Map API key")
     GEMINI_API_KEY: Optional[str] = Field(
         default=None, description="Google Gemini API key"
+    )
+
+    # Push Notification Configuration
+    NOTIFICATION_BATCH_SIZE: int = Field(
+        default=500, description="Maximum number of notifications to send in one batch"
+    )
+    NOTIFICATION_RETRY_ATTEMPTS: int = Field(
+        default=3, description="Number of retry attempts for failed notifications"
+    )
+    DEFAULT_NOTIFICATION_TTL: int = Field(
+        default=3600,
+        description="Default notification time-to-live in seconds (1 hour)",
+    )
+    MAX_DAILY_NOTIFICATIONS_PER_USER: int = Field(
+        default=10, description="Maximum daily notifications per user"
+    )
+    QUIET_HOURS_START: int = Field(
+        default=22,
+        ge=0,
+        le=23,
+        description="Default quiet hours start (24-hour format)",
+    )
+    QUIET_HOURS_END: int = Field(
+        default=7, ge=0, le=23, description="Default quiet hours end (24-hour format)"
     )
 
     # Environment
