@@ -34,6 +34,17 @@ class NotificationType(str, Enum):
     PROMOTIONAL = "promotional"
     SYSTEM_UPDATE = "system_update"
     EMERGENCY = "emergency"
+    PREPARATION_REMINDER = "preparation_reminder"
+    DEPARTURE_REMINDER = "departure_reminder"
+    MOVE_REMINDER = "move_reminder"
+
+
+class NotificationPriority(str, Enum):
+    """Notification priority enumeration."""
+
+    NORMAL = "normal"
+    HIGH = "high"
+    URGENT = "urgent"
 
 
 class Notification(Base):

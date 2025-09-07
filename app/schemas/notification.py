@@ -1,12 +1,12 @@
 """Pydantic schemas for notification system."""
 
-from datetime import datetime
+from datetime import datetime, time
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field, validator
 
-from app.models.notification import NotificationType
+from app.models.notification import NotificationPriority, NotificationType
 
 
 class DeviceTokenRequest(BaseModel):
@@ -300,3 +300,141 @@ class DeviceResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# Additional schemas for scheduling system
+class QuietHours(BaseModel):
+    """User's quiet hours configuration."""
+
+    start: time
+    end: time
+    days_of_week: List[str] = ["monday", "tuesday", "wednesday", "thursday", "friday"]
+
+
+class NotificationTiming(BaseModel):
+    """User's notification timing preferences."""
+
+    day_before_hour: int = 18
+    departure_minutes_before: int = 30
+    move_reminder_minutes: int = 15
+
+
+class UserNotificationSettings(BaseModel):
+    """User's complete notification settings."""
+
+    enabled: bool = True
+    quiet_hours: Optional[QuietHours] = None
+    timing: Optional[NotificationTiming] = None
+
+
+class ScheduledNotificationRequest(BaseModel):
+    """Request to schedule a notification."""
+
+    id: Optional[str] = None
+    user_id: str
+    course_id: Optional[str] = None
+    type: NotificationType
+    priority: NotificationPriority
+    scheduled_time: datetime
+    message: str
+    deep_link: Optional[str] = None
+
+
+class NotificationScheduleResponse(BaseModel):
+    """Response from scheduling notifications."""
+
+    scheduled_notifications: List[ScheduledNotificationRequest]
+    total_scheduled: int
+    skipped_count: int = 0
+
+
+class NotificationBatchResult(BaseModel):
+    """Result of batch notification processing."""
+
+    total_scheduled: int
+    success_count: int
+    error_count: int
+    errors: List[str] = []
+
+
+# Personalization schemas for task 2-2-3
+class UserBehaviorPattern(BaseModel):
+    """User behavior pattern from notification interactions."""
+
+    user_id: str
+    timestamp: datetime
+    notification_type: NotificationType
+    sent_at: time
+    opened_at: Optional[time] = None
+    clicked: bool = False
+    day_of_week: str
+    engagement_score: float = 0.0
+
+
+class EngagementMetrics(BaseModel):
+    """User engagement metrics and patterns."""
+
+    user_id: str
+    total_notifications: int
+    opened_count: int
+    clicked_count: int
+    open_rate: float
+    click_rate: float
+    average_open_delay_minutes: float
+    peak_engagement_hours: List[int]
+    preferred_days: List[str]
+    last_updated: datetime
+    optimal_hours: List[int] = []
+    overall_engagement_rate: float = 0.0
+
+
+class PersonalizedTimingRequest(BaseModel):
+    """Request for personalized timing prediction."""
+
+    user_id: str
+    notification_type: NotificationType
+    default_time: datetime
+    course_context: Optional[Dict[str, Any]] = None
+    real_time_context: Optional[Dict[str, Any]] = None
+    user_constraints: Optional[Dict[str, Any]] = None
+
+
+class OptimalTimingPrediction(BaseModel):
+    """Prediction of optimal notification timing."""
+
+    user_id: str
+    predicted_time: datetime
+    confidence_score: float
+    engagement_probability: float
+    alternative_times: List[datetime] = []
+    reasoning: str = ""
+    context_factors: Dict[str, Any] = {}
+    fallback_used: bool = False
+    constraint_applied: bool = False
+    quiet_hours_adjusted: bool = False
+    improvement_score: Optional[float] = None
+    algorithm_used: Optional[str] = None
+    ab_test_group: Optional[str] = None
+    processing_time_ms: Optional[float] = None
+    adaptation_reason: Optional[str] = None
+
+
+class PersonalizedTimingResponse(BaseModel):
+    """Response from personalized timing service."""
+
+    user_id: str
+    original_time: datetime
+    optimized_time: datetime
+    improvement_score: float
+    confidence: float
+    reasoning: str
+
+
+class PersonalizedTimingBatchResult(BaseModel):
+    """Result of batch personalized timing optimization."""
+
+    total_processed: int
+    success_count: int
+    error_count: int
+    average_improvement: float
+    processing_time_ms: float
