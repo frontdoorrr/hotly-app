@@ -7,7 +7,9 @@ from app.api.api_v1.endpoints import (
     content,
     courses,
     link_analysis,
+    notifications,
     onboarding,
+    personalization,
     places,
     preference_setup,
     preferences,
@@ -26,3 +28,9 @@ api_router.include_router(
     preferences.router, prefix="/preferences", tags=["preferences"]
 )
 api_router.include_router(courses.router, prefix="/courses", tags=["courses"])
+api_router.include_router(
+    personalization.router, prefix="/personalization", tags=["personalization"]
+)
+api_router.include_router(
+    notifications.router, prefix="/notifications", tags=["notifications"]
+)
