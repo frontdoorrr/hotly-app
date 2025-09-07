@@ -223,10 +223,7 @@ class UserPreferenceService:
             if behavior.tags_added and behavior.rating:
                 for tag in behavior.tags_added:
                     # Categorize ambiance-related tags
-                    if any(
-                        amb in tag
-                        for amb in ["조용", "분위기", "로맨틱", "활기", "편안"]
-                    ):
+                    if any(amb in tag for amb in ["조용", "분위기", "로맨틱", "활기", "편안"]):
                         ambiance_tags[tag].append(behavior.rating)
 
         # Calculate preferences
@@ -245,6 +242,31 @@ class UserPreferenceService:
         # This would analyze price-related behavior
         # For now, return default preferences
         return {"budget": 0.3, "moderate": 0.5, "expensive": 0.2}
+
+    async def get_notification_settings(self, user_id: str):
+        """Get user's notification settings."""
+        # Mock implementation for now
+        from datetime import time
+
+        from app.schemas.notification import (
+            NotificationTiming,
+            QuietHours,
+            UserNotificationSettings,
+        )
+
+        return UserNotificationSettings(
+            enabled=True,
+            quiet_hours=QuietHours(
+                start=time(22, 0),
+                end=time(8, 0),
+                days_of_week=["monday", "tuesday", "wednesday", "thursday", "friday"],
+            ),
+            timing=NotificationTiming(
+                day_before_hour=18,
+                departure_minutes_before=30,
+                move_reminder_minutes=15,
+            ),
+        )
 
     def _analyze_location_preferences(
         self, user_id: UUID, behaviors: List[UserBehavior]
@@ -554,3 +576,35 @@ class UserPreferenceService:
         except Exception as e:
             logger.error(f"Failed to track preference changes: {e}")
             return []
+
+
+class UserPreferencesService:
+    """Service for managing user notification preferences."""
+
+    def __init__(self):
+        pass
+
+    async def get_settings(self, user_id: str):
+        """Get user's notification settings."""
+        # Mock implementation for now
+        from datetime import time
+
+        from app.schemas.notification import (
+            NotificationTiming,
+            QuietHours,
+            UserNotificationSettings,
+        )
+
+        return UserNotificationSettings(
+            enabled=True,
+            quiet_hours=QuietHours(
+                start=time(22, 0),
+                end=time(8, 0),
+                days_of_week=["monday", "tuesday", "wednesday", "thursday", "friday"],
+            ),
+            timing=NotificationTiming(
+                day_before_hour=18,
+                departure_minutes_before=30,
+                move_reminder_minutes=15,
+            ),
+        )

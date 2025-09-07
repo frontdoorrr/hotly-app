@@ -304,3 +304,15 @@ class DuplicateDetector:
         earth_radius = 6371000
 
         return earth_radius * c
+
+
+class NotificationDuplicateDetector:
+    """Service for detecting duplicate notifications."""
+
+    def __init__(self):
+        # Simplified implementation for now
+        self._recent_notifications = {}
+
+    async def is_duplicate(self, notification) -> bool:
+        """Check if notification is duplicate."""
+        return False  # Simplified for now
