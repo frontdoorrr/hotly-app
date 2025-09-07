@@ -41,3 +41,14 @@ def get_current_user() -> User:
     user.id = "test_user_123"
     user.email = "test@example.com"
     return user
+
+
+def get_current_active_user() -> User:
+    """
+    Get current active user dependency.
+    
+    Returns:
+        User: Current active user instance
+    """
+    # For now, same as get_current_user (mock implementation)
+    return get_current_user()

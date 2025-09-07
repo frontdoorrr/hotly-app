@@ -7,6 +7,7 @@ from app.db.base_class import Base
 
 if TYPE_CHECKING:
     from .item import Item  # noqa: F401
+    from .notification import UserNotificationSettings  # noqa: F401
 
 
 class User(Base):
@@ -17,3 +18,4 @@ class User(Base):
     is_active = Column(Boolean(), default=True)
     is_superuser = Column(Boolean(), default=False)
     items = relationship("Item", back_populates="owner")
+    notification_settings = relationship("UserNotificationSettings", back_populates="user", uselist=False)
