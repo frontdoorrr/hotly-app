@@ -38,6 +38,34 @@ def create_app() -> FastAPI:
         """Root endpoint."""
         return {"message": "Hotly App API", "version": "0.1.0"}
 
+    @app.on_event("startup")
+    async def startup_event():
+        """Initialize services on startup."""
+        try:
+            # Initialize Elasticsearch connection
+            from app.db.elasticsearch import init_elasticsearch
+
+            await init_elasticsearch()
+        except Exception as e:
+            import logging
+
+            logger = logging.getLogger(__name__)
+            logger.warning(f"Failed to initialize Elasticsearch: {e}")
+
+    @app.on_event("shutdown")
+    async def shutdown_event():
+        """Clean up resources on shutdown."""
+        try:
+            # Close Elasticsearch connection
+            from app.db.elasticsearch import close_elasticsearch
+
+            await close_elasticsearch()
+        except Exception as e:
+            import logging
+
+            logger = logging.getLogger(__name__)
+            logger.warning(f"Failed to close Elasticsearch connection: {e}")
+
     # Include health check routes
     app.include_router(health_router)
 

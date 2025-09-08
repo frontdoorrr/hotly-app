@@ -4,6 +4,7 @@ from fastapi import APIRouter
 
 from app.api.api_v1.endpoints import (
     ai,
+    autocomplete,
     content,
     courses,
     link_analysis,
@@ -13,6 +14,7 @@ from app.api.api_v1.endpoints import (
     places,
     preference_setup,
     preferences,
+    search,
 )
 
 api_router = APIRouter()
@@ -33,4 +35,8 @@ api_router.include_router(
 )
 api_router.include_router(
     notifications.router, prefix="/notifications", tags=["notifications"]
+)
+api_router.include_router(search.router, prefix="/search", tags=["search"])
+api_router.include_router(
+    autocomplete.router, prefix="/autocomplete", tags=["autocomplete"]
 )
