@@ -1,7 +1,7 @@
 """Test cases for notification API endpoints."""
 
 from datetime import datetime, timedelta
-from unittest.mock import Mock, patch
+from unittest.mock import AsyncMock, Mock, patch
 from uuid import uuid4
 
 import pytest
@@ -746,7 +746,7 @@ class TestNotificationSettingsAPI:
                 "enabled": True,
                 "start": "22:00:00",
                 "end": "08:00:00",
-                "weekdays_only": False
+                "weekdays_only": False,
             },
             "types": {
                 "date_reminder": True,
@@ -756,26 +756,27 @@ class TestNotificationSettingsAPI:
                 "weather": True,
                 "traffic": False,
                 "recommendations": True,
-                "promotional": False
+                "promotional": False,
             },
             "timing": {
                 "day_before_hour": 19,
                 "departure_minutes_before": 45,
-                "move_reminder_minutes": 20
+                "move_reminder_minutes": 20,
             },
             "personalization": {
                 "enabled": True,
                 "frequency_limit_per_day": 8,
-                "frequency_limit_per_week": 40
-            }
+                "frequency_limit_per_week": 40,
+            },
         }
 
     @pytest.fixture
     def mock_settings_model(self):
         """Mock UserNotificationSettings model."""
+        from datetime import datetime, time
+
         from app.models.notification import UserNotificationSettings
-        from datetime import time, datetime
-        
+
         settings = UserNotificationSettings(
             id=uuid4(),
             user_id=self.test_user_id,
@@ -799,12 +800,13 @@ class TestNotificationSettingsAPI:
             frequency_limit_per_day=8,
             frequency_limit_per_week=40,
             created_at=datetime.now(),
-            updated_at=datetime.now()
+            updated_at=datetime.now(),
         )
         return settings
 
-    def test_create_notification_settings_success(self, mock_current_user, auth_headers, 
-                                                sample_settings_data, mock_settings_model):
+    def test_create_notification_settings_success(
+        self, mock_current_user, auth_headers, sample_settings_data, mock_settings_model
+    ):
         """
         Given: 유효한 알림 설정 데이터
         When: POST /api/v1/notifications/settings 요청
@@ -813,44 +815,53 @@ class TestNotificationSettingsAPI:
         # Given
         with (
             patch("app.api.deps.get_current_user", return_value=mock_current_user),
-            patch("app.services.notification_settings_service.get_notification_settings_service") as mock_service,
+            patch(
+                "app.services.notification_settings_service.get_notification_settings_service"
+            ) as mock_service,
         ):
             mock_service_instance = Mock()
             mock_service.return_value = mock_service_instance
-            mock_service_instance.create_user_settings = AsyncMock(return_value=mock_settings_model)
-            
+            mock_service_instance.create_user_settings = AsyncMock(
+                return_value=mock_settings_model
+            )
+
             # When
             response = self.client.post(
                 "/api/v1/notifications/settings",
                 json=sample_settings_data,
-                headers=auth_headers
+                headers=auth_headers,
             )
-            
+
             # Then
             assert response.status_code == 200
             data = response.json()
-            assert data["enabled"] == True
+            assert data["enabled"] is True
 
-    def test_get_notification_settings_success(self, mock_current_user, auth_headers, mock_settings_model):
+    def test_get_notification_settings_success(
+        self, mock_current_user, auth_headers, mock_settings_model
+    ):
         """
-        Given: 설정이 존재하는 사용자  
+        Given: 설정이 존재하는 사용자
         When: GET /api/v1/notifications/settings 요청
         Then: 200 상태코드와 설정 데이터 반환
         """
         # Given
         with (
             patch("app.api.deps.get_current_user", return_value=mock_current_user),
-            patch("app.services.notification_settings_service.get_notification_settings_service") as mock_service,
+            patch(
+                "app.services.notification_settings_service.get_notification_settings_service"
+            ) as mock_service,
         ):
             mock_service_instance = Mock()
             mock_service.return_value = mock_service_instance
-            mock_service_instance.get_or_create_default_settings = AsyncMock(return_value=mock_settings_model)
-            
+            mock_service_instance.get_or_create_default_settings = AsyncMock(
+                return_value=mock_settings_model
+            )
+
             # When
             response = self.client.get(
-                "/api/v1/notifications/settings",
-                headers=auth_headers
+                "/api/v1/notifications/settings", headers=auth_headers
             )
-            
+
             # Then
             assert response.status_code == 200

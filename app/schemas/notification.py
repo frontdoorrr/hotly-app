@@ -442,53 +442,76 @@ class PersonalizedTimingBatchResult(BaseModel):
 
 # User Notification Settings Schemas
 
+
 class QuietHours(BaseModel):
     """Quiet hours configuration."""
-    
+
     enabled: bool = False
-    start: Optional[time] = Field(None, description="Start time for quiet hours (e.g., 22:00)")
-    end: Optional[time] = Field(None, description="End time for quiet hours (e.g., 08:00)")
+    start: Optional[time] = Field(
+        None, description="Start time for quiet hours (e.g., 22:00)"
+    )
+    end: Optional[time] = Field(
+        None, description="End time for quiet hours (e.g., 08:00)"
+    )
     weekdays_only: bool = Field(False, description="Apply quiet hours only on weekdays")
-    
-    @validator('end')
+
+    @validator("end")
     def validate_end_time(cls, v, values):
-        if v and 'start' in values and values['start'] and v == values['start']:
-            raise ValueError('End time must be different from start time')
+        if v and "start" in values and values["start"] and v == values["start"]:
+            raise ValueError("End time must be different from start time")
         return v
 
 
 class NotificationTypes(BaseModel):
     """Notification type settings."""
-    
+
     date_reminder: bool = Field(True, description="Enable date preparation reminders")
-    departure_reminder: bool = Field(True, description="Enable departure time reminders")
-    move_reminder: bool = Field(True, description="Enable move between places reminders")
-    business_hours: bool = Field(True, description="Enable business hours change notifications")
+    departure_reminder: bool = Field(
+        True, description="Enable departure time reminders"
+    )
+    move_reminder: bool = Field(
+        True, description="Enable move between places reminders"
+    )
+    business_hours: bool = Field(
+        True, description="Enable business hours change notifications"
+    )
     weather: bool = Field(True, description="Enable weather update notifications")
     traffic: bool = Field(True, description="Enable traffic update notifications")
-    recommendations: bool = Field(True, description="Enable place/course recommendations")
+    recommendations: bool = Field(
+        True, description="Enable place/course recommendations"
+    )
     promotional: bool = Field(False, description="Enable promotional notifications")
 
 
 class NotificationTiming(BaseModel):
     """Notification timing configuration."""
-    
-    day_before_hour: int = Field(18, ge=8, le=22, description="Hour to send day-before reminders")
-    departure_minutes_before: int = Field(30, ge=5, le=120, description="Minutes before departure")
-    move_reminder_minutes: int = Field(15, ge=5, le=60, description="Minutes before moving to next place")
+
+    day_before_hour: int = Field(
+        18, ge=8, le=22, description="Hour to send day-before reminders"
+    )
+    departure_minutes_before: int = Field(
+        30, ge=5, le=120, description="Minutes before departure"
+    )
+    move_reminder_minutes: int = Field(
+        15, ge=5, le=60, description="Minutes before moving to next place"
+    )
 
 
 class PersonalizationSettings(BaseModel):
     """Personalization configuration."""
-    
+
     enabled: bool = Field(True, description="Enable personalized timing optimization")
-    frequency_limit_per_day: int = Field(10, ge=1, le=50, description="Max notifications per day")
-    frequency_limit_per_week: int = Field(50, ge=5, le=200, description="Max notifications per week")
+    frequency_limit_per_day: int = Field(
+        10, ge=1, le=50, description="Max notifications per day"
+    )
+    frequency_limit_per_week: int = Field(
+        50, ge=5, le=200, description="Max notifications per week"
+    )
 
 
 class UserNotificationSettingsBase(BaseModel):
     """Base user notification settings schema."""
-    
+
     enabled: bool = Field(True, description="Enable all notifications")
     quiet_hours: QuietHours = QuietHours()
     types: NotificationTypes = NotificationTypes()
@@ -498,12 +521,11 @@ class UserNotificationSettingsBase(BaseModel):
 
 class UserNotificationSettingsCreate(UserNotificationSettingsBase):
     """Create user notification settings request."""
-    pass
 
 
 class UserNotificationSettingsUpdate(BaseModel):
     """Update user notification settings request."""
-    
+
     enabled: Optional[bool] = None
     quiet_hours: Optional[QuietHours] = None
     types: Optional[NotificationTypes] = None
@@ -513,84 +535,41 @@ class UserNotificationSettingsUpdate(BaseModel):
 
 class UserNotificationSettingsResponse(UserNotificationSettingsBase):
     """User notification settings response."""
-    
+
     id: UUID
     user_id: UUID
     created_at: datetime
     updated_at: datetime
-    
+
     class Config:
         from_attributes = True
 
 
 # Notification Template Schemas
 
+
 class NotificationTemplateBase(BaseModel):
     """Base notification template schema."""
-    
+
     name: str = Field(..., max_length=100, description="Template name")
     notification_type: str = Field(..., description="Notification type")
     priority: str = Field("normal", description="Default priority")
-    title_template: str = Field(..., max_length=200, description="Title template with variables")
+    title_template: str = Field(
+        ..., max_length=200, description="Title template with variables"
+    )
     body_template: str = Field(..., description="Body template with variables")
-    category: Optional[str] = Field(None, max_length=50, description="Template category")
-    ios_settings: Optional[Dict[str, Any]] = Field(None, description="iOS-specific settings")
-    android_settings: Optional[Dict[str, Any]] = Field(None, description="Android-specific settings")
-    required_variables: Optional[List[str]] = Field(None, description="Required template variables")
-    optional_variables: Optional[List[str]] = Field(None, description="Optional template variables")
-
-
-class NotificationTemplateCreate(NotificationTemplateBase):
-    """Create notification template request."""
-    pass
-
-
-class NotificationTemplateUpdate(BaseModel):
-    """Update notification template request."""
-    
-    name: Optional[str] = Field(None, max_length=100)
-    notification_type: Optional[str] = None
-    priority: Optional[str] = None
-    title_template: Optional[str] = Field(None, max_length=200)
-    body_template: Optional[str] = None
-    category: Optional[str] = Field(None, max_length=50)
-    ios_settings: Optional[Dict[str, Any]] = None
-    android_settings: Optional[Dict[str, Any]] = None
-    required_variables: Optional[List[str]] = None
-    optional_variables: Optional[List[str]] = None
-    is_active: Optional[bool] = None
-
-
-class NotificationTemplateResponse(NotificationTemplateBase):
-    """Notification template response."""
-    
-    id: UUID
-    is_active: bool
-    created_at: datetime
-    updated_at: datetime
-    
-    class Config:
-        from_attributes = True
-
-
-class RenderedNotificationTemplate(BaseModel):
-    """Rendered notification template."""
-    
-    title: str
-    body: str
-    notification_type: str
-    priority: str
-    data: Dict[str, Any] = {}
-
-
-class TemplatedNotificationRequest(BaseModel):
-    """Request to send templated notification."""
-    
-    template_name: str = Field(..., description="Name of the template to use")
-    user_ids: List[str] = Field(..., description="Target user IDs")
-    variables: Dict[str, Any] = Field({}, description="Template variables")
-    additional_data: Optional[Dict[str, Any]] = Field(None, description="Additional data payload")
-    image_url: Optional[str] = None
-    action_url: Optional[str] = None
-    priority: Optional[str] = None
-    scheduled_at: Optional[datetime] = Field(None, description="Schedule notification for later")
+    category: Optional[str] = Field(
+        None, max_length=50, description="Template category"
+    )
+    ios_settings: Optional[Dict[str, Any]] = Field(
+        None, description="iOS-specific settings"
+    )
+    android_settings: Optional[Dict[str, Any]] = Field(
+        None, description="Android-specific settings"
+    )
+    required_variables: Optional[List[str]] = Field(
+        None, description="Required template variables"
+    )
+    optional_variables: Optional[List[str]] = Field(
+        None, description="Optional template variables"
+    )

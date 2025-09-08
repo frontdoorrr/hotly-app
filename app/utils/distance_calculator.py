@@ -1,13 +1,25 @@
 """Distance calculation utilities for geographic operations."""
 
+import logging
 import math
-from typing import List, Tuple
+from typing import TYPE_CHECKING, List, Tuple
+from uuid import UUID
+
+from sqlalchemy.orm import Session
+
+if TYPE_CHECKING:
+    from app.models.place import Place, PlaceStatus
+
+logger = logging.getLogger(__name__)
 
 
 class DistanceCalculator:
     """Utility class for calculating distances between geographic coordinates."""
 
     EARTH_RADIUS_KM = 6371.0  # Earth's radius in kilometers
+
+    def __init__(self, db: Session) -> None:
+        self.db: Session = db
 
     def haversine_distance(
         self, lat1: float, lon1: float, lat2: float, lon2: float
@@ -170,7 +182,7 @@ class DistanceCalculator:
         waypoints: List[Tuple[float, float]],
         buffer_km: float = 1.0,
         limit: int = 50,
-    ) -> List[Tuple[Place, float]]:
+    ) -> List[Tuple["Place", float]]:
         """
         Find places along a route with specified buffer distance.
 

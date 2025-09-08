@@ -5,7 +5,17 @@ from enum import Enum
 from typing import Any, Dict, List
 from uuid import uuid4
 
-from sqlalchemy import JSON, Boolean, Column, DateTime, Integer, String, Text, Time, ForeignKey
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    Time,
+)
 from sqlalchemy.dialects.postgresql import ARRAY, UUID
 from sqlalchemy.orm import relationship
 
@@ -292,21 +302,23 @@ class UserNotificationPreference(Base):
 
 class UserNotificationSettings(Base):
     """User notification settings model for personalized notifications."""
-    
+
     __tablename__ = "user_notification_settings"
-    
+
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("user.id"), nullable=False, unique=True)
-    
+    user_id = Column(
+        UUID(as_uuid=True), ForeignKey("user.id"), nullable=False, unique=True
+    )
+
     # 전체 알림 설정
     enabled = Column(Boolean, default=True, nullable=False)
-    
+
     # 조용 시간 설정
     quiet_hours_enabled = Column(Boolean, default=False, nullable=False)
     quiet_hours_start = Column(Time, nullable=True)  # 예: 22:00
-    quiet_hours_end = Column(Time, nullable=True)    # 예: 08:00
+    quiet_hours_end = Column(Time, nullable=True)  # 예: 08:00
     quiet_hours_weekdays_only = Column(Boolean, default=False, nullable=False)
-    
+
     # 알림 타입별 설정
     date_reminder_enabled = Column(Boolean, default=True, nullable=False)
     departure_reminder_enabled = Column(Boolean, default=True, nullable=False)
@@ -316,35 +328,39 @@ class UserNotificationSettings(Base):
     traffic_enabled = Column(Boolean, default=True, nullable=False)
     recommendations_enabled = Column(Boolean, default=True, nullable=False)
     promotional_enabled = Column(Boolean, default=False, nullable=False)
-    
+
     # 알림 타이밍 설정
     day_before_hour = Column(Integer, default=18, nullable=False)  # 전날 몇 시에 알림
     departure_minutes_before = Column(Integer, default=30, nullable=False)  # 출발 몇 분 전
     move_reminder_minutes = Column(Integer, default=15, nullable=False)  # 이동 몇 분 전
-    
+
     # 개인화 설정
     personalized_timing_enabled = Column(Boolean, default=True, nullable=False)
     frequency_limit_per_day = Column(Integer, default=10, nullable=False)
     frequency_limit_per_week = Column(Integer, default=50, nullable=False)
-    
+
     # 메타데이터
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
-    
+    updated_at = Column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+    )
+
     # 관계
     user = relationship("User", back_populates="notification_settings")
-    
-    def is_notification_allowed(self, notification_type: str, current_time: datetime = None) -> bool:
+
+    def is_notification_allowed(
+        self, notification_type: str, current_time: datetime = None
+    ) -> bool:
         """주어진 알림 타입이 현재 시간에 허용되는지 확인."""
         if not self.enabled:
             return False
-            
+
         current_time = current_time or datetime.now()
-        
+
         # 조용 시간 체크
         if self.quiet_hours_enabled and self._is_quiet_time(current_time):
             return False
-            
+
         # 타입별 설정 체크
         type_mapping = {
             NotificationType.PREPARATION_REMINDER: self.date_reminder_enabled,
@@ -356,80 +372,32 @@ class UserNotificationSettings(Base):
             "recommendations": self.recommendations_enabled,
             NotificationType.PROMOTIONAL: self.promotional_enabled,
         }
-        
+
         return type_mapping.get(notification_type, True)
-    
+
     def _is_quiet_time(self, current_time: datetime) -> bool:
         """조용 시간인지 확인."""
-        if not self.quiet_hours_enabled or not self.quiet_hours_start or not self.quiet_hours_end:
+        if (
+            not self.quiet_hours_enabled
+            or not self.quiet_hours_start
+            or not self.quiet_hours_end
+        ):
             return False
-            
+
         # 평일만 조용시간 적용하는 경우
-        if self.quiet_hours_weekdays_only and current_time.weekday() >= 5:  # 토요일(5), 일요일(6)
+        if (
+            self.quiet_hours_weekdays_only and current_time.weekday() >= 5
+        ):  # 토요일(5), 일요일(6)
             return False
-            
+
         current_time_only = current_time.time()
-        
+
         # 같은 날 시간대 (예: 22:00 - 23:59)
         if self.quiet_hours_start <= self.quiet_hours_end:
             return self.quiet_hours_start <= current_time_only <= self.quiet_hours_end
-        
+
         # 다음날 넘어가는 시간대 (예: 22:00 - 08:00)
-        return current_time_only >= self.quiet_hours_start or current_time_only <= self.quiet_hours_end
-
-
-class NotificationTemplate(Base):
-    """Notification template model for reusable notification formats."""
-    
-    __tablename__ = "notification_templates"
-    
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    name = Column(String(100), nullable=False, unique=True)
-    notification_type = Column(String(50), nullable=False)
-    priority = Column(String(20), default=NotificationPriority.NORMAL, nullable=False)
-    
-    # 템플릿 내용
-    title_template = Column(String(200), nullable=False)
-    body_template = Column(Text, nullable=False)
-    
-    # 플랫폼별 설정
-    ios_settings = Column(JSON, nullable=True)
-    android_settings = Column(JSON, nullable=True)
-    
-    # 변수 정의
-    required_variables = Column(ARRAY(String), nullable=True)
-    optional_variables = Column(ARRAY(String), nullable=True)
-    
-    # 메타데이터
-    category = Column(String(50), nullable=True)
-    is_active = Column(Boolean, default=True, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
-    
-    def render(self, variables: Dict[str, Any]) -> Dict[str, str]:
-        """템플릿 변수를 사용해 제목과 내용을 렌더링."""
-        try:
-            from jinja2 import Template
-            
-            title = Template(self.title_template).render(**variables)
-            body = Template(self.body_template).render(**variables)
-            
-            return {
-                "title": title,
-                "body": body,
-                "notification_type": self.notification_type,
-                "priority": self.priority
-            }
-        except Exception as e:
-            raise ValueError(f"Template rendering failed: {e}")
-    
-    def validate_variables(self, variables: Dict[str, Any]) -> bool:
-        """필수 변수가 모두 제공되었는지 확인."""
-        if not self.required_variables:
-            return True
-            
-        missing_vars = [var for var in self.required_variables if var not in variables]
-        if missing_vars:
-            raise ValueError(f"Missing required variables: {missing_vars}")
-            
-        return True
+        return (
+            current_time_only >= self.quiet_hours_start
+            or current_time_only <= self.quiet_hours_end
+        )
