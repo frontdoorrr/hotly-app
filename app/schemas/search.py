@@ -149,5 +149,66 @@ class SearchPerformanceMetrics(BaseModel):
     @validator("execution_time_ms")
     def validate_execution_time(cls, v):
         if v > 1000:  # 1 second
+            import logging
+
+            logger = logging.getLogger(__name__)
             logger.warning(f"Slow search query detected: {v}ms")
         return v
+
+
+# Elasticsearch-specific schemas
+
+
+class LocationSchema(BaseModel):
+    """Geographic location schema."""
+
+    lat: float = Field(..., ge=-90, le=90, description="Latitude")
+    lon: float = Field(..., ge=-180, le=180, description="Longitude")
+
+
+class ElasticsearchSearchResult(BaseModel):
+    """Elasticsearch search result format."""
+
+    id: str = Field(..., description="Place ID")
+    name: str = Field(..., description="Place name")
+    description: Optional[str] = Field(None, description="Place description")
+    address: Optional[str] = Field(None, description="Place address")
+    location: Optional[LocationSchema] = Field(None, description="Geographic location")
+    category: Optional[str] = Field(None, description="Place category")
+    tags: List[str] = Field(default_factory=list, description="Place tags")
+    score: float = Field(..., description="Search relevance score")
+    distance_km: Optional[float] = Field(
+        None, description="Distance from search location"
+    )
+
+
+class PlaceSearchResponse(BaseModel):
+    """Response schema for place search."""
+
+    places: List[ElasticsearchSearchResult] = Field(
+        default_factory=list, description="Search results"
+    )
+    total: int = Field(..., ge=0, description="Total number of matching places")
+    query: str = Field(..., description="Original search query")
+    took_ms: int = Field(..., ge=0, description="Search execution time in milliseconds")
+    source: str = Field(..., description="Search engine used")
+
+
+class ElasticsearchSuggestion(BaseModel):
+    """Elasticsearch suggestion format."""
+
+    text: str = Field(..., description="Suggestion text")
+    type: str = Field(..., description="Suggestion type")
+    category: Optional[str] = Field(None, description="Associated category")
+    address: Optional[str] = Field(None, description="Associated address")
+    score: float = Field(..., description="Suggestion relevance score")
+
+
+class SearchSuggestionResponse(BaseModel):
+    """Response schema for search suggestions."""
+
+    suggestions: List[ElasticsearchSuggestion] = Field(
+        default_factory=list, description="List of search suggestions"
+    )
+    query: str = Field(..., description="Original partial query")
+    source: str = Field(..., description="Suggestion engine used")

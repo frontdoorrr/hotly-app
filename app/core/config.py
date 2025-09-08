@@ -63,6 +63,35 @@ class Settings(BaseSettings):
         auth = f":{self.REDIS_PASSWORD}@" if self.REDIS_PASSWORD else ""
         return f"redis://{auth}{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
+    # Elasticsearch Configuration
+    ELASTICSEARCH_HOST: str = Field(
+        default="localhost", description="Elasticsearch server host"
+    )
+    ELASTICSEARCH_PORT: int = Field(default=9200, description="Elasticsearch port")
+    ELASTICSEARCH_SCHEME: str = Field(
+        default="http", description="Elasticsearch connection scheme"
+    )
+    ELASTICSEARCH_USERNAME: Optional[str] = Field(
+        default=None, description="Elasticsearch username"
+    )
+    ELASTICSEARCH_PASSWORD: Optional[str] = Field(
+        default=None, description="Elasticsearch password"
+    )
+    ELASTICSEARCH_CA_CERTS: Optional[str] = Field(
+        default=None, description="Elasticsearch CA certificates file path"
+    )
+    ELASTICSEARCH_INDEX_PREFIX: str = Field(
+        default="hotly", description="Prefix for Elasticsearch indices"
+    )
+
+    @property
+    def ELASTICSEARCH_URL(self) -> str:
+        """Assemble Elasticsearch connection URL."""
+        auth = ""
+        if self.ELASTICSEARCH_USERNAME and self.ELASTICSEARCH_PASSWORD:
+            auth = f"{self.ELASTICSEARCH_USERNAME}:{self.ELASTICSEARCH_PASSWORD}@"
+        return f"{self.ELASTICSEARCH_SCHEME}://{auth}{self.ELASTICSEARCH_HOST}:{self.ELASTICSEARCH_PORT}"
+
     # External Services
     FIREBASE_CREDENTIALS_PATH: Optional[str] = Field(
         default=None, description="Firebase service account credentials file path"
