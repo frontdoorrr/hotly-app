@@ -9,8 +9,6 @@ from datetime import datetime, timedelta
 from unittest.mock import AsyncMock, Mock, patch
 from uuid import uuid4
 
-import pytest
-
 from app.services.advanced_filter_service import AdvancedFilterService
 
 
@@ -65,8 +63,10 @@ class TestAdvancedFilterService:
         Then: 모든 필터 조건을 AND로 조합하여 정확한 결과를 반환함
         """
         # Given: 필터 서비스 초기화
-        service = AdvancedFilterService(self.mock_db, self.mock_redis, self.mock_es_manager)
-        
+        service = AdvancedFilterService(
+            self.mock_db, self.mock_redis, self.mock_es_manager
+        )
+
         filter_criteria = {
             "categories": ["cafe"],
             "regions": ["홍대", "마포구"],
@@ -75,7 +75,7 @@ class TestAdvancedFilterService:
             "visit_status": ["wishlist"],
             "rating_min": 4.0,
             "sort_by": "rating",
-            "sort_order": "desc"
+            "sort_order": "desc",
         }
 
         # Mock Elasticsearch 검색 결과
@@ -100,16 +100,10 @@ class TestAdvancedFilterService:
                 ],
             },
             "aggregations": {
-                "categories": {
-                    "buckets": [{"key": "cafe", "doc_count": 1}]
-                },
-                "regions": {
-                    "buckets": [{"key": "마포구", "doc_count": 1}]
-                },
-                "price_ranges": {
-                    "buckets": [{"key": "10000-20000", "doc_count": 1}]
-                }
-            }
+                "categories": {"buckets": [{"key": "cafe", "doc_count": 1}]},
+                "regions": {"buckets": [{"key": "마포구", "doc_count": 1}]},
+                "price_ranges": {"buckets": [{"key": "10000-20000", "doc_count": 1}]},
+            },
         }
 
         self.mock_es_manager.search.return_value = mock_es_result
@@ -119,7 +113,7 @@ class TestAdvancedFilterService:
             user_id=self.test_user_id,
             filter_criteria=filter_criteria,
             limit=20,
-            offset=0
+            offset=0,
         )
 
         # Then: 필터링된 결과 확인
@@ -144,7 +138,9 @@ class TestAdvancedFilterService:
         Then: OR 조건으로 매칭되는 모든 카테고리의 장소를 반환함
         """
         # Given: 다중 카테고리 필터 서비스
-        service = AdvancedFilterService(self.mock_db, self.mock_redis, self.mock_es_manager)
+        service = AdvancedFilterService(
+            self.mock_db, self.mock_redis, self.mock_es_manager
+        )
 
         filter_criteria = {
             "categories": ["cafe", "restaurant"],
@@ -155,18 +151,26 @@ class TestAdvancedFilterService:
             "hits": {
                 "total": {"value": 2},
                 "hits": [
-                    {"_score": 3.0, "_source": {"id": self.mock_places[0].id, "category": "cafe"}},
-                    {"_score": 2.8, "_source": {"id": self.mock_places[1].id, "category": "restaurant"}},
+                    {
+                        "_score": 3.0,
+                        "_source": {"id": self.mock_places[0].id, "category": "cafe"},
+                    },
+                    {
+                        "_score": 2.8,
+                        "_source": {
+                            "id": self.mock_places[1].id,
+                            "category": "restaurant",
+                        },
+                    },
                 ],
             }
         }
-        
+
         self.mock_es_manager.search.return_value = mock_es_result
 
         # When: 다중 카테고리 필터링
         result = await service.comprehensive_filter_search(
-            user_id=self.test_user_id,
-            filter_criteria=filter_criteria
+            user_id=self.test_user_id, filter_criteria=filter_criteria
         )
 
         # Then: 두 카테고리 모두 포함된 결과 확인
@@ -182,18 +186,19 @@ class TestAdvancedFilterService:
         Then: 지정된 가격 범위 내의 장소만 반환함
         """
         # Given: 가격대 필터 서비스
-        service = AdvancedFilterService(self.mock_db, self.mock_redis, self.mock_es_manager)
+        service = AdvancedFilterService(
+            self.mock_db, self.mock_redis, self.mock_es_manager
+        )
 
         filter_criteria = {
             "price_ranges": ["10000-30000"],
             "sort_by": "price",
-            "sort_order": "asc"
+            "sort_order": "asc",
         }
 
         # When: 가격 범위 필터링
         result = await service.comprehensive_filter_search(
-            user_id=self.test_user_id,
-            filter_criteria=filter_criteria
+            user_id=self.test_user_id, filter_criteria=filter_criteria
         )
 
         # Then: 가격 범위 내 장소만 반환 확인
@@ -207,7 +212,9 @@ class TestAdvancedFilterService:
         Then: 지정된 위치 근처의 장소만 반환함
         """
         # Given: 위치 기반 필터 서비스
-        service = AdvancedFilterService(self.mock_db, self.mock_redis, self.mock_es_manager)
+        service = AdvancedFilterService(
+            self.mock_db, self.mock_redis, self.mock_es_manager
+        )
 
         filter_criteria = {
             "location": {"lat": 37.5563, "lng": 126.9225},
@@ -236,8 +243,7 @@ class TestAdvancedFilterService:
 
         # When: 위치 기반 필터링
         result = await service.comprehensive_filter_search(
-            user_id=self.test_user_id,
-            filter_criteria=filter_criteria
+            user_id=self.test_user_id, filter_criteria=filter_criteria
         )
 
         # Then: 거리 순 정렬 및 거리 정보 포함 확인
@@ -253,19 +259,20 @@ class TestAdvancedFilterService:
         Then: 평점 조건을 만족하는 장소만 반환함
         """
         # Given: 평점 필터 서비스
-        service = AdvancedFilterService(self.mock_db, self.mock_redis, self.mock_es_manager)
+        service = AdvancedFilterService(
+            self.mock_db, self.mock_redis, self.mock_es_manager
+        )
 
         filter_criteria = {
             "rating_min": 4.5,
             "review_count_min": 10,
             "sort_by": "rating",
-            "sort_order": "desc"
+            "sort_order": "desc",
         }
 
         # When: 품질 기반 필터링
         result = await service.comprehensive_filter_search(
-            user_id=self.test_user_id,
-            filter_criteria=filter_criteria
+            user_id=self.test_user_id, filter_criteria=filter_criteria
         )
 
         # Then: 평점 조건 만족하는 장소만 반환
@@ -279,7 +286,9 @@ class TestAdvancedFilterService:
         Then: 지정된 방문 상태의 장소만 반환함
         """
         # Given: 방문 상태 필터 서비스
-        service = AdvancedFilterService(self.mock_db, self.mock_redis, self.mock_es_manager)
+        service = AdvancedFilterService(
+            self.mock_db, self.mock_redis, self.mock_es_manager
+        )
 
         filter_criteria = {
             "visit_status": ["wishlist", "planned"],
@@ -288,8 +297,7 @@ class TestAdvancedFilterService:
 
         # When: 방문 상태 필터링
         result = await service.comprehensive_filter_search(
-            user_id=self.test_user_id,
-            filter_criteria=filter_criteria
+            user_id=self.test_user_id, filter_criteria=filter_criteria
         )
 
         # Then: 지정된 방문 상태만 반환
@@ -303,7 +311,9 @@ class TestAdvancedFilterService:
         Then: 모든 태그 조건을 만족하는 장소를 반환함
         """
         # Given: 태그 필터 서비스
-        service = AdvancedFilterService(self.mock_db, self.mock_redis, self.mock_es_manager)
+        service = AdvancedFilterService(
+            self.mock_db, self.mock_redis, self.mock_es_manager
+        )
 
         filter_criteria = {
             "tags": ["조용한", "와이파이"],
@@ -312,8 +322,7 @@ class TestAdvancedFilterService:
 
         # When: 태그 기반 필터링
         result = await service.comprehensive_filter_search(
-            user_id=self.test_user_id,
-            filter_criteria=filter_criteria
+            user_id=self.test_user_id, filter_criteria=filter_criteria
         )
 
         # Then: 모든 태그를 포함하는 장소만 반환
@@ -329,7 +338,9 @@ class TestAdvancedFilterService:
         Then: 지정된 시간 범위의 장소만 반환함
         """
         # Given: 시간 기반 필터 서비스
-        service = AdvancedFilterService(self.mock_db, self.mock_redis, self.mock_es_manager)
+        service = AdvancedFilterService(
+            self.mock_db, self.mock_redis, self.mock_es_manager
+        )
 
         one_week_ago = datetime.utcnow() - timedelta(days=7)
         filter_criteria = {
@@ -339,8 +350,7 @@ class TestAdvancedFilterService:
 
         # When: 시간 기반 필터링
         result = await service.comprehensive_filter_search(
-            user_id=self.test_user_id,
-            filter_criteria=filter_criteria
+            user_id=self.test_user_id, filter_criteria=filter_criteria
         )
 
         # Then: 지정 시간 이후 생성된 장소만 반환
@@ -355,7 +365,9 @@ class TestAdvancedFilterService:
         Then: 모든 조건을 만족하는 장소만 반환함
         """
         # Given: 복합 필터 서비스
-        service = AdvancedFilterService(self.mock_db, self.mock_redis, self.mock_es_manager)
+        service = AdvancedFilterService(
+            self.mock_db, self.mock_redis, self.mock_es_manager
+        )
 
         complex_filter = {
             "categories": ["cafe"],
@@ -367,13 +379,12 @@ class TestAdvancedFilterService:
             "location": {"lat": 37.5563, "lng": 126.9225},
             "radius_km": 5.0,
             "sort_by": "rating",
-            "sort_order": "desc"
+            "sort_order": "desc",
         }
 
         # When: 복합 필터링
         result = await service.comprehensive_filter_search(
-            user_id=self.test_user_id,
-            filter_criteria=complex_filter
+            user_id=self.test_user_id, filter_criteria=complex_filter
         )
 
         # Then: 모든 조건 만족하는 장소만 반환
@@ -391,7 +402,9 @@ class TestAdvancedFilterService:
         Then: 현재 필터 상태에 맞는 패싯 옵션을 제공함
         """
         # Given: 패싯 생성 서비스
-        service = AdvancedFilterService(self.mock_db, self.mock_redis, self.mock_es_manager)
+        service = AdvancedFilterService(
+            self.mock_db, self.mock_redis, self.mock_es_manager
+        )
 
         mock_es_result = {
             "hits": {"total": {"value": 10}},
@@ -423,17 +436,15 @@ class TestAdvancedFilterService:
                         {"key": "분위기좋은", "doc_count": 5},
                         {"key": "와이파이", "doc_count": 4},
                     ]
-                }
-            }
+                },
+            },
         }
 
         self.mock_es_manager.search.return_value = mock_es_result
 
         # When: 패싯 정보 생성
         result = await service.comprehensive_filter_search(
-            user_id=self.test_user_id,
-            filter_criteria={},
-            include_facets=True
+            user_id=self.test_user_id, filter_criteria={}, include_facets=True
         )
 
         # Then: 패싯 정보 확인
@@ -462,7 +473,9 @@ class TestAdvancedFilterService:
         Then: 올바른 정렬 순서로 결과를 반환함
         """
         # Given: 정렬 테스트 서비스
-        service = AdvancedFilterService(self.mock_db, self.mock_redis, self.mock_es_manager)
+        service = AdvancedFilterService(
+            self.mock_db, self.mock_redis, self.mock_es_manager
+        )
 
         sort_options = [
             {"sort_by": "relevance", "sort_order": "desc"},
@@ -476,8 +489,7 @@ class TestAdvancedFilterService:
         for sort_option in sort_options:
             # When: 각 정렬 옵션 테스트
             result = await service.comprehensive_filter_search(
-                user_id=self.test_user_id,
-                filter_criteria=sort_option
+                user_id=self.test_user_id, filter_criteria=sort_option
             )
 
             # Then: 정렬이 적용된 결과 확인
@@ -494,7 +506,9 @@ class TestAdvancedFilterService:
         Then: 올바른 페이지네이션과 함께 필터된 결과를 반환함
         """
         # Given: 페이지네이션 테스트 서비스
-        service = AdvancedFilterService(self.mock_db, self.mock_redis, self.mock_es_manager)
+        service = AdvancedFilterService(
+            self.mock_db, self.mock_redis, self.mock_es_manager
+        )
 
         filter_criteria = {"categories": ["cafe"]}
 
@@ -503,7 +517,7 @@ class TestAdvancedFilterService:
             user_id=self.test_user_id,
             filter_criteria=filter_criteria,
             limit=10,
-            offset=0
+            offset=0,
         )
 
         # When: 두 번째 페이지
@@ -511,7 +525,7 @@ class TestAdvancedFilterService:
             user_id=self.test_user_id,
             filter_criteria=filter_criteria,
             limit=10,
-            offset=10
+            offset=10,
         )
 
         # Then: 페이지네이션 정보 확인
@@ -528,7 +542,9 @@ class TestAdvancedFilterService:
         Then: 빈 결과와 대안 제안을 반환함
         """
         # Given: 빈 결과 테스트 서비스
-        service = AdvancedFilterService(self.mock_db, self.mock_redis, self.mock_es_manager)
+        service = AdvancedFilterService(
+            self.mock_db, self.mock_redis, self.mock_es_manager
+        )
 
         # 매우 제한적인 필터 조건
         restrictive_filter = {
@@ -539,15 +555,14 @@ class TestAdvancedFilterService:
 
         mock_empty_result = {
             "hits": {"total": {"value": 0}, "hits": []},
-            "aggregations": {}
+            "aggregations": {},
         }
-        
+
         self.mock_es_manager.search.return_value = mock_empty_result
 
         # When: 빈 결과 검색
         result = await service.comprehensive_filter_search(
-            user_id=self.test_user_id,
-            filter_criteria=restrictive_filter
+            user_id=self.test_user_id, filter_criteria=restrictive_filter
         )
 
         # Then: 빈 결과 처리 확인
@@ -563,15 +578,17 @@ class TestAdvancedFilterService:
         Then: 최적화된 쿼리로 빠른 응답을 제공함
         """
         # Given: 성능 최적화 테스트 서비스
-        service = AdvancedFilterService(self.mock_db, self.mock_redis, self.mock_es_manager)
+        service = AdvancedFilterService(
+            self.mock_db, self.mock_redis, self.mock_es_manager
+        )
 
         # When: 성능 테스트 필터링
         start_time = datetime.utcnow()
-        
+
         result = await service.comprehensive_filter_search(
             user_id=self.test_user_id,
             filter_criteria={"categories": ["cafe"]},
-            optimization_mode=True
+            optimization_mode=True,
         )
 
         end_time = datetime.utcnow()
@@ -589,20 +606,21 @@ class TestAdvancedFilterService:
         Then: 캐시된 결과를 빠르게 반환함
         """
         # Given: 캐시 통합 테스트 서비스
-        service = AdvancedFilterService(self.mock_db, self.mock_redis, self.mock_es_manager)
+        service = AdvancedFilterService(
+            self.mock_db, self.mock_redis, self.mock_es_manager
+        )
 
         filter_criteria = {"categories": ["cafe"], "regions": ["마포구"]}
 
-        # Mock 캐시 키 생성
-        cache_key = service._generate_filter_cache_key(self.test_user_id, filter_criteria)
+        # Mock 캐시 키 생성 (unused but shows the intended flow)
+        _ = service._generate_filter_cache_key(self.test_user_id, filter_criteria)
 
         # 첫 번째 요청 - 캐시 미스
         self.mock_redis.get.return_value = None
 
         # When: 첫 번째 필터링 (캐시 저장)
-        result1 = await service.comprehensive_filter_search(
-            user_id=self.test_user_id,
-            filter_criteria=filter_criteria
+        _ = await service.comprehensive_filter_search(
+            user_id=self.test_user_id, filter_criteria=filter_criteria
         )
 
         # 두 번째 요청 - 캐시 히트
@@ -611,8 +629,7 @@ class TestAdvancedFilterService:
 
         # When: 두 번째 필터링 (캐시 사용)
         result2 = await service.comprehensive_filter_search(
-            user_id=self.test_user_id,
-            filter_criteria=filter_criteria
+            user_id=self.test_user_id, filter_criteria=filter_criteria
         )
 
         # Then: 캐시 사용 확인
@@ -627,27 +644,26 @@ class TestAdvancedFilterService:
         Then: PostgreSQL 기본 검색으로 fallback함
         """
         # Given: 에러 핸들링 테스트 서비스
-        service = AdvancedFilterService(self.mock_db, self.mock_redis, self.mock_es_manager)
+        service = AdvancedFilterService(
+            self.mock_db, self.mock_redis, self.mock_es_manager
+        )
 
         # Elasticsearch 에러 시뮬레이션
         self.mock_es_manager.search.side_effect = Exception("ES connection failed")
 
-        # PostgreSQL fallback 결과 Mock
-        mock_pg_results = [
-            (self.mock_places[0], 0.8),  # (place, similarity_score)
-        ]
+        # PostgreSQL fallback 결과 Mock (unused but shows expected structure)
+        # mock_pg_results = [(self.mock_places[0], 0.8)]
 
-        with patch.object(service, '_fallback_postgresql_filter') as mock_fallback:
+        with patch.object(service, "_fallback_postgresql_filter") as mock_fallback:
             mock_fallback.return_value = {
                 "places": [{"name": "홍대 감성 카페", "source": "postgresql"}],
                 "total": 1,
-                "source": "postgresql_fallback"
+                "source": "postgresql_fallback",
             }
 
             # When: 에러 상황에서 필터링
             result = await service.comprehensive_filter_search(
-                user_id=self.test_user_id,
-                filter_criteria={"categories": ["cafe"]}
+                user_id=self.test_user_id, filter_criteria={"categories": ["cafe"]}
             )
 
             # Then: PostgreSQL fallback 확인

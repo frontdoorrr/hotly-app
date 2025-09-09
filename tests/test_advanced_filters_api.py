@@ -8,15 +8,11 @@ TDD 접근법으로 API 엔드포인트의 전체 플로우 테스트
 - 성능 테스트
 """
 
-import json
-from datetime import datetime
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock, patch
 from uuid import uuid4
 
-import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
-from httpx import AsyncClient
 
 from app.main import app
 from app.models.user import User
@@ -46,10 +42,10 @@ class TestAdvancedFiltersAPI:
         """
         # Given: Mock 설정
         mock_get_user.return_value = self.test_user
-        
+
         mock_service_instance = AsyncMock()
         mock_get_service.return_value = mock_service_instance
-        
+
         # Mock 서비스 응답
         mock_filter_result = {
             "places": [
@@ -94,8 +90,10 @@ class TestAdvancedFiltersAPI:
                 "cache_hit": False,
             },
         }
-        
-        mock_service_instance.comprehensive_filter_search.return_value = mock_filter_result
+
+        mock_service_instance.comprehensive_filter_search.return_value = (
+            mock_filter_result
+        )
 
         # 요청 데이터
         request_data = {
@@ -118,14 +116,14 @@ class TestAdvancedFiltersAPI:
 
         # Then: 응답 검증
         assert response.status_code == status.HTTP_200_OK
-        
+
         response_data = response.json()
         assert "places" in response_data
         assert "pagination" in response_data
         assert "facets" in response_data
         assert "applied_filters" in response_data
         assert "query_info" in response_data
-        
+
         # 장소 정보 검증
         places = response_data["places"]
         assert len(places) == 1
@@ -133,12 +131,12 @@ class TestAdvancedFiltersAPI:
         assert place["name"] == "홍대 감성 카페"
         assert place["category"] == "cafe"
         assert place["rating"] == 4.5
-        
+
         # 패싯 정보 검증
         facets = response_data["facets"]
         assert "categories" in facets
         assert "regions" in facets
-        
+
         # 서비스 호출 검증
         mock_service_instance.comprehensive_filter_search.assert_called_once()
 
@@ -199,10 +197,10 @@ class TestAdvancedFiltersAPI:
         """
         # Given: Mock 설정
         mock_get_user.return_value = self.test_user
-        
+
         mock_service_instance = AsyncMock()
         mock_get_service.return_value = mock_service_instance
-        
+
         # Mock 패싯 응답
         mock_facet_result = {
             "places": [],
@@ -223,8 +221,10 @@ class TestAdvancedFiltersAPI:
             },
             "query_info": {"source": "elasticsearch"},
         }
-        
-        mock_service_instance.comprehensive_filter_search.return_value = mock_facet_result
+
+        mock_service_instance.comprehensive_filter_search.return_value = (
+            mock_facet_result
+        )
 
         # When: API 호출
         response = self.client.get(
@@ -234,18 +234,18 @@ class TestAdvancedFiltersAPI:
 
         # Then: 응답 검증
         assert response.status_code == status.HTTP_200_OK
-        
+
         response_data = response.json()
         assert "facets" in response_data
         assert "applied_filters" in response_data
         assert "source" in response_data
-        
+
         # 패싯 구조 검증
         facets = response_data["facets"]
         assert "categories" in facets
         assert "regions" in facets
         assert "price_ranges" in facets
-        
+
         # 카테고리 패싯 검증
         categories = facets["categories"]
         assert len(categories) >= 1
@@ -261,10 +261,10 @@ class TestAdvancedFiltersAPI:
         """
         # Given: Mock 설정
         mock_get_user.return_value = self.test_user
-        
+
         mock_service_instance = AsyncMock()
         mock_get_service.return_value = mock_service_instance
-        
+
         # Mock 제안 응답
         mock_suggestion_result = {
             "places": [],
@@ -277,8 +277,10 @@ class TestAdvancedFiltersAPI:
                 ],
             },
         }
-        
-        mock_service_instance.comprehensive_filter_search.return_value = mock_suggestion_result
+
+        mock_service_instance.comprehensive_filter_search.return_value = (
+            mock_suggestion_result
+        )
 
         # When: API 호출
         response = self.client.get(
@@ -289,17 +291,17 @@ class TestAdvancedFiltersAPI:
 
         # Then: 응답 검증
         assert response.status_code == status.HTTP_200_OK
-        
+
         response_data = response.json()
         assert "current_results" in response_data
         assert "suggestions" in response_data
         assert "applied_filters" in response_data
-        
+
         # 제안 내용 검증
         suggestions = response_data["suggestions"]
         assert "message" in suggestions
         assert "alternative_filters" in suggestions
-        
+
         assert response_data["current_results"] == 2
 
     @patch("app.api.deps.get_current_active_user")
@@ -332,7 +334,7 @@ class TestAdvancedFiltersAPI:
 
         # Then: 응답 검증
         assert response.status_code == status.HTTP_201_CREATED
-        
+
         response_data = response.json()
         assert "id" in response_data
         assert response_data["name"] == "홍대 카페 즐겨찾기"
@@ -358,7 +360,7 @@ class TestAdvancedFiltersAPI:
 
         # Then: 응답 검증
         assert response.status_code == status.HTTP_200_OK
-        
+
         response_data = response.json()
         assert isinstance(response_data, list)
 
@@ -381,13 +383,13 @@ class TestAdvancedFiltersAPI:
 
         # Then: 응답 검증
         assert response.status_code == status.HTTP_200_OK
-        
+
         response_data = response.json()
         assert "popular_filters" in response_data
         assert "filter_effectiveness" in response_data
         assert "user_behavior" in response_data
         assert "performance_stats" in response_data
-        
+
         # 분석 데이터 구조 검증
         assert isinstance(response_data["popular_filters"], list)
         assert isinstance(response_data["filter_effectiveness"], dict)
@@ -403,10 +405,10 @@ class TestAdvancedFiltersAPI:
         """
         # Given: Mock 설정
         mock_get_user.return_value = self.test_user
-        
+
         mock_service_instance = AsyncMock()
         mock_get_service.return_value = mock_service_instance
-        
+
         # Mock 복합 필터 응답
         mock_complex_result = {
             "places": [
@@ -435,8 +437,10 @@ class TestAdvancedFiltersAPI:
             },
             "query_info": {"source": "elasticsearch"},
         }
-        
-        mock_service_instance.comprehensive_filter_search.return_value = mock_complex_result
+
+        mock_service_instance.comprehensive_filter_search.return_value = (
+            mock_complex_result
+        )
 
         # 복합 필터 요청
         complex_request = {
@@ -460,11 +464,11 @@ class TestAdvancedFiltersAPI:
 
         # Then: 응답 검증
         assert response.status_code == status.HTTP_200_OK
-        
+
         response_data = response.json()
         places = response_data["places"]
         assert len(places) == 1
-        
+
         place = places[0]
         assert place["category"] == "cafe"
         assert "조용한" in place["tags"]
@@ -484,10 +488,10 @@ class TestAdvancedFiltersAPI:
         """
         # Given: Mock 설정
         mock_get_user.return_value = self.test_user
-        
+
         mock_service_instance = AsyncMock()
         mock_get_service.return_value = mock_service_instance
-        
+
         # Mock 빈 결과 응답
         mock_empty_result = {
             "places": [],
@@ -502,8 +506,10 @@ class TestAdvancedFiltersAPI:
             "applied_filters": {"rating_min": 5.0},
             "query_info": {"source": "elasticsearch"},
         }
-        
-        mock_service_instance.comprehensive_filter_search.return_value = mock_empty_result
+
+        mock_service_instance.comprehensive_filter_search.return_value = (
+            mock_empty_result
+        )
 
         # 제한적인 필터 요청
         restrictive_request = {
@@ -521,12 +527,12 @@ class TestAdvancedFiltersAPI:
 
         # Then: 응답 검증
         assert response.status_code == status.HTTP_200_OK
-        
+
         response_data = response.json()
         assert response_data["pagination"]["total"] == 0
         assert len(response_data["places"]) == 0
         assert "suggestions" in response_data
-        
+
         suggestions = response_data["suggestions"]
         assert suggestions["message"] == "검색 조건을 완화해보세요"
         assert len(suggestions["alternative_filters"]) > 0
@@ -541,10 +547,10 @@ class TestAdvancedFiltersAPI:
         """
         # Given: Mock 설정
         mock_get_user.return_value = self.test_user
-        
+
         mock_service_instance = AsyncMock()
         mock_get_service.return_value = mock_service_instance
-        
+
         # Mock 성능 정보가 포함된 응답
         mock_perf_result = {
             "places": [],
@@ -559,8 +565,10 @@ class TestAdvancedFiltersAPI:
             "applied_filters": {"categories": ["cafe"]},
             "query_info": {"source": "elasticsearch"},
         }
-        
-        mock_service_instance.comprehensive_filter_search.return_value = mock_perf_result
+
+        mock_service_instance.comprehensive_filter_search.return_value = (
+            mock_perf_result
+        )
 
         # When: API 호출
         response = self.client.post(
@@ -571,10 +579,10 @@ class TestAdvancedFiltersAPI:
 
         # Then: 성능 메트릭 확인
         assert response.status_code == status.HTTP_200_OK
-        
+
         response_data = response.json()
         assert "performance" in response_data
-        
+
         performance = response_data["performance"]
         assert "total_time_ms" in performance
         assert "cache_hit" in performance
@@ -591,10 +599,10 @@ class TestAdvancedFiltersAPI:
         """
         # Given: Mock 설정
         mock_get_user.return_value = self.test_user
-        
+
         mock_service_instance = AsyncMock()
         mock_get_service.return_value = mock_service_instance
-        
+
         # Mock 페이지네이션 응답
         mock_page_result = {
             "places": [{"id": f"place-{i}", "name": f"Place {i}"} for i in range(10)],
@@ -609,8 +617,10 @@ class TestAdvancedFiltersAPI:
             "applied_filters": {"categories": ["cafe"]},
             "query_info": {"source": "elasticsearch"},
         }
-        
-        mock_service_instance.comprehensive_filter_search.return_value = mock_page_result
+
+        mock_service_instance.comprehensive_filter_search.return_value = (
+            mock_page_result
+        )
 
         # 페이지네이션 요청
         page_request = {
@@ -628,14 +638,14 @@ class TestAdvancedFiltersAPI:
 
         # Then: 페이지네이션 확인
         assert response.status_code == status.HTTP_200_OK
-        
+
         response_data = response.json()
         pagination = response_data["pagination"]
-        
+
         assert pagination["total"] == 45
         assert pagination["limit"] == 10
         assert pagination["offset"] == 20
         assert pagination["has_next"] is True
         assert pagination["has_previous"] is True
-        
+
         assert len(response_data["places"]) == 10

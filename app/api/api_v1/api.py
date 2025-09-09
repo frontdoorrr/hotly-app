@@ -16,6 +16,7 @@ from app.api.api_v1.endpoints import (
     preference_setup,
     preferences,
     search,
+    search_ranking,
 )
 
 api_router = APIRouter()
@@ -43,4 +44,7 @@ api_router.include_router(
 )
 api_router.include_router(
     advanced_filters.router, prefix="/filters", tags=["advanced-filters"]
+)
+api_router.include_router(
+    search_ranking.router, prefix="/ranking", tags=["search-ranking"]
 )

@@ -214,7 +214,9 @@ class ExperimentManager:
         """Determine if user should be included in experiment."""
         try:
             # Check traffic allocation
-            user_hash = int(hashlib.md5(user_id.encode()).hexdigest()[:8], 16)
+            user_hash = int(
+                hashlib.md5(user_id.encode(), usedforsecurity=False).hexdigest()[:8], 16
+            )  # nosec
             traffic_threshold = int(experiment["traffic_allocation"] * (2**32))
             if user_hash >= traffic_threshold:
                 return False
@@ -249,7 +251,10 @@ class ExperimentManager:
 
             # Create consistent hash
             hash_input = f"{user_id}:{experiment['id']}"
-            hash_value = int(hashlib.md5(hash_input.encode()).hexdigest()[:8], 16)
+            hash_value = int(
+                hashlib.md5(hash_input.encode(), usedforsecurity=False).hexdigest()[:8],
+                16,
+            )  # nosec
 
             # Determine variant based on allocation
             cumulative_allocation = 0.0
@@ -566,7 +571,7 @@ class ABTestAnalyzer:
                         "decision", "inconclusive"
                     ),
                     "key_findings": [
-                        f"Primary metric showed {results.get('metrics', {}).get('completion_rate', {}).get('statistical_significance', {}).get('relative_lift', 0)*100:.1f}% change",
+                        f"Primary metric showed {results.get('metrics', {}).get('completion_rate', {}).get('statistical_significance', {}).get('relative_lift', 0) * 100:.1f}% change",
                         f"Statistical significance achieved (p={results.get('metrics', {}).get('completion_rate', {}).get('statistical_significance', {}).get('p_value', 1):.3f})",
                         f"Sample size: {sum(results.get('sample_size', {}).values())} users",
                     ],
