@@ -3,6 +3,7 @@
 from fastapi import APIRouter
 
 from app.api.api_v1.endpoints import (
+    advanced_filters,
     ai,
     autocomplete,
     content,
@@ -39,4 +40,7 @@ api_router.include_router(
 api_router.include_router(search.router, prefix="/search", tags=["search"])
 api_router.include_router(
     autocomplete.router, prefix="/autocomplete", tags=["autocomplete"]
+)
+api_router.include_router(
+    advanced_filters.router, prefix="/filters", tags=["advanced-filters"]
 )
