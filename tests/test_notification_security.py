@@ -16,7 +16,7 @@ from app.core.security import create_access_token
 class TestNotificationSecurity:
     """알림 시스템 보안 테스트"""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """테스트 설정"""
         self.test_user_id = str(uuid4())
         self.other_user_id = str(uuid4())

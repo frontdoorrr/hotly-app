@@ -14,7 +14,7 @@ from app.services.personalized_content_engine import PersonalizedContentEngine
 class TestPersonalizedContentEngine:
     """Test suite for personalized content engine."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test dependencies."""
         self.test_user_id = str(uuid4())
 

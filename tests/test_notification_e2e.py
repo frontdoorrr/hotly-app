@@ -14,7 +14,7 @@ from fastapi.testclient import TestClient
 class TestNotificationE2E:
     """알림 시스템 End-to-End 테스트"""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """E2E 테스트 설정"""
         self.test_users = [
             {"id": str(uuid4()), "name": "김철수", "email": "kim@example.com"},

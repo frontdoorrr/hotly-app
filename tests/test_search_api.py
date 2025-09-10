@@ -17,7 +17,7 @@ from app.main import app
 class TestSearchAPI:
     """검색 API 엔드포인트 테스트"""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """테스트 설정"""
         self.client = TestClient(app)
         self.test_user_id = uuid4()

@@ -19,7 +19,7 @@ from app.services.search_ranking_service import SearchRankingService
 class TestSearchRankingService:
     """검색 랭킹 서비스 테스트"""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """테스트 설정"""
         self.test_user_id = uuid4()
         self.mock_db = Mock()
@@ -98,7 +98,7 @@ class TestSearchRankingService:
             ),
         ]
 
-    async def test_personalized_ranking_basic(self):
+    async def test_personalized_ranking_basic(self) -> None:
         """
         Given: 기본 검색 결과와 사용자 프로필
         When: 개인화된 랭킹을 수행함
@@ -135,7 +135,7 @@ class TestSearchRankingService:
             top_result = ranked_results[0]
             assert top_result["category"] == "cafe"
 
-    async def test_ml_based_scoring(self):
+    async def test_ml_based_scoring(self) -> None:
         """
         Given: ML 엔진과 특성 벡터
         When: ML 기반 스코어링을 수행함
@@ -173,7 +173,7 @@ class TestSearchRankingService:
         # ML 엔진 호출 검증
         self.mock_ml_engine.predict_relevance.assert_called_once()
 
-    async def test_user_behavior_personalization(self):
+    async def test_user_behavior_personalization(self) -> None:
         """
         Given: 사용자 행동 데이터와 상호작용 히스토리
         When: 행동 기반 개인화를 적용함
@@ -227,7 +227,7 @@ class TestSearchRankingService:
 
             assert restaurant_score > cafe_score > bar_score
 
-    async def test_contextual_ranking_adjustment(self):
+    async def test_contextual_ranking_adjustment(self) -> None:
         """
         Given: 검색 컨텍스트 (시간, 위치, 날씨 등)
         When: 컨텍스트 기반 랭킹 조정을 수행함
@@ -282,7 +282,7 @@ class TestSearchRankingService:
             assert len(contextual_scores) == 3
             assert all(score >= 0.5 for score in contextual_scores.values())
 
-    async def test_real_time_ranking_updates(self):
+    async def test_real_time_ranking_updates(self) -> None:
         """
         Given: 실시간 사용자 피드백 (클릭, 북마크, 방문)
         When: 실시간 랭킹 업데이트를 수행함
@@ -321,7 +321,7 @@ class TestSearchRankingService:
         # 캐시 무효화 검증
         self.mock_redis.delete.assert_called()
 
-    async def test_ranking_performance_optimization(self):
+    async def test_ranking_performance_optimization(self) -> None:
         """
         Given: 대량의 검색 결과 (1000개)
         When: 성능 최적화된 랭킹을 수행함
@@ -368,7 +368,7 @@ class TestSearchRankingService:
         assert len(ranked_results) <= 50  # 제한된 결과 수
         assert all("final_rank_score" in result for result in ranked_results)
 
-    async def test_ranking_cache_integration(self):
+    async def test_ranking_cache_integration(self) -> None:
         """
         Given: 랭킹 결과 캐싱 설정
         When: 동일한 조건의 랭킹을 반복 요청함
@@ -402,7 +402,7 @@ class TestSearchRankingService:
         self.mock_redis.set.assert_called()  # 첫 요청에서 캐시 저장
         assert self.mock_redis.get.call_count == 2  # 두 요청 모두 캐시 조회
 
-    async def test_ranking_factors_explanation(self):
+    async def test_ranking_factors_explanation(self) -> None:
         """
         Given: 랭킹된 검색 결과
         When: 랭킹 요인 설명을 요청함
@@ -441,7 +441,7 @@ class TestSearchRankingService:
                 assert isinstance(factors["explanation"], str)
                 assert len(factors["explanation"]) > 0
 
-    async def test_a_b_testing_ranking_variants(self):
+    async def test_a_b_testing_ranking_variants(self) -> None:
         """
         Given: A/B 테스트 랭킹 변형들
         When: 사용자별로 다른 랭킹 알고리즘을 적용함
@@ -485,7 +485,7 @@ class TestSearchRankingService:
         # 두 변형의 결과가 다를 가능성이 높음 (완전히 같을 수도 있지만 드문 경우)
         assert len(control_order) == len(test_order)
 
-    async def test_ranking_feedback_learning(self):
+    async def test_ranking_feedback_learning(self) -> None:
         """
         Given: 사용자 피드백 데이터 누적
         When: 피드백 기반 학습을 수행함
@@ -522,7 +522,7 @@ class TestSearchRankingService:
             self.test_user_id, feedback_data[0]
         )
 
-    async def test_ranking_error_handling_and_fallback(self):
+    async def test_ranking_error_handling_and_fallback(self) -> None:
         """
         Given: ML 엔진 또는 외부 서비스 장애
         When: 랭킹을 시도함
@@ -553,7 +553,7 @@ class TestSearchRankingService:
         # fallback 사용 표시 확인
         assert ranked_results[0].get("ranking_source") == "fallback_algorithm"
 
-    async def test_ranking_diversity_injection(self):
+    async def test_ranking_diversity_injection(self) -> None:
         """
         Given: 유사한 검색 결과들
         When: 다양성 주입 랭킹을 수행함

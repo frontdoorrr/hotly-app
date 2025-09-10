@@ -719,7 +719,7 @@ class TestNotificationAPIEndpoints:
 class TestNotificationSettingsAPI:
     """Test suite for notification settings API endpoints (Task 2-2-4)."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test client and mocks."""
         self.client = TestClient(app)
         self.test_user_id = "test_user_123"

@@ -16,7 +16,7 @@ from app.services.search_service import SearchService
 class TestElasticsearchSearchIndex:
     """Elasticsearch 검색 인덱스 테스트"""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """테스트 데이터 준비"""
         self.test_user_id = uuid4()
         self.test_places = [
@@ -48,7 +48,7 @@ class TestElasticsearchSearchIndex:
             },
         ]
 
-    async def test_elasticsearch_connection_and_health(self):
+    async def test_elasticsearch_connection_and_health(self) -> None:
         """
         Given: Elasticsearch 연결 설정
         When: 연결 상태를 확인함
@@ -71,7 +71,7 @@ class TestElasticsearchSearchIndex:
             assert health["cluster_name"] == "hotly-cluster"
             assert health["number_of_nodes"] >= 1
 
-    async def test_search_index_initialization(self):
+    async def test_search_index_initialization(self) -> None:
         """
         Given: 검색 인덱스 스키마
         When: 인덱스 초기화를 실행함
@@ -99,7 +99,7 @@ class TestElasticsearchSearchIndex:
             assert "users" in index_names
             assert "suggestions" in index_names
 
-    async def test_korean_analyzer_configuration(self):
+    async def test_korean_analyzer_configuration(self) -> None:
         """
         Given: 한국어 텍스트 분석기 설정
         When: 한국어 텍스트를 분석함
@@ -131,7 +131,7 @@ class TestElasticsearchSearchIndex:
             assert any("홍익대학교" in token["token"] for token in tokens)
             assert any("카페" in token["token"] for token in tokens)
 
-    async def test_place_document_indexing(self):
+    async def test_place_document_indexing(self) -> None:
         """
         Given: 장소 데이터
         When: Elasticsearch에 인덱싱함
@@ -170,7 +170,7 @@ class TestElasticsearchSearchIndex:
             assert document["location"]["lon"] == 126.9225
             assert "홍대" in document["search_keywords"]
 
-    async def test_elasticsearch_place_search_basic(self):
+    async def test_elasticsearch_place_search_basic(self) -> None:
         """
         Given: 인덱싱된 장소 데이터
         When: 기본 텍스트 검색을 수행함
@@ -215,7 +215,7 @@ class TestElasticsearchSearchIndex:
             assert results["places"][0]["score"] == 2.5
             assert results["source"] == "elasticsearch"
 
-    async def test_elasticsearch_geographic_search(self):
+    async def test_elasticsearch_geographic_search(self) -> None:
         """
         Given: 위치 정보가 있는 장소 데이터
         When: 지리적 검색을 수행함
@@ -255,7 +255,7 @@ class TestElasticsearchSearchIndex:
             assert place["distance_km"] == 1.2
             assert "location" in place
 
-    async def test_elasticsearch_category_filtering(self):
+    async def test_elasticsearch_category_filtering(self) -> None:
         """
         Given: 다양한 카테고리의 장소 데이터
         When: 카테고리로 필터링하여 검색함
@@ -288,7 +288,7 @@ class TestElasticsearchSearchIndex:
             assert results["total"] == 1
             assert results["places"][0]["category"] == "cafe"
 
-    async def test_elasticsearch_tag_filtering(self):
+    async def test_elasticsearch_tag_filtering(self) -> None:
         """
         Given: 태그가 있는 장소 데이터
         When: 태그로 필터링하여 검색함
@@ -323,7 +323,7 @@ class TestElasticsearchSearchIndex:
             assert "홍대" in place["tags"]
             assert "카페" in place["tags"]
 
-    async def test_elasticsearch_search_suggestions(self):
+    async def test_elasticsearch_search_suggestions(self) -> None:
         """
         Given: 인덱싱된 장소 데이터
         When: 자동완성 제안을 요청함
@@ -368,7 +368,7 @@ class TestElasticsearchSearchIndex:
             assert suggestions[0]["type"] == "place"
             assert suggestions[0]["score"] == 3.0
 
-    async def test_elasticsearch_fuzzy_search(self):
+    async def test_elasticsearch_fuzzy_search(self) -> None:
         """
         Given: 오타가 포함된 검색어
         When: 퍼지 매칭으로 검색함
@@ -399,7 +399,7 @@ class TestElasticsearchSearchIndex:
             assert results["places"][0]["name"] == "홍대 맛집 카페"
             assert results["places"][0]["score"] > 0  # 매칭되었지만 스코어는 낮음
 
-    async def test_elasticsearch_fallback_to_postgresql(self):
+    async def test_elasticsearch_fallback_to_postgresql(self) -> None:
         """
         Given: Elasticsearch 서비스 장애
         When: 검색을 시도함
@@ -432,7 +432,7 @@ class TestElasticsearchSearchIndex:
                 assert len(results["places"]) == 1
                 assert results["places"][0]["place"].name == "홍대 맛집 카페"
 
-    async def test_search_performance_and_timeout(self):
+    async def test_search_performance_and_timeout(self) -> None:
         """
         Given: 대량의 검색 요청
         When: 성능 임계값을 확인함
@@ -465,7 +465,7 @@ class TestElasticsearchSearchIndex:
             assert response_time_ms <= 500  # 전체 응답 시간 500ms 이내
             assert results["timed_out"] is False
 
-    async def test_bulk_place_indexing(self):
+    async def test_bulk_place_indexing(self) -> None:
         """
         Given: 여러 장소 데이터
         When: 대량 인덱싱을 수행함
@@ -499,7 +499,7 @@ class TestElasticsearchSearchIndex:
             assert result["failed"] == 0
             mock_bulk.assert_called_once()
 
-    async def test_search_analytics_and_monitoring(self):
+    async def test_search_analytics_and_monitoring(self) -> None:
         """
         Given: 검색 서비스 운영 중
         When: 분석 데이터를 수집함

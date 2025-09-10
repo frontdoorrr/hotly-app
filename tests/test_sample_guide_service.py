@@ -14,7 +14,7 @@ from app.services.sample_guide_service import (
 class TestSamplePlacesService:
     """Test sample places service functionality."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Set up test environment."""
         self.db_mock = Mock()
         self.service = SamplePlacesService(self.db_mock)
@@ -167,7 +167,7 @@ class TestSamplePlacesService:
 class TestGuideService:
     """Test guide service functionality."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Set up test environment."""
         self.service = GuideService()
 
@@ -288,7 +288,7 @@ class TestGuideService:
 class TestFirstCourseGuideService:
     """Test first course guide service functionality."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Set up test environment."""
         self.service = FirstCourseGuideService()
 

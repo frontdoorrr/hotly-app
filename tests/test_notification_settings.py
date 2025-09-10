@@ -425,7 +425,7 @@ class TestNotificationSettingsService:
 class TestNotificationSettingsIntegration:
     """Integration tests for notification settings functionality."""
 
-    async def test_settings_creation_to_notification_filtering_flow(self):
+    async def test_settings_creation_to_notification_filtering_flow(self) -> None:
         """
         Given: 새 사용자가 알림 설정을 생성함
         When: 실제 알림 전송 시 설정이 적용됨
@@ -502,7 +502,7 @@ class TestNotificationSettingsIntegration:
         )
         assert settings_model.is_notification_allowed("weather", quiet_time) is False
 
-    async def test_personalization_settings_affect_frequency_limits(self):
+    async def test_personalization_settings_affect_frequency_limits(self) -> None:
         """
         Given: 개인화 설정에서 빈도 제한을 설정함
         When: 알림 빈도를 체크함

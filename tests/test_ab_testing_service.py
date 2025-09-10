@@ -20,7 +20,7 @@ from app.services.ab_testing_service import ABTestingService
 class TestABTestingService:
     """Test suite for A/B testing service."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test dependencies."""
         self.test_user_id = str(uuid4())
         self.test_name = "notification_timing_test"

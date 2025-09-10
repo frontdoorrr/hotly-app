@@ -15,7 +15,7 @@ from app.services.advanced_filter_service import AdvancedFilterService
 class TestAdvancedFilterService:
     """고급 필터링 서비스 테스트"""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """테스트 설정"""
         self.test_user_id = uuid4()
         self.mock_db = Mock()
@@ -56,7 +56,7 @@ class TestAdvancedFilterService:
             ),
         ]
 
-    async def test_comprehensive_filter_search_basic(self):
+    async def test_comprehensive_filter_search_basic(self) -> None:
         """
         Given: 기본 필터 조건들
         When: 종합 필터 검색을 수행함
@@ -131,7 +131,7 @@ class TestAdvancedFilterService:
         assert "regions" in result["facets"]
         assert "price_ranges" in result["facets"]
 
-    async def test_multi_category_filter(self):
+    async def test_multi_category_filter(self) -> None:
         """
         Given: 여러 카테고리 필터 조건
         When: 다중 카테고리 필터링을 수행함
@@ -179,7 +179,7 @@ class TestAdvancedFilterService:
         assert "cafe" in categories_found
         assert "restaurant" in categories_found
 
-    async def test_price_range_filter(self):
+    async def test_price_range_filter(self) -> None:
         """
         Given: 가격대 필터 조건
         When: 가격 범위 필터링을 수행함
@@ -205,7 +205,7 @@ class TestAdvancedFilterService:
         for place in result["places"]:
             assert 10000 <= place.get("price_range", 0) <= 30000
 
-    async def test_location_based_filter(self):
+    async def test_location_based_filter(self) -> None:
         """
         Given: 위치 기반 필터 조건 (거리, 지역)
         When: 지리적 필터링을 수행함
@@ -252,7 +252,7 @@ class TestAdvancedFilterService:
             assert "distance_km" in place
             assert place["distance_km"] <= 2.0
 
-    async def test_rating_and_review_filter(self):
+    async def test_rating_and_review_filter(self) -> None:
         """
         Given: 평점 및 리뷰 기반 필터 조건
         When: 품질 기반 필터링을 수행함
@@ -279,7 +279,7 @@ class TestAdvancedFilterService:
         for place in result["places"]:
             assert place.get("rating", 0) >= 4.5
 
-    async def test_visit_status_filter(self):
+    async def test_visit_status_filter(self) -> None:
         """
         Given: 방문 상태 필터 조건
         When: 방문 상태별 필터링을 수행함
@@ -304,7 +304,7 @@ class TestAdvancedFilterService:
         for place in result["places"]:
             assert place.get("visit_status") in ["wishlist", "planned"]
 
-    async def test_tag_based_filter(self):
+    async def test_tag_based_filter(self) -> None:
         """
         Given: 태그 기반 필터 조건
         When: 태그 조합 필터링을 수행함
@@ -331,7 +331,7 @@ class TestAdvancedFilterService:
             assert "조용한" in place_tags
             assert "와이파이" in place_tags
 
-    async def test_time_based_filter(self):
+    async def test_time_based_filter(self) -> None:
         """
         Given: 시간 기반 필터 조건
         When: 생성/수정 시간 필터링을 수행함
@@ -358,7 +358,7 @@ class TestAdvancedFilterService:
             created_date = datetime.fromisoformat(place["created_at"])
             assert created_date >= one_week_ago
 
-    async def test_complex_filter_combination(self):
+    async def test_complex_filter_combination(self) -> None:
         """
         Given: 복합 필터 조건들 (카테고리 + 태그 + 가격 + 위치)
         When: 복합 필터링을 수행함
@@ -395,7 +395,7 @@ class TestAdvancedFilterService:
             assert place.get("rating", 0) >= 4.0
             assert place.get("visit_status") == "wishlist"
 
-    async def test_filter_facets_generation(self):
+    async def test_filter_facets_generation(self) -> None:
         """
         Given: 필터링 결과
         When: 패싯 정보를 생성함
@@ -466,7 +466,7 @@ class TestAdvancedFilterService:
         assert regions[0]["name"] == "마포구"
         assert regions[0]["count"] == 4
 
-    async def test_sort_options(self):
+    async def test_sort_options(self) -> None:
         """
         Given: 다양한 정렬 조건
         When: 정렬 옵션별 검색을 수행함
@@ -499,7 +499,7 @@ class TestAdvancedFilterService:
                 for place in result["places"]:
                     assert "distance_km" in place
 
-    async def test_pagination_with_filters(self):
+    async def test_pagination_with_filters(self) -> None:
         """
         Given: 페이지네이션과 필터 조건
         When: 페이지별 필터링을 수행함
@@ -535,7 +535,7 @@ class TestAdvancedFilterService:
         assert page1["pagination"]["offset"] == 0
         assert page2["pagination"]["offset"] == 10
 
-    async def test_empty_results_handling(self):
+    async def test_empty_results_handling(self) -> None:
         """
         Given: 조건에 맞는 결과가 없는 필터
         When: 빈 결과 검색을 수행함
@@ -571,7 +571,7 @@ class TestAdvancedFilterService:
         assert "suggestions" in result  # 대안 제안 제공
         assert result["suggestions"]["message"] == "검색 조건을 완화해보세요"
 
-    async def test_performance_optimization(self):
+    async def test_performance_optimization(self) -> None:
         """
         Given: 성능 최적화 설정
         When: 대용량 데이터에서 필터링을 수행함
@@ -599,7 +599,7 @@ class TestAdvancedFilterService:
         assert response_time < 3000  # 3초 이내 응답
         assert result["performance"]["optimized"] is True
 
-    async def test_filter_cache_integration(self):
+    async def test_filter_cache_integration(self) -> None:
         """
         Given: 필터 결과 캐싱 설정
         When: 동일한 필터를 반복 요청함
@@ -637,7 +637,7 @@ class TestAdvancedFilterService:
         self.mock_redis.set.assert_called()  # 첫 번째 요청에서 캐시 저장
         self.mock_redis.get.assert_called()  # 두 번째 요청에서 캐시 조회
 
-    async def test_error_handling_and_fallback(self):
+    async def test_error_handling_and_fallback(self) -> None:
         """
         Given: Elasticsearch 장애 상황
         When: 필터링을 시도함

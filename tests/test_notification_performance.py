@@ -18,7 +18,7 @@ from app.services.fcm_service import FCMService
 class TestNotificationPerformance:
     """알림 시스템 성능 테스트"""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """테스트 설정"""
         self.test_user_ids = [str(uuid4()) for _ in range(1000)]
 
@@ -107,7 +107,7 @@ class TestNotificationPerformance:
             assert data["success_count"] == 1000
             assert data["failure_count"] == 0
 
-    async def test_notification_queue_performance(self):
+    async def test_notification_queue_performance(self) -> None:
         """
         Given: 대량의 예약 알림
         When: 큐 처리 성능 테스트
@@ -192,7 +192,7 @@ class TestNotificationPerformance:
 class TestNotificationNetworkResilience:
     """알림 시스템 네트워크 복원력 테스트"""
 
-    async def test_fcm_service_timeout_handling(self):
+    async def test_fcm_service_timeout_handling(self) -> None:
         """
         Given: FCM 서비스 타임아웃 상황
         When: 알림 전송 시도
@@ -213,7 +213,7 @@ class TestNotificationNetworkResilience:
             assert result["status"] == "failed"
             assert "timeout" in result["error"].lower()
 
-    async def test_fcm_rate_limiting_handling(self):
+    async def test_fcm_rate_limiting_handling(self) -> None:
         """
         Given: FCM 레이트 리미팅 응답 (429)
         When: 알림 전송 시도
@@ -278,7 +278,7 @@ class TestNotificationNetworkResilience:
                 data = response.json()
                 assert data["status"] == "queued_for_retry"
 
-    async def test_partial_fcm_batch_failure_handling(self):
+    async def test_partial_fcm_batch_failure_handling(self) -> None:
         """
         Given: FCM 배치 전송 중 일부 실패
         When: 대량 알림 전송
@@ -313,7 +313,7 @@ class TestNotificationNetworkResilience:
             assert len(result["failed_tokens"]) == 1
             assert "token2" in result["failed_tokens"]
 
-    async def test_fcm_service_circuit_breaker(self):
+    async def test_fcm_service_circuit_breaker(self) -> None:
         """
         Given: FCM 서비스 연속 실패
         When: Circuit Breaker 임계값 초과
@@ -356,7 +356,7 @@ class TestNotificationNetworkResilience:
 class TestNotificationDatabasePerformance:
     """알림 시스템 데이터베이스 성능 테스트"""
 
-    async def test_notification_log_insertion_performance(self):
+    async def test_notification_log_insertion_performance(self) -> None:
         """
         Given: 대량의 알림 로그
         When: 데이터베이스 삽입 성능 테스트
@@ -397,7 +397,7 @@ class TestNotificationDatabasePerformance:
                 # Then: 초당 1000개 이상 처리
                 assert throughput >= 1000
 
-    async def test_notification_analytics_query_performance(self):
+    async def test_notification_analytics_query_performance(self) -> None:
         """
         Given: 대량의 알림 히스토리 데이터
         When: 분석 쿼리 실행
@@ -439,7 +439,7 @@ class TestNotificationDatabasePerformance:
                 assert query_time < 2.0
                 assert report["processing_time"] == "fast"
 
-    async def test_notification_index_performance(self):
+    async def test_notification_index_performance(self) -> None:
         """
         Given: 대량의 알림 데이터와 인덱스
         When: 사용자별 알림 조회

@@ -25,7 +25,7 @@ from app.schemas.notification_analytics import (
 class TestNotificationAnalyticsService:
     """Test suite for notification analytics service (Task 2-2-5)."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test dependencies."""
         self.test_user_id = str(uuid4())
         self.test_notification_id = str(uuid4())

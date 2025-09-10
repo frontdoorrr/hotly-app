@@ -15,7 +15,7 @@ from app.services.autocomplete_service import AutocompleteService
 class TestAutocompleteService:
     """자동완성 서비스 테스트"""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """테스트 설정"""
         self.test_user_id = uuid4()
         self.mock_db = Mock()
@@ -43,7 +43,7 @@ class TestAutocompleteService:
             ),
         ]
 
-    async def test_get_comprehensive_suggestions_basic(self):
+    async def test_get_comprehensive_suggestions_basic(self) -> None:
         """
         Given: 기본 자동완성 요청
         When: 종합 제안을 요청함
@@ -124,7 +124,7 @@ class TestAutocompleteService:
                         assert suggestions[0]["text"] == "홍대 맛집"
                         assert suggestions[0]["score"] == 3.0
 
-    async def test_get_personalized_suggestions(self):
+    async def test_get_personalized_suggestions(self) -> None:
         """
         Given: 사용자의 개인 검색 기록과 저장된 장소
         When: 개인화 제안을 요청함
@@ -183,7 +183,7 @@ class TestAutocompleteService:
         assert user_place_suggestions[0]["text"] == "홍대 맛집 카페"
         assert user_place_suggestions[0]["category"] == "cafe"
 
-    async def test_get_trending_suggestions(self):
+    async def test_get_trending_suggestions(self) -> None:
         """
         Given: Redis의 트렌딩 검색어 데이터
         When: 트렌딩 제안을 요청함
@@ -210,7 +210,7 @@ class TestAutocompleteService:
         assert suggestions[0]["score"] == 25.0 * 1.5  # trend_score * weight
         assert suggestions[0]["metadata"]["source"] == "trending"
 
-    async def test_get_popular_suggestions_with_category_filter(self):
+    async def test_get_popular_suggestions_with_category_filter(self) -> None:
         """
         Given: 카테고리 필터가 있는 인기 제안 요청
         When: 특정 카테고리로 인기 제안을 요청함
@@ -245,7 +245,7 @@ class TestAutocompleteService:
             suggestions[0]["score"] == 1.8 + 15 * 0.1
         )  # base_score + search_count * multiplier
 
-    async def test_get_elasticsearch_suggestions(self):
+    async def test_get_elasticsearch_suggestions(self) -> None:
         """
         Given: Elasticsearch completion suggester
         When: Elasticsearch 기반 제안을 요청함
@@ -286,7 +286,7 @@ class TestAutocompleteService:
             assert suggestions[0]["score"] == 3.5 * 1.2  # es_score * weight
             assert suggestions[1]["text"] == "홍대 데이트 카페"
 
-    async def test_ranking_and_deduplication(self):
+    async def test_ranking_and_deduplication(self) -> None:
         """
         Given: 중복된 제안과 다양한 점수의 제안들
         When: 순위 매기기 및 중복 제거를 수행함
@@ -319,7 +319,7 @@ class TestAutocompleteService:
         assert len(cafe_suggestions) == 1
         assert cafe_suggestions[0]["score"] >= 2.5  # 더 높은 점수 보존
 
-    async def test_categorize_suggestions(self):
+    async def test_categorize_suggestions(self) -> None:
         """
         Given: 다양한 타입의 제안들
         When: 카테고리별 분류를 수행함
@@ -349,7 +349,7 @@ class TestAutocompleteService:
         assert len(result["popular"]) == 1
         assert len(result["places"]) == 1  # category가 있는 항목
 
-    async def test_search_query_logging(self):
+    async def test_search_query_logging(self) -> None:
         """
         Given: 검색 쿼리
         When: 검색 로그를 기록함
@@ -381,7 +381,7 @@ class TestAutocompleteService:
         # 트렌딩 검색어 업데이트 확인
         self.mock_redis.zincrby.assert_called_once_with(trending_key, 1, "홍대 카페")
 
-    async def test_search_analytics(self):
+    async def test_search_analytics(self) -> None:
         """
         Given: 검색 분석 요청
         When: 분석 데이터를 수집함
@@ -450,7 +450,7 @@ class TestAutocompleteService:
         assert len(recent_searches) == 2
         assert recent_searches[0]["query"] == "홍대 카페"
 
-    async def test_cache_optimization(self):
+    async def test_cache_optimization(self) -> None:
         """
         Given: 오래된 캐시 데이터
         When: 캐시 최적화를 수행함
@@ -514,7 +514,7 @@ class TestAutocompleteService:
         assert cleanup_stats["cleaned_users"] >= 0
         assert cleanup_stats["cleaned_trending"] >= 0
 
-    async def test_fallback_to_basic_suggestions(self):
+    async def test_fallback_to_basic_suggestions(self) -> None:
         """
         Given: 모든 고급 제안 방법이 실패
         When: 기본 제안으로 fallback함
@@ -545,7 +545,7 @@ class TestAutocompleteService:
         assert suggestions[0]["type"] == "basic"
         assert suggestions[0]["score"] == 1.0
 
-    async def test_korean_analyzer_integration(self):
+    async def test_korean_analyzer_integration(self) -> None:
         """
         Given: 한국어 검색어
         When: 한국어 분석기를 사용한 제안 순위 조정
@@ -581,7 +581,7 @@ class TestAutocompleteService:
             assert hongdae_suggestion["score"] > 2.0  # 원래 점수보다 증가
             assert gangnam_suggestion["score"] == 2.5  # 키워드 겹침 없어서 원래 점수 유지
 
-    async def test_error_handling(self):
+    async def test_error_handling(self) -> None:
         """
         Given: 다양한 에러 상황
         When: 자동완성 서비스 메서드 호출

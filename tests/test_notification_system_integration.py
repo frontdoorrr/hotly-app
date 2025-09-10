@@ -17,7 +17,7 @@ from app.models.user import User
 class TestNotificationSystemIntegration:
     """알림 시스템 통합 테스트 - 전체 플로우 검증"""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """테스트 데이터 준비"""
         self.test_user_id = str(uuid4())
         self.test_notification_id = str(uuid4())

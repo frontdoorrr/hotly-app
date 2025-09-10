@@ -18,7 +18,7 @@ from app.services.ml_notification_optimizer import NotificationTimingOptimizer
 class TestMLNotificationOptimizer:
     """Test suite for ML notification timing optimizer."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test dependencies."""
         self.test_user_id = str(uuid4())
         self.target_time = datetime(2025, 1, 15, 18, 0, 0)  # 6 PM
