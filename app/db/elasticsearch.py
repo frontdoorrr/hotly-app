@@ -9,7 +9,6 @@ import logging
 from typing import Any, Dict, List, Optional
 
 from elasticsearch import AsyncElasticsearch, ConnectionError, NotFoundError
-from elasticsearch.exceptions import ElasticsearchException
 
 from app.core.config import settings
 
@@ -123,7 +122,7 @@ class ElasticsearchManager:
 
         except Exception as e:
             logger.error(f"Failed to create index {full_index_name}: {e}")
-            raise ElasticsearchException(f"Index creation failed: {e}")
+            raise Exception(f"Index creation failed: {e}")
 
     async def delete_index(self, index_name: str) -> bool:
         """Delete an index."""

@@ -26,3 +26,10 @@ class CacheSerializationError(HotlyException):
 
     def __init__(self, message: str = "Cache data serialization failed"):
         super().__init__(message)
+
+
+class CacheLockError(HotlyException):
+    """Cache distributed lock operation failed."""
+
+    def __init__(self, message: str = "Cache lock operation failed"):
+        super().__init__(message)

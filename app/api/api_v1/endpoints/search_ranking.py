@@ -14,7 +14,7 @@ from fastapi.responses import JSONResponse
 
 from app.api import deps
 
-# from app.core.config import settings
+from app.core.config import settings
 from app.models.user import User
 from app.schemas.search_ranking import (
     MLModelMetrics,
@@ -31,18 +31,28 @@ from app.services.search_ranking_service import SearchRankingService
 router = APIRouter()
 
 
-def get_search_ranking_service() -> SearchRankingService:
+async def get_search_ranking_service() -> SearchRankingService:
     """검색 랭킹 서비스 의존성"""
     # 실제 구현에서는 DI 컨테이너에서 주입
-    from app.core.redis_client import get_redis_client
     from app.db.session import SessionLocal
     from app.services.ml_engine import get_ml_engine
+    
+    try:
+        import redis.asyncio as redis
+        redis_client = redis.Redis(
+            host=getattr(settings, 'REDIS_HOST', 'localhost'),
+            port=getattr(settings, 'REDIS_PORT', 6379),
+            db=getattr(settings, 'REDIS_DB', 0),
+            decode_responses=True
+        )
+    except ImportError:
+        # Redis가 없으면 None으로 설정 (서비스에서 폴백 처리)
+        redis_client = None
 
     db = SessionLocal()
-    redis = get_redis_client()
-    ml_engine = get_ml_engine()
+    ml_engine = await get_ml_engine()
 
-    return SearchRankingService(db, redis, ml_engine)
+    return SearchRankingService(db, redis_client, ml_engine)
 
 
 @router.post("/rank", response_model=SearchRankingResponse)

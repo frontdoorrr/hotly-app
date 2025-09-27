@@ -6,17 +6,21 @@ from app.api.api_v1.endpoints import (
     advanced_filters,
     ai,
     autocomplete,
+    cdn,
     content,
     courses,
     link_analysis,
     notifications,
     onboarding,
     personalization,
+    performance,
     places,
     preference_setup,
     preferences,
     search,
     search_ranking,
+    search_optimization,
+    user_data,
 )
 
 api_router = APIRouter()
@@ -47,4 +51,16 @@ api_router.include_router(
 )
 api_router.include_router(
     search_ranking.router, prefix="/ranking", tags=["search-ranking"]
+)
+api_router.include_router(
+    search_optimization.router, prefix="/search-optimization", tags=["search-optimization"]
+)
+api_router.include_router(
+    user_data.router, prefix="/user-data", tags=["user-data"]
+)
+api_router.include_router(
+    performance.router, prefix="/performance", tags=["performance"]
+)
+api_router.include_router(
+    cdn.router, prefix="/cdn", tags=["cdn"]
 )

@@ -7,8 +7,7 @@ Follows backend_reference pattern with Pydantic v1 syntax.
 import secrets
 from typing import List, Optional, Union
 
-from pydantic import Field, field_validator
-from pydantic_settings import BaseSettings
+from pydantic import BaseSettings, Field, validator
 
 
 class Settings(BaseSettings):
@@ -23,7 +22,7 @@ class Settings(BaseSettings):
     # CORS Configuration
     BACKEND_CORS_ORIGINS: List[str] = Field(default_factory=list)
 
-    @field_validator("BACKEND_CORS_ORIGINS", mode="before")
+    @validator("BACKEND_CORS_ORIGINS", pre=True)
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
         """Parse CORS origins from environment variable."""
         if isinstance(v, str) and not v.startswith("["):
@@ -101,6 +100,42 @@ class Settings(BaseSettings):
     )
     FCM_PROJECT_ID: Optional[str] = Field(
         default=None, description="Firebase Cloud Messaging project ID"
+    )
+    FIREBASE_PROJECT_ID: Optional[str] = Field(
+        default=None, description="Firebase project ID"
+    )
+    
+    # Firebase Auth Configuration  
+    FIREBASE_API_KEY: Optional[str] = Field(
+        default=None, description="Firebase API key"
+    )
+    FIREBASE_AUTH_DOMAIN: Optional[str] = Field(
+        default=None, description="Firebase auth domain"
+    )
+    GOOGLE_CLIENT_ID: Optional[str] = Field(
+        default=None, description="Google OAuth client ID"
+    )
+    APPLE_CLIENT_ID: Optional[str] = Field(
+        default=None, description="Apple OAuth client ID"
+    )
+    KAKAO_CLIENT_ID: Optional[str] = Field(
+        default=None, description="Kakao OAuth client ID"
+    )
+    
+    # Auth Rate Limiting
+    MAX_LOGIN_ATTEMPTS_PER_MINUTE: Optional[int] = Field(
+        default=10, description="Maximum login attempts per minute per device"
+    )
+    MAX_TOKEN_REFRESH_PER_HOUR: Optional[int] = Field(
+        default=60, description="Maximum token refresh attempts per hour per device"
+    )
+    
+    # Token Expiration Settings
+    ACCESS_TOKEN_EXPIRE_HOURS: int = Field(
+        default=1, description="Access token expiration in hours"
+    )
+    REFRESH_TOKEN_EXPIRE_DAYS: int = Field(
+        default=30, description="Refresh token expiration in days"
     )
     KAKAO_API_KEY: Optional[str] = Field(default=None, description="Kakao Map API key")
     GEMINI_API_KEY: Optional[str] = Field(

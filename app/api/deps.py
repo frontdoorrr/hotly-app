@@ -11,6 +11,7 @@ from fastapi.security import HTTPBearer
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.core.cache import CacheService, MemoryCacheService
 from app.db.session import SessionLocal
 from app.models.user import User
 
@@ -89,3 +90,17 @@ async def get_redis_client() -> Optional[redis.Redis]:
     except Exception:
         # Redis is optional - return None if not available
         return None
+
+
+def get_cache_service() -> CacheService:
+    """
+    Get cache service dependency.
+    
+    For development, uses memory cache.
+    In production, should use Redis cache.
+    
+    Returns:
+        CacheService: Cache service instance
+    """
+    # For development/testing, use memory cache
+    return MemoryCacheService()

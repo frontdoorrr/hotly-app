@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from uuid import UUID
 
 from pydantic import BaseModel, Field, validator
@@ -206,7 +206,7 @@ class PlaceListRequest(BaseModel):
     page_size: int = Field(20, ge=1, le=100, description="Items per page")
     sort_by: Optional[str] = Field("created_at", description="Sort field")
     sort_order: Optional[str] = Field(
-        "desc", regex="^(asc|desc)$", description="Sort order"
+        "desc", pattern="^(asc|desc)$", description="Sort order"
     )
 
     @validator("radius_km")
@@ -268,3 +268,59 @@ class PlaceStatsResponse(BaseModel):
             )
 
         allow_population_by_field_name = True
+
+
+# New schemas for place extraction and structuring
+
+class ExtractionConfidence(str, Enum):
+    """Confidence levels for place extraction."""
+    
+    HIGH = "high"
+    MEDIUM = "medium" 
+    LOW = "low"
+
+
+class StructuredAddress(BaseModel):
+    """Structured address information."""
+    
+    full_address: str = Field(..., description="Complete address string")
+    street_address: Optional[str] = Field(None, description="Street address and number")
+    district: Optional[str] = Field(None, description="District or neighborhood")
+    city: Optional[str] = Field(None, description="City name")
+    province: Optional[str] = Field(None, description="Province or state")
+    country: Optional[str] = Field(None, description="Country name")
+    postal_code: Optional[str] = Field(None, description="Postal code")
+    completeness_score: float = Field(0.0, ge=0.0, le=1.0, description="Address completeness (0-1)")
+
+
+class ExtractedPlace(BaseModel):
+    """Single extracted place with structured information."""
+    
+    name: str = Field(..., description="Place name")
+    category: str = Field(..., description="Normalized place category")
+    confidence: ExtractionConfidence = Field(..., description="Extraction confidence")
+    structured_address: StructuredAddress = Field(..., description="Structured address")
+    description: Optional[str] = Field(None, description="Place description")
+    keywords: List[str] = Field(default_factory=list, description="Associated keywords")
+    data_quality_score: float = Field(0.0, ge=0.0, le=1.0, description="Data quality score")
+    original_category: Optional[str] = Field(None, description="Original category from AI")
+    validation_warnings: List[str] = Field(default_factory=list, description="Validation warnings")
+
+
+class PlaceExtractionResult(BaseModel):
+    """Result of place extraction and structuring process."""
+    
+    places: List[ExtractedPlace] = Field(default_factory=list, description="Extracted places")
+    total_places_found: int = Field(0, description="Total places found by AI")
+    places_validated: int = Field(0, description="Number of places that passed validation")
+    duplicates_removed: int = Field(0, description="Number of duplicates removed")
+    confidence_score: float = Field(0.0, ge=0.0, le=1.0, description="Overall confidence")
+    data_quality_score: float = Field(0.0, ge=0.0, le=1.0, description="Overall data quality")
+    processing_time_ms: Optional[float] = Field(None, description="Processing time in milliseconds")
+    validation_errors: List[str] = Field(default_factory=list, description="Validation errors")
+    extraction_metadata: Dict[str, Any] = Field(default_factory=dict, description="Extraction metadata")
+
+
+class PlaceValidationError(Exception):
+    """Raised when place validation fails."""
+    pass

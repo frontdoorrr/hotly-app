@@ -58,6 +58,42 @@ class PlaceAnalysisRequest(BaseModel):
     platform: str = Field(..., description="Source platform")
 
 
+class AnalysisConfidence(str, Enum):
+    """Analysis confidence levels."""
+    
+    HIGH = "high"
+    MEDIUM = "medium" 
+    LOW = "low"
+
+
+class PlaceAnalysisResult(BaseModel):
+    """Single place analysis result."""
+    
+    name: str = Field(..., description="Place name")
+    address: Optional[str] = Field(None, description="Place address")
+    category: str = Field(..., description="Place category")
+    confidence: AnalysisConfidence = Field(..., description="Confidence level")
+    description: Optional[str] = Field(None, description="Place description")
+    coordinates: Optional[tuple] = Field(None, description="GPS coordinates if available")
+
+
+class GeminiRequest(BaseModel):
+    """Request to Gemini API."""
+    
+    content: str = Field(..., description="Text content to analyze")
+    images: List[str] = Field(default_factory=list, description="Image URLs")
+    platform: str = Field(..., description="Source platform")
+    model_version: str = Field("gemini-pro-vision", description="Model version")
+
+
+class GeminiResponse(BaseModel):
+    """Response from Gemini API."""
+    
+    places: List[PlaceAnalysisResult] = Field(default_factory=list, description="Detected places")
+    overall_confidence: AnalysisConfidence = Field(..., description="Overall analysis confidence")
+    processing_time: Optional[float] = Field(None, description="Processing time in seconds")
+
+
 class PlaceAnalysisResponse(BaseModel):
     """Response from AI place analysis."""
 

@@ -59,3 +59,75 @@ PLACE_EXTRACTION_JSON_SCHEMA = {
     "required": ["name", "category", "recommendation_score", "keywords"],
     "additionalProperties": False,
 }
+
+
+PLACE_EXTRACTION_PROMPT_V2 = """
+You are an expert at extracting place information from social media content.
+
+**Task:** Analyze the following content and extract place information with high accuracy.
+
+**Platform:** {platform}
+**Content to analyze:**
+{content}
+
+**Platform-specific instructions:**
+{platform_instruction}
+
+**Extraction Requirements:**
+1. **Place Name**: Exact business name (include brand name if applicable)
+2. **Address**: Street address preferred, or at least neighborhood/district
+3. **Category**: Choose from restaurant, cafe, bar, tourist_attraction, shopping, accommodation, entertainment, other
+4. **Confidence**: Rate your confidence as "high", "medium", or "low"
+5. **Description**: Brief description of the place based on content
+6. **Keywords**: Characteristic features (max 10)
+
+**Critical Guidelines:**
+- Only extract information explicitly mentioned in the content
+- If a place is unclear or ambiguous, set confidence to "low"
+- Multiple places are allowed if clearly mentioned
+- Never include personal information
+- Focus on businesses and public places only
+
+**Response Format:** Must follow this exact JSON schema:
+
+```json
+{{
+  "places": [
+    {{
+      "name": "string",
+      "address": "string or null",
+      "category": "restaurant|cafe|bar|tourist_attraction|shopping|accommodation|entertainment|other",
+      "confidence": "high|medium|low",
+      "description": "string or null"
+    }}
+  ],
+  "analysis_confidence": "high|medium|low"
+}}
+```
+
+**Output only the JSON response. No additional text or explanations.**
+"""
+
+
+MULTIMODAL_PLACE_EXTRACTION_PROMPT = """
+You are analyzing both text content and images to extract place information.
+
+**Text Content:**
+{text_content}
+
+**Images:** {image_count} image(s) provided for visual analysis
+
+**Instructions for Visual Analysis:**
+- Look for storefront signs, business names, menu boards
+- Identify restaurant/cafe/shop interiors or exteriors  
+- Extract text from images (OCR) for business names
+- Note visual clues about place category (food, shopping, etc.)
+- Consider image context along with text description
+
+**Confidence Scoring:**
+- High: Place clearly identified in both text and images
+- Medium: Place mentioned in text with supporting visual evidence
+- Low: Place mentioned but unclear or conflicting information
+
+Follow the same JSON response format as standard extraction.
+"""

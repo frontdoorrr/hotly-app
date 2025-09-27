@@ -345,8 +345,8 @@ class UserNotificationSettings(Base):
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
     )
 
-    # 관계
-    user = relationship("User", back_populates="notification_settings")
+    # 관계 제거됨 - 모델 충돌 방지
+    # user = relationship("User", back_populates="notification_settings")
 
     def is_notification_allowed(
         self, notification_type: str, current_time: datetime = None

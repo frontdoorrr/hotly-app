@@ -205,18 +205,20 @@ class SearchRankingService:
                 return {result.get("id", ""): 0.5 for result in search_results}
 
             # 특성 벡터 생성
-            features = self._build_feature_vectors(search_results, query, user_profile)
+            feature_vectors = self._build_feature_vectors(search_results, query, user_profile)
 
-            # ML 모델 추론
-            predictions = await self.ml_engine.predict_relevance(
-                user_id=str(user_id), features=features, context={"query": query}
+            # ML 모델 추론 - 올바른 파라미터 사용
+            prediction_scores = await self.ml_engine.predict_relevance(
+                feature_vectors=feature_vectors,
+                user_id=user_id,
+                context={"query": query}
             )
 
             # 결과 매핑
             ml_scores = {}
-            for pred in predictions:
-                place_id = pred.get("place_id")
-                score = pred.get("ml_score", 0.5)
+            for i, result in enumerate(search_results):
+                place_id = result.get("id", "")
+                score = prediction_scores[i] if i < len(prediction_scores) else 0.5
                 ml_scores[place_id] = self._normalize_score(score, 0, 1)
 
             return ml_scores
