@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, Field, constr, validator
+from pydantic import BaseModel, Field, validator
 
 
 class UserBehaviorCreate(BaseModel):
@@ -260,15 +260,15 @@ class CompanionPreferenceRequest(BaseModel):
     """Request for companion preference setup."""
 
     user_id: str
-    primary_companion_type: constr(
-        pattern=r"^(alone|romantic_partner|friends|family)$"
-    ) = Field(...)
-    group_size_preference: constr(
-        pattern=r"^(solo|couple|small_group|large_group)$"
-    ) = Field(...)
-    social_comfort_level: constr(
-        pattern=r"^(introverted|moderate|extroverted)$"
-    ) = Field(...)
+    primary_companion_type: str = Field(
+        ..., pattern=r"^(alone|romantic_partner|friends|family)$"
+    )
+    group_size_preference: str = Field(
+        ..., pattern=r"^(solo|couple|small_group|large_group)$"
+    )
+    social_comfort_level: str = Field(
+        ..., pattern=r"^(introverted|moderate|extroverted)$"
+    )
     special_needs: Optional[List[str]] = []
 
 
@@ -276,7 +276,7 @@ class ActivityLevelRequest(BaseModel):
     """Request for activity level configuration."""
 
     user_id: str
-    activity_intensity: constr(pattern=r"^(low|moderate|high)$") = Field(...)
+    activity_intensity: str = Field(..., pattern=r"^(low|moderate|high)$")
     walking_tolerance: Dict[str, Any]
     time_availability: Dict[str, Any]
     physical_considerations: Optional[List[str]] = []
@@ -313,7 +313,7 @@ class CategoryWeightingRequest(BaseModel):
 
     user_id: str
     category_weights: Dict[str, Dict[str, float]]
-    normalization_method: constr(pattern=r"^(softmax|linear)$") = Field("softmax")
+    normalization_method: str = Field("softmax", pattern=r"^(softmax|linear)$")
 
 
 class PersonalizedOnboardingRequest(BaseModel):
@@ -331,10 +331,10 @@ class BudgetPreferenceRequest(BaseModel):
     """Request for budget preference setup."""
 
     user_id: str
-    budget_category: constr(pattern=r"^(low|medium|high)$") = Field(...)
+    budget_category: str = Field(..., pattern=r"^(low|medium|high)$")
     per_place_range: Dict[str, Any]
     total_course_budget: Dict[str, Any]
-    budget_flexibility: constr(pattern=r"^(strict|medium|flexible)$") = Field(...)
+    budget_flexibility: str = Field(..., pattern=r"^(strict|medium|flexible)$")
 
 
 class CategorySelectionRequest(BaseModel):
@@ -374,7 +374,7 @@ class SurveyCompletionRequest(BaseModel):
     """Request for survey completion."""
 
     user_id: str
-    survey_version: constr(pattern=r"^(quick|standard|comprehensive)$") = Field(...)
+    survey_version: str = Field(..., pattern=r"^(quick|standard|comprehensive)$")
     responses: List[Dict[str, Any]]
     completion_time_minutes: float = Field(..., ge=0.0)
 

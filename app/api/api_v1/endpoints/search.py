@@ -12,7 +12,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.api import deps
-from app.db.database import get_db
+from app.db.deps import get_db
 from app.models.user import User
 from app.schemas.search import PlaceSearchResponse, SearchSuggestionResponse
 from app.services.search_service import SearchService
@@ -230,7 +230,7 @@ async def index_place_to_elasticsearch(
 
 @router.post("/initialize-indices")
 async def initialize_elasticsearch_indices(
-    current_user: User = Depends(deps.get_current_admin_user),
+    current_user: User = Depends(deps.get_current_active_superuser),
     db: Session = Depends(get_db),
 ):
     """

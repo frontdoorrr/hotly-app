@@ -17,7 +17,7 @@ python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 python-multipart = "^0.0.6"
 celery = {extras = ["redis"], version = "^5.3.4"}
-redis = {extras = ["hiredis"], version = "^5.0.1"}
+redis = ">=4.0.0"
 httpx = "^0.26.0"
 tenacity = "^8.2.3"
 emails = "^0.6"
@@ -30,6 +30,7 @@ geoalchemy2 = "^0.15.0"
 scikit-learn = "^1.7.1"
 joblib = "^1.5.2"
 elasticsearch = "^8.11.0"
+email-validator = "^2.3.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
