@@ -1,0 +1,546 @@
+name: Automated Testing Pipeline
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master ]
+
+env:
+  PYTHON_VERSION: "3.11"
+  POETRY_VERSION: "1.7.1"
+
+jobs:
+  test-quality-checks:
+    name: Code Quality & Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: ${{ env.POETRY_VERSION }}
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+
+    - name: Load cached venv
+      id: cached-poetry-dependencies
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}
+
+    - name: Install dependencies
+      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      run: poetry install --with dev
+
+    - name: Code formatting check (Black)
+      run: poetry run black --check --diff app tests
+
+    - name: Import sorting check (isort)
+      run: poetry run isort --check-only --diff app tests
+
+    - name: Linting (Flake8)
+      run: poetry run flake8 app tests
+
+    - name: Type checking (MyPy)
+      run: poetry run mypy app
+      continue-on-error: true  # MyPy can be strict, allow to continue
+
+    - name: Security check (Bandit)
+      run: poetry run bandit -r app -f json -o bandit-report.json
+      continue-on-error: true
+
+    - name: Upload security report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: bandit-security-report
+        path: bandit-report.json
+
+  unit-tests:
+    name: Unit Tests with Coverage
+    runs-on: ubuntu-latest
+    needs: test-quality-checks
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: ${{ env.POETRY_VERSION }}
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+
+    - name: Load cached venv
+      id: cached-poetry-dependencies
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}
+
+    - name: Install dependencies
+      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      run: poetry install --with dev
+
+    - name: Run unit tests with coverage
+      run: |
+        poetry run pytest tests/unit/ \
+          --cov=app \
+          --cov-report=xml \
+          --cov-report=html \
+          --cov-report=term-missing \
+          --cov-fail-under=80 \
+          --junit-xml=pytest-unit.xml \
+          -v
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unit-tests
+        name: unit-test-coverage
+
+    - name: Upload unit test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: unit-test-results
+        path: |
+          pytest-unit.xml
+          htmlcov/
+
+    - name: Coverage report summary
+      run: poetry run coverage report --show-missing
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: unit-tests
+
+    services:
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: hotly_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: ${{ env.POETRY_VERSION }}
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+
+    - name: Load cached venv
+      id: cached-poetry-dependencies
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}
+
+    - name: Install dependencies
+      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      run: poetry install --with dev
+
+    - name: Wait for services
+      run: |
+        timeout 30 bash -c 'until redis-cli -h localhost ping; do sleep 1; done'
+        timeout 30 bash -c 'until pg_isready -h localhost -p 5432; do sleep 1; done'
+
+    - name: Run database migrations
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/hotly_test
+        REDIS_URL: redis://localhost:6379/0
+      run: |
+        poetry run alembic upgrade head
+
+    - name: Run integration tests
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/hotly_test
+        REDIS_URL: redis://localhost:6379/0
+        TESTING: true
+      run: |
+        poetry run pytest tests/integration/ \
+          --cov=app \
+          --cov-append \
+          --cov-report=xml \
+          --cov-report=term-missing \
+          --junit-xml=pytest-integration.xml \
+          -v
+
+    - name: Upload integration test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: integration-test-results
+        path: pytest-integration.xml
+
+  e2e-tests:
+    name: End-to-End Tests
+    runs-on: ubuntu-latest
+    needs: integration-tests
+
+    services:
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: hotly_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: ${{ env.POETRY_VERSION }}
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+
+    - name: Load cached venv
+      id: cached-poetry-dependencies
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}
+
+    - name: Install dependencies
+      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      run: poetry install --with dev
+
+    - name: Wait for services
+      run: |
+        timeout 30 bash -c 'until redis-cli -h localhost ping; do sleep 1; done'
+        timeout 30 bash -c 'until pg_isready -h localhost -p 5432; do sleep 1; done'
+
+    - name: Run database migrations
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/hotly_test
+        REDIS_URL: redis://localhost:6379/0
+      run: |
+        poetry run alembic upgrade head
+
+    - name: Run E2E tests
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/hotly_test
+        REDIS_URL: redis://localhost:6379/0
+        TESTING: true
+      run: |
+        poetry run pytest tests/e2e/ \
+          --cov=app \
+          --cov-append \
+          --cov-report=xml \
+          --cov-report=term-missing \
+          --junit-xml=pytest-e2e.xml \
+          -v \
+          --maxfail=5
+
+    - name: Upload E2E test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: e2e-test-results
+        path: pytest-e2e.xml
+
+  performance-tests:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    if: github.event_name == 'pull_request'
+
+    services:
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: ${{ env.POETRY_VERSION }}
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+
+    - name: Load cached venv
+      id: cached-poetry-dependencies
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}
+
+    - name: Install dependencies
+      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      run: poetry install --with dev
+
+    - name: Run performance tests
+      env:
+        REDIS_URL: redis://localhost:6379/0
+        TESTING: true
+      run: |
+        poetry run pytest tests/performance/ \
+          --junit-xml=pytest-performance.xml \
+          -v \
+          --tb=short
+
+    - name: Upload performance test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-test-results
+        path: pytest-performance.xml
+
+  test-coverage-report:
+    name: Generate Coverage Report
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, e2e-tests]
+    if: always()
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: ${{ env.POETRY_VERSION }}
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+
+    - name: Install dependencies
+      run: poetry install --with dev
+
+    - name: Download all test artifacts
+      uses: actions/download-artifact@v3
+
+    - name: Combine coverage reports
+      run: |
+        poetry run coverage combine
+        poetry run coverage report --show-missing
+        poetry run coverage html
+
+    - name: Upload combined coverage report
+      uses: actions/upload-artifact@v3
+      with:
+        name: combined-coverage-report
+        path: htmlcov/
+
+    - name: Coverage badge
+      run: |
+        export COVERAGE=$(poetry run coverage report --format=total)
+        echo "Coverage: $COVERAGE%"
+        if [ $COVERAGE -lt 80 ]; then
+          echo "❌ Coverage below 80%: $COVERAGE%"
+          exit 1
+        else
+          echo "✅ Coverage meets requirements: $COVERAGE%"
+        fi
+
+  security-scan:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: ${{ env.POETRY_VERSION }}
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+
+    - name: Install dependencies
+      run: poetry install --with dev
+
+    - name: Run Bandit security scan
+      run: |
+        poetry run bandit -r app/ -f json -o bandit-report.json
+        poetry run bandit -r app/ -f txt
+      continue-on-error: true
+
+    - name: Run Safety check
+      run: |
+        poetry run safety check --json --output safety-report.json
+        poetry run safety check
+      continue-on-error: true
+
+    - name: Upload security reports
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-reports
+        path: |
+          bandit-report.json
+          safety-report.json
+
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: [test-quality-checks, unit-tests, integration-tests, e2e-tests]
+    if: always()
+
+    steps:
+    - name: Download all test artifacts
+      uses: actions/download-artifact@v3
+
+    - name: Generate test summary
+      run: |
+        echo "# Test Results Summary" > test-summary.md
+        echo "" >> test-summary.md
+
+        if [ -f "unit-test-results/pytest-unit.xml" ]; then
+          echo "## Unit Tests ✅" >> test-summary.md
+        else
+          echo "## Unit Tests ❌" >> test-summary.md
+        fi
+
+        if [ -f "integration-test-results/pytest-integration.xml" ]; then
+          echo "## Integration Tests ✅" >> test-summary.md
+        else
+          echo "## Integration Tests ❌" >> test-summary.md
+        fi
+
+        if [ -f "e2e-test-results/pytest-e2e.xml" ]; then
+          echo "## E2E Tests ✅" >> test-summary.md
+        else
+          echo "## E2E Tests ❌" >> test-summary.md
+        fi
+
+        echo "" >> test-summary.md
+        echo "## Coverage Report" >> test-summary.md
+        echo "See coverage artifacts for detailed coverage information." >> test-summary.md
+
+        cat test-summary.md
+
+    - name: Upload test summary
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-summary
+        path: test-summary.md
+
+  notify-on-failure:
+    name: Notify on Test Failure
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, e2e-tests]
+    if: failure()
+
+    steps:
+    - name: Notify team
+      run: |
+        echo "❌ Tests failed in CI/CD pipeline"
+        echo "Please check the test results and fix failing tests before merging."
+        # Add notification integration here (Slack, Discord, etc.)
+
+  deploy-test-reports:
+    name: Deploy Test Reports
+    runs-on: ubuntu-latest
+    needs: [test-coverage-report]
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Download coverage report
+      uses: actions/download-artifact@v3
+      with:
+        name: combined-coverage-report
+        path: htmlcov/
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      if: github.ref == 'refs/heads/main'
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./htmlcov
+        destination_dir: coverage

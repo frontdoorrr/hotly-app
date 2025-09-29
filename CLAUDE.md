@@ -6,101 +6,167 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is **hotly-app**, an AI-based hot place/dating course/restaurant archiving app. The repository contains:
 
-- `backend_reference/`: FastAPI-based backend reference implementation with PostgreSQL
+- `app/`: Main FastAPI application with comprehensive service architecture
+- `tests/`: Comprehensive TDD-centered testing framework (unit, integration, E2E, performance)
 - `prd/`, `trd/`, `task/`: Product requirements, technical requirements, and task documentation
 - `rules.md`: Comprehensive development rules and coding conventions
 
 ## Development Commands
 
-### Backend (FastAPI with Poetry)
-Located in `backend_reference/app/`:
-
-**Setup & Dependencies:**
+### Setup & Dependencies
 ```bash
-cd backend_reference/app
+# Install dependencies with Poetry
 poetry install
+
+# Install development dependencies
+poetry install --with dev
 ```
 
-**Development:**
+### Development Server
 ```bash
-# Run development server
+# Run development server with hot reload
 uvicorn app.main:app --reload
 
-# Run with scripts
-./scripts/test.sh          # Run tests with coverage
-./scripts/format.sh        # Format code (autoflake, black, isort)
-./scripts/lint.sh          # Lint code (mypy, black --check, isort --check, flake8)
-./scripts/test-cov-html.sh # Generate HTML coverage report
+# Run with specific host/port
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-**Testing:**
+### Testing (TDD Framework)
 ```bash
-pytest --cov=app --cov-report=term-missing app/tests
+# Run all tests with coverage (80% minimum)
+pytest
+
+# Run comprehensive test automation
+./scripts/run-tests.sh
+
+# Run specific test types
+./scripts/run-tests.sh --unit           # Unit tests only
+./scripts/run-tests.sh --integration    # Integration tests only
+./scripts/run-tests.sh --e2e            # E2E tests only
+./scripts/run-tests.sh --fast           # Skip slow tests
+./scripts/run-tests.sh --ci             # CI optimized mode
+
+# Run single test file
+pytest tests/unit/test_content_extractor.py -v
+
+# Run with coverage report
+pytest --cov=app --cov-report=html
+
+# Performance and load testing
+pytest tests/performance/ -v
 ```
 
-**Database:**
+### Code Quality
 ```bash
-alembic upgrade head       # Apply migrations
-alembic revision --autogenerate -m "description"  # Create migration
+# Format code
+black app tests
+isort app tests
+autoflake --remove-all-unused-imports --recursive app tests
+
+# Lint and type checking
+flake8 app tests
+mypy app
+bandit -r app/
+
+# Security scanning
+safety check
+```
+
+### Database
+```bash
+# Apply migrations
+alembic upgrade head
+
+# Create new migration
+alembic revision --autogenerate -m "description"
+
+# Database rollback
+alembic downgrade -1
 ```
 
 ## Architecture
 
-### Backend Structure (FastAPI)
+### Application Structure (FastAPI)
 ```
 app/
-├── main.py                 # FastAPI app entry point
-├── core/
-│   ├── config.py          # Pydantic settings with environment variables
-│   ├── security.py        # JWT/password hashing utilities
-│   └── celery_app.py      # Celery configuration
-├── api/
-│   └── api_v1/
-│       ├── api.py         # API router aggregation
-│       └── endpoints/     # Individual endpoint modules
-├── models/                # SQLAlchemy ORM models
-├── schemas/               # Pydantic request/response schemas
-├── crud/                  # Database CRUD operations
-├── db/                    # Database session and initialization
-└── tests/                 # Test suite organized by layer
+├── main.py                    # FastAPI app entry point with create_app factory
+├── core/                      # Core configuration and utilities
+├── api/api_v1/               # API endpoints with /api/v1 prefix
+│   └── endpoints/            # Individual endpoint modules (link_analysis, etc.)
+├── services/                 # Business logic services
+│   ├── content_extractor.py  # Social media content extraction
+│   ├── place_analysis_service.py # AI-powered place analysis
+│   └── cache_manager.py      # Multi-layer caching (L1: memory, L2: Redis)
+├── models/                   # SQLAlchemy ORM models
+├── schemas/                  # Pydantic request/response schemas
+├── crud/                     # Database CRUD operations
+├── db/                       # Database session and initialization
+├── middleware/               # Custom middleware components
+├── analytics/                # Analytics and monitoring services
+├── features/                 # Feature-specific modules
+└── utils/                    # Utility functions and helpers
+
+tests/                        # TDD-centered testing framework
+├── unit/                     # Unit tests with high coverage
+├── integration/              # Integration tests for service communication
+├── e2e/                      # End-to-end user workflow tests
+├── performance/              # Load and performance testing
+├── tdd/                      # TDD examples and templates
+├── framework/                # Meta-tests for testing infrastructure
+└── utils/                    # Test helpers and mock factories
 ```
 
-### Key Patterns
-- **Settings Management**: Pydantic BaseSettings with environment variable validation
-- **API Structure**: Modular routers with `/api/v1` prefix, organized by domain
-- **Database**: SQLAlchemy ORM with Alembic migrations, PostgreSQL backend
-- **Authentication**: JWT tokens with configurable expiration
-- **Testing**: Pytest with coverage reporting, fixture-based test organization
-- **Background Tasks**: Celery worker support with Redis/RabbitMQ
+### Key Architectural Patterns
+- **Service-Oriented Architecture**: Clear separation between content extraction, AI analysis, and caching
+- **Multi-Layer Caching**: L1 (in-memory) + L2 (Redis) for optimal performance
+- **AI Integration**: Google Gemini for intelligent place analysis from social media content
+- **Async Processing**: Full async/await pattern with FastAPI for high concurrency
+- **Error Resilience**: Comprehensive error handling with retry logic and circuit breakers
 
-### Configuration
-- Environment-driven configuration via Pydantic BaseSettings
-- CORS origins configurable via `BACKEND_CORS_ORIGINS`
-- Database connection auto-assembled from individual PostgreSQL components
-- Email templates using Jinja2 with MJML compilation support
+### Core Services Integration
+- **Link Analysis Pipeline**: URL → Content Extraction → AI Analysis → Cached Results
+- **Content Extraction**: Platform-specific extractors for Instagram, Naver Blog, YouTube
+- **Place Analysis**: AI-powered categorization and confidence scoring
+- **Caching Strategy**: Intelligent cache invalidation with performance optimization
+
+## TDD Testing Framework
+
+This project implements a comprehensive Test-Driven Development approach with 80%+ coverage requirements:
+
+### Testing Philosophy
+- **Red-Green-Refactor**: Write failing tests first, implement minimum code to pass, then refactor
+- **Test Pyramid**: Most unit tests, fewer integration tests, minimal E2E tests
+- **Living Documentation**: Tests serve as executable specifications
+
+### Test Organization
+- `tests/unit/`: Fast, isolated tests for individual components
+- `tests/integration/`: Service-to-service communication tests
+- `tests/e2e/`: Complete user workflow tests
+- `tests/performance/`: Load testing and performance validation
+- `tests/framework/`: Meta-tests ensuring testing infrastructure reliability
+
+### Test Utilities
+- `tests/utils/test_helpers.py`: MockFactory, TestDataBuilder, ValidationHelpers
+- `tests/tdd/`: TDD examples and templates for new development
+- Comprehensive fixture system in `tests/conftest.py`
 
 ## Development Rules
 
 This project follows comprehensive coding standards defined in `rules.md`:
 
-### Key Requirements
-- **TDD Approach**: Write tests first, maintain 80%+ coverage
-- **Code Style**: PEP8 compliance, use black/isort/flake8/mypy
+### Core Requirements
+- **TDD First**: Write tests before implementation, maintain 80%+ coverage
+- **Code Quality**: Black formatting, isort imports, flake8 linting, mypy typing
 - **API Design**: OpenAPI documentation, Pydantic schemas, consistent error formats
-- **Exception Handling**: Specific exceptions, proper retry/backoff patterns
-- **Logging**: Structured JSON logs with trace_id, masked sensitive data
-- **Security**: Environment variables for secrets, input validation, rate limiting
+- **Error Handling**: Specific exceptions with retry logic and circuit breakers
+- **Logging**: Structured JSON logs with trace_id, sanitized sensitive data
+- **Security**: Environment variables for secrets, comprehensive input validation
 
 ### Naming Conventions
 - Files/directories: `snake_case`
 - API JSON fields: `camelCase` (external), `snake_case` (internal Python)
 - Constants: `UPPER_SNAKE_CASE`
-
-### Testing Strategy
-- Unit tests (most), integration tests, E2E smoke tests
-- Mock external dependencies
-- Test naming: `methodName_condition_expectedResult`
-- Boundary value and error path testing
+- Test methods: `methodName_condition_expectedResult`
 
 ## Documentation Structure
 
@@ -110,3 +176,23 @@ The project uses a three-tier documentation system:
 - **Task** (`task/`): Implementation tasks linked to requirements
 
 Files follow `NN-topic-kebab-case.md` naming and maintain version consistency across tiers.
+
+## CI/CD Pipeline
+
+Automated testing pipeline via GitHub Actions (`.github/workflows/test-automation.yml`):
+- **Code Quality**: Black, isort, flake8, mypy, bandit security scanning
+- **Unit Tests**: Fast execution with coverage reporting
+- **Integration Tests**: With PostgreSQL and Redis services
+- **E2E Tests**: Complete user workflow validation
+- **Performance Tests**: Load testing and performance validation
+- **Coverage Reports**: Combined coverage with 80% minimum threshold
+- **Security Scanning**: Bandit and Safety dependency checks
+
+## Environment Setup
+
+Key configuration files:
+- `pyproject.toml`: Poetry dependencies and tool configuration
+- `pytest.ini`: Testing configuration with markers and coverage settings
+- `.coveragerc`: Coverage reporting configuration
+- `alembic.ini`: Database migration configuration
+- `.env.example`: Environment variables template

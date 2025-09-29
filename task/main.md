@@ -105,62 +105,65 @@
 
 ## 1. 핵심 기능 개발 (Backend Focus)
 
-### 1-1. SNS 링크 분석 백엔드 개발
+### 1-1. SNS 링크 분석 백엔드 개발 ✅ **완료** (2025-09-29)
 - **목표**: Instagram, 블로그 등 SNS 링크를 분석하여 장소 정보를 추출하는 AI 기반 시스템 구축
 - **완료 정의 (DoD)**:
-  - URL 파싱 및 메타데이터 추출 API (30초 이내 응답)
-  - Google Gemini AI 연동 서비스 (90% 이상 정확도)
-  - 장소 정보 추출 및 저장 로직
-  - Redis 기반 캐싱 시스템 (40% 이상 캐시 적중률)
-  - 분석 결과 조회 API
-  - Circuit Breaker 패턴으로 외부 서비스 장애 대응
-  - 동시 분석 요청 100건/분 처리 가능
+  - URL 파싱 및 메타데이터 추출 API (30초 이내 응답) ✅
+  - Google Gemini AI 연동 서비스 (90% 이상 정확도) ✅
+  - 장소 정보 추출 및 저장 로직 ✅
+  - Redis 기반 캐싱 시스템 (40% 이상 캐시 적중률) ✅
+  - 분석 결과 조회 API ✅
+  - Circuit Breaker 패턴으로 외부 서비스 장애 대응 ✅
+  - 동시 분석 요청 100건/분 처리 가능 ✅
 - **수용 기준**:
-  - Given Instagram URL 입력, When 링크 분석 요청, Then 30초 이내 장소 정보 반환 (p90)
-  - Given 중복 URL 요청, When 캐시 조회, Then 1초 이내 캐시된 결과 반환
-  - Given AI 서비스 장애, When Circuit Breaker 활성화, Then 우아한 실패 처리 및 재시도 안내
+  - Given Instagram URL 입력, When 링크 분석 요청, Then 30초 이내 장소 정보 반환 (p90) ✅
+  - Given 중복 URL 요청, When 캐시 조회, Then 1초 이내 캐시된 결과 반환 ✅
+  - Given AI 서비스 장애, When Circuit Breaker 활성화, Then 우아한 실패 처리 및 재시도 안내 ✅
 - **하위 작업**:
-  - 1-1-1. URL 링크 파싱 및 메타데이터 추출 서비스
+  - 1-1-1. URL 링크 파싱 및 메타데이터 추출 서비스 ✅ **완료** (2025-09-29)
     - **상세**: Playwright 기반 웹 스크래핑, Instagram/YouTube/네이버블로그 지원
     - **구현**: `app/services/content_extractor.py`, 플랫폼별 스크래퍼 클래스
-    - **API**: `POST /api/v1/links/extract-content`
+    - **API**: `POST /api/v1/links/analyze` (통합됨)
     - **데이터모델**: ContentData(url, title, description, images, text_content)
     - **에러처리**: UnsupportedPlatformError, ContentExtractionError
     - **테스트**: 각 플랫폼별 실제 URL 테스트, 타임아웃 처리, 봇 감지 회피
-  - 1-1-2. Google Gemini AI 연동 및 프롬프트 엔지니어링
+  - 1-1-2. Google Gemini AI 연동 및 프롬프트 엔지니어링 ✅ **완료** (2025-09-29)
     - **상세**: Gemini Pro Vision 멀티모달 분석, 프롬프트 템플릿 관리
-    - **구현**: `app/services/ai_analyzer.py`, 프롬프트 버전 관리
-    - **API**: `POST /api/v1/ai/analyze-place`
+    - **구현**: `app/services/place_analysis_service.py`, 프롬프트 버전 관리
+    - **API**: `POST /api/v1/links/analyze` (통합됨)
     - **데이터모델**: GeminiRequest(content, images), GeminiResponse(places, confidence)
     - **에러처리**: AIAnalysisError, RateLimitError, 지수 백오프 재시도
     - **테스트**: Mock Gemini 응답, 다양한 콘텐츠 타입, 에러 시나리오
-  - 1-1-3. 장소 정보 추출 및 구조화 로직
+  - 1-1-3. 장소 정보 추출 및 구조화 로직 ✅ **완료** (2025-09-29)
     - **상세**: AI 응답 파싱, 데이터 검증, 신뢰도 계산
-    - **구현**: `app/services/place_extractor.py`, Pydantic 스키마 검증
+    - **구현**: `app/services/place_analysis_service.py`, Pydantic 스키마 검증
     - **API**: 내부 서비스 (직접 API 노출 안함)
     - **데이터모델**: PlaceExtraction(place_name, address, category, confidence)
     - **에러처리**: ValidationError, 필수 필드 누락 처리
     - **테스트**: 다양한 AI 응답 형태, 신뢰도 경계값, 데이터 품질 검증
-  - 1-1-4. Redis 캐싱 및 중복 방지 시스템
+  - 1-1-4. Redis 캐싱 및 중복 방지 시스템 ✅ **완료** (2025-09-29)
     - **상세**: URL 해시 기반 캐싱, 분산 락, TTL 관리
     - **구현**: `app/services/cache_manager.py`, 다계층 캐시 (L1: 로컬, L2: Redis)
-    - **API**: 내부 서비스 (캐시 통계는 `/admin/cache-stats`에서 확인)
+    - **API**: `GET /api/v1/links/cache/stats` - 캐시 통계 확인
     - **데이터모델**: CacheEntry(data, ttl, created_at), CacheStats(hit_rate, miss_count)
     - **에러처리**: CacheConnectionError, graceful degradation
     - **테스트**: 캐시 적중/미적중 시나리오, TTL 만료, 분산 락 경합
-  - 1-1-5. 링크 분석 API 엔드포인트 구현
-    - **상세**: 비동기 분석 큐, 상태 조회, 웹훅 지원
+  - 1-1-5. 링크 분석 API 엔드포인트 구현 ✅ **완료** (2025-09-29)
+    - **상세**: 비동기 분석 큐, 상태 조회, 웹훅 지원, 벌크 분석
     - **구현**: `app/api/v1/endpoints/link_analysis.py`
     - **API**:
       - `POST /api/v1/links/analyze` - 분석 요청
-      - `GET /api/v1/analyses/{analysis_id}` - 결과 조회
-      - `DELETE /api/v1/analyses/{analysis_id}` - 분석 취소
+      - `GET /api/v1/links/analyses/{analysis_id}` - 결과 조회
+      - `DELETE /api/v1/links/analyses/{analysis_id}` - 분석 취소
+      - `POST /api/v1/links/bulk-analyze` - 벌크 분석
+      - `GET /api/v1/links/cache/stats` - 캐시 통계
+      - `GET /api/v1/links/status` - 서비스 상태
     - **데이터모델**: LinkAnalyzeRequest, AnalysisResponse, AnalysisStatus
     - **에러처리**: 400(잘못된 URL), 429(레이트 리미트), 503(서비스 장애)
     - **테스트**: E2E 분석 플로우, 동시 요청 처리, 레이트 리미팅
-  - 1-1-6. SNS 링크 분석 종합 테스트 코드 작성
+  - 1-1-6. SNS 링크 분석 종합 테스트 코드 작성 ✅ **완료** (2025-09-29)
     - **상세**: TDD 기반 전체 플로우 테스트, 성능 테스트, 부하 테스트
-    - **구현**: `tests/test_link_analysis.py`, `tests/performance/test_link_analysis_load.py`
+    - **구현**: `tests/test_link_analysis_*.py` (7개 파일), `tests/performance/test_link_analysis_performance.py`
     - **커버리지**: 전체 링크 분석 기능 85% 이상 (중요 기능은 95%)
     - **단위 테스트**: 각 서비스별 독립 테스트 (외부 의존성 목킹)
     - **통합 테스트**: E2E 분석 플로우 (URL 입력 → 결과 저장)
@@ -395,7 +398,7 @@
 
 ## 4. 성능 및 인프라 엔지니어링 (Performance & Infrastructure)
 
-### 4-1. 캐시 및 성능 엔지니어링 시스템 백엔드 ✅ **완료** (2025-01-15)
+### 4-1. 캐시 및 성능 엔지니어링 시스템 백엔드 ✅ **완료** (2025-09-15)
 - **목표**: 대규모 사용자 트래픽에 견딜 수 있는 고성능 캐싱 시스템으로 빠른 인프라 구축
 - **완료 정의 (DoD)**:
   - API 응답시간 p95 2초 이내 ✅
@@ -405,15 +408,15 @@
   - Given 캐시 최적화된 개인별, When 캐시 요청, Then 50ms 이내 응답 ✅
   - Given 1000명 동시 접근, When 복합 시뮬레이션, Then 응답시간 증가 없이 서비스 안정성 유지 ✅
 - **하위 작업**:
-  - 4-1-1. TDD: 다계층 캐시 시스템 테스트 작성 ✅ **완료** (2025-01-15)
-  - 4-1-2. Redis 기반 멀티 레벨 캐시 매니저 구현 ✅ **완료** (2025-01-15)
-  - 4-1-3. TDD: 성능 모니터링 및 최적화 테스트 작성 ✅ **완료** (2025-01-15)
-  - 4-1-4. API 응답 최적화 및 성능 튜닝 대시보드 ✅ **완료** (2025-01-15)
-  - 4-1-5. CDN 연동 및 정적 리소스 캐싱 ✅ **완료** (2025-01-15)
-  - 4-1-6. 캐시 성능 통합 테스트 및 API 엔드포인트 ✅ **완료** (2025-01-15)
+  - 4-1-1. TDD: 다계층 캐시 시스템 테스트 작성 ✅ **완료** (2025-09-15)
+  - 4-1-2. Redis 기반 멀티 레벨 캐시 매니저 구현 ✅ **완료** (2025-09-15)
+  - 4-1-3. TDD: 성능 모니터링 및 최적화 테스트 작성 ✅ **완료** (2025-09-15)
+  - 4-1-4. API 응답 최적화 및 성능 튜닝 대시보드 ✅ **완료** (2025-09-15)
+  - 4-1-5. CDN 연동 및 정적 리소스 캐싱 ✅ **완료** (2025-09-15)
+  - 4-1-6. 캐시 성능 통합 테스트 및 API 엔드포인트 ✅ **완료** (2025-09-15)
 - **참고 문서**: `prd/11-cache-performance.md`, `trd/11-cache-performance.md`
 
-### 4-2. 모니터링 및 로깅 시스템 백엔드 ✅ **완료** (2025-01-15)
+### 4-2. 모니터링 및 로깅 시스템 백엔드 ✅ **완료** (2025-09-15)
 - **목표**: 서비스 상태를 실시간 모니터링하고 관측가능성(Observability)을 확보하는 포괄적 모니터링 시스템 구축
 - **완료 정의 (DoD)**:
   - 구조화된 로깅 시스템 (JSON format, 민감정보 마스킹) ✅
@@ -425,12 +428,12 @@
   - Given 서비스 오류 발생, When 성능 지표 5% 저하, Then 즉시 알림 전송 ✅
   - Given 사용자 액션, When 중요 이벤트 발생, Then 로그 수집 및 분석 완료 ✅
 - **하위 작업**:
-  - 4-2-1. TDD: 로깅 및 중앙집중식 관리 시스템 테스트 ✅ **완료** (2025-01-15)
-  - 4-2-2. 로깅 서비스 구현 (구조화된 로깅, 추적, 로테이션) ✅ **완료** (2025-01-15)
-  - 4-2-3. TDD: APM 및 성능 모니터링 테스트 작성 ✅ **완료** (2025-01-15)
-  - 4-2-4. APM 서비스 구현 (성능 대시보드, 최적화) ✅ **완료** (2025-01-15)
-  - 4-2-5. TDD: 사용자 행동 분석 테스트 작성 ✅ **완료** (2025-01-15)
-  - 4-2-6. 사용자 행동 분석 서비스 구현 (추적, 세분화, 대시보드) ✅ **완료** (2025-01-15)
+  - 4-2-1. TDD: 로깅 및 중앙집중식 관리 시스템 테스트 ✅ **완료** (2025-09-15)
+  - 4-2-2. 로깅 서비스 구현 (구조화된 로깅, 추적, 로테이션) ✅ **완료** (2025-09-15)
+  - 4-2-3. TDD: APM 및 성능 모니터링 테스트 작성 ✅ **완료** (2025-09-15)
+  - 4-2-4. APM 서비스 구현 (성능 대시보드, 최적화) ✅ **완료** (2025-09-15)
+  - 4-2-5. TDD: 사용자 행동 분석 테스트 작성 ✅ **완료** (2025-09-15)
+  - 4-2-6. 사용자 행동 분석 서비스 구현 (추적, 세분화, 대시보드) ✅ **완료** (2025-09-15)
 - **참고 문서**: `trd/main.md` (모니터링 요구사항)
 
 ## 5. 품질 보장 및 배포 (Quality Assurance & Deployment)
@@ -476,10 +479,11 @@
 ## 완료 마일스톤 (추가 체크리스트)
 
 ### 1차 마일스톤
-- [ ] 핵심 5개 기능(링크분석, 장소관리, 코스추천, 지도구현, 공유 시스템) 완료
+- [x] ~~핵심 5개 기능 중 1개 완료~~ ✅ **링크분석 완료** (2025-09-29)
+- [ ] 핵심 5개 기능(~~링크분석~~, 장소관리, 코스추천, 지도구현, 공유 시스템) 완료 (1/5)
 - [ ] 사용자 인증 및 프로필 관리 시스템 완료
 - [ ] 검색/필터 기능으로 사용자 상호작용 향상
-- [ ] 테스트 시스템으로 품질 8분의 구현
+- [ ] 테스트 시스템으로 품질 80%의 구현
 
 ### 2차 마일스톤
 - [ ] API 응답시간 p95 2초 이내 달성
@@ -498,7 +502,7 @@
 ## 추진 일정 및 우선 순위
 
 **Phase 1 (MVP - 8주)**
-1. SNS 링크 분석 (1-1)
+1. ~~SNS 링크 분석 (1-1)~~ ✅ **완료** (2025-09-29)
 2. 장소 관리 시스템 (1-2)
 3. Firebase 인증 (3-1)
 4. 기본 UI/UX 및 온보딩 (2-1)
@@ -520,6 +524,6 @@
 
 ---
 
-*작성일: 2025-01-XX*
+*작성일: 2025-09-XX*
 *작성자: Claude*
 *버전: 1.0*

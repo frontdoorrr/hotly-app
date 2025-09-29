@@ -75,10 +75,7 @@ async def test_link_analysis_components():
     # Test 4: Link Analysis Schemas
     print("\n4. Testing Link Analysis Schemas...")
     try:
-        from app.schemas.link_analysis import (
-            AnalysisStatus,
-            LinkAnalyzeRequest,
-        )
+        from app.schemas.link_analysis import AnalysisStatus, LinkAnalyzeRequest
 
         print("✅ Link analysis schemas imported successfully")
 

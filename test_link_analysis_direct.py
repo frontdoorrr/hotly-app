@@ -154,10 +154,7 @@ async def test_schemas_validation():
     print("=" * 50)
 
     try:
-        from app.schemas.link_analysis import (
-            AnalysisStatus,
-            LinkAnalyzeRequest,
-        )
+        from app.schemas.link_analysis import AnalysisStatus, LinkAnalyzeRequest
 
         print("✅ Schemas imported successfully")
 
