@@ -1,13 +1,22 @@
-"""Course sharing and personal storage API endpoints."""
+"""Course recommendation, sharing and personal storage API endpoints."""
 
 import logging
+import uuid
 from datetime import datetime
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
+from app.crud import place as place_crud
+from app.schemas.course import (
+    CourseRecommendationResponse,
+    CourseRequest,
+    PlaceInCourseResponse,
+)
+from app.schemas.place import PlaceCreate
+from app.services.course_recommender import CourseRecommender
 from app.services.course_sharing_service import (
     CourseAnalyticsService,
     CourseDiscoveryService,
@@ -21,6 +30,144 @@ logger = logging.getLogger(__name__)
 
 # Temporary user_id for development
 TEMP_USER_ID = "00000000-0000-0000-0000-000000000000"
+
+
+# ============================================================================
+# COURSE RECOMMENDATION ENDPOINTS (Task 1-3-1)
+# ============================================================================
+
+
+@router.post("/recommend", response_model=CourseRecommendationResponse)
+async def recommend_course(
+    request: CourseRequest,
+    db: Session = Depends(get_db),
+    current_user_id: str = TEMP_USER_ID,
+):
+    """
+    Generate optimized course recommendation from selected places.
+
+    **Requirements:**
+    - 3-6 places required
+    - Places must exist in database
+    - Response time < 10 seconds
+
+    **Optimization:**
+    - Minimizes travel distance (30%+ improvement)
+    - Ensures category diversity (max 2 consecutive same category)
+    - Calculates accurate travel times
+
+    **Example:**
+    ```json
+    {
+      "place_ids": ["place1", "place2", "place3"],
+      "transport_mode": "walking",
+      "start_time": "10:00"
+    }
+    ```
+    """
+    # Validate place count
+    if len(request.place_ids) < 3:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="At least 3 places required for course recommendation",
+        )
+    if len(request.place_ids) > 6:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Maximum 6 places allowed for course recommendation",
+        )
+
+    # Fetch places from database
+    places: List[PlaceCreate] = []
+    for place_id in request.place_ids:
+        place = place_crud.place.get(db, id=place_id)
+        if not place:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Place with ID {place_id} not found",
+            )
+
+        # Convert to PlaceCreate for recommendation engine
+        place_data = PlaceCreate(
+            name=place.name,
+            address=place.address,
+            latitude=place.latitude,
+            longitude=place.longitude,
+            category=place.category,
+        )
+        places.append(place_data)
+
+    # Generate course recommendation
+    recommender = CourseRecommender()
+    start_location = None
+    if request.start_latitude and request.start_longitude:
+        start_location = (request.start_latitude, request.start_longitude)
+
+    result = recommender.recommend_course(places, start_location)
+
+    # Calculate arrival times if start_time provided
+    arrival_times = []
+    if request.start_time:
+        current_minutes = _parse_time_to_minutes(request.start_time)
+        for place_in_course in result.places:
+            arrival_times.append(_minutes_to_time_str(current_minutes))
+            current_minutes += place_in_course.estimated_duration_minutes + (
+                place_in_course.travel_duration_minutes or 0
+            )
+    else:
+        arrival_times = [None] * len(result.places)
+
+    # Format response
+    places_response = [
+        PlaceInCourseResponse(
+            place_id=request.place_ids[
+                places.index(pic.place)
+            ],  # Map back to original ID
+            place_name=pic.place.name,
+            category=pic.category,
+            address=pic.place.address,
+            latitude=pic.place.latitude,
+            longitude=pic.place.longitude,
+            position=pic.position,
+            travel_distance_km=pic.travel_distance_km,
+            travel_duration_minutes=pic.travel_duration_minutes,
+            estimated_duration_minutes=pic.estimated_duration_minutes,
+            arrival_time=arrival_times[pic.position],
+        )
+        for pic in result.places
+    ]
+
+    return CourseRecommendationResponse(
+        course_id=str(uuid.uuid4()),
+        user_id=current_user_id,
+        places=places_response,
+        total_distance_km=result.total_distance_km,
+        total_duration_minutes=result.total_duration_minutes,
+        optimization_score=result.optimization_score,
+        transport_mode=request.transport_mode,
+        created_at=datetime.utcnow(),
+    )
+
+
+def _parse_time_to_minutes(time_str: str) -> int:
+    """Parse HH:MM time string to minutes since midnight."""
+    try:
+        hours, minutes = map(int, time_str.split(":"))
+        return hours * 60 + minutes
+    except (ValueError, AttributeError):
+        return 600  # Default 10:00 AM
+
+
+def _minutes_to_time_str(minutes: int) -> str:
+    """Convert minutes since midnight to HH:MM string."""
+    hours = minutes // 60
+    mins = minutes % 60
+    return f"{hours:02d}:{mins:02d}"
+
+
+# ============================================================================
+# COURSE SHARING ENDPOINTS (Task 1-5)
+# ============================================================================
 
 
 @router.post("/create-share-link", response_model=dict)
