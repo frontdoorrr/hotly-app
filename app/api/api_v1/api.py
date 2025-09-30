@@ -10,16 +10,17 @@ from app.api.api_v1.endpoints import (
     content,
     courses,
     link_analysis,
+    map,
     notifications,
     onboarding,
-    personalization,
     performance,
+    personalization,
     places,
     preference_setup,
     preferences,
     search,
-    search_ranking,
     search_optimization,
+    search_ranking,
     user_data,
 )
 
@@ -53,14 +54,13 @@ api_router.include_router(
     search_ranking.router, prefix="/ranking", tags=["search-ranking"]
 )
 api_router.include_router(
-    search_optimization.router, prefix="/search-optimization", tags=["search-optimization"]
+    search_optimization.router,
+    prefix="/search-optimization",
+    tags=["search-optimization"],
 )
-api_router.include_router(
-    user_data.router, prefix="/user-data", tags=["user-data"]
-)
+api_router.include_router(user_data.router, prefix="/user-data", tags=["user-data"])
 api_router.include_router(
     performance.router, prefix="/performance", tags=["performance"]
 )
-api_router.include_router(
-    cdn.router, prefix="/cdn", tags=["cdn"]
-)
+api_router.include_router(cdn.router, prefix="/cdn", tags=["cdn"])
+api_router.include_router(map.router, prefix="/map", tags=["map"])
