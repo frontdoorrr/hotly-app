@@ -7,13 +7,21 @@ Common dependencies used across API endpoints.
 from typing import Generator, Optional
 
 import redis.asyncio as redis
+from fastapi import Depends
 from fastapi.security import HTTPBearer
 from sqlalchemy.orm import Session
 
-from app.core.config import settings
 from app.core.cache import CacheService, MemoryCacheService
+from app.core.config import settings
 from app.db.session import SessionLocal
 from app.models.user import User
+from app.services.user_data_service import (
+    AuthenticatedUserService,
+    UserActivityLogService,
+    UserDataPrivacyService,
+    UserPersonalDataService,
+    UserSettingsService,
+)
 
 security = HTTPBearer()
 
@@ -95,12 +103,87 @@ async def get_redis_client() -> Optional[redis.Redis]:
 def get_cache_service() -> CacheService:
     """
     Get cache service dependency.
-    
+
     For development, uses memory cache.
     In production, should use Redis cache.
-    
+
     Returns:
         CacheService: Cache service instance
     """
     # For development/testing, use memory cache
     return MemoryCacheService()
+
+
+def get_authenticated_user_service(
+    db: Session = Depends(get_db),
+) -> AuthenticatedUserService:
+    """
+    Get authenticated user service dependency.
+
+    Args:
+        db: Database session
+
+    Returns:
+        AuthenticatedUserService: Service instance
+    """
+    return AuthenticatedUserService(db=db)
+
+
+def get_personal_data_service(
+    db: Session = Depends(get_db),
+) -> UserPersonalDataService:
+    """
+    Get user personal data service dependency.
+
+    Args:
+        db: Database session
+
+    Returns:
+        UserPersonalDataService: Service instance
+    """
+    return UserPersonalDataService(db=db)
+
+
+def get_activity_log_service(
+    db: Session = Depends(get_db),
+) -> UserActivityLogService:
+    """
+    Get user activity log service dependency.
+
+    Args:
+        db: Database session
+
+    Returns:
+        UserActivityLogService: Service instance
+    """
+    return UserActivityLogService(db=db)
+
+
+def get_settings_service(
+    db: Session = Depends(get_db),
+) -> UserSettingsService:
+    """
+    Get user settings service dependency.
+
+    Args:
+        db: Database session
+
+    Returns:
+        UserSettingsService: Service instance
+    """
+    return UserSettingsService(db=db)
+
+
+def get_privacy_service(
+    db: Session = Depends(get_db),
+) -> UserDataPrivacyService:
+    """
+    Get user data privacy service dependency.
+
+    Args:
+        db: Database session
+
+    Returns:
+        UserDataPrivacyService: Service instance
+    """
+    return UserDataPrivacyService(db=db)

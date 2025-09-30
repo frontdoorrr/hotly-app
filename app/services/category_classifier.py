@@ -331,7 +331,6 @@ class CategoryClassifier:
         except Exception as e:
             # Fallback on AI failure - log the error for debugging
             print(f"AI classification failed: {e}")
-            pass
 
         # Default fallback
         return ClassificationResult(

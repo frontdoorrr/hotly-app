@@ -132,7 +132,12 @@ class DuplicateDetector:
     def _check_address_similarity(
         self, new_place: PlaceCreate, existing_place: PlaceCreate
     ) -> DuplicateResult:
-        """Check address similarity."""
+        """
+        Check address similarity with street number awareness.
+
+        Applies penalty when addresses have different street numbers
+        on the same street (e.g., "홍익로 50" vs "홍익로 100").
+        """
         if not new_place.address or not existing_place.address:
             return DuplicateResult(
                 is_duplicate=False, confidence=0.0, match_type="missing_address"
@@ -142,6 +147,23 @@ class DuplicateDetector:
         existing_address = self._normalize_address(existing_place.address)
 
         similarity = self._calculate_string_similarity(new_address, existing_address)
+
+        # Check for different street numbers on same street
+        # Extract numbers from addresses
+        import re
+
+        new_numbers = re.findall(r"\d+", new_place.address)
+        existing_numbers = re.findall(r"\d+", existing_place.address)
+
+        # If both have street numbers and they differ significantly
+        if new_numbers and existing_numbers:
+            # Get the last number (usually the street number)
+            new_street_num = int(new_numbers[-1]) if new_numbers else 0
+            existing_street_num = int(existing_numbers[-1]) if existing_numbers else 0
+
+            # If numbers differ by more than 20, apply penalty
+            if abs(new_street_num - existing_street_num) > 20:
+                similarity *= 0.6  # 40% penalty for different street numbers
 
         if similarity >= self.address_similarity_threshold:
             return DuplicateResult(
@@ -249,7 +271,12 @@ class DuplicateDetector:
         return normalized
 
     def _calculate_string_similarity(self, str1: str, str2: str) -> float:
-        """Calculate string similarity using Levenshtein distance."""
+        """
+        Calculate string similarity using Levenshtein distance with length penalty.
+
+        Applies a penalty when length difference is significant to avoid
+        false positives with substring matches (e.g., "홍대카페" vs "홍대카페거리").
+        """
         if not str1 and not str2:
             return 1.0
         if not str1 or not str2:
@@ -261,6 +288,18 @@ class DuplicateDetector:
         # Convert to similarity score (0.0 to 1.0)
         max_length = max(len(str1), len(str2))
         similarity = 1.0 - (distance / max_length)
+
+        # Apply length penalty for significant length differences
+        # This helps distinguish "홍대카페" from "홍대카페거리"
+        len1, len2 = len(str1), len(str2)
+        length_diff_ratio = abs(len1 - len2) / max_length
+
+        # If length difference > 30%, apply penalty
+        if length_diff_ratio > 0.3:
+            # Penalty increases with length difference
+            # 30% diff = 0.85x, 50% diff = 0.70x, 100% diff = 0.50x
+            length_penalty = 1.0 - (length_diff_ratio * 0.5)
+            similarity *= length_penalty
 
         return max(0.0, similarity)
 

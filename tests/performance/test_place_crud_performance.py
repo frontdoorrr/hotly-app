@@ -71,7 +71,9 @@ class TestPlaceCRUDPerformance:
             ),
         ]
 
-    def measure_api_response_time(self, method: str, endpoint: str, **kwargs) -> tuple[float, object]:
+    def measure_api_response_time(
+        self, method: str, endpoint: str, **kwargs
+    ) -> tuple[float, object]:
         """Measure API response time for HTTP operations."""
         start_time = time.perf_counter()
 
@@ -170,7 +172,9 @@ class TestPlaceCRUDPerformance:
             p50_time < self.p50_threshold_ms
         ), f"P50 response time {p50_time:.1f}ms exceeds {self.p50_threshold_ms}ms target"
 
-    def test_read_operations_performance_variousQueries_efficientRetrieval(self) -> None:
+    def test_read_operations_performance_variousQueries_efficientRetrieval(
+        self,
+    ) -> None:
         """
         Test: Read operations (GET) perform efficiently under load
 
@@ -230,7 +234,9 @@ class TestPlaceCRUDPerformance:
                 f"   {status} {result['operation']}: avg {result['avg_time']:.1f}ms, max {result['max_time']:.1f}ms"
             )
 
-    def test_update_operations_performance_patchAndPut_efficientModification(self) -> None:
+    def test_update_operations_performance_patchAndPut_efficientModification(
+        self,
+    ) -> None:
         """
         Test: Update operations perform efficiently
 
@@ -364,7 +370,9 @@ class TestPlaceCRUDPerformance:
             concurrent_p95 < self.p95_threshold_ms
         ), f"Concurrent P95 {concurrent_p95:.1f}ms exceeds {self.p95_threshold_ms}ms threshold"
 
-    def test_complex_query_performance_advancedFiltering_efficientExecution(self) -> None:
+    def test_complex_query_performance_advancedFiltering_efficientExecution(
+        self,
+    ) -> None:
         """
         Test: Complex queries with multiple filters perform efficiently
 

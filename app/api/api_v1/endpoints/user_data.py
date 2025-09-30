@@ -5,39 +5,43 @@
 API 엔드포인트들을 구현합니다.
 """
 from datetime import datetime
-from typing import List, Dict, Any, Optional
-from fastapi import APIRouter, Depends, HTTPException, Request, status
-from sqlalchemy.orm import Session
+from typing import Any, Dict, List
 
-from app.api import deps
-from app.middleware.auth_middleware import get_current_user, require_permission
-from app.models.user_data import AuthenticatedUser
-from app.services.user_data_service import (
-    AuthenticatedUserService,
-    UserPersonalDataService,
-    UserActivityLogService,
-    UserSettingsService,
-    UserDataPrivacyService
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+
+from app.api.deps import (
+    get_activity_log_service,
+    get_authenticated_user_service,
+    get_personal_data_service,
+    get_privacy_service,
+    get_settings_service,
 )
+from app.middleware.auth_middleware import get_current_user
+from app.models.user_data import AuthenticatedUser
 from app.schemas.user_data import (
+    UserActivityLogResponse,
+    UserPersonalDataCreate,
+    UserPersonalDataResponse,
+    UserPrivacySettingsResponse,
+    UserPrivacySettingsUpdate,
     UserProfileResponse,
     UserProfileUpdate,
-    UserPersonalDataResponse,
-    UserPersonalDataCreate,
-    UserActivityLogResponse,
     UserSettingsResponse,
     UserSettingsUpdate,
-    UserPrivacySettingsResponse,
-    UserPrivacySettingsUpdate
+)
+from app.services.user_data_service import (
+    AuthenticatedUserService,
+    UserActivityLogService,
+    UserDataPrivacyService,
+    UserPersonalDataService,
+    UserSettingsService,
 )
 
 router = APIRouter()
 
 
 @router.get("/profile", response_model=UserProfileResponse)
-async def get_user_profile(
-    current_user: AuthenticatedUser = Depends(get_current_user)
-):
+async def get_user_profile(current_user: AuthenticatedUser = Depends(get_current_user)):
     """현재 사용자 프로필 조회"""
     return UserProfileResponse(
         id=str(current_user.id),
@@ -49,7 +53,7 @@ async def get_user_profile(
         is_email_verified=current_user.is_email_verified,
         is_phone_verified=current_user.is_phone_verified,
         created_at=current_user.created_at,
-        last_login_at=current_user.last_login_at
+        last_login_at=current_user.last_login_at,
     )
 
 
@@ -57,16 +61,15 @@ async def get_user_profile(
 async def update_user_profile(
     profile_update: UserProfileUpdate,
     current_user: AuthenticatedUser = Depends(get_current_user),
-    user_service: AuthenticatedUserService = Depends()
+    user_service: AuthenticatedUserService = Depends(get_authenticated_user_service),
 ):
     """사용자 프로필 업데이트"""
     update_data = profile_update.dict(exclude_unset=True)
-    
+
     updated_user = user_service.update_profile(
-        user_id=str(current_user.id),
-        profile_updates=update_data
+        user_id=str(current_user.id), profile_updates=update_data
     )
-    
+
     return UserProfileResponse(
         id=str(updated_user.id),
         firebase_uid=updated_user.firebase_uid,
@@ -78,7 +81,7 @@ async def update_user_profile(
         is_phone_verified=updated_user.is_phone_verified,
         created_at=updated_user.created_at,
         updated_at=updated_user.updated_at,
-        last_login_at=updated_user.last_login_at
+        last_login_at=updated_user.last_login_at,
     )
 
 
@@ -86,16 +89,16 @@ async def update_user_profile(
 async def store_personal_data(
     data_create: UserPersonalDataCreate,
     current_user: AuthenticatedUser = Depends(get_current_user),
-    personal_data_service: UserPersonalDataService = Depends()
+    personal_data_service: UserPersonalDataService = Depends(get_personal_data_service),
 ):
     """개인 데이터 저장"""
     stored_data = personal_data_service.store_data(
         user_id=str(current_user.id),
         data_type=data_create.data_type,
         data_content=data_create.data_content,
-        encrypt=data_create.encrypt
+        encrypt=data_create.encrypt,
     )
-    
+
     return UserPersonalDataResponse(
         id=str(stored_data.id),
         user_id=stored_data.user_id,
@@ -104,7 +107,7 @@ async def store_personal_data(
         is_encrypted=stored_data.is_encrypted,
         sensitivity_level=stored_data.sensitivity_level,
         created_at=stored_data.created_at,
-        updated_at=stored_data.updated_at
+        updated_at=stored_data.updated_at,
     )
 
 
@@ -112,20 +115,18 @@ async def store_personal_data(
 async def get_personal_data(
     data_type: str,
     current_user: AuthenticatedUser = Depends(get_current_user),
-    personal_data_service: UserPersonalDataService = Depends()
+    personal_data_service: UserPersonalDataService = Depends(get_personal_data_service),
 ):
     """특정 타입의 개인 데이터 조회"""
     user_data = personal_data_service.get_by_type(
-        user_id=str(current_user.id),
-        data_type=data_type
+        user_id=str(current_user.id), data_type=data_type
     )
-    
+
     if not user_data:
         raise HTTPException(
-            status_code=404,
-            detail=f"Personal data of type '{data_type}' not found"
+            status_code=404, detail=f"Personal data of type '{data_type}' not found"
         )
-    
+
     return UserPersonalDataResponse(
         id=str(user_data.id),
         user_id=user_data.user_id,
@@ -134,7 +135,7 @@ async def get_personal_data(
         is_encrypted=user_data.is_encrypted,
         sensitivity_level=user_data.sensitivity_level,
         created_at=user_data.created_at,
-        updated_at=user_data.updated_at
+        updated_at=user_data.updated_at,
     )
 
 
@@ -142,19 +143,19 @@ async def get_personal_data(
 async def get_activity_logs(
     limit: int = 50,
     current_user: AuthenticatedUser = Depends(get_current_user),
-    activity_service: UserActivityLogService = Depends()
+    activity_service: UserActivityLogService = Depends(get_activity_log_service),
 ):
     """사용자 활동 로그 조회"""
     start_date = datetime.utcnow().replace(day=1)  # 이번 달 초부터
     end_date = datetime.utcnow()
-    
+
     activity_logs = activity_service.get_user_activity_history(
         user_id=str(current_user.id),
         start_date=start_date,
         end_date=end_date,
-        limit=limit
+        limit=limit,
     )
-    
+
     return [
         UserActivityLogResponse(
             id=str(log.id),
@@ -163,7 +164,7 @@ async def get_activity_logs(
             activity_data=log.activity_data,
             ip_address=log.ip_address,
             user_agent=log.user_agent,
-            created_at=log.created_at
+            created_at=log.created_at,
         )
         for log in activity_logs
     ]
@@ -172,12 +173,12 @@ async def get_activity_logs(
 @router.get("/settings", response_model=UserSettingsResponse)
 async def get_user_settings(
     current_user: AuthenticatedUser = Depends(get_current_user),
-    settings_service: UserSettingsService = Depends()
+    settings_service: UserSettingsService = Depends(get_settings_service),
 ):
     """사용자 설정 조회"""
     # Mock 구현: 기본 설정 반환
     settings = settings_service.initialize_default_settings(str(current_user.id))
-    
+
     return UserSettingsResponse(
         id=str(settings.id),
         user_id=settings.user_id,
@@ -186,7 +187,7 @@ async def get_user_settings(
         is_default=settings.is_default,
         version=settings.version,
         created_at=settings.created_at,
-        updated_at=settings.updated_at
+        updated_at=settings.updated_at,
     )
 
 
@@ -194,15 +195,15 @@ async def get_user_settings(
 async def update_user_settings(
     settings_update: UserSettingsUpdate,
     current_user: AuthenticatedUser = Depends(get_current_user),
-    settings_service: UserSettingsService = Depends()
+    settings_service: UserSettingsService = Depends(get_settings_service),
 ):
     """사용자 설정 업데이트"""
     updated_settings = settings_service.update_settings(
         user_id=str(current_user.id),
         settings_type=settings_update.settings_type,
-        settings_updates=settings_update.settings_data
+        settings_updates=settings_update.settings_data,
     )
-    
+
     return UserSettingsResponse(
         id=str(updated_settings.id),
         user_id=updated_settings.user_id,
@@ -211,14 +212,14 @@ async def update_user_settings(
         is_default=updated_settings.is_default,
         version=updated_settings.version,
         created_at=updated_settings.created_at,
-        updated_at=updated_settings.updated_at
+        updated_at=updated_settings.updated_at,
     )
 
 
 @router.get("/privacy-settings", response_model=UserPrivacySettingsResponse)
 async def get_privacy_settings(
     current_user: AuthenticatedUser = Depends(get_current_user),
-    privacy_service: UserDataPrivacyService = Depends()
+    privacy_service: UserDataPrivacyService = Depends(get_privacy_service),
 ):
     """프라이버시 설정 조회"""
     # Mock 구현: 기본 프라이버시 설정 반환
@@ -227,14 +228,13 @@ async def get_privacy_settings(
         "marketing_consent": False,
         "location_tracking": True,
         "analytics_consent": True,
-        "data_retention_days": 365
+        "data_retention_days": 365,
     }
-    
+
     privacy_settings = privacy_service.setup_privacy_settings(
-        user_id=str(current_user.id),
-        privacy_preferences=default_privacy
+        user_id=str(current_user.id), privacy_preferences=default_privacy
     )
-    
+
     return UserPrivacySettingsResponse(
         id=str(privacy_settings.id),
         user_id=privacy_settings.user_id,
@@ -244,7 +244,7 @@ async def get_privacy_settings(
         consent_version=privacy_settings.consent_version,
         data_retention_days=privacy_settings.data_retention_days,
         created_at=privacy_settings.created_at,
-        last_updated=privacy_settings.last_updated
+        last_updated=privacy_settings.last_updated,
     )
 
 
@@ -252,14 +252,14 @@ async def get_privacy_settings(
 async def update_privacy_settings(
     privacy_update: UserPrivacySettingsUpdate,
     current_user: AuthenticatedUser = Depends(get_current_user),
-    privacy_service: UserDataPrivacyService = Depends()
+    privacy_service: UserDataPrivacyService = Depends(get_privacy_service),
 ):
     """프라이버시 설정 업데이트"""
     updated_privacy = privacy_service.setup_privacy_settings(
         user_id=str(current_user.id),
-        privacy_preferences=privacy_update.privacy_settings
+        privacy_preferences=privacy_update.privacy_settings,
     )
-    
+
     return UserPrivacySettingsResponse(
         id=str(updated_privacy.id),
         user_id=updated_privacy.user_id,
@@ -269,7 +269,7 @@ async def update_privacy_settings(
         consent_version=updated_privacy.consent_version,
         data_retention_days=updated_privacy.data_retention_days,
         created_at=updated_privacy.created_at,
-        last_updated=updated_privacy.last_updated
+        last_updated=updated_privacy.last_updated,
     )
 
 
@@ -278,33 +278,28 @@ async def request_data_deletion(
     reason: str = "user_request",
     immediate: bool = False,
     current_user: AuthenticatedUser = Depends(get_current_user),
-    privacy_service: UserDataPrivacyService = Depends()
+    privacy_service: UserDataPrivacyService = Depends(get_privacy_service),
 ):
     """사용자 데이터 삭제 요청"""
     deletion_result = privacy_service.request_data_deletion(
-        user_id=str(current_user.id),
-        reason=reason,
-        immediate=immediate
+        user_id=str(current_user.id), reason=reason, immediate=immediate
     )
-    
+
     return {
         "message": "Data deletion request has been processed",
-        "deletion_details": deletion_result
+        "deletion_details": deletion_result,
     }
 
 
 @router.get("/export-data")
 async def export_user_data(
     current_user: AuthenticatedUser = Depends(get_current_user),
-    privacy_service: UserDataPrivacyService = Depends()
+    privacy_service: UserDataPrivacyService = Depends(get_privacy_service),
 ):
     """사용자 데이터 내보내기 (GDPR 권리)"""
     exported_data = privacy_service.export_user_data(str(current_user.id))
-    
-    return {
-        "message": "User data export completed",
-        "export_details": exported_data
-    }
+
+    return {"message": "User data export completed", "export_details": exported_data}
 
 
 # 활동 로깅을 위한 내부 엔드포인트
@@ -314,22 +309,22 @@ async def log_user_activity(
     activity_type: str,
     activity_data: Dict[str, Any],
     current_user: AuthenticatedUser = Depends(get_current_user),
-    activity_service: UserActivityLogService = Depends()
+    activity_service: UserActivityLogService = Depends(get_activity_log_service),
 ):
     """사용자 활동 로깅 (내부 사용)"""
     request_info = {
-        "ip_address": request.client.host if hasattr(request, 'client') else "unknown",
-        "user_agent": request.headers.get("user-agent", "unknown")
+        "ip_address": request.client.host if hasattr(request, "client") else "unknown",
+        "user_agent": request.headers.get("user-agent", "unknown"),
     }
-    
+
     activity_log = activity_service.log_activity(
         user_id=str(current_user.id),
         activity_type=activity_type,
         activity_data=activity_data,
-        request_info=request_info
+        request_info=request_info,
     )
-    
+
     return {
         "message": "Activity logged successfully",
-        "activity_id": str(activity_log.id)
+        "activity_id": str(activity_log.id),
     }
