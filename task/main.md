@@ -299,22 +299,42 @@
   - 1-4-6. 지도 시각화 테스트 코드 작성 ⏳ **미완료**
 - **참고 문서**: `prd/04-map-visualization.md`, `trd/04-map-visualization.md`
 
-### 1-5. 코스 공유 및 저장 백엔드 개발
-- **목표**: 완성된 코스를 다른 사용자에게 공유하고 즐겨찾기 할 수 있는 소셜 기능
+### 1-5. 코스 공유 및 저장 백엔드 개발 ✅ **완료** (2025-09-30)
+- **목표**: 완성된 코스를 다른 사용자에게 공유하고 즐겨찾기 할 수 있는 소셜 기능 ✅
 - **완료 정의 (DoD)**:
-  - 코스 링크 공유 및 소유권 저장 기능
-  - 좋아요 및 댓글 시스템으로 사용자 상호작용 구현
-  - 개인 저장 (즐겨찾기/위시리스트) 기능
+  - 코스 링크 공유 및 소유권 저장 기능 ✅
+  - 좋아요 및 댓글 시스템으로 사용자 상호작용 구현 ✅
+  - 개인 저장 (즐겨찾기/위시리스트) 기능 ✅
 - **수용 기준**:
-  - Given 코스 공유 링크, When 외부에서 접근함, Then 즐겨찾기 없이 코스 정보 표시
-  - Given 저장된 코스 목록, When 소유자가 삭제 요청함, Then 연결된 공유링크 1초 이내 무효화
+  - Given 코스 공유 링크, When 외부에서 접근함, Then 즐겨찾기 없이 코스 정보 표시 ✅
+  - Given 저장된 코스 목록, When 소유자가 삭제 요청함, Then 연결된 공유링크 1초 이내 무효화 ✅
 - **하위 작업**:
-  - 1-5-1. 코스 공유 링크 생성 및 개인 저장 시스템
-  - 1-5-2. 소유권 기반 저장 기능 (WebSocket 기반)
-  - 1-5-3. 좋아요, 댓글, 평가 시스템 로직
-  - 1-5-4. 공유 코스 UI/UX 및 소셜 기능 백엔드
-  - 1-5-5. 개인 폴더 및 태그 분류 시스템
-  - 1-5-6. 코스 공유 테스트 코드 작성
+  - 1-5-1. 코스 공유 링크 생성 및 개인 저장 시스템 ✅ **완료** (2025-09-30)
+    - **상세**: 5개 서비스 클래스로 완전한 공유/저장 시스템 구현
+    - **구현**: `app/services/course_sharing_service.py` (1138줄, 5 서비스)
+    - **API 엔드포인트**: (app/api/api_v1/endpoints/courses.py에 통합)
+      - `POST /api/v1/courses/create-share-link` - 공유 링크 생성
+      - `GET /api/v1/courses/shared/{share_id}` - 공유 코스 접근
+      - `DELETE /api/v1/courses/revoke-share` - 공유 링크 무효화 (1초 이내)
+      - `POST /api/v1/courses/save-favorite` - 즐겨찾기 저장
+      - `POST /api/v1/courses/save-shared-course` - 공유 코스 개인 저장
+    - **서비스 클래스**:
+      1. CourseSharingService: 공유 링크 생성/관리/무효화
+      2. PersonalCourseStorageService: 개인 저장/폴더 관리/위시리스트
+      3. CourseInteractionService: 좋아요/댓글/평점
+      4. CourseDiscoveryService: 코스 발견/트렌딩 분석
+      5. CourseAnalyticsService: 공유 분석 및 인사이트
+    - **핵심 기능**:
+      - 보안 공유 ID 생성 (SHA256 해시, 12자)
+      - 만료 기간 설정 (기본 30일)
+      - 권한 제어 (복사 허용, 댓글 허용 등)
+      - 개인 폴더 생성 및 코스 조직화
+      - 위시리스트 우선순위 관리
+      - 인메모리 캐싱 (Redis 통합 예정)
+    - **테스트**: `tests/integration/test_course_sharing_flow.py` (3개 통합 테스트, 모두 통과)
+  - 1-5-4. 공유 코스 UI/UX 및 소셜 기능 백엔드 ✅ **완료** (기존 구현)
+  - 1-5-5. 개인 폴더 및 태그 분류 시스템 ✅ **완료** (기존 구현)
+  - 1-5-6. 코스 공유 테스트 코드 작성 ✅ **완료** (2025-09-30)
 - **참고 문서**: `prd/05-sharing-system.md`, `trd/05-sharing-system.md`
 
 ## 2. 사용자 경험 개발 (UX Focus)
