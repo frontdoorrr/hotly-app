@@ -1,4 +1,4 @@
-# TRD: Firebase Auth 기반 인증 시스템
+# TRD: Supabase Auth 기반 인증 시스템
 
 ## 1. 시스템 개요
 
@@ -8,8 +8,8 @@
 │   Client Apps   │    │   API Gateway   │    │  Auth Service   │
 │                 │    │                 │    │                 │
 │ ┌─────────────┐ │    │ ┌─────────────┐ │    │ ┌─────────────┐ │
-│ │ Firebase    │ │◄───┤ │ JWT         │ │◄───┤ │ Firebase    │ │
-│ │ Auth SDK    │ │    │ │ Validator   │ │    │ │ Admin SDK   │ │
+│ │ Supabase    │ │◄───┤ │ JWT         │ │◄───┤ │ Supabase    │ │
+│ │ Auth Client │ │    │ │ Validator   │ │    │ │ GoTrue      │ │
 │ └─────────────┘ │    │ └─────────────┘ │    │ └─────────────┘ │
 │ ┌─────────────┐ │    │ ┌─────────────┐ │    │ ┌─────────────┐ │
 │ │ Social      │ │    │ │ Rate Limit  │ │    │ │ User        │ │
@@ -25,8 +25,8 @@
 │ External OAuth  │    │   Data Store    │
 │                 │    │                 │
 │ ┌─────────────┐ │    │ ┌─────────────┐ │
-│ │ Google      │ │───►│ │ Firebase    │ │
-│ │ OAuth       │ │    │ │ Auth        │ │
+│ │ Google      │ │───►│ │ Supabase    │ │
+│ │ OAuth       │ │    │ │ Auth Tables │ │
 │ └─────────────┘ │    │ └─────────────┘ │
 │ ┌─────────────┐ │    │ ┌─────────────┐ │
 │ │ Apple       │ │    │ │ User        │ │
@@ -44,253 +44,308 @@
 ### 1-2. 기술 스택
 ```yaml
 Authentication:
-  Core: Firebase Authentication 9.x
-  Social: Google Sign-In, Apple Sign In, Kakao Login
+  Core: Supabase Auth (GoTrue)
+  Social: Google Sign-In, Apple Sign In, Kakao OAuth
   Biometric: React Native Biometrics, Android Biometric API
 
 Backend:
-  Runtime: Node.js 18+ (TypeScript)
-  Framework: Express.js
+  Runtime: Python 3.11+ (FastAPI)
+  Framework: FastAPI
   Session Store: Redis Cluster
-  Database: PostgreSQL (user profiles), Firebase Auth (credentials)
+  Database: PostgreSQL (Supabase managed)
 
 Security:
   Encryption: AES-256-GCM (local storage)
   Transport: TLS 1.3
-  JWT: Firebase JWT with custom claims
-  Rate Limiting: express-rate-limit + Redis
+  JWT: Supabase JWT with user_metadata/app_metadata
+  Rate Limiting: slowapi + Redis
+  RLS: PostgreSQL Row Level Security
 
 Client:
-  iOS: Firebase iOS SDK, SwiftUI Biometrics
-  Android: Firebase Android SDK, AndroidX Biometric
-  State Management: Redux Toolkit (auth state)
+  Web: @supabase/supabase-js
+  Mobile: @supabase/supabase-flutter (if needed)
+  State Management: React Context / Redux (auth state)
 ```
 
-## 2. Firebase 설정 및 구성
+## 2. Supabase 설정 및 구성
 
-### 2-1. Firebase 프로젝트 설정
-```json
-// firebase-config.json
-{
-  "apiKey": "${FIREBASE_API_KEY}",
-  "authDomain": "hotly-app.firebaseapp.com",
-  "projectId": "hotly-app",
-  "storageBucket": "hotly-app.appspot.com",
-  "messagingSenderId": "${FCM_SENDER_ID}",
-  "appId": "${FIREBASE_APP_ID}",
-  "measurementId": "${GA_MEASUREMENT_ID}",
+### 2-1. Supabase 프로젝트 설정
+```python
+# app/core/supabase_config.py
+from supabase import create_client, Client
+from pydantic_settings import BaseSettings
 
-  "auth": {
-    "providers": {
-      "email": {
-        "enabled": true,
-        "passwordPolicy": {
-          "minLength": 8,
-          "requireLowercase": false,
-          "requireUppercase": false,
-          "requireNumeric": true,
-          "requireNonAlphanumeric": false
-        },
-        "emailVerification": {
-          "required": true,
-          "actionCodeSettings": {
-            "url": "https://hotly.app/verify-email",
-            "handleCodeInApp": true,
-            "iOS": {
-              "bundleId": "com.hotly.app"
-            },
-            "android": {
-              "packageName": "com.hotly.app",
-              "installApp": true,
-              "minimumVersion": "1.0.0"
-            }
-          }
-        }
-      },
-      "google": {
-        "enabled": true,
-        "clientId": "${GOOGLE_CLIENT_ID}"
-      },
-      "apple": {
-        "enabled": true,
-        "serviceId": "com.hotly.app.signin"
-      },
-      "anonymous": {
-        "enabled": true
-      }
-    }
-  }
-}
+class SupabaseSettings(BaseSettings):
+    supabase_url: str
+    supabase_anon_key: str
+    supabase_service_role_key: str
+    jwt_secret: str
+
+    # OAuth 설정
+    google_client_id: str
+    google_client_secret: str
+    apple_client_id: str
+    apple_client_secret: str
+
+    # 인증 설정
+    password_min_length: int = 8
+    email_verification_required: bool = True
+    session_duration_hours: int = 24
+    refresh_token_duration_days: int = 30
+
+    class Config:
+        env_file = ".env"
+
+settings = SupabaseSettings()
+
+# Supabase 클라이언트 초기화
+supabase: Client = create_client(
+    settings.supabase_url,
+    settings.supabase_anon_key
+)
+
+# 서비스 역할 클라이언트 (관리자 작업용)
+supabase_admin: Client = create_client(
+    settings.supabase_url,
+    settings.supabase_service_role_key
+)
 ```
 
-### 2-2. Firebase Security Rules
-```javascript
-// firestore.rules
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // 사용자 프로필 문서
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-      allow create: if request.auth != null && request.auth.uid == userId
-        && validateUserProfile(resource.data);
-    }
+### 2-2. Supabase Auth 제공업체 설정
+```sql
+-- Supabase Dashboard에서 설정 또는 SQL로 구성
 
-    // 게스트 사용자 임시 데이터
-    match /guest_data/{guestId} {
-      allow read, write: if request.auth != null && request.auth.uid == guestId;
-      // 게스트 데이터는 24시간 후 자동 삭제
-      allow create: if request.auth != null && request.auth.token.firebase.sign_in_provider == 'anonymous'
-        && request.time < resource.data.expires_at;
-    }
+-- OAuth 제공업체 활성화
+-- Google OAuth
+INSERT INTO auth.providers (name, enabled)
+VALUES ('google', true);
 
-    // 관리자만 접근 가능한 데이터
-    match /admin/{document=**} {
-      allow read, write: if request.auth != null
-        && request.auth.token.admin == true;
-    }
-  }
+-- Apple OAuth
+INSERT INTO auth.providers (name, enabled)
+VALUES ('apple', true);
 
-  function validateUserProfile(data) {
-    return data.keys().hasAll(['displayName', 'createdAt']) &&
-           data.displayName is string &&
-           data.displayName.size() >= 2 &&
-           data.displayName.size() <= 20;
-  }
-}
+-- Anonymous 인증
+INSERT INTO auth.providers (name, enabled)
+VALUES ('anonymous', true);
+
+-- 이메일 인증 설정
+UPDATE auth.config
+SET
+  enable_signup = true,
+  enable_anonymous_sign_ins = true,
+  email_confirm_required = true,
+  secure_password_change = true,
+  password_min_length = 8;
 ```
 
-### 2-3. Custom Claims 관리
-```typescript
-// custom-claims.ts
-interface CustomClaims {
-  admin: boolean;
-  premium: boolean;
-  verified_email: boolean;
-  created_at: number;
-  last_active: number;
-  device_count: number;
-}
+### 2-3. PostgreSQL Row Level Security (RLS)
+```sql
+-- auth.users는 Supabase가 자동 관리
+-- 추가 프로필 정보를 위한 테이블 생성
 
-class CustomClaimsManager {
-  async setUserClaims(uid: string, claims: Partial<CustomClaims>): Promise<void> {
-    try {
-      await admin.auth().setCustomUserClaims(uid, claims);
-      console.log(`Custom claims set for user ${uid}:`, claims);
-    } catch (error) {
-      console.error('Error setting custom claims:', error);
-      throw new Error('Failed to set user claims');
-    }
-  }
+-- 사용자 프로필 테이블
+CREATE TABLE public.user_profiles (
+  id UUID REFERENCES auth.users(id) PRIMARY KEY,
+  display_name TEXT NOT NULL CHECK (char_length(display_name) BETWEEN 2 AND 20),
+  bio TEXT,
+  photo_url TEXT,
+  region TEXT,
+  preferences JSONB DEFAULT '{}',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-  async getUserClaims(uid: string): Promise<CustomClaims> {
-    try {
-      const userRecord = await admin.auth().getUser(uid);
-      return userRecord.customClaims as CustomClaims || {};
-    } catch (error) {
-      console.error('Error getting custom claims:', error);
-      throw new Error('Failed to get user claims');
-    }
-  }
+-- RLS 활성화
+ALTER TABLE public.user_profiles ENABLE ROW LEVEL SECURITY;
 
-  async updateLastActive(uid: string): Promise<void> {
-    const currentClaims = await this.getUserClaims(uid);
-    await this.setUserClaims(uid, {
-      ...currentClaims,
-      last_active: Date.now()
-    });
-  }
-}
+-- 사용자 프로필 정책: 자신의 프로필만 읽기/쓰기
+CREATE POLICY "Users can view own profile"
+  ON public.user_profiles
+  FOR SELECT
+  USING (auth.uid() = id);
+
+CREATE POLICY "Users can update own profile"
+  ON public.user_profiles
+  FOR UPDATE
+  USING (auth.uid() = id);
+
+CREATE POLICY "Users can insert own profile"
+  ON public.user_profiles
+  FOR INSERT
+  WITH CHECK (auth.uid() = id);
+
+-- 게스트 데이터 테이블
+CREATE TABLE public.guest_data (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id),
+  data JSONB NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.guest_data ENABLE ROW LEVEL SECURITY;
+
+-- 게스트 데이터 정책: 익명 사용자만 접근
+CREATE POLICY "Anonymous users can manage own guest data"
+  ON public.guest_data
+  FOR ALL
+  USING (
+    auth.uid() = user_id
+    AND auth.jwt()->>'is_anonymous' = 'true'
+    AND expires_at > NOW()
+  );
+
+-- 관리자 테이블
+CREATE TABLE public.admin_data (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  data JSONB NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.admin_data ENABLE ROW LEVEL SECURITY;
+
+-- 관리자 정책: app_metadata에 admin 역할이 있는 사용자만
+CREATE POLICY "Only admins can access admin data"
+  ON public.admin_data
+  FOR ALL
+  USING (
+    (auth.jwt()->>'role')::text = 'admin'
+  );
+```
+
+### 2-4. User Metadata 관리
+```python
+# app/services/user_metadata_service.py
+from typing import Dict, Any, Optional
+from supabase import Client
+
+class UserMetadataService:
+    """Supabase의 user_metadata와 app_metadata 관리"""
+
+    def __init__(self, supabase_admin: Client):
+        self.supabase_admin = supabase_admin
+
+    async def set_user_metadata(
+        self,
+        user_id: str,
+        metadata: Dict[str, Any]
+    ) -> None:
+        """사용자 메타데이터 설정 (사용자가 수정 가능)"""
+        try:
+            self.supabase_admin.auth.admin.update_user_by_id(
+                user_id,
+                {"user_metadata": metadata}
+            )
+        except Exception as e:
+            raise Exception(f"Failed to set user metadata: {str(e)}")
+
+    async def set_app_metadata(
+        self,
+        user_id: str,
+        metadata: Dict[str, Any]
+    ) -> None:
+        """앱 메타데이터 설정 (관리자만 수정 가능)"""
+        try:
+            self.supabase_admin.auth.admin.update_user_by_id(
+                user_id,
+                {"app_metadata": metadata}
+            )
+        except Exception as e:
+            raise Exception(f"Failed to set app metadata: {str(e)}")
+
+    async def set_user_role(self, user_id: str, role: str) -> None:
+        """사용자 역할 설정 (JWT에 포함됨)"""
+        await self.set_app_metadata(user_id, {"role": role})
+
+    async def update_last_active(self, user_id: str) -> None:
+        """마지막 활성 시간 업데이트"""
+        await self.set_app_metadata(
+            user_id,
+            {"last_active": datetime.utcnow().isoformat()}
+        )
 ```
 
 ## 3. 인증 서비스 구현
 
-### 3-1. Firebase Auth 초기화
-```typescript
-// auth-service.ts
-import { initializeApp } from 'firebase/app';
-import {
-  getAuth,
-  connectAuthEmulator,
-  onAuthStateChanged,
-  User
-} from 'firebase/auth';
+### 3-1. Supabase Auth 초기화
+```python
+# app/services/auth_service.py
+from supabase import Client, create_client
+from typing import Optional, Callable, List
+from datetime import datetime
+import asyncio
 
-class FirebaseAuthService {
-  private auth: Auth;
-  private currentUser: User | null = null;
-  private authStateListeners: ((user: User | null) => void)[] = [];
+class SupabaseAuthService:
+    """Supabase 인증 서비스"""
 
-  constructor(config: FirebaseConfig) {
-    const app = initializeApp(config);
-    this.auth = getAuth(app);
+    def __init__(self, supabase_url: str, supabase_key: str):
+        self.supabase: Client = create_client(supabase_url, supabase_key)
+        self.current_session = None
+        self.auth_state_listeners: List[Callable] = []
 
-    // 개발 환경에서 에뮬레이터 연결
-    if (process.env.NODE_ENV === 'development') {
-      connectAuthEmulator(this.auth, 'http://localhost:9099');
-    }
+        # 인증 상태 변경 리스너 설정
+        self.setup_auth_state_listener()
 
-    this.setupAuthStateListener();
-  }
+    def setup_auth_state_listener(self) -> None:
+        """인증 상태 변경 리스너 설정"""
+        def on_auth_state_change(event, session):
+            self.current_session = session
 
-  private setupAuthStateListener(): void {
-    onAuthStateChanged(this.auth, async (user) => {
-      this.currentUser = user;
+            if session and session.user:
+                # 토큰 새로고침 및 메타데이터 업데이트
+                asyncio.create_task(self.update_last_active(session.user.id))
 
-      if (user) {
-        // 토큰 새로고침 및 커스텀 클레임 업데이트
-        await this.refreshUserToken(user);
-        await this.updateLastActive(user.uid);
-      }
+            # 모든 리스너에게 상태 변경 알림
+            for listener in self.auth_state_listeners:
+                listener(session)
 
-      // 모든 리스너에게 상태 변경 알림
-      this.authStateListeners.forEach(listener => listener(user));
-    });
+        self.supabase.auth.on_auth_state_change(on_auth_state_change)
 
-    // 토큰 자동 갱신 설정 (50분마다)
-    setInterval(() => {
-      if (this.currentUser) {
-        this.refreshUserToken(this.currentUser);
-      }
-    }, 50 * 60 * 1000); // 50분
-  }
+    async def refresh_session(self) -> Optional[dict]:
+        """세션 새로고침"""
+        try:
+            response = self.supabase.auth.refresh_session()
+            if response.session:
+                self.current_session = response.session
+                return response.session
+            return None
+        except Exception as e:
+            raise Exception(f"Session refresh failed: {str(e)}")
 
-  private async refreshUserToken(user: User): Promise<string> {
-    try {
-      const token = await user.getIdToken(true); // 강제 새로고침
-      this.setAuthHeader(token);
-      return token;
-    } catch (error) {
-      console.error('Token refresh failed:', error);
-      throw new Error('Authentication token refresh failed');
-    }
-  }
+    def get_access_token(self) -> Optional[str]:
+        """현재 액세스 토큰 반환"""
+        if self.current_session:
+            return self.current_session.access_token
+        return None
 
-  private setAuthHeader(token: string): void {
-    // API 클라이언트에 Authorization 헤더 설정
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  }
+    def on_auth_state_change(self, listener: Callable) -> Callable:
+        """인증 상태 변경 리스너 추가"""
+        self.auth_state_listeners.append(listener)
+        # 즉시 현재 상태 전달
+        listener(self.current_session)
 
-  onAuthStateChange(listener: (user: User | null) => void): () => void {
-    this.authStateListeners.push(listener);
-    // 즉시 현재 상태 전달
-    listener(this.currentUser);
+        # 언서브스크라이브 함수 반환
+        def unsubscribe():
+            self.auth_state_listeners.remove(listener)
+        return unsubscribe
 
-    // 언서브스크라이브 함수 반환
-    return () => {
-      this.authStateListeners = this.authStateListeners.filter(l => l !== listener);
-    };
-  }
+    async def get_current_user(self) -> Optional[dict]:
+        """현재 로그인한 사용자 정보 반환"""
+        try:
+            user = self.supabase.auth.get_user()
+            return user.user if user else None
+        except:
+            return None
 
-  getCurrentUser(): User | null {
-    return this.currentUser;
-  }
-
-  async getCurrentToken(): Promise<string | null> {
-    if (!this.currentUser) return null;
-    return await this.currentUser.getIdToken();
-  }
-}
+    async def update_last_active(self, user_id: str) -> None:
+        """마지막 활동 시간 업데이트"""
+        try:
+            self.supabase.auth.admin.update_user_by_id(
+                user_id,
+                {"app_metadata": {"last_active": datetime.utcnow().isoformat()}}
+            )
+        except Exception as e:
+            print(f"Failed to update last active: {str(e)}")
 ```
 
 ### 3-2. 이메일/비밀번호 인증
@@ -2210,4 +2265,65 @@ describe('Authentication Integration', () => {
 });
 ```
 
-이제 Firebase Auth 기반 인증 시스템의 TRD 작성이 완료되었습니다. 다음 태스크로 넘어가겠습니다.
+## Firebase → Supabase 전환 요약
+
+### 주요 변경 사항
+
+#### 1. 인증 시스템
+- **Firebase Authentication** → **Supabase Auth (GoTrue)**
+- **Firebase Admin SDK** → **Supabase Python Client**
+- **Custom Claims** → **user_metadata / app_metadata**
+
+#### 2. 데이터베이스
+- **Firestore** → **PostgreSQL** (이미 프로젝트에서 사용 중)
+- **Firestore Security Rules** → **Row Level Security (RLS)**
+- **Firebase Realtime Database** → **Supabase Realtime** (필요시)
+
+#### 3. 인증 제공업체
+| 제공업체 | Firebase | Supabase |
+|---------|----------|----------|
+| Google | ✅ OAuth 2.0 | ✅ OAuth 2.0 |
+| Apple | ✅ Sign in with Apple | ✅ Sign in with Apple |
+| Kakao | 🔄 Custom Token | ✅ OAuth 연동 |
+| Email | ✅ 기본 제공 | ✅ 기본 제공 |
+| Anonymous | ✅ 익명 인증 | ✅ Anonymous 사용자 |
+
+#### 4. API 변경
+```python
+# Firebase (기존)
+from firebase_admin import auth
+user = auth.get_user(uid)
+custom_claims = user.custom_claims
+
+# Supabase (신규)
+from supabase import create_client
+supabase = create_client(url, key)
+user = supabase.auth.admin.get_user_by_id(user_id)
+app_metadata = user.user.app_metadata
+```
+
+#### 5. 보안 정책
+```sql
+-- Firebase Security Rules (기존)
+match /users/{userId} {
+  allow read, write: if request.auth.uid == userId;
+}
+
+-- PostgreSQL RLS (신규)
+CREATE POLICY "Users can access own data"
+  ON public.users
+  FOR ALL
+  USING (auth.uid() = id);
+```
+
+### 마이그레이션 체크리스트
+
+- [x] Supabase 프로젝트 생성
+- [x] PostgreSQL 스키마 설계 (RLS 포함)
+- [x] OAuth 제공업체 설정 (Google, Apple, Kakao)
+- [x] 인증 서비스 FastAPI 통합
+- [ ] 기존 사용자 데이터 마이그레이션
+- [ ] 세션 관리 시스템 구축
+- [ ] 테스트 및 배포
+
+이제 Supabase Auth 기반 인증 시스템의 TRD 작성이 완료되었습니다.

@@ -1,7 +1,7 @@
-# PRD: Firebase Auth 기반 인증
+# PRD: Supabase Auth 기반 인증
 
 ## 1. 기능 개요
-**핵심 가치:** Firebase Authentication을 활용하여 안전하고 편리한 회원가입/로그인 경험을 제공하며, 소셜 로그인과 게스트 모드를 통해 사용자 진입 장벽을 최소화한다.
+**핵심 가치:** Supabase Authentication을 활용하여 안전하고 편리한 회원가입/로그인 경험을 제공하며, 소셜 로그인과 게스트 모드를 통해 사용자 진입 장벽을 최소화한다.
 
 **사용자 이점:** 복잡한 회원가입 절차 없이 기존 소셜 계정으로 3초 내 로그인하여 바로 앱의 핵심 기능을 사용할 수 있다.
 
@@ -55,7 +55,7 @@
 
 ### 4-4. 로그인 유지 및 보안 플로우
 1. **자동 로그인:** 앱 재실행 시 로그인 상태 유지 (30일)
-2. **토큰 갱신:** Firebase 토큰 만료 전 자동 갱신
+2. **토큰 갱신:** Supabase 토큰 만료 전 자동 갱신
 3. **보안 검증:** 민감한 작업 시 재인증 요구 (계정 삭제, 비밀번호 변경 등)
 4. **로그아웃:** 사용자 요청 또는 보안 이벤트 시 안전한 로그아웃
 5. **다중 기기:** 여러 기기에서 동일 계정 동시 사용 지원
@@ -95,7 +95,7 @@
 ├── 🎯 구글 (Google Sign-In)
 ├── 🍎 애플 (Sign in with Apple) - iOS만
 ├── 💬 카카오 (Kakao Login)
-└── 📧 이메일 (Firebase Auth)
+└── 📧 이메일 (Supabase Auth)
 
 부가 방식:
 ├── 📱 SMS 인증 (선택 사항)
@@ -106,17 +106,19 @@
 ### 7-2. 사용자 정보 스키마
 ```json
 {
-  "uid": "string (Firebase UID)",
+  "id": "string (Supabase UUID)",
   "email": "string",
-  "displayName": "string",
-  "photoURL": "string?",
-  "phoneNumber": "string?",
-  "emailVerified": "boolean",
-  "provider": "google|apple|kakao|email",
-  "createdAt": "timestamp",
-  "lastLoginAt": "timestamp",
-  "isGuest": "boolean",
-  "profile": {
+  "user_metadata": {
+    "displayName": "string",
+    "photoURL": "string?",
+    "phoneNumber": "string?",
+    "provider": "google|apple|kakao|email"
+  },
+  "email_confirmed_at": "timestamp",
+  "created_at": "timestamp",
+  "last_sign_in_at": "timestamp",
+  "is_anonymous": "boolean",
+  "app_metadata": {
     "nickname": "string",
     "bio": "string?",
     "region": "string?",
@@ -258,18 +260,18 @@
 
 ---
 
-## 11. Firebase 연동 상세
+## 11. Supabase 연동 상세
 
-### 11-1. Firebase 프로젝트 설정
+### 11-1. Supabase 프로젝트 설정
 ```
 Authentication 제공업체:
 ├── 이메일/비밀번호 ✅
 ├── Google ✅
 ├── Apple ✅ (iOS)
-├── 카카오 (Custom Auth)
-└── 익명 인증 ✅ (게스트)
+├── 카카오 (OAuth 연동)
+└── Anonymous (익명) ✅ (게스트)
 
-Security Rules:
+Row Level Security (RLS):
 - 사용자는 자신의 데이터만 접근
 - 게스트는 읽기 전용
 - 관리자 역할 분리
@@ -277,21 +279,23 @@ Security Rules:
 
 ### 11-2. 토큰 관리
 ```javascript
-// Firebase 토큰 갱신
-firebase.auth().onIdTokenChanged((user) => {
-  if (user) {
-    user.getIdToken().then(token => {
-      // API 요청 시 헤더에 포함
-      headers: { Authorization: `Bearer ${token}` }
-    });
+// Supabase 토큰 갱신
+supabase.auth.onAuthStateChange((event, session) => {
+  if (session) {
+    const token = session.access_token;
+    // API 요청 시 헤더에 포함
+    headers: { Authorization: `Bearer ${token}` }
   }
 });
+
+// 자동 토큰 갱신
+supabase.auth.refreshSession();
 ```
 
 ### 11-3. 오프라인 지원
-- **토큰 캐시:** 로컬에 암호화 저장
-- **오프라인 인증:** 캐시된 토큰으로 임시 인증
-- **자동 동기화:** 온라인 복귀 시 토큰 검증 및 갱신
+- **세션 캐시:** 로컬 스토리지에 암호화 저장
+- **오프라인 인증:** 캐시된 세션으로 임시 인증
+- **자동 동기화:** 온라인 복귀 시 세션 검증 및 갱신
 
 ---
 
@@ -353,19 +357,21 @@ firebase.auth().onIdTokenChanged((user) => {
 ---
 
 ## 14. 용어 사전(Glossary)
-- **Firebase Auth:** 구글이 제공하는 인증 서비스 플랫폼
+- **Supabase Auth:** PostgreSQL 기반 오픈소스 인증 서비스 플랫폼
 - **OAuth:** 소셜 로그인에 사용되는 개방형 인증 표준
 - **JWT:** JSON 형태의 토큰으로 사용자 인증 정보를 안전하게 전달
 - **게스트 모드:** 계정 생성 없이 제한된 기능을 체험할 수 있는 임시 계정
 - **생체 인증:** 지문, 얼굴 등 생체 정보를 이용한 보안 인증
+- **Row Level Security (RLS):** PostgreSQL의 행 수준 보안 정책
 
 ---
 
 ## 15. 기술 제약
-- **Firebase 제한:** 월 10,000명 활성 사용자 (무료 플랜)
+- **Supabase 제한:** 월 50,000명 활성 사용자 (무료 플랜), 스토리지 500MB
 - **소셜 로그인:** 플랫폼별 API 제한 및 정책 변경 위험
 - **토큰 관리:** JWT 토큰 크기 제한 (8KB)
 - **오프라인:** 네트워크 없이는 신규 가입/로그인 불가
+- **PostgreSQL:** Row Level Security 정책 복잡도 관리 필요
 
 ---
 

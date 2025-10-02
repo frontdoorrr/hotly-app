@@ -1,6 +1,6 @@
 # Task 3: 사용자 및 인증 관리 (Authentication & User Management)
 
-## 3-1. Firebase 기반 사용자 시스템 백엔드
+## 3-1. Supabase 기반 사용자 시스템 백엔드
 
 ### 목표
 신뢰성이 높은 다양한 로그인 및 인증 방식을 통해 안전한 사용자 시스템 구축
@@ -16,31 +16,34 @@
 
 ### 세부 작업
 
-#### 3-1-1. Firebase Auth 설정 및 다양한 로그인 구현
-**상세**: Firebase Authentication 설정, OAuth 프로바이더 연동, 커스텀 토큰 관리
+#### 3-1-1. Supabase Auth 설정 및 다양한 로그인 구현
+**상세**: Supabase Authentication 설정, OAuth 프로바이더 연동, JWT 토큰 관리
 
 **구현 체크리스트**:
-- [ ] Firebase Admin SDK 설정
+- [ ] Supabase Python Client 설정
+- [ ] PostgreSQL 사용자 스키마 및 RLS 정책 생성
 - [ ] Google OAuth 로그인 구현
 - [ ] Apple Sign-In 연동
-- [ ] 카카오 로그인 연동
+- [ ] 카카오 OAuth 연동
 - [ ] 이메일/비밀번호 로그인
-- [ ] 전화번호 인증 시스템
+- [ ] Magic Link 인증 (선택사항)
 
 **결과물**:
-- `app/services/auth_service.py` - 인증 서비스
-- `app/integrations/firebase_auth.py` - Firebase 인증 연동
+- `app/core/supabase_config.py` - Supabase 설정
+- `app/services/supabase_auth_service.py` - 인증 서비스
 - `app/integrations/oauth_providers.py` - OAuth 프로바이더
-- `app/models/user_auth.py` - 사용자 인증 모델
+- `app/models/user.py` - 사용자 모델 (PostgreSQL)
+- `migrations/auth_schema.sql` - 인증 관련 SQL 스키마
 
 **API**:
+- `POST /api/v1/auth/signup` - 회원가입
+- `POST /api/v1/auth/login/email` - 이메일 로그인
 - `POST /api/v1/auth/login/google` - Google 로그인
 - `POST /api/v1/auth/login/apple` - Apple 로그인
 - `POST /api/v1/auth/login/kakao` - 카카오 로그인
-- `POST /api/v1/auth/login/email` - 이메일 로그인
-- `POST /api/v1/auth/verify-phone` - 전화번호 인증
+- `POST /api/v1/auth/magic-link` - Magic Link 전송
 
-**테스트**: 각 프로바이더별 로그인, 토큰 검증, 에러 처리
+**테스트**: 각 프로바이더별 로그인, JWT 토큰 검증, RLS 정책 검증, 에러 처리
 
 #### 3-1-2. 인증된 사용자 로직 및 개인별 데이터 연동 시스템
 **상세**: JWT 토큰 관리, 세션 상태 추적, 사용자 컨텍스트 관리
@@ -305,40 +308,65 @@
 
 ---
 
-## Backend Reference 활용 가이드
+## Supabase 전환 가이드
 
-### 인증 시스템 참고
-`backend_reference/app/app/`에서 다음 패턴들 활용:
+### Supabase 인증 시스템 구현
+Firebase에서 Supabase로 전환된 새로운 인증 시스템:
 
-**JWT 인증 패턴**:
+**Supabase 클라이언트 초기화**:
 ```python
-# core/security.py 참고
-def create_access_token(subject: Union[str, Any], expires_delta: timedelta = None) -> str:
-    # 기존 JWT 생성 로직 활용
+# app/core/supabase_config.py
+from supabase import create_client, Client
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    # 비밀번호 검증 로직 활용
+supabase_url = settings.supabase_url
+supabase_key = settings.supabase_anon_key
+
+supabase: Client = create_client(supabase_url, supabase_key)
 ```
 
-**사용자 관리**:
+**인증 서비스 구현**:
 ```python
-# api/api_v1/endpoints/users.py 참고
-@router.put("/me", response_model=schemas.User)
-def update_user_me(
-    *,
-    db: Session = Depends(deps.get_db),
-    password: str = Body(None),
-    full_name: str = Body(None),
-    email: EmailStr = Body(None),
-    current_user: models.User = Depends(deps.get_current_active_user),
-) -> Any:
-    # 기존 사용자 업데이트 패턴 활용
+# app/services/supabase_auth_service.py
+class SupabaseAuthService:
+    async def sign_up(self, email: str, password: str):
+        return self.supabase.auth.sign_up({"email": email, "password": password})
+
+    async def sign_in(self, email: str, password: str):
+        return self.supabase.auth.sign_in_with_password({"email": email, "password": password})
+
+    async def sign_in_with_oauth(self, provider: str):
+        return self.supabase.auth.sign_in_with_oauth({"provider": provider})
 ```
 
-**데이터 모델**:
-- `models/user.py` - User 모델 구조 참고
-- `schemas/user.py` - Pydantic 스키마 참고
-- `crud/crud_user.py` - CRUD 작업 패턴
+**JWT 검증 미들웨어**:
+```python
+# app/middleware/auth_middleware.py
+from fastapi import Depends, HTTPException
+from fastapi.security import HTTPBearer
+
+security = HTTPBearer()
+
+async def get_current_user(credentials = Depends(security)):
+    token = credentials.credentials
+    user = supabase.auth.get_user(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    return user.user
+```
+
+**RLS 정책 적용**:
+```sql
+-- migrations/add_rls_policies.sql
+CREATE POLICY "Users can view own data"
+  ON public.users
+  FOR SELECT
+  USING (auth.uid() = id);
+
+CREATE POLICY "Users can update own data"
+  ON public.users
+  FOR UPDATE
+  USING (auth.uid() = id);
+```
 
 ## 참고 문서
 
@@ -351,18 +379,28 @@ def update_user_me(
 - `trd/10-user-profile.md` - 사용자 프로필 기술 설계
 
 ### 구현 참고 자료
-- **`backend_reference/app/`** - 인증 및 사용자 관리 참고
-  - JWT 인증: `core/security.py`
-  - 사용자 API: `api/api_v1/endpoints/users.py`
-  - 인증 미들웨어: `api/deps.py`
-  - 데이터 모델: `models/user.py`, `schemas/user.py`
-  - CRUD: `crud/crud_user.py`
+- **Supabase 공식 문서**
+  - [Supabase Auth](https://supabase.com/docs/guides/auth) - 인증 가이드
+  - [Row Level Security](https://supabase.com/docs/guides/auth/row-level-security) - RLS 정책
+  - [Python Client](https://supabase.com/docs/reference/python/introduction) - Python SDK
+- **프로젝트 내부 참고**
+  - `app/core/supabase_config.py` - Supabase 설정
+  - `app/models/user.py` - 기존 PostgreSQL 모델 활용
+  - `app/schemas/user.py` - Pydantic 스키마
+  - `migrations/` - Alembic 마이그레이션 + RLS
 - `database-schema.md` - 데이터베이스 스키마
-- `ui-design-system.md` - UI 컴포넌트 가이드
 - `rules.md` - 개발 규칙
+
+### Firebase → Supabase 마이그레이션 체크리스트
+- [ ] Supabase 프로젝트 생성 및 환경변수 설정
+- [ ] PostgreSQL 사용자 스키마 및 RLS 정책 생성
+- [ ] OAuth 프로바이더 설정 (Google, Apple, Kakao)
+- [ ] FastAPI 인증 미들웨어 구현
+- [ ] 기존 사용자 데이터 마이그레이션 (선택)
+- [ ] 테스트 및 검증
 
 ---
 
 *작성일: 2025-01-XX*
 *작성자: Claude*
-*버전: 1.0*
+*버전: 2.0 (Supabase 전환)*
