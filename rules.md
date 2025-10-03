@@ -95,6 +95,25 @@
     - 테스트 네이밍: `methodName_condition_expectedResult`.
     - 테스트 코드도 프로덕션 코드와 동일한 품질 기준 적용 (DRY, 가독성, 유지보수성)
     - Given-When-Then 패턴으로 테스트 시나리오 구조화
+    - **테스트 파일 위치 규칙** (tests/ 디렉토리 구조 준수):
+      • **단위 테스트 (tests/unit/)**: Mock/Fake 객체로 외부 의존성 격리, 단일 함수/클래스 검증
+        - `tests/unit/services/` : 서비스 로직 단위 테스트
+        - `tests/unit/models/` : ORM 모델/Pydantic 스키마 테스트
+        - `tests/unit/api/` : API 라우터 단위 테스트 (비즈니스 로직 없는 경우)
+        - `tests/unit/` : 기타 유틸리티/헬퍼 함수 테스트
+      • **통합 테스트 (tests/integration/)**: 실제 DB/Redis 연동, 서비스 간 통신 검증
+        - `tests/integration/api/` : API 엔드포인트 통합 테스트 (TestClient 사용)
+        - `tests/integration/services/` : 서비스 간 통합, 외부 API 연동 테스트
+      • **E2E 테스트 (tests/e2e/)**: 완전한 사용자 워크플로우, 다중 API 호출 시나리오
+      • **성능 테스트 (tests/performance/)**: 부하 테스트, 벤치마크, 응답 시간 검증
+      • **인프라 테스트 (tests/framework/)**: 프로젝트 구조, Docker, DB 연결 등 인프라 검증
+      • **임시 테스트 (tests/temp/)**: 개발/디버깅용 임시 스크립트 (정기 정리 대상)
+    - **테스트 파일명 규칙**: `test_<module_name>.py` (예: test_place_service.py)
+    - **테스트 분류 기준**:
+      • Unit: Mock/patch 사용, `from app.services import`, 단일 클래스/함수 검증
+      • Integration: TestClient 사용, `db: Session` 파라미터, 실제 DB 의존성
+      • E2E: "workflow", "complete flow", "end-to-end" 키워드, 다중 엔드포인트 호출
+    - **신규 테스트 작성 시**: 파일을 프로젝트 루트나 tests/ 루트에 생성 금지, 반드시 적절한 하위 디렉토리에 배치
 2-12. 코드 리뷰 체크리스트 (TDD 강화)
     - 단일 책임, 모듈/함수 크기 적절성, 네이밍 명확성.
     - 테스트 우선 개발 여부: 프로덕션 코드보다 테스트가 먼저 작성되었는가?
