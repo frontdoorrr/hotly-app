@@ -3,7 +3,7 @@ from datetime import time
 from enum import Enum
 from typing import Dict, List, Optional
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, validator
 
 
 class TransportMethod(str, Enum):
@@ -62,8 +62,7 @@ class CourseGenerateRequest(BaseModel):
     preferences: Optional[CoursePreferences] = Field(None, description="선호도 설정")
     user_id: Optional[str] = Field(None, description="사용자 ID (개인화용)")
 
-    @field_validator("place_ids")
-    @classmethod
+    @validator("place_ids")
     def validate_place_count(cls, v: List[str]) -> List[str]:
         """장소 개수 검증."""
         if len(v) < 3:
