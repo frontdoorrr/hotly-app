@@ -86,9 +86,20 @@
 
 ### 3. Test-Driven Development (TDD)
 
-- **80%+ 코드 커버리지** 유지
+- **80%+ 코드 커버리지** 유지 (강제 적용)
 - RED-GREEN-REFACTOR 사이클 준수
-- 단위 → 통합 → E2E 테스트 피라미드 구조
+- **테스트 피라미드 구조** 확립 (102개 테스트)
+  - Unit: 46개 (45%) - 빠른 피드백
+  - Integration: 25개 (24%) - 서비스 통합 검증
+  - E2E: 15개 (15%) - 사용자 시나리오 검증
+  - Performance: 10개 (10%) - 성능 벤치마크
+  - Framework: 6개 (6%) - 인프라 검증
+- **체계적인 테스트 구조** (`tests/README.md` 참조)
+  - `tests/unit/` - 단위 테스트 (services, models, api)
+  - `tests/integration/` - 통합 테스트 (api, services)
+  - `tests/e2e/` - E2E 테스트
+  - `tests/performance/` - 성능 테스트
+  - `tests/framework/` - 테스트 인프라
 
 ---
 
