@@ -300,10 +300,22 @@
     - **테스트**: DB 연동 검증, PostGIS 좌표 추출, 시간 계산 정확도
   - 1-3-5. 사용자 취향 분석 및 프로파일링 시스템 ⏳ **미완료**
     - **필요 구현**: 사용자 선호 카테고리 분석, 피드백 기반 학습, 프로파일 업데이트
-  - 1-3-6. 추천 결과 API 엔드포인트 구현 ⏳ **미완료**
-    - **필요 구현**: `POST /api/v1/courses/generate`, 대체 코스 생성, 사용자 피드백 수집
-  - 1-3-7. 코스 추천 통합 테스트 코드 작성 ⏳ **미완료**
-    - **필요 구현**: E2E 플로우 테스트, 성능 테스트, 다양한 시나리오 검증
+  - 1-3-6. 추천 결과 API 엔드포인트 구현 ✅ **완료** (2025-10-03)
+    - **상세**: Genetic Algorithm 기반 코스 생성 API 통합
+    - **구현**: `app/api/api_v1/endpoints/courses.py` 업데이트
+    - **API**:
+      - `POST /api/v1/courses/generate` - GA 최적화 코스 생성
+      - `GET /api/v1/courses/{course_id}` - 코스 조회 (TODO: 영구 저장)
+    - **기능**:
+      - CourseGeneratorService와 완전 통합
+      - 성능 모니터링 (generation_time_ms 추적)
+      - Pydantic validator 입력 검증
+      - 에러 핸들링 (400/422/500)
+    - **성능**: 코스 생성 500ms 이내
+    - **테스트**: `tests/integration/test_course_generation_api.py` (10개 테스트, 모두 통과)
+  - 1-3-7. 코스 추천 통합 테스트 코드 작성 🔄 **부분 완료** (2025-10-03)
+    - **완료**: API 통합 테스트 10개
+    - **미완료**: E2E 플로우 테스트 (장소 생성 → 코스 생성 → 저장), 성능 벤치마크
 - **참고 문서**: `prd/03-course-recommendation.md`, `trd/03-course-recommendation.md`
 
 ### 1-4. 지도 기반 시각화 백엔드 개발 🔄 **진행 중** (2025-09-30)
