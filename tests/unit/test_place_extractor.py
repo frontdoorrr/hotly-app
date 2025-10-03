@@ -1,23 +1,12 @@
 """Test place information extraction and structuring logic."""
 
-import pytest
-from unittest.mock import Mock, patch, AsyncMock
-from typing import List, Optional
 
+import pytest
+
+from app.schemas.ai import AnalysisConfidence, GeminiResponse, PlaceAnalysisResult
+from app.schemas.content import ContentMetadata, ExtractedContent, PlatformType
+from app.schemas.place import ExtractionConfidence, PlaceExtractionResult
 from app.services.place_extractor import PlaceExtractor
-from app.schemas.ai import (
-    GeminiResponse, 
-    PlaceAnalysisResult, 
-    AnalysisConfidence
-)
-from app.schemas.content import ExtractedContent, PlatformType, ContentMetadata
-from app.schemas.place import (
-    PlaceExtractionResult,
-    ExtractedPlace,
-    ExtractionConfidence,
-    PlaceValidationError
-)
-from app.exceptions.validation import ValidationError
 
 
 class TestPlaceExtractor:
@@ -38,22 +27,24 @@ class TestPlaceExtractor:
                     address="123 Teheran-ro, Gangnam-gu, Seoul",
                     category="restaurant",
                     confidence=AnalysisConfidence.HIGH,
-                    description="Premium Korean BBQ restaurant"
+                    description="Premium Korean BBQ restaurant",
                 ),
                 PlaceAnalysisResult(
                     name="Blue Bottle Coffee",
                     address="Hongdae, Seoul",
                     category="cafe",
                     confidence=AnalysisConfidence.MEDIUM,
-                    description="Specialty coffee shop"
-                )
+                    description="Specialty coffee shop",
+                ),
             ],
             overall_confidence=AnalysisConfidence.HIGH,
-            processing_time=1.2
+            processing_time=1.2,
         )
 
     @pytest.mark.asyncio
-    async def test_extract_and_structure_places_success(self, extractor, sample_gemini_response):
+    async def test_extract_and_structure_places_success(
+        self, extractor, sample_gemini_response
+    ):
         """Test successful place extraction and structuring."""
         # Given
         content = ExtractedContent(
@@ -62,28 +53,30 @@ class TestPlaceExtractor:
             metadata=ContentMetadata(
                 title="Great food in Seoul",
                 description="Amazing Korean BBQ and coffee",
-                hashtags=["#food", "#seoul"]
-            )
+                hashtags=["#food", "#seoul"],
+            ),
         )
-        
+
         # When
-        result = await extractor.extract_and_structure_places(content, sample_gemini_response)
-        
+        result = await extractor.extract_and_structure_places(
+            content, sample_gemini_response
+        )
+
         # Then
         assert isinstance(result, PlaceExtractionResult)
         assert len(result.places) == 2
         assert result.total_places_found == 2
         assert result.confidence_score >= 0.7  # High confidence
-        
+
         # Check first place
         place1 = result.places[0]
         assert place1.name == "Gangnam Korean BBQ"
         assert place1.category == "restaurant"
         assert place1.confidence == ExtractionConfidence.HIGH
         assert place1.structured_address is not None
-        
+
         # Check second place
-        place2 = result.places[1] 
+        place2 = result.places[1]
         assert place2.name == "Blue Bottle Coffee"
         assert place2.category == "cafe"
         assert place2.confidence == ExtractionConfidence.MEDIUM
@@ -98,32 +91,33 @@ class TestPlaceExtractor:
                     name="",  # Invalid empty name
                     address="Seoul",
                     category="restaurant",
-                    confidence=AnalysisConfidence.HIGH
+                    confidence=AnalysisConfidence.HIGH,
                 ),
                 PlaceAnalysisResult(
                     name="Valid Place",
                     address="Seoul",
                     category="invalid_category",  # Invalid category
-                    confidence=AnalysisConfidence.HIGH
+                    confidence=AnalysisConfidence.HIGH,
                 ),
                 PlaceAnalysisResult(
                     name="Another Valid Place",
                     address="Seoul",
                     category="restaurant",
-                    confidence=AnalysisConfidence.HIGH
-                )
+                    confidence=AnalysisConfidence.HIGH,
+                ),
             ],
-            overall_confidence=AnalysisConfidence.HIGH
+            overall_confidence=AnalysisConfidence.HIGH,
         )
-        
+
         content = ExtractedContent(
-            url="test", platform=PlatformType.INSTAGRAM,
-            metadata=ContentMetadata(title="Test")
+            url="test",
+            platform=PlatformType.INSTAGRAM,
+            metadata=ContentMetadata(title="Test"),
         )
-        
+
         # When
         result = await extractor.extract_and_structure_places(content, gemini_response)
-        
+
         # Then
         # Should only include valid places
         assert len(result.places) == 1
@@ -142,33 +136,37 @@ class TestPlaceExtractor:
                     name="Test Restaurant",
                     address="   123 Teheran-ro, Gangnam-gu, Seoul, South Korea   ",  # Extra whitespace
                     category="restaurant",
-                    confidence=AnalysisConfidence.HIGH
+                    confidence=AnalysisConfidence.HIGH,
                 ),
                 PlaceAnalysisResult(
                     name="Test Cafe",
                     address="Hongdae",  # Incomplete address
                     category="cafe",
-                    confidence=AnalysisConfidence.MEDIUM
-                )
+                    confidence=AnalysisConfidence.MEDIUM,
+                ),
             ],
-            overall_confidence=AnalysisConfidence.HIGH
+            overall_confidence=AnalysisConfidence.HIGH,
         )
-        
+
         content = ExtractedContent(
-            url="test", platform=PlatformType.INSTAGRAM,
-            metadata=ContentMetadata(title="Test")
+            url="test",
+            platform=PlatformType.INSTAGRAM,
+            metadata=ContentMetadata(title="Test"),
         )
-        
+
         # When
         result = await extractor.extract_and_structure_places(content, gemini_response)
-        
+
         # Then
         place1 = result.places[0]
-        assert place1.structured_address.full_address == "123 Teheran-ro, Gangnam-gu, Seoul, South Korea"
+        assert (
+            place1.structured_address.full_address
+            == "123 Teheran-ro, Gangnam-gu, Seoul, South Korea"
+        )
         assert place1.structured_address.district == "Gangnam-gu"
         assert place1.structured_address.city == "Seoul"
         assert place1.structured_address.country == "South Korea"
-        
+
         place2 = result.places[1]
         assert place2.structured_address.district == "Hongdae"
         assert place2.structured_address.completeness_score < 0.5  # Incomplete
@@ -182,56 +180,59 @@ class TestPlaceExtractor:
                 "gemini_confidence": AnalysisConfidence.HIGH,
                 "address_quality": "complete",  # Full address
                 "name_clarity": "high",  # Clear business name
-                "expected_min_score": 0.8
+                "expected_min_score": 0.8,
             },
             {
                 "gemini_confidence": AnalysisConfidence.MEDIUM,
                 "address_quality": "partial",  # Only district
                 "name_clarity": "medium",  # Some ambiguity
-                "expected_min_score": 0.5
+                "expected_min_score": 0.5,
             },
             {
                 "gemini_confidence": AnalysisConfidence.LOW,
                 "address_quality": "incomplete",  # Vague location
                 "name_clarity": "low",  # Unclear name
-                "expected_min_score": 0.2
-            }
+                "expected_min_score": 0.2,
+            },
         ]
-        
+
         for case in test_cases:
             # Create test response
             address = {
                 "complete": "123 Main St, Gangnam-gu, Seoul, South Korea",
-                "partial": "Gangnam, Seoul", 
-                "incomplete": "Seoul"
+                "partial": "Gangnam, Seoul",
+                "incomplete": "Seoul",
             }[case["address_quality"]]
-            
+
             name = {
                 "high": "Jungsik Restaurant",
                 "medium": "Korean Place",
-                "low": "Some restaurant"
+                "low": "Some restaurant",
             }[case["name_clarity"]]
-            
+
             gemini_response = GeminiResponse(
                 places=[
                     PlaceAnalysisResult(
                         name=name,
                         address=address,
                         category="restaurant",
-                        confidence=case["gemini_confidence"]
+                        confidence=case["gemini_confidence"],
                     )
                 ],
-                overall_confidence=case["gemini_confidence"]
+                overall_confidence=case["gemini_confidence"],
             )
-            
+
             content = ExtractedContent(
-                url="test", platform=PlatformType.INSTAGRAM,
-                metadata=ContentMetadata(title="Test")
+                url="test",
+                platform=PlatformType.INSTAGRAM,
+                metadata=ContentMetadata(title="Test"),
             )
-            
+
             # When
-            result = await extractor.extract_and_structure_places(content, gemini_response)
-            
+            result = await extractor.extract_and_structure_places(
+                content, gemini_response
+            )
+
             # Then
             assert result.confidence_score >= case["expected_min_score"]
 
@@ -245,32 +246,33 @@ class TestPlaceExtractor:
                     name="Korean BBQ Restaurant",
                     address="Gangnam, Seoul",
                     category="restaurant",
-                    confidence=AnalysisConfidence.HIGH
+                    confidence=AnalysisConfidence.HIGH,
                 ),
                 PlaceAnalysisResult(
                     name="Korean BBQ",  # Similar name
                     address="Gangnam-gu, Seoul",  # Similar address
                     category="restaurant",
-                    confidence=AnalysisConfidence.MEDIUM
+                    confidence=AnalysisConfidence.MEDIUM,
                 ),
                 PlaceAnalysisResult(
                     name="Different Place",
                     address="Hongdae, Seoul",
                     category="cafe",
-                    confidence=AnalysisConfidence.HIGH
-                )
+                    confidence=AnalysisConfidence.HIGH,
+                ),
             ],
-            overall_confidence=AnalysisConfidence.HIGH
+            overall_confidence=AnalysisConfidence.HIGH,
         )
-        
+
         content = ExtractedContent(
-            url="test", platform=PlatformType.INSTAGRAM,
-            metadata=ContentMetadata(title="Test")
+            url="test",
+            platform=PlatformType.INSTAGRAM,
+            metadata=ContentMetadata(title="Test"),
         )
-        
+
         # When
         result = await extractor.extract_and_structure_places(content, gemini_response)
-        
+
         # Then
         # Should detect and handle duplicates
         assert len(result.places) == 2  # One duplicate removed
@@ -287,37 +289,38 @@ class TestPlaceExtractor:
                 PlaceAnalysisResult(
                     name="Test Place 1",
                     category="RESTAURANT",  # Uppercase
-                    confidence=AnalysisConfidence.HIGH
+                    confidence=AnalysisConfidence.HIGH,
                 ),
                 PlaceAnalysisResult(
-                    name="Test Place 2", 
+                    name="Test Place 2",
                     category="Korean Restaurant",  # Non-standard
-                    confidence=AnalysisConfidence.HIGH
+                    confidence=AnalysisConfidence.HIGH,
                 ),
                 PlaceAnalysisResult(
                     name="Test Place 3",
                     category="cafe",  # Valid
-                    confidence=AnalysisConfidence.HIGH
-                )
+                    confidence=AnalysisConfidence.HIGH,
+                ),
             ],
-            overall_confidence=AnalysisConfidence.HIGH
+            overall_confidence=AnalysisConfidence.HIGH,
         )
-        
+
         content = ExtractedContent(
-            url="test", platform=PlatformType.INSTAGRAM,
-            metadata=ContentMetadata(title="Test")
+            url="test",
+            platform=PlatformType.INSTAGRAM,
+            metadata=ContentMetadata(title="Test"),
         )
-        
+
         # When
         result = await extractor.extract_and_structure_places(content, gemini_response)
-        
+
         # Then
         place1 = next(p for p in result.places if p.name == "Test Place 1")
         assert place1.category == "restaurant"  # Normalized to lowercase
-        
+
         place2 = next(p for p in result.places if p.name == "Test Place 2")
         assert place2.category == "restaurant"  # Mapped to standard category
-        
+
         place3 = next(p for p in result.places if p.name == "Test Place 3")
         assert place3.category == "cafe"  # Already valid
 
@@ -326,18 +329,18 @@ class TestPlaceExtractor:
         """Test handling of empty Gemini responses."""
         # Given
         empty_response = GeminiResponse(
-            places=[],
-            overall_confidence=AnalysisConfidence.HIGH
+            places=[], overall_confidence=AnalysisConfidence.HIGH
         )
-        
+
         content = ExtractedContent(
-            url="test", platform=PlatformType.INSTAGRAM,
-            metadata=ContentMetadata(title="Test")
+            url="test",
+            platform=PlatformType.INSTAGRAM,
+            metadata=ContentMetadata(title="Test"),
         )
-        
+
         # When
         result = await extractor.extract_and_structure_places(content, empty_response)
-        
+
         # Then
         assert len(result.places) == 0
         assert result.total_places_found == 0
@@ -354,7 +357,7 @@ class TestPlaceExtractor:
                     address="123 Main St, Gangnam-gu, Seoul",
                     category="restaurant",
                     confidence=AnalysisConfidence.HIGH,
-                    description="Full description"
+                    description="Full description",
                 ),
                 PlaceAnalysisResult(
                     name="Incomplete Place",
@@ -362,27 +365,30 @@ class TestPlaceExtractor:
                     category="cafe",
                     confidence=AnalysisConfidence.LOW
                     # No description
-                )
+                ),
             ],
-            overall_confidence=AnalysisConfidence.MEDIUM
+            overall_confidence=AnalysisConfidence.MEDIUM,
         )
-        
+
         content = ExtractedContent(
-            url="test", platform=PlatformType.INSTAGRAM,
-            metadata=ContentMetadata(title="Test")
+            url="test",
+            platform=PlatformType.INSTAGRAM,
+            metadata=ContentMetadata(title="Test"),
         )
-        
+
         # When
         result = await extractor.extract_and_structure_places(content, gemini_response)
-        
+
         # Then
         assert result.data_quality_score > 0
         assert result.data_quality_score < 1.0  # Not perfect due to incomplete data
-        
+
         # Check individual place quality scores
         complete_place = next(p for p in result.places if p.name == "Complete Place")
-        incomplete_place = next(p for p in result.places if p.name == "Incomplete Place")
-        
+        incomplete_place = next(
+            p for p in result.places if p.name == "Incomplete Place"
+        )
+
         assert complete_place.data_quality_score > incomplete_place.data_quality_score
 
     @pytest.mark.asyncio
@@ -395,24 +401,26 @@ class TestPlaceExtractor:
                     name=f"Place {i}",
                     address=f"Address {i}, Seoul",
                     category="restaurant",
-                    confidence=AnalysisConfidence.HIGH
+                    confidence=AnalysisConfidence.HIGH,
                 )
                 for i in range(10)  # 10 places to process
             ],
-            overall_confidence=AnalysisConfidence.HIGH
+            overall_confidence=AnalysisConfidence.HIGH,
         )
-        
+
         content = ExtractedContent(
-            url="test", platform=PlatformType.INSTAGRAM,
-            metadata=ContentMetadata(title="Test")
+            url="test",
+            platform=PlatformType.INSTAGRAM,
+            metadata=ContentMetadata(title="Test"),
         )
-        
+
         # When
         import time
+
         start_time = time.time()
         result = await extractor.extract_and_structure_places(content, large_response)
         processing_time = time.time() - start_time
-        
+
         # Then
         # Should process quickly (under 1 second for 10 places)
         assert processing_time < 1.0

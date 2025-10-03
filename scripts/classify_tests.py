@@ -1,15 +1,28 @@
 #!/usr/bin/env python3
 """테스트 파일 분류 스크립트."""
-import os
 import re
 from pathlib import Path
-from typing import Dict, List, Set
+from typing import Dict, List
 
 # 분류 기준
 PATTERNS = {
     "unit": {
-        "keywords": ["Mock", "AsyncMock", "patch", "from app.services", "from app.models", "from app.utils"],
-        "not_keywords": ["TestClient", "client:", "FastAPI", "e2e", "integration", "workflow"],
+        "keywords": [
+            "Mock",
+            "AsyncMock",
+            "patch",
+            "from app.services",
+            "from app.models",
+            "from app.utils",
+        ],
+        "not_keywords": [
+            "TestClient",
+            "client:",
+            "FastAPI",
+            "e2e",
+            "integration",
+            "workflow",
+        ],
         "files": set(),
     },
     "integration": {
@@ -23,11 +36,19 @@ PATTERNS = {
         "files": set(),
     },
     "performance": {
-        "keywords": ["performance", "benchmark", "load", "stress", "time.time", "statistics"],
+        "keywords": [
+            "performance",
+            "benchmark",
+            "load",
+            "stress",
+            "time.time",
+            "statistics",
+        ],
         "not_keywords": [],
         "files": set(),
     },
 }
+
 
 def analyze_file(filepath: Path) -> str:
     """파일 내용을 분석하여 카테고리 반환."""
@@ -53,7 +74,9 @@ def analyze_file(filepath: Path) -> str:
 
         # Unit test 판정
         has_mock = "Mock" in content or "patch" in content
-        has_service_import = "from app.services" in content or "from app.models" in content
+        has_service_import = (
+            "from app.services" in content or "from app.models" in content
+        )
 
         if has_mock or has_service_import:
             return "unit"
@@ -64,15 +87,13 @@ def analyze_file(filepath: Path) -> str:
         print(f"Error reading {filepath}: {e}")
         return "unknown"
 
+
 def main():
     """메인 실행 함수."""
     tests_dir = Path(__file__).parent.parent / "tests"
 
     # 루트 레벨 테스트 파일만 찾기
-    root_test_files = [
-        f for f in tests_dir.glob("test_*.py")
-        if f.is_file()
-    ]
+    root_test_files = [f for f in tests_dir.glob("test_*.py") if f.is_file()]
 
     print(f"Found {len(root_test_files)} test files in root level\n")
 
@@ -141,6 +162,7 @@ def main():
     print(f"Performance: {len(categorized['performance'])}개")
     print(f"Unknown: {len(categorized['unknown'])}개")
     print(f"Total: {sum(len(v) for v in categorized.values())}개")
+
 
 if __name__ == "__main__":
     main()

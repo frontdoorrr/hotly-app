@@ -5,16 +5,9 @@ TDD 기반 검색 정확도, 필터 조합, 사용자 시나리오 테스트
 검색 시스템 전반의 품질 보장을 위한 포괄적 테스트 구현
 """
 
-import asyncio
-import json
 from datetime import datetime, timedelta
-from typing import Any, Dict, List
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock
 from uuid import uuid4
-
-import pytest
-from fastapi import HTTPException
-from fastapi.testclient import TestClient
 
 
 class TestSearchAccuracy:
@@ -190,9 +183,7 @@ class TestSearchAccuracy:
             # Then: 카페 관련 장소들 반환
             assert len(results["places"]) >= 2
             cafe_places = [
-                place
-                for place in results["places"]
-                if place["category"] == "cafe"
+                place for place in results["places"] if place["category"] == "cafe"
             ]
             assert len(cafe_places) >= 2
 
@@ -244,7 +235,10 @@ class TestSearchAccuracy:
                 assert len(results["places"]) >= 1
                 # 오타 교정 제안이 있어야 함
                 if "suggestions" in results:
-                    assert any(correct_query in suggestion for suggestion in results["suggestions"])
+                    assert any(
+                        correct_query in suggestion
+                        for suggestion in results["suggestions"]
+                    )
 
     async def test_tag_based_search_accuracy(self) -> None:
         """
@@ -261,9 +255,7 @@ class TestSearchAccuracy:
 
             # Mock 태그 기반 검색
             matching_places = [
-                place
-                for place in self.sample_places
-                if clean_tag in place["tags"]
+                place for place in self.sample_places if clean_tag in place["tags"]
             ]
 
             self.mock_elasticsearch.search.return_value = {
@@ -349,7 +341,9 @@ class TestSearchAccuracy:
             },
         ]
 
-        self.mock_elasticsearch.search.return_value = {"hits": {"hits": priority_results}}
+        self.mock_elasticsearch.search.return_value = {
+            "hits": {"hits": priority_results}
+        }
 
         # When: 우선순위 검색 실행
         from app.services.search_service import SearchService
@@ -405,7 +399,9 @@ class TestSearchAccuracy:
         # 유용한 제안 포함 여부 확인
         if "suggestions" in results:
             assert len(results["suggestions"]) > 0
-            assert all(isinstance(suggestion, str) for suggestion in results["suggestions"])
+            assert all(
+                isinstance(suggestion, str) for suggestion in results["suggestions"]
+            )
 
     async def test_autocomplete_accuracy(self) -> None:
         """
@@ -643,9 +639,7 @@ class TestFilterCombinations:
         filters = {"price_range": [1, 2]}
 
         expected_results = [
-            place
-            for place in self.diverse_places
-            if place["price_range"] in [1, 2]
+            place for place in self.diverse_places if place["price_range"] in [1, 2]
         ]
 
         # Mock 가격대 필터링
@@ -730,7 +724,7 @@ class TestFilterCombinations:
         filtered_results = []
         for place in self.diverse_places:
             matches = True
-            
+
             # 각 필터 조건 검사
             if place["category"] not in max_filters["categories"]:
                 matches = False
@@ -742,9 +736,13 @@ class TestFilterCombinations:
                 matches = False
             if place["price_range"] not in max_filters["price_range"]:
                 matches = False
-            if not (max_filters["rating_min"] <= place["rating"] <= max_filters["rating_max"]):
+            if not (
+                max_filters["rating_min"]
+                <= place["rating"]
+                <= max_filters["rating_max"]
+            ):
                 matches = False
-                
+
             if matches:
                 filtered_results.append(place)
 
@@ -765,6 +763,7 @@ class TestFilterCombinations:
         filter_service.apply_filters = self.mock_filter_service.apply_filters
 
         import time
+
         start_time = time.time()
 
         results = await filter_service.apply_filters(
@@ -855,6 +854,7 @@ class TestFilterCombinations:
         filter_service.apply_filters = self.mock_filter_service.apply_filters
 
         import time
+
         start_time = time.time()
 
         results = await filter_service.apply_filters(

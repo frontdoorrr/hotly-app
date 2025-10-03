@@ -205,7 +205,7 @@ class TestGeminiAnalyzerComprehensive:
             "description": "Just had the best Korean BBQ at this place in Gangnam! The beef was incredible and the service was amazing. Located near Gangnam Station. #koreanbbq #gangnam #seoul #restaurant",
             "images": ["https://instagram.com/image1.jpg"],
             "location": "Gangnam, Seoul",
-            "hashtags": ["#koreanbbq", "#gangnam", "#seoul", "#restaurant"]
+            "hashtags": ["#koreanbbq", "#gangnam", "#seoul", "#restaurant"],
         }
 
     @pytest.mark.asyncio
@@ -217,24 +217,24 @@ class TestGeminiAnalyzerComprehensive:
             content_description=sample_instagram_content["title"],
             hashtags=sample_instagram_content["hashtags"],
             images=sample_instagram_content["images"],
-            platform=sample_instagram_content["platform"]
+            platform=sample_instagram_content["platform"],
         )
-        
+
         expected_response = {
             "name": "Gangnam Korean BBQ Restaurant",
             "address": "Near Gangnam Station, Seoul",
             "category": "restaurant",
             "keywords": ["korean_bbq", "gangnam", "beef"],
             "recommendation_score": 9,
-            "confidence": 0.95
+            "confidence": 0.95,
         }
-        
+
         with patch.object(analyzer, "_call_gemini_api") as mock_api:
             mock_api.return_value = json.dumps(expected_response)
-            
+
             # When
             result = await analyzer.analyze_place_content(request)
-            
+
             # Then
             assert result.name == "Gangnam Korean BBQ Restaurant"
             assert result.category == PlaceCategory.RESTAURANT
@@ -247,27 +247,31 @@ class TestGeminiAnalyzerComprehensive:
     async def test_gemini_retry_logic_exponential_backoff(self, analyzer):
         """Test retry logic with exponential backoff for temporary failures."""
         # Given
-        request = PlaceAnalysisRequest(content_text="Test content", platform="instagram")
+        request = PlaceAnalysisRequest(
+            content_text="Test content", platform="instagram"
+        )
         call_count = 0
-        
+
         def mock_api_call(*args, **kwargs):
             nonlocal call_count
             call_count += 1
             if call_count < 3:  # Fail first 2 attempts
                 raise AIAnalysisError("Temporary API failure")
-            return json.dumps({
-                "name": "Test Place",
-                "address": "Test Address", 
-                "category": "restaurant",
-                "keywords": ["test"],
-                "recommendation_score": 7
-            })
-        
+            return json.dumps(
+                {
+                    "name": "Test Place",
+                    "address": "Test Address",
+                    "category": "restaurant",
+                    "keywords": ["test"],
+                    "recommendation_score": 7,
+                }
+            )
+
         with patch.object(analyzer, "_call_gemini_api", side_effect=mock_api_call):
-            with patch('asyncio.sleep') as mock_sleep:  # Mock sleep to speed up test
+            with patch("asyncio.sleep") as mock_sleep:  # Mock sleep to speed up test
                 # When
                 result = await analyzer.analyze_place_content(request)
-                
+
                 # Then
                 assert call_count == 3  # Should retry twice then succeed
                 assert result.name == "Test Place"
@@ -285,30 +289,30 @@ class TestGeminiAnalyzerComprehensive:
                 "request": PlaceAnalysisRequest(
                     content_text="Dinner at Jungsik Restaurant in Gangnam",
                     hashtags=["#jungsik", "#finedining"],
-                    platform="instagram"
+                    platform="instagram",
                 ),
-                "expected_place": "Jungsik"
+                "expected_place": "Jungsik",
             },
             {
                 "request": PlaceAnalysisRequest(
                     content_text="Amazing coffee at Blue Bottle Coffee Hongdae",
                     hashtags=["#bluebottle", "#coffee"],
-                    platform="instagram"
+                    platform="instagram",
                 ),
-                "expected_place": "Blue Bottle Coffee"
+                "expected_place": "Blue Bottle Coffee",
             },
             {
                 "request": PlaceAnalysisRequest(
                     content_text="Went to Myeongdong Kyoja for best dumplings",
                     hashtags=["#myeongdong", "#dumplings"],
-                    platform="blog"
+                    platform="blog",
                 ),
-                "expected_place": "Myeongdong Kyoja"
-            }
+                "expected_place": "Myeongdong Kyoja",
+            },
         ]
-        
+
         success_count = 0
-        
+
         for case in test_cases:
             # Mock response with expected place name
             mock_response = {
@@ -316,16 +320,16 @@ class TestGeminiAnalyzerComprehensive:
                 "address": "Seoul, Korea",
                 "category": "restaurant",
                 "keywords": ["test"],
-                "recommendation_score": 8
+                "recommendation_score": 8,
             }
-            
+
             with patch.object(analyzer, "_call_gemini_api") as mock_api:
                 mock_api.return_value = json.dumps(mock_response)
-                
+
                 result = await analyzer.analyze_place_content(case["request"])
                 if case["expected_place"].lower() in result.name.lower():
                     success_count += 1
-        
+
         # Should achieve 90%+ accuracy
         accuracy = success_count / len(test_cases)
         assert accuracy >= 0.9, f"Accuracy {accuracy:.2%} below 90% requirement"
@@ -334,28 +338,33 @@ class TestGeminiAnalyzerComprehensive:
     async def test_gemini_rate_limit_handling_with_backoff(self, analyzer):
         """Test proper handling of rate limits with backoff strategy."""
         # Given
-        request = PlaceAnalysisRequest(content_text="Test content", platform="instagram")
-        
+        request = PlaceAnalysisRequest(
+            content_text="Test content", platform="instagram"
+        )
+
         # Simulate rate limit then success
         call_count = 0
+
         def mock_api_call(*args, **kwargs):
             nonlocal call_count
             call_count += 1
             if call_count == 1:
                 raise RateLimitError("Rate limit exceeded, retry after 60 seconds")
-            return json.dumps({
-                "name": "Test Place",
-                "address": "Test Address",
-                "category": "restaurant", 
-                "keywords": ["test"],
-                "recommendation_score": 7
-            })
-        
+            return json.dumps(
+                {
+                    "name": "Test Place",
+                    "address": "Test Address",
+                    "category": "restaurant",
+                    "keywords": ["test"],
+                    "recommendation_score": 7,
+                }
+            )
+
         with patch.object(analyzer, "_call_gemini_api", side_effect=mock_api_call):
-            with patch('asyncio.sleep') as mock_sleep:
+            with patch("asyncio.sleep") as mock_sleep:
                 # When
                 result = await analyzer.analyze_place_content(request)
-                
+
                 # Then
                 assert call_count == 2  # Should retry once after rate limit
                 assert result.name == "Test Place"
@@ -367,22 +376,23 @@ class TestGeminiAnalyzerComprehensive:
         """Test prompt versioning and template management."""
         # Given
         request = PlaceAnalysisRequest(
-            content_text="Korean BBQ restaurant",
-            platform="instagram"
+            content_text="Korean BBQ restaurant", platform="instagram"
         )
-        
+
         with patch.object(analyzer, "_call_gemini_api") as mock_api:
-            mock_api.return_value = json.dumps({
-                "name": "Test Place",
-                "address": "Test Address",
-                "category": "restaurant",
-                "keywords": ["test"],
-                "recommendation_score": 7
-            })
-            
+            mock_api.return_value = json.dumps(
+                {
+                    "name": "Test Place",
+                    "address": "Test Address",
+                    "category": "restaurant",
+                    "keywords": ["test"],
+                    "recommendation_score": 7,
+                }
+            )
+
             # When
             await analyzer.analyze_place_content(request)
-            
+
             # Then
             # Verify that prompt includes version information
             call_args = mock_api.call_args[0]
@@ -394,7 +404,7 @@ class TestGeminiAnalyzerComprehensive:
         """Test response validation and data sanitization."""
         # Given
         request = PlaceAnalysisRequest(content_text="Test place", platform="instagram")
-        
+
         # Test with malformed but parseable response
         malformed_response = {
             "name": "   Test Place   ",  # Extra whitespace
@@ -402,15 +412,15 @@ class TestGeminiAnalyzerComprehensive:
             "category": "RESTAURANT",  # Wrong case
             "keywords": ["test", "", "valid"],  # Empty keyword
             "recommendation_score": 15,  # Out of range
-            "extra_field": "should_be_ignored"  # Unexpected field
+            "extra_field": "should_be_ignored",  # Unexpected field
         }
-        
+
         with patch.object(analyzer, "_call_gemini_api") as mock_api:
             mock_api.return_value = json.dumps(malformed_response)
-            
+
             # When
             result = await analyzer.analyze_place_content(request)
-            
+
             # Then
             assert result.name == "Test Place"  # Trimmed whitespace
             assert result.category == PlaceCategory.RESTAURANT  # Normalized case
@@ -422,32 +432,32 @@ class TestGeminiAnalyzerComprehensive:
         """Test handling multiple concurrent requests."""
         # Given
         requests = [
-            PlaceAnalysisRequest(
-                content_text=f"Restaurant {i}",
-                platform="instagram"
-            )
+            PlaceAnalysisRequest(content_text=f"Restaurant {i}", platform="instagram")
             for i in range(5)
         ]
-        
+
         def mock_api_call(prompt, *args, **kwargs):
             # Extract restaurant number from prompt for unique response
             import re
-            match = re.search(r'Restaurant (\d+)', prompt)
+
+            match = re.search(r"Restaurant (\d+)", prompt)
             restaurant_num = match.group(1) if match else "0"
-            
-            return json.dumps({
-                "name": f"Restaurant {restaurant_num}",
-                "address": "Test Address",
-                "category": "restaurant",
-                "keywords": ["test"],
-                "recommendation_score": 8
-            })
-        
+
+            return json.dumps(
+                {
+                    "name": f"Restaurant {restaurant_num}",
+                    "address": "Test Address",
+                    "category": "restaurant",
+                    "keywords": ["test"],
+                    "recommendation_score": 8,
+                }
+            )
+
         with patch.object(analyzer, "_call_gemini_api", side_effect=mock_api_call):
             # When
             tasks = [analyzer.analyze_place_content(req) for req in requests]
             results = await asyncio.gather(*tasks)
-            
+
             # Then
             assert len(results) == 5
             for i, result in enumerate(results):
@@ -459,14 +469,14 @@ class TestGeminiAnalyzerComprehensive:
         """Test confidence scoring in responses."""
         # Given
         request = PlaceAnalysisRequest(content_text="Test place", platform="instagram")
-        
+
         # Test different confidence scenarios
         test_cases = [
             {"confidence": 0.95, "expected_high": True},
             {"confidence": 0.75, "expected_high": False},
-            {"confidence": 0.45, "expected_high": False}
+            {"confidence": 0.45, "expected_high": False},
         ]
-        
+
         for case in test_cases:
             mock_response = {
                 "name": "Test Place",
@@ -474,15 +484,15 @@ class TestGeminiAnalyzerComprehensive:
                 "category": "restaurant",
                 "keywords": ["test"],
                 "recommendation_score": 8,
-                "confidence": case["confidence"]
+                "confidence": case["confidence"],
             }
-            
+
             with patch.object(analyzer, "_call_gemini_api") as mock_api:
                 mock_api.return_value = json.dumps(mock_response)
-                
+
                 # When
                 result = await analyzer.analyze_place_content(request)
-                
+
                 # Then
                 # High confidence results should have higher recommendation scores
                 if case["expected_high"]:
