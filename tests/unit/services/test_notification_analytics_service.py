@@ -74,7 +74,7 @@ class TestNotificationAnalyticsService:
         Then: 데이터베이스에 로그 저장 및 ID 반환
         """
         # Given
-        from app.services.notification_analytics_service import (
+        from app.services.notifications.notification_analytics_service import (
             get_notification_analytics_service,
         )
 
@@ -105,7 +105,7 @@ class TestNotificationAnalyticsService:
         Then: 상호작용 로그 저장 및 패턴 업데이트 트리거
         """
         # Given
-        from app.services.notification_analytics_service import (
+        from app.services.notifications.notification_analytics_service import (
             get_notification_analytics_service,
         )
 
@@ -136,7 +136,7 @@ class TestNotificationAnalyticsService:
         Then: 기본 패턴으로 새 레코드 생성
         """
         # Given
-        from app.services.notification_analytics_service import (
+        from app.services.notifications.notification_analytics_service import (
             get_notification_analytics_service,
         )
 
@@ -163,7 +163,7 @@ class TestNotificationAnalyticsService:
         Then: 실제 데이터 기반으로 패턴 분석 및 업데이트
         """
         # Given
-        from app.services.notification_analytics_service import (
+        from app.services.notifications.notification_analytics_service import (
             get_notification_analytics_service,
         )
 
@@ -218,7 +218,7 @@ class TestNotificationAnalyticsService:
         Then: 가장 높은 참여율을 보이는 시간대 반환
         """
         # Given
-        from app.services.notification_analytics_service import (
+        from app.services.notifications.notification_analytics_service import (
             get_notification_analytics_service,
         )
 
@@ -246,7 +246,7 @@ class TestNotificationAnalyticsService:
         Then: 기본 시간(18시) 반환
         """
         # Given
-        from app.services.notification_analytics_service import (
+        from app.services.notifications.notification_analytics_service import (
             get_notification_analytics_service,
         )
 
@@ -266,7 +266,7 @@ class TestNotificationAnalyticsService:
         Then: True 반환 (개인화 적용)
         """
         # Given
-        from app.services.notification_analytics_service import (
+        from app.services.notifications.notification_analytics_service import (
             get_notification_analytics_service,
         )
 
@@ -295,7 +295,7 @@ class TestNotificationAnalyticsService:
         Then: False 반환 (기본 알림만)
         """
         # Given
-        from app.services.notification_analytics_service import (
+        from app.services.notifications.notification_analytics_service import (
             get_notification_analytics_service,
         )
 
@@ -324,7 +324,7 @@ class TestNotificationAnalyticsService:
         Then: 종합 분석 리포트 생성
         """
         # Given
-        from app.services.notification_analytics_service import (
+        from app.services.notifications.notification_analytics_service import (
             get_notification_analytics_service,
         )
 
@@ -357,7 +357,7 @@ class TestNotificationAnalyticsService:
         Then: 코호트 생성 및 ID 반환
         """
         # Given
-        from app.services.notification_analytics_service import (
+        from app.services.notifications.notification_analytics_service import (
             get_notification_analytics_service,
         )
 
@@ -394,7 +394,7 @@ class TestNotificationAnalyticsService:
         Then: 사용자를 적절한 코호트에 할당
         """
         # Given
-        from app.services.notification_analytics_service import (
+        from app.services.notifications.notification_analytics_service import (
             get_notification_analytics_service,
         )
 
@@ -427,7 +427,7 @@ class TestNotificationAnalyticsService:
         Then: 상세한 개인화 인사이트 반환
         """
         # Given
-        from app.services.notification_analytics_service import (
+        from app.services.notifications.notification_analytics_service import (
             get_notification_analytics_service,
         )
 
@@ -466,7 +466,7 @@ class TestNotificationAnalyticsService:
         Then: 기존 패턴에 새 데이터 반영하여 업데이트
         """
         # Given
-        from app.services.notification_analytics_service import (
+        from app.services.notifications.notification_analytics_service import (
             get_notification_analytics_service,
         )
 

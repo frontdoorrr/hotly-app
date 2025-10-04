@@ -18,9 +18,9 @@ from app.exceptions.ai import AIAnalysisError
 from app.exceptions.external import ContentExtractionError
 from app.schemas.ai import PlaceInfo
 from app.schemas.content import ContentMetadata
-from app.services.cache_manager import CacheManager
-from app.services.content_extractor import ContentExtractor
-from app.services.place_analysis_service import PlaceAnalysisService
+from app.services.monitoring.cache_manager import CacheManager
+from app.services.places.content_extractor import ContentExtractor
+from app.services.places.place_analysis_service import PlaceAnalysisService
 
 
 class TestContentExtractionToAnalysisIntegration:

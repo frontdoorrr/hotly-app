@@ -9,7 +9,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from app.services.route_calculator import (
+from app.services.maps.route_calculator import (
     RouteCalculator,
     RouteMatrix,
     RouteSegment,

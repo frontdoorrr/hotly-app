@@ -10,7 +10,7 @@ class TestCacheManager:
 
     def test_set_and_get_returnsValue(self):
         """Test setting and getting a cached value."""
-        from app.services.cache_manager import CacheManager
+        from app.services.monitoring.cache_manager import CacheManager
 
         cache = CacheManager()
         key = "test_key"
@@ -26,7 +26,7 @@ class TestCacheManager:
 
     def test_get_nonexistentKey_returnsNone(self):
         """Test getting a non-existent key returns None."""
-        from app.services.cache_manager import CacheManager
+        from app.services.monitoring.cache_manager import CacheManager
 
         cache = CacheManager()
         result = cache.get("nonexistent_key")
@@ -35,7 +35,7 @@ class TestCacheManager:
 
     def test_delete_existingKey_removesValue(self):
         """Test deleting a key removes it from cache."""
-        from app.services.cache_manager import CacheManager
+        from app.services.monitoring.cache_manager import CacheManager
 
         cache = CacheManager()
         key = "test_key"

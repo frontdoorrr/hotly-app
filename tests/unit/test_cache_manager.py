@@ -12,7 +12,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 
 from app.exceptions.cache import CacheConnectionError
-from app.services.cache_manager import CacheKey, CacheManager, CacheStats
+from app.services.monitoring.cache_manager import CacheKey, CacheManager, CacheStats
 
 
 class TestCacheManager:

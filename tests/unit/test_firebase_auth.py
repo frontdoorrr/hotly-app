@@ -21,7 +21,7 @@ from app.schemas.auth import (
     SocialProvider,
     TokenRefreshRequest,
 )
-from app.services.firebase_auth_service import FirebaseAuthService
+from app.services.auth.firebase_auth_service import FirebaseAuthService
 
 
 class TestFirebaseAuthSetup:

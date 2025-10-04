@@ -10,7 +10,7 @@ from datetime import datetime
 from unittest.mock import AsyncMock, Mock, patch
 from uuid import uuid4
 
-from app.services.progressive_loading_service import ProgressiveLoadingService
+from app.services.content.progressive_loading_service import ProgressiveLoadingService
 
 
 class TestProgressiveLoadingService:

@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
-from app.services.search_cache_service import SearchCacheService
+from app.services.search.search_cache_service import SearchCacheService
 
 
 class TestSearchCacheService:

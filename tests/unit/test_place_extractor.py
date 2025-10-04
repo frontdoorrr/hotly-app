@@ -6,7 +6,7 @@ import pytest
 from app.schemas.ai import AnalysisConfidence, GeminiResponse, PlaceAnalysisResult
 from app.schemas.content import ContentMetadata, ExtractedContent, PlatformType
 from app.schemas.place import ExtractionConfidence, PlaceExtractionResult
-from app.services.place_extractor import PlaceExtractor
+from app.services.places.place_extractor import PlaceExtractor
 
 
 class TestPlaceExtractor:

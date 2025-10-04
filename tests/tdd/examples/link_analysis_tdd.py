@@ -17,7 +17,7 @@ import pytest
 from app.schemas.ai import PlaceInfo
 from app.schemas.content import ContentExtractResult
 from app.schemas.link_analysis import LinkAnalyzeRequest
-from app.services.place_analysis_service import PlaceAnalysisResult
+from app.services.places.place_analysis_service import PlaceAnalysisResult
 
 
 class TestLinkAnalysisTDD:
@@ -68,7 +68,7 @@ class TestLinkAnalysisTDD:
         """
         GREEN: Now we implement minimal functionality to pass this test.
         """
-        from app.services.content_extractor import ContentExtractor
+        from app.services.places.content_extractor import ContentExtractor
 
         # Given
         url = "https://instagram.com/p/test123/"
@@ -108,7 +108,7 @@ class TestLinkAnalysisTDD:
     ):
         """GREEN: Test AI analysis service."""
         from app.schemas.content import ContentMetadata
-        from app.services.place_analysis_service import PlaceAnalysisService
+        from app.services.places.place_analysis_service import PlaceAnalysisService
 
         # Given
         content = ContentMetadata(

@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from unittest.mock import AsyncMock, Mock, patch
 from uuid import uuid4
 
-from app.services.favorite_searches_service import FavoriteSearchesService
+from app.services.search.favorite_searches_service import FavoriteSearchesService
 
 
 class TestFavoriteSearchesService:

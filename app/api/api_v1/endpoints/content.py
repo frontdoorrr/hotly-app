@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.db.deps import get_db
 from app.exceptions.external import UnsupportedPlatformError
 from app.schemas.content import ContentExtractionRequest, ContentExtractionResponse
-from app.services.content_extractor import ContentExtractor
+from app.services.places.content_extractor import ContentExtractor
 
 router = APIRouter()
 

@@ -18,7 +18,7 @@ async def test_content_extraction_only():
 
     try:
         from app.exceptions.external import UnsupportedPlatformError
-        from app.services.content_extractor import ContentExtractor
+        from app.services.places.content_extractor import ContentExtractor
 
         extractor = ContentExtractor()
         print("✅ ContentExtractor imported successfully")
@@ -103,7 +103,7 @@ async def test_ai_analysis_mock():
 
     try:
         from app.schemas.content import ContentMetadata
-        from app.services.place_analysis_service import PlaceAnalysisService
+        from app.services.places.place_analysis_service import PlaceAnalysisService
 
         analysis_service = PlaceAnalysisService()
         print("✅ PlaceAnalysisService imported successfully")

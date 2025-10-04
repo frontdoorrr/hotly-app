@@ -9,7 +9,7 @@ from typing import List
 import pytest
 
 from app.schemas.place import PlaceCreate
-from app.services.course_recommender import CourseRecommender
+from app.services.courses.course_recommender import CourseRecommender
 
 
 class TestCourseRecommender:

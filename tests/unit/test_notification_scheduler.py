@@ -16,7 +16,7 @@ from app.schemas.notification import (
     ScheduledNotificationRequest,
     UserNotificationSettings,
 )
-from app.services.notification_scheduler import (
+from app.services.notifications.notification_scheduler import (
     InvalidScheduleTimeError,
     NotificationScheduler,
     ScheduleConflictError,
@@ -367,7 +367,9 @@ class TestUserTargetingLogic:
     @pytest.fixture
     def targeting_service(self):
         """Create targeting service for testing."""
-        from app.services.notification_scheduler import UserTargetingService
+        from app.services.notifications.notification_scheduler import (
+            UserTargetingService,
+        )
 
         return UserTargetingService()
 

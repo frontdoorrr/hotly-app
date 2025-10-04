@@ -4,7 +4,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from app.services.sample_guide_service import (
+from app.services.content.sample_guide_service import (
     FirstCourseGuideService,
     GuideService,
     SamplePlacesService,

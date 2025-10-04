@@ -9,7 +9,7 @@ from app.exceptions.ai import AIAnalysisError, InvalidResponseError, RateLimitEr
 from app.schemas.ai import PlaceAnalysisRequest, PlaceCategory, PlaceInfo
 from app.schemas.content import ContentMetadata
 from app.services.ai.gemini_analyzer import GeminiAnalyzer
-from app.services.place_analysis_service import PlaceAnalysisService
+from app.services.places.place_analysis_service import PlaceAnalysisService
 
 
 @pytest.fixture

@@ -19,7 +19,7 @@ from app.schemas.map import (
     PlaceSearchResult,
 )
 from app.schemas.place import PlaceResponse
-from app.services.kakao_map_service import KakaoMapService, KakaoMapServiceError
+from app.services.maps.kakao_map_service import KakaoMapService, KakaoMapServiceError
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

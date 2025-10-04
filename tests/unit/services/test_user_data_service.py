@@ -27,7 +27,7 @@ class TestAuthenticatedUserService:
 
         # When: 서비스를 통해 사용자 생성
         try:
-            from app.services.user_data_service import AuthenticatedUserService
+            from app.services.auth.user_data_service import AuthenticatedUserService
 
             service = AuthenticatedUserService()
 
@@ -58,7 +58,7 @@ class TestAuthenticatedUserService:
         firebase_uid = "existing_user_123"
 
         try:
-            from app.services.user_data_service import AuthenticatedUserService
+            from app.services.auth.user_data_service import AuthenticatedUserService
 
             service = AuthenticatedUserService()
 
@@ -91,7 +91,7 @@ class TestAuthenticatedUserService:
         }
 
         try:
-            from app.services.user_data_service import AuthenticatedUserService
+            from app.services.auth.user_data_service import AuthenticatedUserService
 
             service = AuthenticatedUserService()
 
@@ -122,7 +122,7 @@ class TestAuthenticatedUserService:
         user_id = "active_user_123"
 
         try:
-            from app.services.user_data_service import AuthenticatedUserService
+            from app.services.auth.user_data_service import AuthenticatedUserService
 
             service = AuthenticatedUserService()
 
@@ -155,7 +155,7 @@ class TestUserPersonalDataService:
         data_content = {"theme": "dark", "language": "ko", "notifications": True}
 
         try:
-            from app.services.user_data_service import UserPersonalDataService
+            from app.services.auth.user_data_service import UserPersonalDataService
 
             service = UserPersonalDataService()
 
@@ -194,7 +194,7 @@ class TestUserPersonalDataService:
         }
 
         try:
-            from app.services.user_data_service import UserPersonalDataService
+            from app.services.auth.user_data_service import UserPersonalDataService
 
             service = UserPersonalDataService()
 
@@ -225,7 +225,7 @@ class TestUserPersonalDataService:
         data_type = "preferences"
 
         try:
-            from app.services.user_data_service import UserPersonalDataService
+            from app.services.auth.user_data_service import UserPersonalDataService
 
             service = UserPersonalDataService()
 
@@ -260,7 +260,7 @@ class TestUserActivityLogService:
         request_info = {"ip_address": "192.168.1.100", "user_agent": "Mozilla/5.0..."}
 
         try:
-            from app.services.user_data_service import UserActivityLogService
+            from app.services.auth.user_data_service import UserActivityLogService
 
             service = UserActivityLogService()
 
@@ -296,7 +296,7 @@ class TestUserActivityLogService:
         end_date = datetime.utcnow()
 
         try:
-            from app.services.user_data_service import UserActivityLogService
+            from app.services.auth.user_data_service import UserActivityLogService
 
             service = UserActivityLogService()
 
@@ -331,7 +331,7 @@ class TestUserSettingsService:
         user_id = "new_user_123"
 
         try:
-            from app.services.user_data_service import UserSettingsService
+            from app.services.auth.user_data_service import UserSettingsService
 
             service = UserSettingsService()
 
@@ -364,7 +364,7 @@ class TestUserSettingsService:
         }
 
         try:
-            from app.services.user_data_service import UserSettingsService
+            from app.services.auth.user_data_service import UserSettingsService
 
             service = UserSettingsService()
 
@@ -409,7 +409,7 @@ class TestUserDataPrivacyService:
         }
 
         try:
-            from app.services.user_data_service import UserDataPrivacyService
+            from app.services.auth.user_data_service import UserDataPrivacyService
 
             service = UserDataPrivacyService()
 
@@ -440,7 +440,7 @@ class TestUserDataPrivacyService:
         deletion_reason = "user_request"
 
         try:
-            from app.services.user_data_service import UserDataPrivacyService
+            from app.services.auth.user_data_service import UserDataPrivacyService
 
             service = UserDataPrivacyService()
 

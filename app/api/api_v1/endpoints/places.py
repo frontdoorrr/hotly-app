@@ -17,7 +17,7 @@ from app.schemas.place import (
     PlaceStatsResponse,
     PlaceUpdate,
 )
-from app.services.duplicate_detector import DuplicateDetector
+from app.services.places.duplicate_detector import DuplicateDetector
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -397,7 +397,9 @@ async def classify_place(
     Returns classification result with predicted category, confidence, and reasoning.
     """
     try:
-        from app.services.place_classification_service import PlaceClassificationService
+        from app.services.places.place_classification_service import (
+            PlaceClassificationService,
+        )
 
         # Initialize classification service
         classification_service = PlaceClassificationService()
@@ -445,7 +447,7 @@ async def get_geographic_clusters(
     Returns geographic clusters with center coordinates and place counts.
     """
     try:
-        from app.services.geo_service import GeoService
+        from app.services.maps.geo_service import GeoService
 
         geo_service = GeoService(db)
         clusters = geo_service.cluster_places_by_region(
@@ -483,7 +485,7 @@ async def get_geographic_statistics(
     try:
         import math
 
-        from app.services.geo_service import GeoService
+        from app.services.maps.geo_service import GeoService
 
         # Get all places with coordinates
         places = place_crud.get_multi_by_user(
@@ -577,7 +579,7 @@ async def search_places_along_route(
     Returns places within buffer distance of the route, ordered by distance.
     """
     try:
-        from app.services.geo_service import GeoService
+        from app.services.maps.geo_service import GeoService
 
         # Validate waypoints
         if len(waypoints) < 2:
@@ -658,7 +660,7 @@ async def advanced_search(
     Returns search results with relevance scores and optional highlighting.
     """
     try:
-        from app.services.search_service import SearchService
+        from app.services.search.search_service import SearchService
 
         search_service = SearchService(db)
 
@@ -701,9 +703,9 @@ async def advanced_search(
                 place_data["highlighted_name"] = search_service.highlight_search_terms(
                     place.name or "", q
                 )
-                place_data["highlighted_description"] = (
-                    search_service.highlight_search_terms(place.description or "", q)
-                )
+                place_data[
+                    "highlighted_description"
+                ] = search_service.highlight_search_terms(place.description or "", q)
 
             results.append(place_data)
 
@@ -731,7 +733,7 @@ async def search_autocomplete(
     Returns list of autocomplete suggestions based on user's places.
     """
     try:
-        from app.services.search_service import SearchService
+        from app.services.search.search_service import SearchService
 
         search_service = SearchService(db)
         suggestions = search_service.autocomplete_suggestions(
@@ -769,7 +771,7 @@ async def fuzzy_search(
     Returns places matching with similarity scores above threshold.
     """
     try:
-        from app.services.search_service import SearchService
+        from app.services.search.search_service import SearchService
 
         search_service = SearchService(db)
         places_with_scores = search_service._fuzzy_search_fallback(

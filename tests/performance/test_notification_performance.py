@@ -12,7 +12,7 @@ from uuid import uuid4
 
 from fastapi.testclient import TestClient
 
-from app.services.fcm_service import FCMService
+from app.services.notifications.fcm_service import FCMService
 
 
 class TestNotificationPerformance:
@@ -113,7 +113,9 @@ class TestNotificationPerformance:
         When: 큐 처리 성능 테스트
         Then: 초당 100개 이상 처리 성능
         """
-        from app.services.notification_scheduler import NotificationScheduler
+        from app.services.notifications.notification_scheduler import (
+            NotificationScheduler,
+        )
 
         # Given: 모의 스케줄러와 큐 설정
         with patch("app.db.get_db") as mock_db:
@@ -319,7 +321,7 @@ class TestNotificationNetworkResilience:
         When: Circuit Breaker 임계값 초과
         Then: 서비스 차단 및 빠른 실패 처리
         """
-        from app.services.fcm_service import FCMService
+        from app.services.notifications.fcm_service import FCMService
 
         fcm_service = FCMService()
 
@@ -362,7 +364,7 @@ class TestNotificationDatabasePerformance:
         When: 데이터베이스 삽입 성능 테스트
         Then: 초당 1000개 이상 삽입 성능
         """
-        from app.services.notification_analytics_service import (
+        from app.services.notifications.notification_analytics_service import (
             NotificationAnalyticsService,
         )
 
@@ -403,7 +405,7 @@ class TestNotificationDatabasePerformance:
         When: 분석 쿼리 실행
         Then: 복잡한 분석 쿼리도 2초 이내 처리
         """
-        from app.services.notification_analytics_service import (
+        from app.services.notifications.notification_analytics_service import (
             NotificationAnalyticsService,
         )
 

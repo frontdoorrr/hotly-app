@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from app.schemas.ai import AnalysisConfidence, GeminiResponse, PlaceAnalysisResult
 from app.schemas.content import ContentMetadata, ExtractedContent, PlatformType
-from app.services.place_extractor import PlaceExtractor
+from app.services.places.place_extractor import PlaceExtractor
 
 
 async def test_place_extractor():

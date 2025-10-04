@@ -10,7 +10,7 @@ import time
 from unittest.mock import Mock
 from uuid import uuid4
 
-from app.services.tag_service import TagService
+from app.services.utils.tag_service import TagService
 from app.utils.tag_normalizer import TagNormalizer
 
 

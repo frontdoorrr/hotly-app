@@ -7,7 +7,7 @@ import sys
 # Add the project root to Python path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from app.services.cache_manager import CacheKey
+from app.services.monitoring.cache_manager import CacheKey
 
 
 def test_url_normalization():

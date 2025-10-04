@@ -20,7 +20,7 @@ from app.schemas.link_analysis import (
     LinkAnalyzeResponse,
 )
 from app.schemas.place import PlaceCreate
-from app.services.place_analysis_service import PlaceAnalysisResult
+from app.services.places.place_analysis_service import PlaceAnalysisResult
 
 
 class MockFactory:
@@ -216,7 +216,7 @@ class MockFactory:
         matched_place_index: int = -1,
     ):
         """Create DuplicateResult mock."""
-        from app.services.duplicate_detector import DuplicateResult
+        from app.services.places.duplicate_detector import DuplicateResult
 
         return DuplicateResult(
             is_duplicate=is_duplicate,
@@ -233,7 +233,7 @@ class MockFactory:
         needs_manual_review: bool = False,
     ):
         """Create ClassificationResult mock."""
-        from app.services.place_classifier import ClassificationResult
+        from app.services.places.place_classifier import ClassificationResult
 
         return ClassificationResult(
             predicted_category=predicted_category,

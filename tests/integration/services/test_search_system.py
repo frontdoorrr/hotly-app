@@ -79,7 +79,7 @@ class TestSearchAccuracy:
         }
 
         # When: 검색 실행
-        from app.services.search_service import SearchService
+        from app.services.search.search_service import SearchService
 
         search_service = SearchService(
             elasticsearch=self.mock_elasticsearch,
@@ -124,7 +124,7 @@ class TestSearchAccuracy:
         }
 
         # When: 부분 매칭 검색
-        from app.services.search_service import SearchService
+        from app.services.search.search_service import SearchService
 
         search_service = SearchService(
             elasticsearch=self.mock_elasticsearch,
@@ -168,7 +168,7 @@ class TestSearchAccuracy:
             }
 
             # When: 다국어 검색 실행
-            from app.services.search_service import SearchService
+            from app.services.search.search_service import SearchService
 
             search_service = SearchService(
                 elasticsearch=self.mock_elasticsearch,
@@ -218,7 +218,7 @@ class TestSearchAccuracy:
             }
 
             # When: 오타 검색 실행
-            from app.services.search_service import SearchService
+            from app.services.search.search_service import SearchService
 
             search_service = SearchService(
                 elasticsearch=self.mock_elasticsearch,
@@ -271,7 +271,7 @@ class TestSearchAccuracy:
             }
 
             # When: 태그 검색 실행
-            from app.services.search_service import SearchService
+            from app.services.search.search_service import SearchService
 
             search_service = SearchService(
                 elasticsearch=self.mock_elasticsearch,
@@ -346,7 +346,7 @@ class TestSearchAccuracy:
         }
 
         # When: 우선순위 검색 실행
-        from app.services.search_service import SearchService
+        from app.services.search.search_service import SearchService
 
         search_service = SearchService(
             elasticsearch=self.mock_elasticsearch,
@@ -378,7 +378,7 @@ class TestSearchAccuracy:
         self.mock_elasticsearch.search.return_value = {"hits": {"hits": []}}
 
         # When: 빈 결과 검색 실행
-        from app.services.search_service import SearchService
+        from app.services.search.search_service import SearchService
 
         search_service = SearchService(
             elasticsearch=self.mock_elasticsearch,
@@ -430,7 +430,7 @@ class TestSearchAccuracy:
             ]
 
             # When: 자동완성 실행
-            from app.services.autocomplete_service import AutocompleteService
+            from app.services.search.autocomplete_service import AutocompleteService
 
             autocomplete_service = AutocompleteService(
                 redis=AsyncMock(),
@@ -525,7 +525,7 @@ class TestFilterCombinations:
         }
 
         # When: 카테고리 필터 적용
-        from app.services.filter_service import FilterService
+        from app.services.ranking.filter_service import FilterService
 
         filter_service = FilterService(
             elasticsearch=AsyncMock(), cache_service=AsyncMock()
@@ -563,7 +563,7 @@ class TestFilterCombinations:
         }
 
         # When: 다중 카테고리 필터 적용
-        from app.services.filter_service import FilterService
+        from app.services.ranking.filter_service import FilterService
 
         filter_service = FilterService(
             elasticsearch=AsyncMock(), cache_service=AsyncMock()
@@ -611,7 +611,7 @@ class TestFilterCombinations:
         }
 
         # When: 복합 필터 적용
-        from app.services.filter_service import FilterService
+        from app.services.ranking.filter_service import FilterService
 
         filter_service = FilterService(
             elasticsearch=AsyncMock(), cache_service=AsyncMock()
@@ -650,7 +650,7 @@ class TestFilterCombinations:
         }
 
         # When: 가격대 필터 적용
-        from app.services.filter_service import FilterService
+        from app.services.ranking.filter_service import FilterService
 
         filter_service = FilterService(
             elasticsearch=AsyncMock(), cache_service=AsyncMock()
@@ -688,7 +688,7 @@ class TestFilterCombinations:
         }
 
         # When: 태그 필터 적용
-        from app.services.filter_service import FilterService
+        from app.services.ranking.filter_service import FilterService
 
         filter_service = FilterService(
             elasticsearch=AsyncMock(), cache_service=AsyncMock()
@@ -755,7 +755,7 @@ class TestFilterCombinations:
         }
 
         # When: 최대 필터 조합 적용
-        from app.services.filter_service import FilterService
+        from app.services.ranking.filter_service import FilterService
 
         filter_service = FilterService(
             elasticsearch=AsyncMock(), cache_service=AsyncMock()
@@ -802,7 +802,7 @@ class TestFilterCombinations:
         }
 
         # When: 필터 초기화 적용
-        from app.services.filter_service import FilterService
+        from app.services.ranking.filter_service import FilterService
 
         filter_service = FilterService(
             elasticsearch=AsyncMock(), cache_service=AsyncMock()
@@ -846,7 +846,7 @@ class TestFilterCombinations:
         }
 
         # When: 캐시된 필터 조합 실행
-        from app.services.filter_service import FilterService
+        from app.services.ranking.filter_service import FilterService
 
         filter_service = FilterService(
             elasticsearch=AsyncMock(), cache_service=AsyncMock()

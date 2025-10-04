@@ -19,7 +19,7 @@ from app.schemas.notification import (
     UserNotificationSettingsCreate,
     UserNotificationSettingsUpdate,
 )
-from app.services.notification_settings_service import (
+from app.services.notifications.notification_settings_service import (
     NotificationSettingsNotFoundError,
     NotificationSettingsService,
 )

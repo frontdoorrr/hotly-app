@@ -10,8 +10,8 @@ from sqlalchemy.orm import Session
 from app.ab_testing.framework import ABTestOrchestrator, ExperimentManager
 from app.analytics.onboarding import OnboardingAnalytics
 from app.api.deps import get_db
-from app.services.dynamic_content_service import DynamicContentGenerator
-from app.services.personalization_service import (
+from app.services.content.dynamic_content_service import DynamicContentGenerator
+from app.services.ml.personalization_service import (
     OnboardingPersonalizationEngine,
     PersonalizationOptimizer,
 )

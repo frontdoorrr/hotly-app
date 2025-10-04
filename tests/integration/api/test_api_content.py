@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 
 from app.exceptions.external import UnsupportedPlatformError
 from app.schemas.content import ContentMetadata, ExtractedContent, PlatformType
-from app.services.content_extractor import ContentExtractor
+from app.services.places.content_extractor import ContentExtractor
 
 
 def test_extract_content_endpoint_success(client: TestClient) -> None:

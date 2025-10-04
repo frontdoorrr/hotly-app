@@ -6,14 +6,14 @@ from uuid import uuid4
 
 import pytest
 
-from app.services.dynamic_content_service import DynamicContentGenerator
-from app.services.performance_metrics_service import (
-    MetricsAggregator,
-    PerformanceMetricsCollector,
-)
-from app.services.personalization_service import (
+from app.services.content.dynamic_content_service import DynamicContentGenerator
+from app.services.ml.personalization_service import (
     OnboardingPersonalizationEngine,
     PersonalizationOptimizer,
+)
+from app.services.monitoring.performance_metrics_service import (
+    MetricsAggregator,
+    PerformanceMetricsCollector,
 )
 
 

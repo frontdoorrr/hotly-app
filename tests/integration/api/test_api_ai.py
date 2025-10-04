@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 
 from app.exceptions.ai import AIAnalysisError, RateLimitError
 from app.schemas.ai import PlaceAnalysisResponse, PlaceCategory, PlaceInfo
-from app.services.place_analysis_service import PlaceAnalysisService
+from app.services.places.place_analysis_service import PlaceAnalysisService
 
 
 def test_analyze_place_endpoint_success(client: TestClient) -> None:

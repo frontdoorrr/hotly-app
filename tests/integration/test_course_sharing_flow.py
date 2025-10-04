@@ -28,7 +28,7 @@ class TestCourseSharingFlow:
         """
         from unittest.mock import MagicMock
 
-        from app.services.course_sharing_service import (
+        from app.services.courses.course_sharing_service import (
             CourseSharingService,
             PersonalCourseStorageService,
         )
@@ -108,7 +108,7 @@ class TestCourseSharingFlow:
         """
         from unittest.mock import MagicMock
 
-        from app.services.course_sharing_service import CourseSharingService
+        from app.services.courses.course_sharing_service import CourseSharingService
 
         mock_db = MagicMock()
         sharing_service = CourseSharingService(db=mock_db)
@@ -157,7 +157,9 @@ class TestCourseSharingFlow:
         """
         from unittest.mock import MagicMock
 
-        from app.services.course_sharing_service import PersonalCourseStorageService
+        from app.services.courses.course_sharing_service import (
+            PersonalCourseStorageService,
+        )
 
         mock_db = MagicMock()
         storage_service = PersonalCourseStorageService(db=mock_db)

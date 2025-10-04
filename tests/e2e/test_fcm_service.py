@@ -6,7 +6,7 @@ from uuid import uuid4
 
 import pytest
 
-from app.services.fcm_service import FCMService, PushNotificationRequest
+from app.services.notifications.fcm_service import FCMService, PushNotificationRequest
 
 
 class TestFCMService:

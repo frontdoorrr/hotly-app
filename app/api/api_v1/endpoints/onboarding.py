@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
-from app.services.onboarding_service import (
+from app.services.auth.onboarding_service import (
     OnboardingAnalyticsService,
     OnboardingProgressTracker,
     OnboardingSampleService,

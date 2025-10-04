@@ -14,7 +14,7 @@ class TestDuplicateDetector:
         """Test identical strings return similarity of 1.0."""
         from unittest.mock import MagicMock
 
-        from app.services.duplicate_detector import DuplicateDetector
+        from app.services.places.duplicate_detector import DuplicateDetector
 
         detector = DuplicateDetector(db=MagicMock())
         similarity = detector._calculate_string_similarity("강남카페", "강남카페")
@@ -25,7 +25,7 @@ class TestDuplicateDetector:
         """Test different strings return similarity less than 1.0."""
         from unittest.mock import MagicMock
 
-        from app.services.duplicate_detector import DuplicateDetector
+        from app.services.places.duplicate_detector import DuplicateDetector
 
         detector = DuplicateDetector(db=MagicMock())
         similarity = detector._calculate_string_similarity("강남카페", "홍대레스토랑")
@@ -37,7 +37,7 @@ class TestDuplicateDetector:
         """Test Korean address normalization removes common words."""
         from unittest.mock import MagicMock
 
-        from app.services.duplicate_detector import DuplicateDetector
+        from app.services.places.duplicate_detector import DuplicateDetector
 
         detector = DuplicateDetector(db=MagicMock())
         normalized = detector._normalize_address("서울특별시 강남구 테헤란로")

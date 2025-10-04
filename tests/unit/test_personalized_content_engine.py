@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.models.notification import NotificationTemplate
 from app.models.notification_analytics import UserNotificationPattern
-from app.services.personalized_content_engine import PersonalizedContentEngine
+from app.services.ml.personalized_content_engine import PersonalizedContentEngine
 
 
 class TestPersonalizedContentEngine:

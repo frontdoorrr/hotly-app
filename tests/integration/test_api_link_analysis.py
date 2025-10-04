@@ -18,7 +18,7 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.schemas.ai import PlaceInfo
 from app.schemas.content import ContentExtractResult
-from app.services.place_analysis_service import PlaceAnalysisResult
+from app.services.places.place_analysis_service import PlaceAnalysisResult
 
 
 class TestLinkAnalysisAPIIntegration:

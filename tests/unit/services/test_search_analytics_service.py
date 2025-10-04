@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from unittest.mock import AsyncMock, Mock, patch
 from uuid import uuid4
 
-from app.services.search_analytics_service import SearchAnalyticsService
+from app.services.search.search_analytics_service import SearchAnalyticsService
 
 
 class TestSearchAnalyticsService:

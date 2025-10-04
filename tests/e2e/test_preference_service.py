@@ -11,13 +11,13 @@ from app.schemas.preference import (
     UserBehaviorCreate,
     UserProfileResponse,
 )
-from app.services.preference_service import (
+from app.services.auth.preference_service import (
     CategoryPreferenceService,
     PreferencePersonalizationService,
     PreferenceSetupService,
     PreferenceSurveyService,
 )
-from app.services.user_preference_service import UserPreferenceService
+from app.services.auth.user_preference_service import UserPreferenceService
 
 
 class TestPreferenceSetupService:

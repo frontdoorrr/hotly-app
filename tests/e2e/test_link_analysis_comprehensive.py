@@ -17,7 +17,7 @@ from app.main import app
 from app.schemas.ai import PlaceInfo
 from app.schemas.content import ContentExtractResult
 from app.schemas.link_analysis import AnalysisStatus
-from app.services.place_analysis_service import PlaceAnalysisResult
+from app.services.places.place_analysis_service import PlaceAnalysisResult
 
 
 class TestLinkAnalysisComprehensive:
@@ -753,7 +753,7 @@ class TestLinkAnalysisComprehensive:
 
         # Test cache statistics endpoint
         with patch("app.services.cache_manager.CacheManager") as mock_cache:
-            from app.services.cache_manager import CacheStats
+            from app.services.monitoring.cache_manager import CacheStats
 
             mock_cache_instance = AsyncMock()
             mock_stats = CacheStats(

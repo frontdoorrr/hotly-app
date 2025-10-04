@@ -15,7 +15,7 @@ from app.core.cache import CacheService, MemoryCacheService
 from app.core.config import settings
 from app.db.session import SessionLocal
 from app.models.user import User
-from app.services.user_data_service import (
+from app.services.auth.user_data_service import (
     AuthenticatedUserService,
     UserActivityLogService,
     UserDataPrivacyService,

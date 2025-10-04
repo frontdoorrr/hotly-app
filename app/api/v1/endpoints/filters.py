@@ -9,7 +9,7 @@
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -25,10 +25,9 @@ from app.schemas.filter import (
     FilterPresetUpdate,
     FilterRecommendation,
     FilterResult,
-    FilterStats,
 )
 from app.services.analytics_service import AnalyticsService
-from app.services.filter_service import FilterService
+from app.services.ranking.filter_service import FilterService
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -44,23 +43,23 @@ async def get_available_filters(
 ) -> Any:
     """
     사용자가 사용할 수 있는 필터 옵션들 조회
-    
+
     사용자의 장소 데이터를 기반으로 실제 적용 가능한 필터 옵션들을 반환합니다.
     """
     filter_service = FilterService(db, cache_service, analytics_service)
-    
+
     try:
         available_filters = await filter_service.get_available_filters(current_user.id)
-        
+
         logger.info(f"Retrieved available filters for user {current_user.id}")
-        
+
         return available_filters
-        
+
     except Exception as e:
         logger.error(f"Failed to get available filters for user {current_user.id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="필터 옵션 조회에 실패했습니다."
+            detail="필터 옵션 조회에 실패했습니다.",
         )
 
 
@@ -77,11 +76,11 @@ async def apply_filters(
 ) -> Any:
     """
     필터 조건을 적용하여 장소 검색
-    
+
     다중 필터 조합, 정렬, 페이지네이션을 지원하는 고급 검색 기능입니다.
     """
     filter_service = FilterService(db, cache_service, analytics_service)
-    
+
     try:
         # 필터 적용
         result = await filter_service.apply_filters(
@@ -90,19 +89,18 @@ async def apply_filters(
             page=page,
             page_size=page_size,
         )
-        
+
         logger.info(
             f"Applied filters for user {current_user.id}: "
             f"{result.total_count} results, {result.processing_time_ms}ms"
         )
-        
+
         return result
-        
+
     except Exception as e:
         logger.error(f"Failed to apply filters for user {current_user.id}: {e}")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="필터 적용에 실패했습니다."
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="필터 적용에 실패했습니다."
         )
 
 
@@ -116,19 +114,21 @@ async def get_filter_presets(
 ) -> Any:
     """사용자의 필터 프리셋 목록 조회"""
     filter_service = FilterService(db, cache_service, analytics_service)
-    
+
     try:
         presets = await filter_service.get_filter_presets(current_user.id)
-        
-        logger.info(f"Retrieved {len(presets)} filter presets for user {current_user.id}")
-        
+
+        logger.info(
+            f"Retrieved {len(presets)} filter presets for user {current_user.id}"
+        )
+
         return presets
-        
+
     except Exception as e:
         logger.error(f"Failed to get filter presets for user {current_user.id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="필터 프리셋 조회에 실패했습니다."
+            detail="필터 프리셋 조회에 실패했습니다.",
         )
 
 
@@ -143,23 +143,25 @@ async def save_filter_preset(
 ) -> Any:
     """필터 프리셋 저장"""
     filter_service = FilterService(db, cache_service, analytics_service)
-    
+
     try:
         preset = await filter_service.save_filter_preset(
             user_id=current_user.id,
             name=preset_data.name,
             criteria=preset_data.criteria,
         )
-        
-        logger.info(f"Saved filter preset '{preset_data.name}' for user {current_user.id}")
-        
+
+        logger.info(
+            f"Saved filter preset '{preset_data.name}' for user {current_user.id}"
+        )
+
         return preset
-        
+
     except Exception as e:
         logger.error(f"Failed to save filter preset for user {current_user.id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="필터 프리셋 저장에 실패했습니다."
+            detail="필터 프리셋 저장에 실패했습니다.",
         )
 
 
@@ -174,21 +176,23 @@ async def update_filter_preset(
     preset_data: FilterPresetUpdate,
 ) -> Any:
     """필터 프리셋 수정"""
-    filter_service = FilterService(db, cache_service, analytics_service)
-    
+    FilterService(db, cache_service, analytics_service)
+
     try:
         # 기존 프리셋 확인
-        preset = await db.query(FilterPreset).filter(
-            FilterPreset.id == preset_id,
-            FilterPreset.user_id == current_user.id
-        ).first()
-        
+        preset = (
+            await db.query(FilterPreset)
+            .filter(
+                FilterPreset.id == preset_id, FilterPreset.user_id == current_user.id
+            )
+            .first()
+        )
+
         if not preset:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="필터 프리셋을 찾을 수 없습니다."
+                status_code=status.HTTP_404_NOT_FOUND, detail="필터 프리셋을 찾을 수 없습니다."
             )
-        
+
         # 프리셋 업데이트
         if preset_data.name is not None:
             preset.name = preset_data.name
@@ -196,23 +200,25 @@ async def update_filter_preset(
             preset.criteria = preset_data.criteria.dict()
         if preset_data.description is not None:
             preset.description = preset_data.description
-            
+
         preset.updated_at = func.now()
-        
+
         await db.commit()
         await db.refresh(preset)
-        
+
         logger.info(f"Updated filter preset {preset_id} for user {current_user.id}")
-        
+
         return preset
-        
+
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Failed to update filter preset {preset_id} for user {current_user.id}: {e}")
+        logger.error(
+            f"Failed to update filter preset {preset_id} for user {current_user.id}: {e}"
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="필터 프리셋 수정에 실패했습니다."
+            detail="필터 프리셋 수정에 실패했습니다.",
         )
 
 
@@ -226,31 +232,35 @@ async def delete_filter_preset(
     """필터 프리셋 삭제"""
     try:
         # 기존 프리셋 확인
-        preset = await db.query(FilterPreset).filter(
-            FilterPreset.id == preset_id,
-            FilterPreset.user_id == current_user.id
-        ).first()
-        
+        preset = (
+            await db.query(FilterPreset)
+            .filter(
+                FilterPreset.id == preset_id, FilterPreset.user_id == current_user.id
+            )
+            .first()
+        )
+
         if not preset:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="필터 프리셋을 찾을 수 없습니다."
+                status_code=status.HTTP_404_NOT_FOUND, detail="필터 프리셋을 찾을 수 없습니다."
             )
-        
+
         await db.delete(preset)
         await db.commit()
-        
+
         logger.info(f"Deleted filter preset {preset_id} for user {current_user.id}")
-        
+
         return {"message": "필터 프리셋이 삭제되었습니다."}
-        
+
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Failed to delete filter preset {preset_id} for user {current_user.id}: {e}")
+        logger.error(
+            f"Failed to delete filter preset {preset_id} for user {current_user.id}: {e}"
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="필터 프리셋 삭제에 실패했습니다."
+            detail="필터 프리셋 삭제에 실패했습니다.",
         )
 
 
@@ -265,22 +275,25 @@ async def get_filter_recommendations(
 ) -> Any:
     """사용자별 필터 추천"""
     filter_service = FilterService(db, cache_service, analytics_service)
-    
+
     try:
         recommendations = await filter_service.get_recommended_filters(
-            user_id=current_user.id,
-            limit=limit
+            user_id=current_user.id, limit=limit
         )
-        
-        logger.info(f"Generated {len(recommendations)} filter recommendations for user {current_user.id}")
-        
+
+        logger.info(
+            f"Generated {len(recommendations)} filter recommendations for user {current_user.id}"
+        )
+
         return recommendations
-        
+
     except Exception as e:
-        logger.error(f"Failed to get filter recommendations for user {current_user.id}: {e}")
+        logger.error(
+            f"Failed to get filter recommendations for user {current_user.id}: {e}"
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="필터 추천 생성에 실패했습니다."
+            detail="필터 추천 생성에 실패했습니다.",
         )
 
 
@@ -295,16 +308,16 @@ async def clear_filter_cache(
         # 사용자별 필터 캐시 삭제
         await cache_service.delete_pattern(f"hotly:filter:*:{current_user.id}:*")
         await cache_service.delete_pattern(f"hotly:filters:available:{current_user.id}")
-        
+
         logger.info(f"Cleared filter cache for user {current_user.id}")
-        
+
         return {"message": "필터 캐시가 삭제되었습니다."}
-        
+
     except Exception as e:
         logger.error(f"Failed to clear filter cache for user {current_user.id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="필터 캐시 삭제에 실패했습니다."
+            detail="필터 캐시 삭제에 실패했습니다.",
         )
 
 
@@ -320,22 +333,21 @@ async def get_filter_usage_stats(
     try:
         # 필터 사용 패턴 분석
         filter_patterns = await analytics_service.get_user_filter_patterns(
-            user_id=current_user.id,
-            days=days
+            user_id=current_user.id, days=days
         )
-        
+
         # 자주 사용하는 필터 조합
-        frequent_combinations = await analytics_service.get_frequent_filter_combinations(
-            user_id=current_user.id,
-            limit=10
+        frequent_combinations = (
+            await analytics_service.get_frequent_filter_combinations(
+                user_id=current_user.id, limit=10
+            )
         )
-        
+
         # 필터 효율성 분석
         filter_efficiency = await analytics_service.calculate_filter_efficiency(
-            user_id=current_user.id,
-            days=days
+            user_id=current_user.id, days=days
         )
-        
+
         stats = {
             "period_days": days,
             "total_filter_uses": filter_patterns.total_uses,
@@ -352,18 +364,20 @@ async def get_filter_usage_stats(
             "performance_metrics": {
                 "average_response_time_ms": filter_patterns.avg_response_time,
                 "cache_hit_rate": filter_patterns.cache_hit_rate,
-            }
+            },
         }
-        
+
         logger.info(f"Retrieved filter usage stats for user {current_user.id}")
-        
+
         return stats
-        
+
     except Exception as e:
-        logger.error(f"Failed to get filter usage stats for user {current_user.id}: {e}")
+        logger.error(
+            f"Failed to get filter usage stats for user {current_user.id}: {e}"
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="필터 사용 통계 조회에 실패했습니다."
+            detail="필터 사용 통계 조회에 실패했습니다.",
         )
 
 
@@ -377,74 +391,80 @@ async def optimize_user_filters(
 ) -> Any:
     """사용자 필터 최적화"""
     filter_service = FilterService(db, cache_service, analytics_service)
-    
+
     try:
         # 사용자 필터 패턴 분석
         patterns = await analytics_service.get_user_filter_patterns(current_user.id)
-        
+
         optimizations = []
-        
+
         # 1. 자주 사용하는 필터 조합을 프리셋으로 제안
         if patterns.frequent_combinations:
             for combination in patterns.frequent_combinations[:3]:
                 if combination.usage_count >= 5:  # 5회 이상 사용된 조합
                     preset_name = f"자주 사용하는 {combination.name}"
-                    
+
                     # 이미 비슷한 프리셋이 있는지 확인
                     existing_preset = await filter_service.get_similar_preset(
-                        user_id=current_user.id,
-                        criteria=combination.criteria
+                        user_id=current_user.id, criteria=combination.criteria
                     )
-                    
+
                     if not existing_preset:
-                        optimizations.append({
-                            "type": "preset_suggestion",
-                            "name": preset_name,
-                            "criteria": combination.criteria,
-                            "reason": f"{combination.usage_count}회 사용된 조합입니다.",
-                            "confidence": 0.8,
-                        })
-        
+                        optimizations.append(
+                            {
+                                "type": "preset_suggestion",
+                                "name": preset_name,
+                                "criteria": combination.criteria,
+                                "reason": f"{combination.usage_count}회 사용된 조합입니다.",
+                                "confidence": 0.8,
+                            }
+                        )
+
         # 2. 비효율적인 필터 조합 감지
         inefficient_filters = await analytics_service.detect_inefficient_filters(
             current_user.id
         )
-        
+
         for inefficient in inefficient_filters:
-            optimizations.append({
-                "type": "efficiency_warning",
-                "filter_combination": inefficient.combination,
-                "issue": inefficient.issue_description,
-                "suggestion": inefficient.improvement_suggestion,
-                "confidence": inefficient.confidence,
-            })
-        
+            optimizations.append(
+                {
+                    "type": "efficiency_warning",
+                    "filter_combination": inefficient.combination,
+                    "issue": inefficient.issue_description,
+                    "suggestion": inefficient.improvement_suggestion,
+                    "confidence": inefficient.confidence,
+                }
+            )
+
         # 3. 새로운 필터 옵션 제안
         new_options = await analytics_service.suggest_new_filter_options(
             current_user.id
         )
-        
+
         for option in new_options:
-            optimizations.append({
-                "type": "new_option",
-                "filter_type": option.filter_type,
-                "option_value": option.value,
-                "expected_benefit": option.expected_benefit,
-                "confidence": option.confidence,
-            })
-        
-        logger.info(f"Generated {len(optimizations)} filter optimizations for user {current_user.id}")
-        
+            optimizations.append(
+                {
+                    "type": "new_option",
+                    "filter_type": option.filter_type,
+                    "option_value": option.value,
+                    "expected_benefit": option.expected_benefit,
+                    "confidence": option.confidence,
+                }
+            )
+
+        logger.info(
+            f"Generated {len(optimizations)} filter optimizations for user {current_user.id}"
+        )
+
         return {
             "optimizations": optimizations,
             "total_suggestions": len(optimizations),
             "analysis_period": "last_30_days",
             "next_analysis_date": (datetime.utcnow() + timedelta(days=7)).isoformat(),
         }
-        
+
     except Exception as e:
         logger.error(f"Failed to optimize filters for user {current_user.id}: {e}")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="필터 최적화에 실패했습니다."
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="필터 최적화에 실패했습니다."
         )

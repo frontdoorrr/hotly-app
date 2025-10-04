@@ -3,7 +3,11 @@ from typing import List
 
 import pytest
 
-from app.services.course_optimizer import CourseOptimizer, OptimizationResult, Place
+from app.services.courses.course_optimizer import (
+    CourseOptimizer,
+    OptimizationResult,
+    Place,
+)
 
 
 class TestCourseOptimizer:

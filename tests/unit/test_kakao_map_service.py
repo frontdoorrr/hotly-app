@@ -23,7 +23,7 @@ class TestKakaoMapService:
         When: Requesting geocoding
         Then: Returns (latitude, longitude) coordinates
         """
-        from app.services.kakao_map_service import KakaoMapService
+        from app.services.maps.kakao_map_service import KakaoMapService
 
         # Given: Valid address and mocked API response
         address = "서울특별시 강남구 테헤란로 123"
@@ -53,7 +53,7 @@ class TestKakaoMapService:
         When: Requesting geocoding
         Then: Raises ValueError with clear message
         """
-        from app.services.kakao_map_service import KakaoMapService
+        from app.services.maps.kakao_map_service import KakaoMapService
 
         # Given: Invalid address
         invalid_address = "존재하지않는주소12345XYZ"
@@ -74,7 +74,7 @@ class TestKakaoMapService:
 
         RED: This test should fail until reverse geocoding is implemented
         """
-        from app.services.kakao_map_service import KakaoMapService
+        from app.services.maps.kakao_map_service import KakaoMapService
 
         # Given: Valid coordinates (Gangnam area)
         latitude = 37.4979
@@ -102,7 +102,7 @@ class TestKakaoMapService:
 
         RED: This test should fail until place search is implemented
         """
-        from app.services.kakao_map_service import KakaoMapService
+        from app.services.maps.kakao_map_service import KakaoMapService
 
         # Given: Search keyword
         keyword = "강남역 카페"
@@ -132,7 +132,7 @@ class TestKakaoMapService:
 
         RED: This test should fail until location-biased search is implemented
         """
-        from app.services.kakao_map_service import KakaoMapService
+        from app.services.maps.kakao_map_service import KakaoMapService
 
         # Given: Keyword with location bias
         keyword = "카페"
@@ -167,7 +167,7 @@ class TestKakaoMapService:
 
         RED: This test should fail until error handling is implemented
         """
-        from app.services.kakao_map_service import KakaoMapService
+        from app.services.maps.kakao_map_service import KakaoMapService
 
         # Given: Service configured with timeout
         service = KakaoMapService(timeout=1.0, max_retries=3)
@@ -190,7 +190,7 @@ class TestKakaoMapService:
 
         RED: This test should fail until rate limit handling is implemented
         """
-        from app.services.kakao_map_service import KakaoMapService
+        from app.services.maps.kakao_map_service import KakaoMapService
 
         # Given: Service that will hit rate limit
         KakaoMapService()
@@ -233,7 +233,7 @@ class TestKakaoMapService:
 
         RED: This test should fail until caching is implemented
         """
-        from app.services.kakao_map_service import KakaoMapService
+        from app.services.maps.kakao_map_service import KakaoMapService
 
         # Given: Address that will be queried twice
         address = "서울특별시 강남구 테헤란로 123"

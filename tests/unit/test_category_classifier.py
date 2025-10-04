@@ -9,7 +9,7 @@ Follows TDD approach for Task 1-2-3: AI 기반 카테고리 분류 시스템 (80
 from unittest.mock import patch
 
 from app.models.place import PlaceCategory
-from app.services.category_classifier import CategoryClassifier
+from app.services.places.category_classifier import CategoryClassifier
 
 
 class TestCategoryClassifier:

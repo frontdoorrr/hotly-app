@@ -8,7 +8,7 @@ import sys
 # Add the project root to Python path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from app.services.content_extractor import ContentExtractor
+from app.services.places.content_extractor import ContentExtractor
 
 
 async def test_content_extractor():

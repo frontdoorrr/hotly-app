@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from unittest.mock import AsyncMock, Mock, patch
 from uuid import uuid4
 
-from app.services.advanced_filter_service import AdvancedFilterService
+from app.services.ranking.advanced_filter_service import AdvancedFilterService
 
 
 class TestAdvancedFilterService:

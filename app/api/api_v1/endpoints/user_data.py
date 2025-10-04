@@ -29,7 +29,7 @@ from app.schemas.user_data import (
     UserSettingsResponse,
     UserSettingsUpdate,
 )
-from app.services.user_data_service import (
+from app.services.auth.user_data_service import (
     AuthenticatedUserService,
     UserActivityLogService,
     UserDataPrivacyService,

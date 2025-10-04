@@ -12,7 +12,9 @@ from app.models.notification_analytics import (
     NotificationLog,
     UserNotificationPattern,
 )
-from app.services.ml_notification_optimizer import NotificationTimingOptimizer
+from app.services.notifications.ml_notification_optimizer import (
+    NotificationTimingOptimizer,
+)
 
 
 class TestMLNotificationOptimizer:

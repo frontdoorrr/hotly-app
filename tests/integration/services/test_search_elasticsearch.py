@@ -9,8 +9,8 @@ from unittest.mock import AsyncMock, Mock, patch
 from uuid import uuid4
 
 from app.db.elasticsearch import es_manager
-from app.services.search_schemas import SearchIndexSchemas
-from app.services.search_service import SearchService
+from app.services.search.search_schemas import SearchIndexSchemas
+from app.services.search.search_service import SearchService
 
 
 class TestElasticsearchSearchIndex:

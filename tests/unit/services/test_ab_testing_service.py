@@ -14,7 +14,7 @@ from app.models.notification_analytics import (
     NotificationLog,
     UserABTestAssignment,
 )
-from app.services.ab_testing_service import ABTestingService
+from app.services.experiments.ab_testing_service import ABTestingService
 
 
 class TestABTestingService:

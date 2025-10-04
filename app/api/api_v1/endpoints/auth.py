@@ -15,7 +15,7 @@ from app.schemas.auth import (
     TokenRefreshResponse,
     UserUpgradeRequest,
 )
-from app.services.supabase_auth_service import SupabaseAuthService
+from app.services.auth.supabase_auth_service import SupabaseAuthService
 
 router = APIRouter()
 

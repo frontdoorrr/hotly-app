@@ -19,7 +19,7 @@ from app.schemas.autocomplete import (
     SearchAnalyticsResponse,
     SuggestionItem,
 )
-from app.services.autocomplete_service import get_autocomplete_service
+from app.services.search.autocomplete_service import get_autocomplete_service
 
 logger = logging.getLogger(__name__)
 

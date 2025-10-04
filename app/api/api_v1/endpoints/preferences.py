@@ -19,7 +19,7 @@ from app.schemas.preference import (
     UserProfileCreate,
     UserProfileResponse,
 )
-from app.services.user_preference_service import UserPreferenceService
+from app.services.auth.user_preference_service import UserPreferenceService
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

@@ -15,8 +15,8 @@ from app.schemas.search_optimization import (
     SearchOptimizationConfig,
     SearchPerformanceMetrics,
 )
-from app.services.search_optimization_service import SearchOptimizationService
-from app.services.search_performance_service import SearchPerformanceService
+from app.services.search.search_optimization_service import SearchOptimizationService
+from app.services.search.search_performance_service import SearchPerformanceService
 
 
 class TestSearchOptimizationService:

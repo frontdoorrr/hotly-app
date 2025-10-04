@@ -10,7 +10,9 @@ from app.schemas.notification import (
     NotificationTemplateCreate,
     NotificationTemplateUpdate,
 )
-from app.services.notification_template_service import NotificationTemplateService
+from app.services.notifications.notification_template_service import (
+    NotificationTemplateService,
+)
 
 
 class TestNotificationTemplateService:

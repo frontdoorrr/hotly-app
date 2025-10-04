@@ -4,7 +4,7 @@ import pytest
 
 from app.models.place import PlaceCategory
 from app.schemas.place import PlaceCreate
-from app.services.duplicate_detector import DuplicateDetector
+from app.services.places.duplicate_detector import DuplicateDetector
 
 
 class TestDuplicateDetector:

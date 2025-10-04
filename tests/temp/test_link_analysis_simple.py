@@ -20,7 +20,7 @@ async def test_link_analysis_components():
     # Test 1: Content Extractor
     print("\n1. Testing Content Extractor...")
     try:
-        from app.services.content_extractor import ContentExtractor
+        from app.services.places.content_extractor import ContentExtractor
 
         extractor = ContentExtractor()
         print("✅ ContentExtractor imported successfully")
@@ -46,7 +46,7 @@ async def test_link_analysis_components():
     # Test 2: Cache Manager
     print("\n2. Testing Cache Manager...")
     try:
-        from app.services.cache_manager import CacheKey, CacheManager
+        from app.services.monitoring.cache_manager import CacheKey, CacheManager
 
         CacheManager()
         print("✅ CacheManager imported successfully")
@@ -63,7 +63,7 @@ async def test_link_analysis_components():
     # Test 3: Place Analysis Service
     print("\n3. Testing Place Analysis Service...")
     try:
-        from app.services.place_analysis_service import PlaceAnalysisService
+        from app.services.places.place_analysis_service import PlaceAnalysisService
 
         PlaceAnalysisService()
         print("✅ PlaceAnalysisService imported successfully")
@@ -121,7 +121,7 @@ async def test_content_extraction_mock():
     print("=" * 50)
 
     try:
-        from app.services.content_extractor import ContentExtractor
+        from app.services.places.content_extractor import ContentExtractor
 
         extractor = ContentExtractor()
 

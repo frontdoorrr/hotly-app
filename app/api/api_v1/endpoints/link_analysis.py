@@ -26,9 +26,9 @@ from app.schemas.link_analysis import (
     LinkAnalyzeRequest,
     LinkAnalyzeResponse,
 )
-from app.services.cache_manager import CacheKey, CacheManager
-from app.services.content_extractor import ContentExtractor
-from app.services.place_analysis_service import PlaceAnalysisService
+from app.services.monitoring.cache_manager import CacheKey, CacheManager
+from app.services.places.content_extractor import ContentExtractor
+from app.services.places.place_analysis_service import PlaceAnalysisService
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

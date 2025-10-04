@@ -12,7 +12,7 @@ import pytest
 from app.exceptions.ai import AIAnalysisError, RateLimitError
 from app.schemas.ai import PlaceInfo
 from app.schemas.content import ContentMetadata
-from app.services.place_analysis_service import (
+from app.services.places.place_analysis_service import (
     PlaceAnalysisResult,
     PlaceAnalysisService,
 )

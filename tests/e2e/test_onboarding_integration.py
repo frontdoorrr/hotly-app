@@ -11,13 +11,16 @@ from app.ab_testing.framework import ABTestOrchestrator
 from app.analytics.onboarding import OnboardingAnalytics
 
 # from app.schemas.preference import OnboardingStepRequest
-from app.services.onboarding_service import OnboardingFlowManager, OnboardingService
-from app.services.personalization_service import OnboardingPersonalizationEngine
-from app.services.preference_service import (
+from app.services.auth.onboarding_service import (
+    OnboardingFlowManager,
+    OnboardingService,
+)
+from app.services.auth.preference_service import (
     PreferenceSetupService,
     PreferenceSurveyService,
 )
-from app.services.user_preference_service import UserPreferenceService
+from app.services.auth.user_preference_service import UserPreferenceService
+from app.services.ml.personalization_service import OnboardingPersonalizationEngine
 
 
 @pytest.mark.integration

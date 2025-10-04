@@ -21,9 +21,9 @@ from app.schemas.course_recommendation import (
     CourseGenerateResponse,
 )
 from app.schemas.place import PlaceCreate
-from app.services.course_generator_service import CourseGeneratorService
-from app.services.course_recommender import CourseRecommender
-from app.services.course_sharing_service import (
+from app.services.courses.course_generator_service import CourseGeneratorService
+from app.services.courses.course_recommender import CourseRecommender
+from app.services.courses.course_sharing_service import (
     CourseAnalyticsService,
     CourseDiscoveryService,
     CourseInteractionService,

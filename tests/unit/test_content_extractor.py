@@ -15,7 +15,7 @@ import pytest
 
 from app.exceptions.external import ContentExtractionError, UnsupportedPlatformError
 from app.schemas.content import ContentExtractResult
-from app.services.content_extractor import ContentExtractor, Platform
+from app.services.places.content_extractor import ContentExtractor, Platform
 
 
 class TestContentExtractor:

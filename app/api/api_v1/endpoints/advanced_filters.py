@@ -27,7 +27,7 @@ from app.schemas.advanced_filter import (
     SavedFilter,
     SavedFilterRequest,
 )
-from app.services.advanced_filter_service import get_advanced_filter_service
+from app.services.ranking.advanced_filter_service import get_advanced_filter_service
 from app.utils.cache import get_redis_client
 
 logger = logging.getLogger(__name__)

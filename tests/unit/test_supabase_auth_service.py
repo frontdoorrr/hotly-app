@@ -4,7 +4,7 @@ from unittest.mock import Mock
 import pytest
 
 from app.schemas.auth import SignInRequest, SignUpRequest
-from app.services.supabase_auth_service import SupabaseAuthService
+from app.services.auth.supabase_auth_service import SupabaseAuthService
 
 
 class TestSupabaseAuthService:

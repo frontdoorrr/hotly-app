@@ -39,7 +39,7 @@ from app.schemas.preference import (
     SurveyCompletionRequest,
     SurveyCompletionResponse,
 )
-from app.services.preference_service import (
+from app.services.auth.preference_service import (
     CategoryPreferenceService,
     PreferencePersonalizationService,
     PreferenceSetupService,

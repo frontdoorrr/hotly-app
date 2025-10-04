@@ -299,7 +299,7 @@ class TestPlaceServiceIntegration:
         ]
 
         # When - Duplicate detection runs
-        from app.services.duplicate_detector import DuplicateDetector
+        from app.services.places.duplicate_detector import DuplicateDetector
 
         detector = DuplicateDetector()
 
@@ -328,7 +328,7 @@ class TestPlaceServiceIntegration:
         place_data = TestDataBuilder().with_korean_bbq_content().build_place_create()
 
         # When - AI classification runs
-        from app.services.place_classifier import PlaceClassifier
+        from app.services.places.place_classifier import PlaceClassifier
 
         classifier = PlaceClassifier(confidence_threshold=0.70)
 

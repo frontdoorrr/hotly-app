@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from unittest.mock import AsyncMock, Mock, patch
 from uuid import uuid4
 
-from app.services.autocomplete_service import AutocompleteService
+from app.services.search.autocomplete_service import AutocompleteService
 
 
 class TestAutocompleteService:

@@ -15,7 +15,7 @@ from app.api import deps
 from app.db.deps import get_db
 from app.models.user import User
 from app.schemas.search import PlaceSearchResponse, SearchSuggestionResponse
-from app.services.search_service import SearchService
+from app.services.search.search_service import SearchService
 
 logger = logging.getLogger(__name__)
 

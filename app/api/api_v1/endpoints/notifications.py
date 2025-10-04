@@ -29,31 +29,31 @@ from app.schemas.notification import (
     UserNotificationSettingsResponse,
     UserNotificationSettingsUpdate,
 )
-from app.services.fcm_service import FCMService, get_fcm_service
-from app.services.notification_scheduler import (
-    NotificationScheduler,
-    get_notification_scheduler,
-)
-from app.services.notification_service import (
-    NotificationService,
-    get_notification_service,
-)
-from app.services.notification_settings_service import (
-    NotificationSettingsNotFoundError,
-    NotificationSettingsService,
-    get_notification_settings_service,
-)
-from app.services.notification_template_service import (
-    NotificationTemplateService,
-    get_notification_template_service,
-)
-from app.services.personalization_engine import (
+from app.services.ml.personalization_engine import (
     InsufficientDataError,
     ModelPredictionError,
     PersonalizationEngine,
     get_personalization_engine,
 )
-from app.services.personalized_notification_service import (
+from app.services.notifications.fcm_service import FCMService, get_fcm_service
+from app.services.notifications.notification_scheduler import (
+    NotificationScheduler,
+    get_notification_scheduler,
+)
+from app.services.notifications.notification_service import (
+    NotificationService,
+    get_notification_service,
+)
+from app.services.notifications.notification_settings_service import (
+    NotificationSettingsNotFoundError,
+    NotificationSettingsService,
+    get_notification_settings_service,
+)
+from app.services.notifications.notification_template_service import (
+    NotificationTemplateService,
+    get_notification_template_service,
+)
+from app.services.notifications.personalized_notification_service import (
     PersonalizedNotificationService,
     get_personalized_notification_service,
 )

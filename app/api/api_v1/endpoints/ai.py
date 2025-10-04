@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException
 from app.exceptions.ai import AIAnalysisError, RateLimitError
 from app.schemas.ai import PlaceAnalysisRequest, PlaceAnalysisResponse
 from app.schemas.content import ContentMetadata
-from app.services.place_analysis_service import PlaceAnalysisService
+from app.services.places.place_analysis_service import PlaceAnalysisService
 
 router = APIRouter()
 

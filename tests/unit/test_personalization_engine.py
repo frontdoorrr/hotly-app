@@ -16,7 +16,7 @@ from app.schemas.notification import (
     PersonalizedTimingRequest,
     UserBehaviorPattern,
 )
-from app.services.personalization_engine import (
+from app.services.ml.personalization_engine import (
     InsufficientDataError,
     PersonalizationEngine,
 )

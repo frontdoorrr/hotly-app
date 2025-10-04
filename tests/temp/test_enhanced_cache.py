@@ -9,7 +9,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from app.schemas.cache import CacheEntry
-from app.services.cache_manager import CacheKey, CacheManager, LRUCache
+from app.services.monitoring.cache_manager import CacheKey, CacheManager, LRUCache
 
 
 async def test_enhanced_cache_manager():

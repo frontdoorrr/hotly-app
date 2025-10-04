@@ -7,7 +7,7 @@ Follows TDD approach for Task 1-2-2: 중복 방지 알고리즘 구현 (95% 정�
 """
 
 from app.schemas.place import PlaceCreate
-from app.services.duplicate_detector import DuplicateDetector
+from app.services.places.duplicate_detector import DuplicateDetector
 
 
 class TestDuplicateDetectorAccuracy:
