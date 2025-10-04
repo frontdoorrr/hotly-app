@@ -52,13 +52,14 @@ class TestCourseOptimizer:
         """테스트용 최적화 인스턴스."""
         return CourseOptimizer()
 
-    def test_optimize_validPlaces_returnsOptimizedResult(
+    @pytest.mark.asyncio
+    async def test_optimize_validPlaces_returnsOptimizedResult(
         self, optimizer: CourseOptimizer, sample_places: List[Place]
     ) -> None:
         """유효한 장소 입력 시 최적화 결과 반환."""
         # Given: 유효한 장소 목록
         # When: 최적화 실행
-        result = optimizer.optimize(sample_places, transport_method="walking")
+        result = await optimizer.optimize(sample_places, transport_method="walking")
 
         # Then: 최적화 결과 반환
         assert isinstance(result, OptimizationResult)
@@ -67,7 +68,8 @@ class TestCourseOptimizer:
         assert result.total_distance > 0
         assert result.total_duration > 0
 
-    def test_optimize_minimizeDistance_returnsShortestPath(
+    @pytest.mark.asyncio
+    async def test_optimize_minimizeDistance_returnsShortestPath(
         self, optimizer: CourseOptimizer, sample_places: List[Place]
     ) -> None:
         """거리 최소화 시 최단 경로 반환."""
@@ -75,7 +77,7 @@ class TestCourseOptimizer:
         optimizer.set_weights(distance=1.0, time=0.0, variety=0.0)
 
         # When: 최적화 실행
-        result = optimizer.optimize(sample_places, transport_method="walking")
+        result = await optimizer.optimize(sample_places, transport_method="walking")
 
         # Then: 최소한 place1과 place4는 인접해야 함 (가장 가까운 두 장소)
         order_ids = [p.id for p in result.optimized_order]
@@ -83,7 +85,8 @@ class TestCourseOptimizer:
         place4_idx = order_ids.index("place4")
         assert abs(place1_idx - place4_idx) <= 1
 
-    def test_optimize_categoryVariety_avoidsConsecutiveSameCategory(
+    @pytest.mark.asyncio
+    async def test_optimize_categoryVariety_avoidsConsecutiveSameCategory(
         self, optimizer: CourseOptimizer, sample_places: List[Place]
     ) -> None:
         """카테고리 다양성 고려 시 연속 같은 카테고리 회피."""
@@ -91,7 +94,7 @@ class TestCourseOptimizer:
         optimizer.set_weights(distance=0.3, time=0.2, variety=0.5)
 
         # When: 최적화 실행
-        result = optimizer.optimize(sample_places, transport_method="walking")
+        result = await optimizer.optimize(sample_places, transport_method="walking")
 
         # Then: 카페(place1, place4)가 연속으로 오지 않음
         categories = [p.category for p in result.optimized_order]
@@ -101,7 +104,8 @@ class TestCourseOptimizer:
         if len(cafe_indices) == 2:
             assert abs(cafe_indices[0] - cafe_indices[1]) > 1
 
-    def test_optimize_threeLocations_returnsValidCourse(
+    @pytest.mark.asyncio
+    async def test_optimize_threeLocations_returnsValidCourse(
         self, optimizer: CourseOptimizer
     ) -> None:
         """최소 개수(3개) 장소로도 정상 작동."""
@@ -134,13 +138,14 @@ class TestCourseOptimizer:
         ]
 
         # When: 최적화 실행
-        result = optimizer.optimize(places, transport_method="walking")
+        result = await optimizer.optimize(places, transport_method="walking")
 
         # Then: 3개 모두 포함된 결과 반환
         assert len(result.optimized_order) == 3
         assert result.optimization_score > 0
 
-    def test_optimize_sixLocations_returnsValidCourse(
+    @pytest.mark.asyncio
+    async def test_optimize_sixLocations_returnsValidCourse(
         self, optimizer: CourseOptimizer
     ) -> None:
         """최대 개수(6개) 장소로도 정상 작동."""
@@ -158,20 +163,27 @@ class TestCourseOptimizer:
         ]
 
         # When: 최적화 실행
-        result = optimizer.optimize(places, transport_method="walking")
+        result = await optimizer.optimize(places, transport_method="walking")
 
         # Then: 6개 모두 포함된 결과 반환
         assert len(result.optimized_order) == 6
         assert result.optimization_score > 0
 
-    def test_optimize_differentTransportMethods_affectsDuration(
+    @pytest.mark.asyncio
+    async def test_optimize_differentTransportMethods_affectsDuration(
         self, optimizer: CourseOptimizer, sample_places: List[Place]
     ) -> None:
         """교통 수단에 따라 소요 시간 달라짐."""
         # When: 각기 다른 교통수단으로 최적화
-        result_walking = optimizer.optimize(sample_places, transport_method="walking")
-        result_transit = optimizer.optimize(sample_places, transport_method="transit")
-        result_driving = optimizer.optimize(sample_places, transport_method="driving")
+        result_walking = await optimizer.optimize(
+            sample_places, transport_method="walking"
+        )
+        result_transit = await optimizer.optimize(
+            sample_places, transport_method="transit"
+        )
+        result_driving = await optimizer.optimize(
+            sample_places, transport_method="driving"
+        )
 
         # Then: 도보 > 대중교통 > 차량 순으로 시간이 더 오래 걸림
         assert result_walking.total_duration > result_transit.total_duration
@@ -193,7 +205,8 @@ class TestCourseOptimizer:
         # Then: 약 11.2km (Google Maps 실제 거리와 유사)
         assert 10500 <= distance <= 11500
 
-    def test_setWeights_validWeights_modifiesOptimization(
+    @pytest.mark.asyncio
+    async def test_setWeights_validWeights_modifiesOptimization(
         self, optimizer: CourseOptimizer, sample_places: List[Place]
     ) -> None:
         """가중치 설정에 따라 최적화 결과 변화."""
@@ -205,10 +218,10 @@ class TestCourseOptimizer:
         optimizer_variety.set_weights(distance=0.0, time=0.0, variety=1.0)
 
         # When: 최적화 실행
-        result_distance = optimizer_distance.optimize(
+        result_distance = await optimizer_distance.optimize(
             sample_places, transport_method="walking"
         )
-        result_variety = optimizer_variety.optimize(
+        result_variety = await optimizer_variety.optimize(
             sample_places, transport_method="walking"
         )
 
@@ -216,7 +229,8 @@ class TestCourseOptimizer:
         # 거리 기반은 총 거리가 더 짧아야 함
         assert result_distance.total_distance <= result_variety.total_distance * 1.2
 
-    def test_optimize_tooFewPlaces_raisesValueError(
+    @pytest.mark.asyncio
+    async def test_optimize_tooFewPlaces_raisesValueError(
         self, optimizer: CourseOptimizer
     ) -> None:
         """3개 미만 장소 입력 시 예외 발생."""
@@ -242,9 +256,10 @@ class TestCourseOptimizer:
 
         # When & Then: ValueError 발생
         with pytest.raises(ValueError, match="최소 3개 이상"):
-            optimizer.optimize(places, transport_method="walking")
+            await optimizer.optimize(places, transport_method="walking")
 
-    def test_optimize_tooManyPlaces_raisesValueError(
+    @pytest.mark.asyncio
+    async def test_optimize_tooManyPlaces_raisesValueError(
         self, optimizer: CourseOptimizer
     ) -> None:
         """6개 초과 장소 입력 시 예외 발생."""
@@ -263,4 +278,4 @@ class TestCourseOptimizer:
 
         # When & Then: ValueError 발생
         with pytest.raises(ValueError, match="최대 6개까지"):
-            optimizer.optimize(places, transport_method="walking")
+            await optimizer.optimize(places, transport_method="walking")

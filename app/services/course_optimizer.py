@@ -2,9 +2,10 @@
 import math
 import random  # nosec B311  # Genetic Algorithm은 보안 목적이 아닌 최적화용
 from dataclasses import dataclass
-from typing import List
+from typing import Dict, List, Optional
 
 from app.schemas.course_recommendation import OptimizationMetrics
+from app.services.route_calculator import RouteCalculator, RouteMatrix, TransportMethod
 
 
 @dataclass
@@ -33,7 +34,7 @@ class OptimizationResult:
 class CourseOptimizer:
     """코스 최적화 엔진 (Genetic Algorithm)."""
 
-    def __init__(self) -> None:
+    def __init__(self, route_calculator: Optional[RouteCalculator] = None) -> None:
         """초기화."""
         self.distance_weight = 0.4
         self.time_weight = 0.25
@@ -45,6 +46,11 @@ class CourseOptimizer:
         self.generations = 100
         self.mutation_rate = 0.2
         self.elite_size = 5
+
+        # RouteCalculator (실제 경로 계산용)
+        self.route_calculator = route_calculator or RouteCalculator()
+        self._route_matrix: Optional[RouteMatrix] = None
+        self._place_id_to_index: Dict[str, int] = {}  # Place ID → Matrix Index 매핑
 
     def set_weights(
         self,
@@ -59,7 +65,7 @@ class CourseOptimizer:
         self.variety_weight = variety
         self.preference_weight = preference
 
-    def optimize(
+    async def optimize(
         self, places: List[Place], transport_method: str = "walking"
     ) -> OptimizationResult:
         """
@@ -80,6 +86,25 @@ class CourseOptimizer:
             raise ValueError("최소 3개 이상의 장소가 필요합니다")
         if len(places) > 6:
             raise ValueError("최대 6개까지 장소를 선택할 수 있습니다")
+
+        # Place ID → Index 매핑 생성
+        self._place_id_to_index = {p.id: i for i, p in enumerate(places)}
+
+        # RouteMatrix 계산 (한 번만 계산하여 재사용)
+        places_dict = [
+            {
+                "id": p.id,
+                "name": p.name,
+                "latitude": p.latitude,
+                "longitude": p.longitude,
+            }
+            for p in places
+        ]
+
+        transport_enum = TransportMethod(transport_method)
+        self._route_matrix = await self.route_calculator.calculate_route_matrix(
+            places_dict, transport_enum
+        )
 
         # 유전 알고리즘 실행
         best_order = self._run_genetic_algorithm(places, transport_method)
@@ -237,16 +262,29 @@ class CourseOptimizer:
 
     def _calculate_total_distance(self, places: List[Place]) -> int:
         """총 이동 거리 계산 (미터)."""
-        total: float = 0
+        if self._route_matrix is None:
+            # Fallback: Haversine 직접 계산
+            total: float = 0
+            for i in range(len(places) - 1):
+                dist = self.calculate_distance(
+                    places[i].latitude,
+                    places[i].longitude,
+                    places[i + 1].latitude,
+                    places[i + 1].longitude,
+                )
+                total += dist
+            return int(total)
+
+        # RouteMatrix 사용 (이미 계산된 경로 데이터)
+        total = 0
         for i in range(len(places) - 1):
-            dist = self.calculate_distance(
-                places[i].latitude,
-                places[i].longitude,
-                places[i + 1].latitude,
-                places[i + 1].longitude,
-            )
-            total += dist
-        return int(total)
+            current_idx = self._place_id_to_index.get(places[i].id)
+            next_idx = self._place_id_to_index.get(places[i + 1].id)
+
+            if current_idx is not None and next_idx is not None:
+                total += self._route_matrix.distances[current_idx][next_idx]
+
+        return total
 
     def _calculate_total_duration(
         self, places: List[Place], transport_method: str
@@ -257,14 +295,28 @@ class CourseOptimizer:
 
         # 이동 시간
         travel_duration = 0
-        for i in range(len(places) - 1):
-            dist = self.calculate_distance(
-                places[i].latitude,
-                places[i].longitude,
-                places[i + 1].latitude,
-                places[i + 1].longitude,
-            )
-            travel_duration += self._estimate_travel_time(dist, transport_method)
+
+        if self._route_matrix is not None:
+            # RouteMatrix의 duration 사용 (초 단위 → 분 단위 변환)
+            for i in range(len(places) - 1):
+                current_idx = self._place_id_to_index.get(places[i].id)
+                next_idx = self._place_id_to_index.get(places[i + 1].id)
+
+                if current_idx is not None and next_idx is not None:
+                    duration_seconds = self._route_matrix.durations[current_idx][
+                        next_idx
+                    ]
+                    travel_duration += int(duration_seconds / 60)
+        else:
+            # Fallback: 거리 기반 추정
+            for i in range(len(places) - 1):
+                dist = self.calculate_distance(
+                    places[i].latitude,
+                    places[i].longitude,
+                    places[i + 1].latitude,
+                    places[i + 1].longitude,
+                )
+                travel_duration += self._estimate_travel_time(dist, transport_method)
 
         return stay_duration + travel_duration
 
@@ -351,13 +403,26 @@ class CourseOptimizer:
         # 선호도 점수 (현재는 기본값)
         preference_score = 70.0
 
-        # 종합 점수
-        overall_score = (
-            self.distance_weight * distance_score
-            + self.time_weight * time_score
-            + self.variety_weight * variety_score
-            + self.preference_weight * preference_score
+        # 종합 점수 (가중치 합으로 정규화하여 0-100 범위 보장)
+        weight_sum = (
+            self.distance_weight
+            + self.time_weight
+            + self.variety_weight
+            + self.preference_weight
         )
+
+        if weight_sum > 0:
+            overall_score = (
+                self.distance_weight * distance_score
+                + self.time_weight * time_score
+                + self.variety_weight * variety_score
+                + self.preference_weight * preference_score
+            ) / weight_sum
+        else:
+            overall_score = 0.0
+
+        # 0-100 범위 보장
+        overall_score = min(100.0, max(0.0, overall_score))
 
         return OptimizationMetrics(
             distance_score=round(distance_score, 2),
