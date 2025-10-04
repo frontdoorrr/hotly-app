@@ -194,7 +194,8 @@ class UserNotificationPattern(Base):
     )
 
     # Relationships
-    user = relationship("User", back_populates="notification_pattern")
+    # Note: One-way relationship since User model has conflicts
+    user = relationship("User")
 
     @property
     def overall_engagement_score(self) -> float:

@@ -5,19 +5,27 @@ Provides geocoding, place search, and route visualization for map features.
 """
 
 import logging
-from typing import List
+from typing import List, Optional
+from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.orm import Session
 
+from app.crud.place import place as place_crud
+from app.db.session import get_db
 from app.schemas.map import (
     AddressSearchResult,
     CoordinateToAddressResult,
     PlaceSearchResult,
 )
+from app.schemas.place import PlaceResponse
 from app.services.kakao_map_service import KakaoMapService, KakaoMapServiceError
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+# Temporary user ID for MVP (will be replaced with auth)
+TEMP_USER_ID = "00000000-0000-0000-0000-000000000001"
 
 
 @router.post("/geocode", response_model=AddressSearchResult)
@@ -135,3 +143,50 @@ async def search_places(
     except Exception as e:
         logger.error(f"Unexpected error in place search: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@router.get("/places", response_model=List[PlaceResponse])
+async def get_places_in_bounds(
+    *,
+    db: Session = Depends(get_db),
+    sw_lat: float = Query(..., ge=-90, le=90, description="Southwest corner latitude"),
+    sw_lng: float = Query(
+        ..., ge=-180, le=180, description="Southwest corner longitude"
+    ),
+    ne_lat: float = Query(..., ge=-90, le=90, description="Northeast corner latitude"),
+    ne_lng: float = Query(
+        ..., ge=-180, le=180, description="Northeast corner longitude"
+    ),
+    category: Optional[str] = Query(None, description="Filter by category"),
+    limit: int = Query(100, ge=1, le=500, description="Maximum results"),
+) -> List[PlaceResponse]:
+    """
+    Get user's saved places within map bounds for marker display.
+
+    This endpoint is optimized for map visualization - returns places
+    within the visible map area (bounding box).
+
+    - **sw_lat, sw_lng**: Southwest corner of map bounds
+    - **ne_lat, ne_lng**: Northeast corner of map bounds
+    - **category**: Optional category filter
+    - **limit**: Maximum results (default 100, max 500)
+
+    Returns list of places with coordinates for map markers.
+    """
+    try:
+        places = place_crud.get_places_in_bounds(
+            db,
+            user_id=UUID(TEMP_USER_ID),
+            sw_lat=sw_lat,
+            sw_lng=sw_lng,
+            ne_lat=ne_lat,
+            ne_lng=ne_lng,
+            limit=limit,
+            category=category,
+        )
+
+        return [PlaceResponse.from_orm(place) for place in places]
+
+    except Exception as e:
+        logger.error(f"Failed to get places in bounds: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve places for map")

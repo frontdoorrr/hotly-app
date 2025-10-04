@@ -170,6 +170,36 @@ class CRUDPlace(CRUDBase[Place, PlaceCreate, PlaceUpdate]):
             .all()
         )
 
+    def get_places_in_bounds(
+        self,
+        db: Session,
+        *,
+        user_id: UUID,
+        sw_lat: float,
+        sw_lng: float,
+        ne_lat: float,
+        ne_lng: float,
+        limit: int = 100,
+        category: Optional[str] = None,
+    ) -> List[Place]:
+        """Get places within map bounds (bounding box)."""
+        from geoalchemy2.functions import ST_MakeEnvelope
+
+        # Create bounding box polygon
+        # ST_MakeEnvelope(xmin, ymin, xmax, ymax, srid)
+        bbox = ST_MakeEnvelope(sw_lng, sw_lat, ne_lng, ne_lat, 4326)
+
+        query = db.query(Place).filter(
+            Place.user_id == user_id,
+            Place.status == PlaceStatus.ACTIVE,
+            Place.coordinates.ST_Within(bbox),
+        )
+
+        if category:
+            query = query.filter(Place.category == category)
+
+        return query.limit(limit).all()
+
     def search_by_text(
         self,
         db: Session,
