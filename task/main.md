@@ -303,8 +303,20 @@
       - 레이트 리미팅 처리 (429 응답)
       - 결과 캐싱 (메모리 기반, Redis 통합 예정)
     - **테스트**: `tests/unit/test_kakao_map_service.py` (9개 테스트)
-  - 1-4-2. 마커 클러스터링 및 지도 데이터 최적화 ⏳ **미완료**
-  - 1-4-3. 코스 경로 표시 및 인터랙션 구현 ⏳ **미완료**
+  - 1-4-2. 지도 범위 내 장소 조회 API ✅ **완료** (2025-10-04)
+    - **상세**: 지도 viewport 기반 효율적인 장소 조회
+    - **구현**:
+      - `app/crud/place.py` - `get_places_in_bounds()` 메서드
+      - `app/api/api_v1/endpoints/map.py` - `GET /api/v1/map/places` 엔드포인트
+    - **기술**: PostGIS ST_Within + ST_MakeEnvelope (bounding box 조회)
+    - **API**:
+      - 파라미터: sw_lat, sw_lng, ne_lat, ne_lng, category (optional), limit (max 500)
+      - 응답: List[PlaceResponse] with coordinates
+    - **최적화**: 기존 spatial index (2dsphere, SRID 4326) 활용
+    - **테스트**:
+      - `tests/integration/api/test_map_places_integration.py` (5개 테스트)
+      - `tests/unit/api/test_map_places.py` (6개 테스트)
+  - 1-4-3. 코스 경로 표시 및 인터랙션 구현 ⏳ **미완료** (v2 기능으로 연기)
   - 1-4-4. 지도 상 장소 상세정보 팝업 및 액션 ⏳ **미완료**
   - 1-4-5. 소요시간 및 거리 기반 지도 최적화 ⏳ **미완료**
   - 1-4-6. 지도 시각화 테스트 코드 작성 ⏳ **미완료**
