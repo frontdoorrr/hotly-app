@@ -1,0 +1,74 @@
+include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "build/**"
+    - "lib/generated/**"
+    - "test/**.mocks.dart"
+
+  errors:
+    invalid_annotation_target: ignore
+    missing_required_param: error
+    missing_return: error
+    todo: ignore
+
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+
+  plugins:
+    - custom_lint
+
+linter:
+  rules:
+    # Flutter 및 Dart 권장 규칙
+    - always_declare_return_types
+    - always_use_package_imports
+    - avoid_print
+    - avoid_unnecessary_containers
+    - avoid_web_libraries_in_flutter
+    - prefer_const_constructors
+    - prefer_const_constructors_in_immutables
+    - prefer_const_declarations
+    - prefer_const_literals_to_create_immutables
+    - prefer_final_fields
+    - prefer_final_locals
+    - prefer_final_in_for_each
+    - require_trailing_commas
+    - sort_child_properties_last
+    - use_key_in_widget_constructors
+    - use_build_context_synchronously
+
+    # 에러 처리
+    - avoid_catching_errors
+    - use_rethrow_when_possible
+
+    # 코드 품질
+    - directives_ordering
+    - prefer_relative_imports
+    - avoid_relative_lib_imports
+    - implementation_imports
+
+    # 성능
+    - avoid_function_literals_in_foreach_calls
+    - prefer_foreach
+    - prefer_spread_collections
+    - prefer_iterable_whereType
+
+    # 가독성
+    - prefer_single_quotes
+    - unnecessary_parenthesis
+    - unnecessary_string_interpolations
+
+    # Riverpod 관련
+    - scoped_providers_should_specify_dependencies
+
+custom_lint:
+  enable_all_lint_rules: true
+  rules:
+    # Riverpod Lint 규칙
+    - provider_dependencies
+    - scoped_providers_should_specify_dependencies
