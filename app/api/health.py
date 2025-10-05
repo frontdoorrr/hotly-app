@@ -81,8 +81,12 @@ def readiness_check(
     try:
         cache_manager = CacheManager()
         # Test Redis connection with a simple ping
-        cache_manager.redis_client.ping()
-        services["redis"] = "ok"
+        if cache_manager._redis:
+            cache_manager._redis.ping()
+            services["redis"] = "ok"
+        else:
+            services["redis"] = "error: Redis not initialized"
+            all_ready = False
     except Exception as e:
         services["redis"] = f"error: {str(e)}"
         all_ready = False
