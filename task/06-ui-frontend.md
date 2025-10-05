@@ -1,33 +1,42 @@
-# Task 6: UI/Frontend 개발 (UI & Frontend Development)
+# Task 6: UI/Frontend 개발 (Flutter Mobile App Development)
 
-## 6-1. 디자인 시스템 및 컴포넌트 라이브러리 구축
+> **참고 문서**:
+> - `trd/frontend/01-flutter-tech-stack.md`: Flutter 기술 스택 및 아키텍처
+> - `trd/frontend/02-data-flow-state-management.md`: 데이터 플로우 및 상태 관리
+> - `trd/frontend/03-performance-optimization.md`: 성능 최적화 전략
+> - `trd/frontend/04-accessibility.md`: 접근성 요구사항
+> - `docs/user-flows.md`: 사용자 플로우 정의
+> - `docs/api-integration-guide.md`: API 연동 가이드
+
+## 6-1. Flutter 프로젝트 초기 설정 및 아키텍처 구축
 
 ### 목표
-일관된 사용자 경험을 위한 재사용 가능한 컴포넌트 시스템 구축
+Clean Architecture 기반 Flutter 프로젝트 구조 설정 및 핵심 인프라 구축
 
 ### 사용자 가치
-- **일관성**: 모든 화면에서 동일한 인터랙션 패턴으로 학습 비용 최소화
-- **접근성**: WCAG 2.1 AA 준수로 모든 사용자가 이용 가능
-- **개발 효율성**: 컴포넌트 재사용으로 개발 시간 50% 단축
+- **확장성**: 기능 추가 시 기존 코드 영향 최소화
+- **테스트 용이성**: TDD 기반 개발로 안정성 확보
+- **개발 효율성**: 표준화된 구조로 협업 효율 향상
 
 ### 가설 및 KPI
-- **가설**: 체계적 디자인 시스템으로 UI 일관성 90% 향상, 개발 속도 50% 증가
+- **가설**: Clean Architecture + TDD로 버그 발생률 80% 감소, 개발 속도 30% 향상
 - **측정 지표**:
-  - 컴포넌트 재사용률 80% 이상
-  - 접근성 준수율 100% (자동 테스트)
-  - UI 개발 시간 대비 백엔드 개발 시간 비율 1:2
+  - 테스트 커버리지 80% 이상
+  - 크래시율 0.1% 이하
+  - 핫 리로드 성공률 95% 이상
 
 ### 완료 정의 (DoD)
-- [ ] Design Token 기반 스타일 시스템 구축
-- [ ] Atomic Design 패턴으로 50+ 재사용 컴포넌트 구현
-- [ ] Storybook 기반 컴포넌트 문서화 시스템
-- [ ] 접근성 자동 테스트 (axe-core) 100% 통과
-- [ ] 반응형 디자인 (모바일 우선, 태블릿/데스크톱 대응)
+- [ ] Flutter 3.19+ 프로젝트 생성 및 FVM 설정
+- [ ] Clean Architecture 디렉토리 구조 구축
+- [ ] Riverpod + GetIt 의존성 주입 설정
+- [ ] API Client (Dio) 및 인터셉터 구현
+- [ ] 환경별 설정 분리 (dev/staging/prod)
+- [ ] Lint 규칙 및 Pre-commit Hook 설정
 
 ### 수용 기준
-- Given 새로운 화면 개발, When 기존 컴포넌트 활용, Then 80% 이상 재사용으로 개발 완료
-- Given 컴포넌트 변경, When Storybook 확인, Then 모든 변형 케이스 정상 동작
-- Given 접근성 테스트 실행, When axe-core 검사, Then 모든 WCAG 2.1 AA 기준 통과
+- Given Flutter 프로젝트 생성, When 아키텍처 구조 검증, Then Feature-First 패턴 준수
+- Given 의존성 주입 설정, When 서비스 호출, Then GetIt으로 정상 주입
+- Given API 호출, When 인터셉터 동작, Then 토큰 자동 주입 및 재시도 로직 작동
 
 ### 세부 작업
 

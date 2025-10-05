@@ -1,0 +1,132 @@
+[tool.poetry]
+name = "hotly-app"
+version = "0.1.0"
+description = "AI-based hot place/dating course/restaurant archiving app"
+authors = ["Hotly Team <team@hotly.app>"]
+packages = [{include = "app"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.109.0"
+uvicorn = {extras = ["standard"], version = "^0.27.0"}
+pydantic = "^1.10.0"
+sqlalchemy = "^1.4.0"
+psycopg2-binary = "^2.9.9"
+alembic = "^1.13.1"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+python-multipart = "^0.0.6"
+celery = {extras = ["redis"], version = "^5.3.4"}
+redis = ">=4.0.0"
+httpx = "^0.26.0"
+tenacity = "^8.2.3"
+emails = "^0.6"
+jinja2 = "^3.1.0"
+gunicorn = "^21.2.0"
+jsonschema = "^4.25.1"
+google-generativeai = "^0.8.5"
+firebase-admin = "^6.4.0"
+geoalchemy2 = "^0.15.0"
+scikit-learn = "^1.7.1"
+joblib = "^1.5.2"
+elasticsearch = "^8.11.0"
+email-validator = "^2.3.0"
+geopy = "^2.4.1"
+supabase = "^2.20.0"
+pyjwt = "^2.10.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+pytest-asyncio = "^0.24.0"
+pytest-cov = "^6.0.0"
+black = "^24.0.0"
+isort = "^5.13.2"
+flake8 = "^7.0.0"
+mypy = "^1.11.0"
+bandit = "^1.8.0"
+safety = "^3.0.0"
+pre-commit = "^4.0.0"
+autoflake = "^2.3.0"
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+line_length = 88
+src_paths = ["app", "tests"]
+
+[tool.mypy]
+python_version = "3.10"
+check_untyped_defs = true
+disallow_any_generics = true
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+strict_equality = true
+plugins = ["pydantic.mypy"]
+exclude = ["backend_reference/.*"]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "--strict-markers --strict-config --cov=app --cov-report=term-missing --cov-report=html"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "e2e: marks tests as end-to-end tests",
+    "slow: marks tests as slow",
+]
+
+[tool.coverage.run]
+source = ["app"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__init__.py",
+    "*/migrations/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+[tool.bandit]
+exclude_dirs = ["tests", "migrations"]
+skips = ["B101", "B601"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      target: development
+    ports:
+      - "8000:8000"
+    environment:
+      - POSTGRES_SERVER=db
+      - POSTGRES_USER=hotly_user
+      - POSTGRES_PASSWORD=hotly_password
+      - POSTGRES_DB=hotly_db
+      - REDIS_HOST=redis
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
+    volumes:
+      - .:/backend
+      - /backend/.venv
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=hotly_user
+      - POSTGRES_PASSWORD=hotly_password
+      - POSTGRES_DB=hotly_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+
+  test-db:
+    image: postgres:15-alpine
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=test_user
+      - POSTGRES_PASSWORD=test_password
+      - POSTGRES_DB=test_db
+    tmpfs:
+      - /var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+  redis_data:

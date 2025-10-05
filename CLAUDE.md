@@ -6,8 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is **hotly-app**, an AI-based hot place/dating course/restaurant archiving app. The repository contains:
 
-- `app/`: Main FastAPI application with comprehensive service architecture
-- `tests/`: Comprehensive TDD-centered testing framework (unit, integration, E2E, performance)
+- `backend/`: FastAPI backend application with comprehensive service architecture
+  - `app/`: Main application code
+  - `tests/`: Comprehensive TDD-centered testing framework (unit, integration, E2E, performance)
+  - Backend-specific configuration files (pyproject.toml, pytest.ini, etc.)
+- `frontend/`: Next.js/React frontend application
 - `prd/`, `trd/`, `task/`: Product requirements, technical requirements, and task documentation
 - `rules.md`: Comprehensive development rules and coding conventions
 
@@ -15,24 +18,37 @@ This is **hotly-app**, an AI-based hot place/dating course/restaurant archiving 
 
 ### Setup & Dependencies
 ```bash
-# Install dependencies with Poetry
+# Install backend dependencies with Poetry
+cd backend
 poetry install
 
 # Install development dependencies
 poetry install --with dev
+
+# Install frontend dependencies
+cd ../frontend
+npm install
 ```
 
 ### Development Server
 ```bash
-# Run development server with hot reload
+# Full stack development (from project root)
+docker-compose up
+
+# Backend only (from backend directory)
+cd backend
 uvicorn app.main:app --reload
 
-# Run with specific host/port
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+# Frontend only (from frontend directory)
+cd frontend
+npm run dev
 ```
 
 ### Testing (TDD Framework)
 ```bash
+# All commands run from backend directory
+cd backend
+
 # Run all tests with coverage (80% minimum)
 pytest
 
@@ -58,6 +74,9 @@ pytest tests/performance/ -v
 
 ### Code Quality
 ```bash
+# All commands run from backend directory
+cd backend
+
 # Format code
 black app tests
 isort app tests
@@ -74,6 +93,9 @@ safety check
 
 ### Database
 ```bash
+# All commands run from backend directory
+cd backend
+
 # Apply migrations
 alembic upgrade head
 
@@ -86,34 +108,40 @@ alembic downgrade -1
 
 ## Architecture
 
-### Application Structure (FastAPI)
+### Application Structure
 ```
-app/
-├── main.py                    # FastAPI app entry point with create_app factory
-├── core/                      # Core configuration and utilities
-├── api/api_v1/               # API endpoints with /api/v1 prefix
-│   └── endpoints/            # Individual endpoint modules (link_analysis, etc.)
-├── services/                 # Business logic services
-│   ├── content_extractor.py  # Social media content extraction
-│   ├── place_analysis_service.py # AI-powered place analysis
-│   └── cache_manager.py      # Multi-layer caching (L1: memory, L2: Redis)
-├── models/                   # SQLAlchemy ORM models
-├── schemas/                  # Pydantic request/response schemas
-├── crud/                     # Database CRUD operations
-├── db/                       # Database session and initialization
-├── middleware/               # Custom middleware components
-├── analytics/                # Analytics and monitoring services
-├── features/                 # Feature-specific modules
-└── utils/                    # Utility functions and helpers
+backend/                      # Backend FastAPI application
+├── app/
+│   ├── main.py              # FastAPI app entry point with create_app factory
+│   ├── core/                # Core configuration and utilities
+│   ├── api/api_v1/         # API endpoints with /api/v1 prefix
+│   │   └── endpoints/      # Individual endpoint modules (link_analysis, etc.)
+│   ├── services/           # Business logic services
+│   │   ├── content_extractor.py  # Social media content extraction
+│   │   ├── place_analysis_service.py # AI-powered place analysis
+│   │   └── cache_manager.py      # Multi-layer caching (L1: memory, L2: Redis)
+│   ├── models/             # SQLAlchemy ORM models
+│   ├── schemas/            # Pydantic request/response schemas
+│   ├── crud/               # Database CRUD operations
+│   ├── db/                 # Database session and initialization
+│   ├── middleware/         # Custom middleware components
+│   ├── analytics/          # Analytics and monitoring services
+│   ├── features/           # Feature-specific modules
+│   └── utils/              # Utility functions and helpers
+├── tests/                  # TDD-centered testing framework
+│   ├── unit/              # Unit tests with high coverage
+│   ├── integration/       # Integration tests for service communication
+│   ├── e2e/               # End-to-end user workflow tests
+│   ├── performance/       # Load and performance testing
+│   ├── tdd/               # TDD examples and templates
+│   ├── framework/         # Meta-tests for testing infrastructure
+│   └── utils/             # Test helpers and mock factories
+├── alembic/               # Database migrations
+├── scripts/               # Utility scripts
+└── [config files]         # pyproject.toml, pytest.ini, etc.
 
-tests/                        # TDD-centered testing framework
-├── unit/                     # Unit tests with high coverage
-├── integration/              # Integration tests for service communication
-├── e2e/                      # End-to-end user workflow tests
-├── performance/              # Load and performance testing
-├── tdd/                      # TDD examples and templates
-├── framework/                # Meta-tests for testing infrastructure
-└── utils/                    # Test helpers and mock factories
+frontend/                   # Frontend Next.js application
+└── [TBD]                  # To be structured
 ```
 
 ### Key Architectural Patterns
@@ -191,8 +219,10 @@ Automated testing pipeline via GitHub Actions (`.github/workflows/test-automatio
 ## Environment Setup
 
 Key configuration files:
-- `pyproject.toml`: Poetry dependencies and tool configuration
-- `pytest.ini`: Testing configuration with markers and coverage settings
-- `.coveragerc`: Coverage reporting configuration
-- `alembic.ini`: Database migration configuration
-- `.env.example`: Environment variables template
+- `backend/pyproject.toml`: Poetry dependencies and tool configuration
+- `backend/pytest.ini`: Testing configuration with markers and coverage settings
+- `backend/.coveragerc`: Coverage reporting configuration
+- `backend/alembic.ini`: Database migration configuration
+- `backend/.env.example`: Environment variables template
+- `docker-compose.yml`: Full-stack development environment
+- `backend/docker-compose.dev.yml`: Backend-only development
