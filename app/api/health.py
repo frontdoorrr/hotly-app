@@ -2,10 +2,11 @@
 
 from typing import Any, Dict
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.orm import Session
 
 from app.db.session import SessionLocal
+from app.services.monitoring.cache_manager import CacheManager
 
 router = APIRouter()
 
@@ -50,6 +51,44 @@ def detailed_health_check(db: Session = Depends(get_db)) -> Dict[str, Any]:
     }
 
 
-# TODO(human): Implement /health/ready endpoint for Kubernetes readiness probe
-# This should check all critical services (database, redis, etc.)
-# and return 503 if any service is not ready
+@router.get("/health/ready")
+def readiness_check(
+    db: Session = Depends(get_db), response: Response = None
+) -> Dict[str, Any]:
+    """
+    Readiness check for Kubernetes readiness probe.
+
+    Checks all critical services (database, redis) and returns 503
+    if any service is not ready. Kubernetes uses this to determine
+    if the pod should receive traffic.
+
+    Returns:
+        - 200: All services ready, pod can receive traffic
+        - 503: One or more services not ready, remove from load balancer
+    """
+    services = {}
+    all_ready = True
+
+    # Check database connection
+    try:
+        db.execute("SELECT 1")
+        services["database"] = "ok"
+    except Exception as e:
+        services["database"] = f"error: {str(e)}"
+        all_ready = False
+
+    # Check Redis connection
+    try:
+        cache_manager = CacheManager()
+        # Test Redis connection with a simple ping
+        cache_manager.redis_client.ping()
+        services["redis"] = "ok"
+    except Exception as e:
+        services["redis"] = f"error: {str(e)}"
+        all_ready = False
+
+    # Set HTTP status code based on readiness
+    if not all_ready and response:
+        response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+
+    return {"ready": all_ready, "services": services}
