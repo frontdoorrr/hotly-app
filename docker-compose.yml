@@ -1,10 +1,10 @@
 version: '3.8'
 
 services:
-  app:
+  backend:
     build:
-      context: .
-      target: production
+      context: ./backend
+      target: development
     ports:
       - "8000:8000"
     environment:
@@ -13,9 +13,30 @@ services:
       - POSTGRES_PASSWORD=hotly_password
       - POSTGRES_DB=hotly_db
       - REDIS_HOST=redis
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
+    volumes:
+      - ./backend:/backend
+      - /backend/.venv
     depends_on:
       - db
       - redis
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://backend:8000
+    depends_on:
+      - backend
     restart: unless-stopped
 
   db:
@@ -28,6 +49,7 @@ services:
       - POSTGRES_DB=hotly_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./backend/scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     restart: unless-stopped
 
   redis:
@@ -36,6 +58,7 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    command: redis-server --appendonly yes
     restart: unless-stopped
 
 volumes:
