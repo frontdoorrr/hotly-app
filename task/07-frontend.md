@@ -186,34 +186,33 @@
 
 ---
 
-### 3.5 프로필 화면 구현 👤
+### 3.5 프로필 화면 구현 ✅
 **참고**: `docs/screens/profile-screen-spec.md` | 📋 [상세 API](task/07-frontend-detailed.md#35-프로필-화면-구현-)
 
-- [ ] **도메인 레이어**
-  - [ ] User Entity
-  - [ ] User Use Cases (GetUserProfile, UpdateProfile, GetUserStats)
+- [x] **모델 레이어**
+  - [x] User Entity (freezed + json_serializable)
+  - [x] UserStats Entity
 
-- [ ] **데이터 레이어**
-  - [ ] User Repository
-  - [ ] Settings Repository (테마, 알림 등)
+- [x] **프레젠테이션 레이어**
+  - [x] Profile Provider (사용자 정보 + 통계)
+  - [x] Settings Provider (앱 설정 관리)
+  - [x] Profile Screen (`lib/features/profile/presentation/screens/profile_screen.dart`)
+  - [x] 위젯 구현:
+    - [x] UserInfoSection (프로필 이미지, 이름, 이메일)
+    - [x] StatsSection (저장/좋아요/코스 통계)
+    - [x] TabBar (저장된 장소 / 내 코스)
+    - [x] SettingsSheet (바텀시트)
+    - [x] ThemeSelector (다이얼로그)
+    - [x] LanguageSelector (다이얼로그)
 
-- [ ] **프레젠테이션 레이어**
-  - [ ] Profile Provider
-  - [ ] Settings Provider
-  - [ ] Profile Screen (`lib/features/profile/presentation/screens/profile_screen.dart`)
-  - [ ] 위젯 구현:
-    - [ ] UserInfoSection (프로필 정보)
-    - [ ] StatsSection (통계)
-    - [ ] FolderList (저장된 장소 폴더)
-    - [ ] SettingsSection (설정)
-    - [ ] ThemeToggle (다크모드)
-
-**완료 기준**:
-- 사용자 정보 표시
-- 통계 데이터 표시
-- 폴더별 장소 관리
-- 테마 변경 즉시 적용
-- 로그아웃 기능
+**완료 기준**: ✅
+- ✅ 사용자 정보 표시 (Mock 데이터)
+- ✅ 통계 카드 표시 및 네비게이션
+- ✅ 탭 뷰 (저장된 장소 / 내 코스)
+- ✅ 설정 바텀시트 (알림, 테마, 언어)
+- ✅ 테마 변경 LocalStorage 저장
+- ✅ 로그아웃 기능 (LocalStorage 초기화)
+- ✅ 앱 정보 표시 (package_info_plus)
 
 ---
 
