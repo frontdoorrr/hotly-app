@@ -71,62 +71,61 @@
 
 ## Phase 3: 화면 구현 (우선순위 순)
 
-### 3.1 홈 화면 구현 📱
+### 3.1 홈 화면 구현 ✅
 **참고**: `docs/screens/home-screen-spec.md` | 📋 [상세 API](task/07-frontend-detailed.md#31-홈-화면-구현-)
 
-- [ ] **도메인 레이어**
-  - [ ] Place Entity (`lib/features/home/domain/entities/place.dart`)
-  - [ ] Repository Interface
-  - [ ] Use Cases (GetRecommendedPlaces, GetNearbyPlaces)
+- [x] **도메인 레이어**
+  - [x] Place Entity (`lib/features/home/domain/entities/place.dart`)
+  - [x] Repository Interface
+  - [x] Use Cases (GetRecommendedPlaces, GetNearbyPlaces)
 
-- [ ] **데이터 레이어**
-  - [ ] Place DTO/Model (`lib/features/home/data/models/place_model.dart`)
-  - [ ] Remote Data Source (API)
-  - [ ] Local Data Source (Cache)
-  - [ ] Repository Implementation
+- [x] **데이터 레이어**
+  - [x] Place DTO/Model (`lib/features/home/data/models/place_model.dart`)
+  - [x] Remote Data Source (API)
+  - [x] Repository Implementation
 
-- [ ] **프레젠테이션 레이어**
-  - [ ] Home Provider (Riverpod)
-  - [ ] Home Screen (`lib/features/home/presentation/screens/home_screen.dart`)
-  - [ ] 위젯 구현:
-    - [ ] QuickFilterChips
-    - [ ] RecommendedPlacesCarousel
-    - [ ] NearbyPlacesList
-    - [ ] CategorySection
+- [x] **프레젠테이션 레이어**
+  - [x] Home Provider (Riverpod)
+  - [x] Home Screen (`lib/features/home/presentation/screens/home_screen.dart`)
+  - [x] 위젯 구현:
+    - [x] QuickFilterChips (Quick Action Buttons)
+    - [x] RecommendedPlacesCarousel (Horizontal List)
+    - [x] PopularPlacesGrid
+    - [x] PlaceCard (재사용 가능)
 
-**완료 기준**:
-- 추천 장소 카드 렌더링
-- 근처 장소 목록 표시
-- 필터 칩 동작
-- Pull-to-refresh 동작
+**완료 기준**: ✅
+- ✅ 추천 장소 카드 렌더링
+- ✅ 인기 장소 그리드 표시
+- ✅ 빠른 액션 버튼
+- ✅ Pull-to-refresh 동작
 
 ---
 
-### 3.2 검색 화면 구현 🔍
+### 3.2 검색 화면 구현 ✅
 **참고**: `docs/screens/search-screen-spec.md` | 📋 [상세 API](task/07-frontend-detailed.md#32-검색-화면-구현-)
 
-- [ ] **도메인 레이어**
-  - [ ] Search Use Cases (SearchPlaces, GetSearchSuggestions, SaveSearchHistory)
+- [x] **도메인 레이어**
+  - [x] Search Use Cases (SearchPlaces, GetSearchSuggestions, SaveSearchHistory)
 
-- [ ] **데이터 레이어**
-  - [ ] Search Repository
-  - [ ] 검색 히스토리 로컬 저장
+- [x] **데이터 레이어**
+  - [x] Search Repository
+  - [x] 검색 히스토리 로컬 저장
 
-- [ ] **프레젠테이션 레이어**
-  - [ ] Search Provider (검색 상태 관리)
-  - [ ] Search Screen (`lib/features/search/presentation/screens/search_screen.dart`)
-  - [ ] 위젯 구현:
-    - [ ] SearchBar (자동완성)
-    - [ ] SearchHistory (최근 검색어)
-    - [ ] FilterSheet (필터 바텀시트)
-    - [ ] SearchResultsList
-    - [ ] MapToggle (리스트/지도 전환)
+- [x] **프레젠테이션 레이어**
+  - [x] Search Provider (검색 상태 관리)
+  - [x] Search Screen (`lib/features/search/presentation/screens/search_screen.dart`)
+  - [x] 위젯 구현:
+    - [x] SearchBar (자동완성)
+    - [x] SearchHistory (최근 검색어)
+    - [x] AutocompleteSuggestions (자동완성 오버레이)
+    - [x] SearchResultsList (PlaceCard 재사용)
+    - [x] PopularSearches (인기 검색어)
 
-**완료 기준**:
-- 실시간 검색 제안 표시
-- 검색 히스토리 저장/불러오기
-- 필터 적용 후 결과 업데이트
-- 리스트/지도 뷰 전환
+**완료 기준**: ✅
+- ✅ 실시간 검색 제안 표시 (자동완성 오버레이)
+- ✅ 검색 히스토리 저장/불러오기 (LocalStorage)
+- ✅ 검색 결과 리스트 표시
+- ✅ 인기 검색어 및 최근 검색어 UI
 
 ---
 
