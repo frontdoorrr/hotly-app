@@ -5,8 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/course/presentation/screens/course_builder_screen.dart';
 import '../../features/search/presentation/screens/search_screen.dart';
+import '../../features/place/presentation/screens/place_detail_screen.dart';
 // TODO: Import other screens when implemented
-// import '../../features/place/presentation/screens/place_detail_screen.dart';
 // import '../../features/profile/presentation/screens/profile_screen.dart';
 
 /// App Router Configuration
@@ -36,7 +36,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         name: 'placeDetail',
         builder: (context, state) {
           final placeId = state.pathParameters['placeId']!;
-          return const Placeholder(); // TODO: Replace with PlaceDetailScreen(placeId: placeId)
+          return PlaceDetailScreen(placeId: placeId);
         },
       ),
 

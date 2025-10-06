@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/storage/local_storage.dart';
 import '../providers/home_provider.dart';
@@ -120,8 +121,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         place: place,
                         isHorizontal: false,
                         onTap: () {
-                          // TODO: 장소 상세 화면으로 이동
-                          // context.push('/places/${place.id}');
+                          context.push('/places/${place.id}');
                         },
                       );
                     },
@@ -193,7 +193,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     place: place,
                     isHorizontal: true,
                     onTap: () {
-                      // TODO: 장소 상세 화면으로 이동
+                      context.push('/places/${place.id}');
                     },
                   ),
                 );
@@ -247,10 +247,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 icon: Icons.search,
                 label: '장소\n검색',
                 onTap: () {
-                  // TODO: 검색 화면으로 이동
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('검색 기능 개발 중')),
-                  );
+                  context.push('/search');
                 },
               ),
               _buildQuickActionButton(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../home/presentation/widgets/place_card.dart';
@@ -326,7 +327,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           child: PlaceCard(
             place: place,
             onTap: () {
-              // TODO: Navigate to place detail
+              context.push('/places/${place.id}');
             },
           ),
         );
