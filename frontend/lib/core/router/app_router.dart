@@ -6,8 +6,7 @@ import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/course/presentation/screens/course_builder_screen.dart';
 import '../../features/search/presentation/screens/search_screen.dart';
 import '../../features/place/presentation/screens/place_detail_screen.dart';
-// TODO: Import other screens when implemented
-// import '../../features/profile/presentation/screens/profile_screen.dart';
+import '../../features/profile/presentation/screens/profile_screen.dart';
 
 /// App Router Configuration
 /// Using go_router for declarative routing
@@ -61,7 +60,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/profile',
         name: 'profile',
-        builder: (context, state) => const Placeholder(), // TODO: Replace with ProfileScreen()
+        builder: (context, state) => const ProfileScreen(),
       ),
     ],
 
