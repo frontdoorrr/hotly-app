@@ -10,11 +10,14 @@ import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/signup_screen.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
+import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
+import '../../features/onboarding/presentation/providers/onboarding_provider.dart';
 
 /// App Router Configuration
 /// Using go_router for declarative routing
 final goRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);
+  final isOnboardingCompleted = ref.watch(isOnboardingCompletedProvider);
 
   return GoRouter(
     initialLocation: '/',
@@ -23,6 +26,17 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       final isAuthenticated = authState.status == AuthStatus.authenticated;
       final isAuthRoute = state.matchedLocation.startsWith('/login') ||
           state.matchedLocation.startsWith('/signup');
+      final isOnboardingRoute = state.matchedLocation == '/onboarding';
+
+      // 온보딩 미완료 시 온보딩으로 리다이렉트 (인증 화면 제외)
+      if (!isOnboardingCompleted && !isOnboardingRoute && !isAuthRoute) {
+        return '/onboarding';
+      }
+
+      // 온보딩 완료 후 온보딩 페이지 접근 시 홈으로
+      if (isOnboardingCompleted && isOnboardingRoute) {
+        return '/';
+      }
 
       // 인증 필요한 페이지 목록
       final protectedRoutes = ['/profile', '/courses/create'];
@@ -104,6 +118,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/signup',
         name: 'signup',
         builder: (context, state) => const SignUpScreen(),
+      ),
+
+      // Onboarding Screen
+      GoRoute(
+        path: '/onboarding',
+        name: 'onboarding',
+        builder: (context, state) => const OnboardingScreen(),
       ),
     ],
 
