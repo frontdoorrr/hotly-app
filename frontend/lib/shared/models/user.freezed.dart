@@ -24,7 +24,15 @@ mixin _$User {
   String get name => throw _privateConstructorUsedError;
   String get email => throw _privateConstructorUsedError;
   String? get profileImageUrl => throw _privateConstructorUsedError;
-  String? get phoneNumber => throw _privateConstructorUsedError;
+  String? get phoneNumber =>
+      throw _privateConstructorUsedError; // Supabase Auth fields
+  bool get emailConfirmed => throw _privateConstructorUsedError;
+  String? get provider =>
+      throw _privateConstructorUsedError; // 'email', 'google', 'apple'
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  Map<String, dynamic>? get metadata => throw _privateConstructorUsedError;
+  DateTime? get lastSignInAt =>
+      throw _privateConstructorUsedError; // App statistics
   int get savedPlacesCount => throw _privateConstructorUsedError;
   int get likedPlacesCount => throw _privateConstructorUsedError;
   int get coursesCount => throw _privateConstructorUsedError;
@@ -50,6 +58,11 @@ abstract class $UserCopyWith<$Res> {
       String email,
       String? profileImageUrl,
       String? phoneNumber,
+      bool emailConfirmed,
+      String? provider,
+      @JsonKey(includeFromJson: false, includeToJson: false)
+      Map<String, dynamic>? metadata,
+      DateTime? lastSignInAt,
       int savedPlacesCount,
       int likedPlacesCount,
       int coursesCount,
@@ -76,6 +89,10 @@ class _$UserCopyWithImpl<$Res, $Val extends User>
     Object? email = null,
     Object? profileImageUrl = freezed,
     Object? phoneNumber = freezed,
+    Object? emailConfirmed = null,
+    Object? provider = freezed,
+    Object? metadata = freezed,
+    Object? lastSignInAt = freezed,
     Object? savedPlacesCount = null,
     Object? likedPlacesCount = null,
     Object? coursesCount = null,
@@ -102,6 +119,22 @@ class _$UserCopyWithImpl<$Res, $Val extends User>
           ? _value.phoneNumber
           : phoneNumber // ignore: cast_nullable_to_non_nullable
               as String?,
+      emailConfirmed: null == emailConfirmed
+          ? _value.emailConfirmed
+          : emailConfirmed // ignore: cast_nullable_to_non_nullable
+              as bool,
+      provider: freezed == provider
+          ? _value.provider
+          : provider // ignore: cast_nullable_to_non_nullable
+              as String?,
+      metadata: freezed == metadata
+          ? _value.metadata
+          : metadata // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+      lastSignInAt: freezed == lastSignInAt
+          ? _value.lastSignInAt
+          : lastSignInAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       savedPlacesCount: null == savedPlacesCount
           ? _value.savedPlacesCount
           : savedPlacesCount // ignore: cast_nullable_to_non_nullable
@@ -135,6 +168,11 @@ abstract class _$$UserImplCopyWith<$Res> implements $UserCopyWith<$Res> {
       String email,
       String? profileImageUrl,
       String? phoneNumber,
+      bool emailConfirmed,
+      String? provider,
+      @JsonKey(includeFromJson: false, includeToJson: false)
+      Map<String, dynamic>? metadata,
+      DateTime? lastSignInAt,
       int savedPlacesCount,
       int likedPlacesCount,
       int coursesCount,
@@ -158,6 +196,10 @@ class __$$UserImplCopyWithImpl<$Res>
     Object? email = null,
     Object? profileImageUrl = freezed,
     Object? phoneNumber = freezed,
+    Object? emailConfirmed = null,
+    Object? provider = freezed,
+    Object? metadata = freezed,
+    Object? lastSignInAt = freezed,
     Object? savedPlacesCount = null,
     Object? likedPlacesCount = null,
     Object? coursesCount = null,
@@ -184,6 +226,22 @@ class __$$UserImplCopyWithImpl<$Res>
           ? _value.phoneNumber
           : phoneNumber // ignore: cast_nullable_to_non_nullable
               as String?,
+      emailConfirmed: null == emailConfirmed
+          ? _value.emailConfirmed
+          : emailConfirmed // ignore: cast_nullable_to_non_nullable
+              as bool,
+      provider: freezed == provider
+          ? _value.provider
+          : provider // ignore: cast_nullable_to_non_nullable
+              as String?,
+      metadata: freezed == metadata
+          ? _value._metadata
+          : metadata // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
+      lastSignInAt: freezed == lastSignInAt
+          ? _value.lastSignInAt
+          : lastSignInAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       savedPlacesCount: null == savedPlacesCount
           ? _value.savedPlacesCount
           : savedPlacesCount // ignore: cast_nullable_to_non_nullable
@@ -206,17 +264,24 @@ class __$$UserImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$UserImpl implements _User {
+class _$UserImpl extends _User {
   const _$UserImpl(
       {required this.id,
       required this.name,
       required this.email,
       this.profileImageUrl,
       this.phoneNumber,
+      this.emailConfirmed = false,
+      this.provider,
+      @JsonKey(includeFromJson: false, includeToJson: false)
+      final Map<String, dynamic>? metadata,
+      this.lastSignInAt,
       this.savedPlacesCount = 0,
       this.likedPlacesCount = 0,
       this.coursesCount = 0,
-      this.createdAt});
+      this.createdAt})
+      : _metadata = metadata,
+        super._();
 
   factory _$UserImpl.fromJson(Map<String, dynamic> json) =>
       _$$UserImplFromJson(json);
@@ -231,6 +296,28 @@ class _$UserImpl implements _User {
   final String? profileImageUrl;
   @override
   final String? phoneNumber;
+// Supabase Auth fields
+  @override
+  @JsonKey()
+  final bool emailConfirmed;
+  @override
+  final String? provider;
+// 'email', 'google', 'apple'
+  final Map<String, dynamic>? _metadata;
+// 'email', 'google', 'apple'
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  Map<String, dynamic>? get metadata {
+    final value = _metadata;
+    if (value == null) return null;
+    if (_metadata is EqualUnmodifiableMapView) return _metadata;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(value);
+  }
+
+  @override
+  final DateTime? lastSignInAt;
+// App statistics
   @override
   @JsonKey()
   final int savedPlacesCount;
@@ -245,7 +332,7 @@ class _$UserImpl implements _User {
 
   @override
   String toString() {
-    return 'User(id: $id, name: $name, email: $email, profileImageUrl: $profileImageUrl, phoneNumber: $phoneNumber, savedPlacesCount: $savedPlacesCount, likedPlacesCount: $likedPlacesCount, coursesCount: $coursesCount, createdAt: $createdAt)';
+    return 'User(id: $id, name: $name, email: $email, profileImageUrl: $profileImageUrl, phoneNumber: $phoneNumber, emailConfirmed: $emailConfirmed, provider: $provider, metadata: $metadata, lastSignInAt: $lastSignInAt, savedPlacesCount: $savedPlacesCount, likedPlacesCount: $likedPlacesCount, coursesCount: $coursesCount, createdAt: $createdAt)';
   }
 
   @override
@@ -260,6 +347,13 @@ class _$UserImpl implements _User {
                 other.profileImageUrl == profileImageUrl) &&
             (identical(other.phoneNumber, phoneNumber) ||
                 other.phoneNumber == phoneNumber) &&
+            (identical(other.emailConfirmed, emailConfirmed) ||
+                other.emailConfirmed == emailConfirmed) &&
+            (identical(other.provider, provider) ||
+                other.provider == provider) &&
+            const DeepCollectionEquality().equals(other._metadata, _metadata) &&
+            (identical(other.lastSignInAt, lastSignInAt) ||
+                other.lastSignInAt == lastSignInAt) &&
             (identical(other.savedPlacesCount, savedPlacesCount) ||
                 other.savedPlacesCount == savedPlacesCount) &&
             (identical(other.likedPlacesCount, likedPlacesCount) ||
@@ -272,8 +366,21 @@ class _$UserImpl implements _User {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, email, profileImageUrl,
-      phoneNumber, savedPlacesCount, likedPlacesCount, coursesCount, createdAt);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      name,
+      email,
+      profileImageUrl,
+      phoneNumber,
+      emailConfirmed,
+      provider,
+      const DeepCollectionEquality().hash(_metadata),
+      lastSignInAt,
+      savedPlacesCount,
+      likedPlacesCount,
+      coursesCount,
+      createdAt);
 
   /// Create a copy of User
   /// with the given fields replaced by the non-null parameter values.
@@ -291,17 +398,23 @@ class _$UserImpl implements _User {
   }
 }
 
-abstract class _User implements User {
+abstract class _User extends User {
   const factory _User(
       {required final String id,
       required final String name,
       required final String email,
       final String? profileImageUrl,
       final String? phoneNumber,
+      final bool emailConfirmed,
+      final String? provider,
+      @JsonKey(includeFromJson: false, includeToJson: false)
+      final Map<String, dynamic>? metadata,
+      final DateTime? lastSignInAt,
       final int savedPlacesCount,
       final int likedPlacesCount,
       final int coursesCount,
       final DateTime? createdAt}) = _$UserImpl;
+  const _User._() : super._();
 
   factory _User.fromJson(Map<String, dynamic> json) = _$UserImpl.fromJson;
 
@@ -314,7 +427,16 @@ abstract class _User implements User {
   @override
   String? get profileImageUrl;
   @override
-  String? get phoneNumber;
+  String? get phoneNumber; // Supabase Auth fields
+  @override
+  bool get emailConfirmed;
+  @override
+  String? get provider; // 'email', 'google', 'apple'
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  Map<String, dynamic>? get metadata;
+  @override
+  DateTime? get lastSignInAt; // App statistics
   @override
   int get savedPlacesCount;
   @override

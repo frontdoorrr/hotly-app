@@ -12,6 +12,11 @@ _$UserImpl _$$UserImplFromJson(Map<String, dynamic> json) => _$UserImpl(
       email: json['email'] as String,
       profileImageUrl: json['profileImageUrl'] as String?,
       phoneNumber: json['phoneNumber'] as String?,
+      emailConfirmed: json['emailConfirmed'] as bool? ?? false,
+      provider: json['provider'] as String?,
+      lastSignInAt: json['lastSignInAt'] == null
+          ? null
+          : DateTime.parse(json['lastSignInAt'] as String),
       savedPlacesCount: (json['savedPlacesCount'] as num?)?.toInt() ?? 0,
       likedPlacesCount: (json['likedPlacesCount'] as num?)?.toInt() ?? 0,
       coursesCount: (json['coursesCount'] as num?)?.toInt() ?? 0,
@@ -27,6 +32,9 @@ Map<String, dynamic> _$$UserImplToJson(_$UserImpl instance) =>
       'email': instance.email,
       'profileImageUrl': instance.profileImageUrl,
       'phoneNumber': instance.phoneNumber,
+      'emailConfirmed': instance.emailConfirmed,
+      'provider': instance.provider,
+      'lastSignInAt': instance.lastSignInAt?.toIso8601String(),
       'savedPlacesCount': instance.savedPlacesCount,
       'likedPlacesCount': instance.likedPlacesCount,
       'coursesCount': instance.coursesCount,
