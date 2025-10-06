@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// TODO(human): Import screen widgets when implemented
-// import '../../features/home/presentation/screens/home_screen.dart';
+import '../../features/home/presentation/screens/home_screen.dart';
+import '../../features/course/presentation/screens/course_builder_screen.dart';
+// TODO: Import other screens when implemented
 // import '../../features/search/presentation/screens/search_screen.dart';
 // import '../../features/place/presentation/screens/place_detail_screen.dart';
-// import '../../features/course/presentation/screens/course_builder_screen.dart';
 // import '../../features/profile/presentation/screens/profile_screen.dart';
 
 /// App Router Configuration
@@ -20,7 +20,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/',
         name: 'home',
-        builder: (context, state) => const Placeholder(), // TODO: Replace with HomeScreen()
+        builder: (context, state) => const HomeScreen(),
       ),
 
       // Search Screen
@@ -44,7 +44,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/courses/create',
         name: 'courseCreate',
-        builder: (context, state) => const Placeholder(), // TODO: Replace with CourseBuilderScreen()
+        builder: (context, state) => const CourseBuilderScreen(),
       ),
 
       // Course Edit Screen
@@ -53,7 +53,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         name: 'courseEdit',
         builder: (context, state) {
           final courseId = state.pathParameters['courseId']!;
-          return const Placeholder(); // TODO: Replace with CourseBuilderScreen(courseId: courseId)
+          return CourseBuilderScreen(courseId: courseId);
         },
       ),
 
