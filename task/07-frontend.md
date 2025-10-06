@@ -216,16 +216,36 @@
 
 ---
 
-## Phase 4: 인증 및 온보딩
+## Phase 4: 인증 및 온보딩 (Supabase Auth)
 
-### 4.1 인증 플로우
-- [ ] Firebase Auth 초기화
-- [ ] 로그인 화면 (`lib/features/auth/presentation/screens/login_screen.dart`)
-  - [ ] 이메일/비밀번호 로그인
-  - [ ] Google 소셜 로그인
-  - [ ] Apple 소셜 로그인
-- [ ] 회원가입 화면
-- [ ] Auth State Provider (로그인 상태 전역 관리)
+### 4.1 인증 플로우 🔐
+**참고**: `docs/screens/auth-screen-spec.md` | Backend: Supabase Auth
+
+- [ ] **Supabase Auth 설정**
+  - [ ] supabase_flutter 패키지 설치
+  - [ ] Supabase 클라이언트 초기화 (`lib/core/auth/supabase_client.dart`)
+  - [ ] 환경 변수 설정 (SUPABASE_URL, SUPABASE_ANON_KEY)
+
+- [ ] **도메인 레이어**
+  - [ ] AuthRepository 인터페이스
+  - [ ] User Entity (기존 확장)
+  - [ ] Auth Use Cases (SignIn, SignUp, SignOut, GetCurrentUser)
+
+- [ ] **데이터 레이어**
+  - [ ] Supabase Auth Data Source
+  - [ ] AuthRepository 구현
+
+- [ ] **프레젠테이션 레이어**
+  - [ ] Auth State Provider (로그인 상태 전역 관리)
+  - [ ] Login Screen (`lib/features/auth/presentation/screens/login_screen.dart`)
+    - [ ] 이메일/비밀번호 로그인
+    - [ ] Google OAuth (Supabase)
+    - [ ] Apple OAuth (Supabase)
+    - [ ] "회원가입" 버튼
+  - [ ] Sign Up Screen
+    - [ ] 이메일/비밀번호 회원가입
+    - [ ] 이메일 인증 안내
+  - [ ] Auth Guard (라우팅 보호)
 
 ### 4.2 온보딩 플로우
 - [ ] Onboarding Screen (`lib/features/onboarding/presentation/screens/onboarding_screen.dart`)
@@ -238,10 +258,13 @@
 - [ ] Skip 기능
 
 **완료 기준**:
-- 로그인/로그아웃 동작
-- 소셜 로그인 연동
-- 온보딩 스텝 진행
-- 첫 실행 시에만 온보딩 표시
+- ✓ Supabase Auth 로그인/로그아웃 동작
+- ✓ OAuth 소셜 로그인 (Google, Apple)
+- ✓ 이메일 인증 플로우
+- ✓ Auth State 전역 관리 (Riverpod)
+- ✓ 온보딩 스텝 진행
+- ✓ 첫 실행 시에만 온보딩 표시
+- ✓ 인증 필요 화면 라우팅 보호
 
 ---
 
