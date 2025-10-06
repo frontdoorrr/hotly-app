@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/storage/local_storage.dart';
+import '../../../link_analysis/presentation/widgets/link_input_bottom_sheet.dart';
 import '../providers/home_provider.dart';
 import '../widgets/place_card.dart';
 
@@ -137,6 +138,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => LinkInputBottomSheet.show(context),
+        icon: const Icon(Icons.link),
+        label: const Text('링크 분석'),
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: Colors.white,
+      ),
     );
   }
 
@@ -253,12 +261,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               _buildQuickActionButton(
                 context,
                 icon: Icons.map,
-                label: '코스\n만들기',
+                label: '지도\n보기',
                 onTap: () {
-                  // TODO: 코스 빌더 화면으로 이동
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('코스 만들기 기능 개발 중')),
-                  );
+                  context.push('/map');
                 },
               ),
             ],

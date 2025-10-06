@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/sharing/share_service.dart';
 import '../../../../shared/models/course.dart';
 import '../../../../shared/widgets/atoms/app_button.dart';
 import '../../../../shared/widgets/atoms/app_input.dart';
@@ -41,6 +42,19 @@ class _CourseBuilderScreenState extends ConsumerState<CourseBuilderScreen> {
       appBar: AppBar(
         title: const Text('코스 만들기'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.share),
+            onPressed: state.places.isEmpty
+                ? null
+                : () async {
+                    await ShareService.shareCourse(
+                      courseId: courseId ?? 'new',
+                      courseName: state.title ?? '새 코스',
+                      placeCount: state.places.length,
+                      duration: '${state.totalTime ~/ 60}시간',
+                    );
+                  },
+          ),
           TextButton(
             onPressed: () {
               // TODO: Navigate to preview

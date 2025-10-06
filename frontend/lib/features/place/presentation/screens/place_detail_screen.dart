@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/sharing/share_service.dart';
 import '../../../../shared/widgets/atoms/app_button.dart';
 import '../../../home/presentation/widgets/place_card.dart';
 import '../providers/place_detail_provider.dart';
@@ -344,8 +345,18 @@ class PlaceDetailScreen extends ConsumerWidget {
     );
   }
 
-  void _sharePlace(String placeName) {
-    Share.share('$placeName을(를) 확인해보세요!');
+  void _sharePlace(String placeName) async {
+    final placeState = ref.read(placeDetailProvider(placeId));
+    if (placeState.place != null) {
+      await ShareService.sharePlace(
+        placeId: placeState.place!.id,
+        placeName: placeState.place!.name,
+        address: placeState.place!.address,
+        imageUrl: placeState.place!.images.isNotEmpty
+            ? placeState.place!.images.first
+            : null,
+      );
+    }
   }
 
   Future<void> _openMap(double lat, double lng, String name) async {

@@ -57,5 +57,7 @@ class ApiEndpoints {
   static const String notifications = '/notifications';
 
   // Link Analysis
-  static const String linkAnalyze = '/links/analyze';
+  static const String linkAnalyze = '/link-analysis/analyze';
+  static String linkAnalysisStatus(String analysisId) =>
+      '/link-analysis/analyses/$analysisId';
 }

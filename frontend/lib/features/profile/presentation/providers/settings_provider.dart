@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../../../core/storage/local_storage.dart';
+import '../../../../core/notifications/fcm_service.dart';
 
 part 'settings_provider.freezed.dart';
 
@@ -41,6 +42,15 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
   Future<void> setNotifications(bool enabled) async {
     state = state.copyWith(notificationsEnabled: enabled);
     await _localStorage.setNotificationsEnabled(enabled);
+
+    // Subscribe/unsubscribe from FCM topics
+    if (enabled) {
+      await FCMService().subscribeToTopic('all_users');
+      await FCMService().subscribeToTopic('recommendations');
+    } else {
+      await FCMService().unsubscribeFromTopic('all_users');
+      await FCMService().unsubscribeFromTopic('recommendations');
+    }
   }
 
   Future<void> setLanguage(String language) async {

@@ -29,6 +29,10 @@ class PlaceCard extends StatelessWidget {
   Widget _buildHorizontalCard(BuildContext context) {
     final theme = Theme.of(context);
 
+    // TODO(human): Add Semantics widget here for accessibility
+    // Wrap Card with Semantics and provide meaningful label
+    // Example: Semantics(label: "...", button: true, excludeSemantics: true, child: Card(...))
+
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
