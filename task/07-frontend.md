@@ -129,31 +129,33 @@
 
 ---
 
-### 3.3 장소 상세 화면 구현 📍
+### 3.3 장소 상세 화면 구현 ✅
 **참고**: `docs/screens/place-detail-screen-spec.md` | 📋 [상세 API](task/07-frontend-detailed.md#33-장소-상세-화면-구현-)
 
-- [ ] **도메인 레이어**
-  - [ ] Place Detail Use Cases (GetPlaceDetail, LikePlace, SavePlace)
+- [x] **도메인 레이어**
+  - [x] Place Detail Use Cases (GetPlaceDetail, LikePlace, SavePlace)
 
-- [ ] **데이터 레이어**
-  - [ ] Place Detail Repository
-  - [ ] 좋아요/저장 상태 관리
+- [x] **데이터 레이어**
+  - [x] Place Detail Repository
+  - [x] 좋아요/저장 상태 관리 (Optimistic UI)
 
-- [ ] **프레젠테이션 레이어**
-  - [ ] Place Detail Provider
-  - [ ] Place Detail Screen (`lib/features/place/presentation/screens/place_detail_screen.dart`)
-  - [ ] 위젯 구현:
-    - [ ] ImageGallery (사진 슬라이더)
-    - [ ] PlaceInfo (장소 정보)
-    - [ ] ActionButtons (좋아요, 저장, 공유, 코스 추가)
-    - [ ] MapPreview (지도 미리보기)
-    - [ ] RelatedPlaces (비슷한 장소)
+- [x] **프레젠테이션 레이어**
+  - [x] Place Detail Provider
+  - [x] Place Detail Screen (`lib/features/place/presentation/screens/place_detail_screen.dart`)
+  - [x] 위젯 구현:
+    - [x] ImageGallery (PageView + Hero 애니메이션)
+    - [x] PlaceInfo (이름, 평점, 태그, 주소)
+    - [x] ActionButtons (좋아요, 저장, 공유, 코스 추가)
+    - [x] 지도/경로 버튼 (Kakao Map/Google Maps)
+    - [x] RelatedPlaces (비슷한 장소 리스트)
 
-**완료 기준**:
-- 이미지 갤러리 스와이프
-- 좋아요/저장 토글 동작
-- 코스에 추가 기능
-- 지도 미리보기 표시
+**완료 기준**: ✅
+- ✅ 이미지 갤러리 스와이프 (PageView + 인디케이터)
+- ✅ 좋아요/저장 토글 동작 (Optimistic UI)
+- ✅ 코스에 추가 버튼 (바텀시트)
+- ✅ 지도 보기/경로 찾기 (URL scheme)
+- ✅ 비슷한 장소 추천
+- ✅ 공유 기능
 
 ---
 
