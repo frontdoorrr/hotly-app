@@ -1,0 +1,26 @@
+# Flutter Launcher Icons Configuration
+# Run: flutter pub run flutter_launcher_icons
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+
+  # Main app icon (1024x1024 recommended)
+  image_path: "assets/images/logo/app_icon.png"
+
+  # Android Adaptive Icons (Android 8.0+)
+  adaptive_icon_background: "#FF5722"  # Hotly brand color (orange-red)
+  adaptive_icon_foreground: "assets/images/logo/app_icon_foreground.png"
+
+  # iOS specific
+  remove_alpha_ios: true
+
+  # Platform specific configurations
+  android:
+    generate: true
+  ios:
+    generate: true
+
+  # Web (if needed later)
+  web:
+    generate: false

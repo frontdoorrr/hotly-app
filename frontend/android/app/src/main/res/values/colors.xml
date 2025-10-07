@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Hotly Brand Colors -->
+    <color name="notification_color">#FF5722</color>
+    <color name="primary_color">#FF5722</color>
+    <color name="primary_dark">#D84315</color>
+    <color name="accent_color">#FFC107</color>
+</resources>

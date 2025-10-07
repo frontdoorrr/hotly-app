@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Associated Domains for Universal Links -->
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:hotly.app</string>
+		<string>applinks:www.hotly.app</string>
+	</array>
+
+	<!-- Push Notifications -->
+	<key>aps-environment</key>
+	<string>development</string>
+
+	<!-- Background Modes -->
+	<key>com.apple.developer.ubiquity-container-identifiers</key>
+	<array/>
+
+	<!-- Keychain Sharing (for secure storage) -->
+	<key>keychain-access-groups</key>
+	<array>
+		<string>$(AppIdentifierPrefix)com.hotly.hotly_app</string>
+	</array>
+
+	<!-- App Groups (for widget/extension sharing) -->
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.com.hotly.hotly_app</string>
+	</array>
+</dict>
+</plist>

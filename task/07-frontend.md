@@ -328,26 +328,48 @@
 
 ---
 
-## Phase 7: 배포 준비
+## Phase 7: 배포 준비 ✅
 
-### 7.1 앱 설정
-- [ ] 앱 아이콘 설정
-- [ ] 스플래시 스크린
-- [ ] 앱 이름 및 번들 ID
-- [ ] 버전 관리
+### 7.1 앱 설정 ✅
+- [x] 앱 아이콘 설정 (`flutter_launcher_icons.yaml`)
+- [x] 스플래시 스크린 (`flutter_native_splash.yaml`)
+- [x] 앱 이름 및 번들 ID (com.hotly.hotly_app)
+- [x] 버전 관리 (pubspec.yaml: 1.0.0+1)
+- [x] 로고 플레이스홀더 생성 가이드 (`assets/images/logo/README.md`)
 
-### 7.2 빌드 설정
-- [ ] Android 빌드 설정 (build.gradle)
-- [ ] iOS 빌드 설정 (Info.plist)
-- [ ] 프로덕션 환경 변수
-- [ ] 난독화 설정
+### 7.2 빌드 설정 ✅
+- [x] **Android 빌드 설정**
+  - [x] `build.gradle.kts`: Firebase, ProGuard, signing configs
+  - [x] `proguard-rules.pro`: 난독화 규칙
+  - [x] `AndroidManifest.xml`: 권한, Deep Links, FCM
+  - [x] `network_security_config.xml`: HTTPS 보안
+  - [x] `backup_rules.xml`: 백업 설정
+- [x] **iOS 빌드 설정**
+  - [x] `Info.plist`: 권한 설명, Background modes, Deep Links
+  - [x] `Runner.entitlements` / `Release.entitlements`: Capabilities
+  - [x] `Podfile`: Firebase, deployment target
+- [x] **환경 변수**
+  - [x] `.env.dev`, `.env.staging`, `.env.prod` 템플릿
+  - [x] 빌드 스크립트 (`scripts/build-android.sh`, `scripts/build-ios.sh`)
+- [x] **보안 설정**
+  - [x] 코드 난독화 (`--obfuscate` 플래그)
+  - [x] 보안 가이드 문서 (`SECURITY.md`)
 
-### 7.3 스토어 제출
-- [ ] 스크린샷 준비 (5.5", 6.5")
-- [ ] 앱 설명 작성
-- [ ] 개인정보 처리방침
-- [ ] 테스트 플라이트 배포 (iOS)
-- [ ] 내부 테스트 트랙 배포 (Android)
+### 7.3 스토어 제출 준비 ✅
+- [x] **문서 작성**
+  - [x] 앱 설명 (`store/app-description-ko.md`)
+  - [x] 개인정보처리방침 (`store/privacy-policy.md`)
+  - [x] 이용약관 (`store/terms-of-service.md`)
+  - [x] 배포 가이드 (`DEPLOYMENT.md`)
+  - [x] 스토어 제출 체크리스트 (`store/STORE_SUBMISSION_CHECKLIST.md`)
+- [x] **Firebase 설정 예제**
+  - [x] `google-services.json.example` (Android)
+  - [x] `GoogleService-Info.plist.example` (iOS)
+
+**완료 기준**: ✅
+- 모든 빌드 설정 파일 생성 완료
+- 배포 문서 및 가이드 작성 완료
+- 스토어 제출을 위한 체크리스트 준비 완료
 
 ---
 

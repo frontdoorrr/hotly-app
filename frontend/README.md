@@ -103,19 +103,41 @@ fvm flutter format --set-exit-if-changed lib/ test/
 
 ### 빌드
 
+#### 자동 빌드 스크립트 (권장)
+```bash
+# Android 빌드
+./scripts/build-android.sh dev debug       # 개발 디버그
+./scripts/build-android.sh staging release # 스테이징 릴리즈
+./scripts/build-android.sh prod release    # 프로덕션 릴리즈
+
+# iOS 빌드
+./scripts/build-ios.sh dev debug           # 개발 디버그
+./scripts/build-ios.sh staging release     # 스테이징 릴리즈
+./scripts/build-ios.sh prod release        # 프로덕션 릴리즈
+```
+
+#### 수동 빌드 (Flutter 명령어)
 ```bash
 # Android APK (개발)
 fvm flutter build apk --dart-define=ENV=dev
 
 # Android APK (프로덕션)
-fvm flutter build apk --release --dart-define=ENV=prod
+fvm flutter build apk --release --dart-define-from-file=.env.prod \
+  --obfuscate --split-debug-info=build/symbols
 
-# Android App Bundle
-fvm flutter build appbundle --release --dart-define=ENV=prod
+# Android App Bundle (Play Store 제출용)
+fvm flutter build appbundle --release --dart-define-from-file=.env.prod \
+  --obfuscate --split-debug-info=build/symbols
 
 # iOS (프로덕션)
-fvm flutter build ipa --release --dart-define=ENV=prod
+fvm flutter build ipa --release --dart-define-from-file=.env.prod \
+  --obfuscate --split-debug-info=build/symbols
 ```
+
+#### 빌드 출력 위치
+- **Android APK**: `build/app/outputs/apk/{flavor}/{buildType}/`
+- **Android AAB**: `build/app/outputs/bundle/{flavor}Release/`
+- **iOS IPA**: `build/ios/ipa/`
 
 ## 환경 변수
 
@@ -187,6 +209,56 @@ fvm flutter run --dart-define=ENV=prod
 - **위젯 테스트**: `test/widget/`
 - **통합 테스트**: `integration_test/`
 
+## 배포 (Deployment)
+
+### 사전 준비
+앱 배포 전 필수 설정을 완료해야 합니다:
+
+1. **Firebase 설정**
+   ```bash
+   # Android: google-services.json 다운로드
+   # iOS: GoogleService-Info.plist 다운로드
+   # Firebase Console에서 각 플랫폼 앱 등록 후 다운로드
+   ```
+
+2. **환경 변수 설정**
+   ```bash
+   cp .env.example .env.prod
+   # .env.prod 파일을 실제 프로덕션 값으로 수정
+   ```
+
+3. **Android Keystore 생성** (첫 배포 시)
+   ```bash
+   keytool -genkey -v -keystore ~/hotly-release-key.jks \
+     -keyalg RSA -keysize 2048 -validity 10000 \
+     -alias hotly-release
+
+   # android/key.properties 파일 생성
+   ```
+
+4. **iOS Certificates** (Apple Developer Program 필요, $99/년)
+   - Xcode에서 Signing & Capabilities 설정
+   - Provisioning Profile 생성
+
+### 앱 아이콘 & 스플래시 생성
+```bash
+# 1. assets/images/logo/ 디렉토리에 이미지 준비
+#    - app_icon.png (1024x1024)
+#    - splash_logo.png (1242x1242)
+
+# 2. 아이콘 자동 생성
+flutter pub run flutter_launcher_icons
+
+# 3. 스플래시 스크린 생성
+flutter pub run flutter_native_splash:create
+```
+
+### 스토어 제출
+자세한 배포 가이드는 아래 문서를 참고하세요:
+- **[배포 가이드](DEPLOYMENT.md)**: 전체 배포 프로세스
+- **[스토어 제출 체크리스트](store/STORE_SUBMISSION_CHECKLIST.md)**: 제출 전 확인사항
+- **[보안 가이드](SECURITY.md)**: 보안 설정 및 Best Practices
+
 ## CI/CD
 
 GitHub Actions를 통한 자동화:
@@ -197,12 +269,21 @@ GitHub Actions를 통한 자동화:
 
 ## 문서
 
+### 기술 문서
 - [기술 스택](../trd/frontend/01-flutter-tech-stack.md)
 - [데이터 플로우](../trd/frontend/02-data-flow-state-management.md)
 - [성능 최적화](../trd/frontend/03-performance-optimization.md)
 - [접근성](../trd/frontend/04-accessibility.md)
 - [사용자 플로우](../docs/user-flows.md)
 - [API 연동 가이드](../docs/api-integration-guide.md)
+
+### 배포 문서
+- **[배포 가이드](DEPLOYMENT.md)** - 전체 배포 프로세스
+- **[보안 가이드](SECURITY.md)** - 보안 설정 및 체크리스트
+- **[스토어 제출 체크리스트](store/STORE_SUBMISSION_CHECKLIST.md)** - 제출 전 확인사항
+- [앱 설명](store/app-description-ko.md) - 앱 스토어 설명문
+- [개인정보처리방침](store/privacy-policy.md)
+- [이용약관](store/terms-of-service.md)
 
 ## 라이선스
 
