@@ -28,11 +28,14 @@ WORKDIR /backend
 # Copy dependency files
 COPY pyproject.toml poetry.lock ./
 
-# Install dependencies
-RUN poetry install --with dev
+# Install dependencies (without installing the project itself)
+RUN poetry install --with dev --no-root
 
 # Copy application code
 COPY . .
+
+# Install the project in editable mode (--only-root must be used alone)
+RUN poetry install --only-root
 
 EXPOSE 8000
 
@@ -47,11 +50,14 @@ WORKDIR /backend
 # Copy dependency files
 COPY pyproject.toml poetry.lock ./
 
-# Install only production dependencies
-RUN poetry install --only main --no-dev
+# Install only production dependencies (without the project itself)
+RUN poetry install --only main --no-dev --no-root
 
 # Copy application code
 COPY . .
+
+# Install the project (--only-root must be used alone)
+RUN poetry install --only-root
 
 # Create non-root user
 RUN groupadd -r hotly && useradd -r -g hotly hotly

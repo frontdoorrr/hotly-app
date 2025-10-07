@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   backend:
     build:
@@ -23,21 +21,8 @@ services:
       - redis
     restart: unless-stopped
 
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    environment:
-      - NODE_ENV=development
-      - NEXT_PUBLIC_API_URL=http://backend:8000
-    depends_on:
-      - backend
-    restart: unless-stopped
+  # Frontend service removed - Flutter app runs locally on iOS/Android simulators
+  # Use: flutter run -d 'iPhone 16 Pro' or flutter run -d <android-device>
 
   db:
     image: postgres:15-alpine
