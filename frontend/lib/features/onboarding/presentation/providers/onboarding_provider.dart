@@ -84,6 +84,13 @@ final onboardingProvider =
 
 /// 온보딩 완료 여부 확인
 final isOnboardingCompletedProvider = Provider<bool>((ref) {
+  // OnboardingNotifier의 isCompleted 상태를 watch
+  final onboardingState = ref.watch(onboardingProvider);
+  if (onboardingState.isCompleted) {
+    return true;
+  }
+
+  // 앱 시작 시 LocalStorage에서 초기값 확인
   final localStorage = ref.watch(localStorageProvider);
   return localStorage.isOnboardingCompleted;
 });

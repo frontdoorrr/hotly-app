@@ -243,12 +243,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 context,
                 icon: Icons.link,
                 label: '링크\n분석',
-                onTap: () {
-                  // TODO: 링크 분석 화면으로 이동
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('링크 분석 기능 개발 중')),
-                  );
-                },
+                onTap: () => LinkInputBottomSheet.show(context),
               ),
               _buildQuickActionButton(
                 context,
