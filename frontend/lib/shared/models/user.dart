@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
+import 'package:firebase_auth/firebase_auth.dart' as firebase;
 
 part 'user.freezed.dart';
 part 'user.g.dart';
@@ -49,8 +50,48 @@ class User with _$User {
       emailConfirmed: supabaseUser.emailConfirmedAt != null,
       provider: supabaseUser.appMetadata['provider'],
       metadata: supabaseUser.userMetadata,
-      lastSignInAt: supabaseUser.lastSignInAt,
-      createdAt: supabaseUser.createdAt,
+      lastSignInAt: supabaseUser.lastSignInAt != null
+          ? DateTime.tryParse(supabaseUser.lastSignInAt!)
+          : null,
+      createdAt: DateTime.tryParse(supabaseUser.createdAt),
+    );
+  }
+
+  /// Convert Firebase User to App User
+  factory User.fromFirebase(firebase.User firebaseUser) {
+    // Firebase provider ID 파싱 (google.com, apple.com, password 등)
+    String? provider;
+    if (firebaseUser.providerData.isNotEmpty) {
+      final providerId = firebaseUser.providerData.first.providerId;
+      if (providerId == 'google.com') {
+        provider = 'google';
+      } else if (providerId == 'apple.com') {
+        provider = 'apple';
+      } else if (providerId == 'password') {
+        provider = 'email';
+      } else if (providerId.contains('kakao')) {
+        provider = 'kakao';
+      }
+    }
+
+    return User(
+      id: firebaseUser.uid,
+      email: firebaseUser.email ?? '',
+      name: firebaseUser.displayName ??
+            firebaseUser.email?.split('@').first ??
+            'User',
+      profileImageUrl: firebaseUser.photoURL,
+      phoneNumber: firebaseUser.phoneNumber,
+      emailConfirmed: firebaseUser.emailVerified,
+      provider: provider,
+      metadata: firebaseUser.metadata != null
+          ? {
+              'creationTime': firebaseUser.metadata!.creationTime?.toIso8601String(),
+              'lastSignInTime': firebaseUser.metadata!.lastSignInTime?.toIso8601String(),
+            }
+          : null,
+      lastSignInAt: firebaseUser.metadata?.lastSignInTime,
+      createdAt: firebaseUser.metadata?.creationTime,
     );
   }
 }

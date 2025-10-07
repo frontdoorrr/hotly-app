@@ -49,7 +49,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     await ref.read(authProvider.notifier).signUpWithEmail(
           email: _emailController.text.trim(),
           password: _passwordController.text,
-          name: _nameController.text.trim(),
+          displayName: _nameController.text.trim(),
         );
 
     if (!mounted) return;
@@ -255,7 +255,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 // Sign Up Button
                 AppButton(
                   text: '가입하기',
-                  type: AppButtonType.primary,
+                  variant: ButtonVariant.primary,
                   isLoading: authState.isLoading,
                   onPressed: _handleSignUp,
                 ),

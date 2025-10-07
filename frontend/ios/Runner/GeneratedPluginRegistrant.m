@@ -24,10 +24,16 @@
 @import device_info_plus;
 #endif
 
-#if __has_include(<firebase_analytics/FLTFirebaseAnalyticsPlugin.h>)
-#import <firebase_analytics/FLTFirebaseAnalyticsPlugin.h>
+#if __has_include(<firebase_analytics/FirebaseAnalyticsPlugin.h>)
+#import <firebase_analytics/FirebaseAnalyticsPlugin.h>
 #else
 @import firebase_analytics;
+#endif
+
+#if __has_include(<firebase_auth/FLTFirebaseAuthPlugin.h>)
+#import <firebase_auth/FLTFirebaseAuthPlugin.h>
+#else
+@import firebase_auth;
 #endif
 
 #if __has_include(<firebase_core/FLTFirebaseCorePlugin.h>)
@@ -108,6 +114,12 @@
 @import integration_test;
 #endif
 
+#if __has_include(<kakao_flutter_sdk_common/KakaoFlutterSdkPlugin.h>)
+#import <kakao_flutter_sdk_common/KakaoFlutterSdkPlugin.h>
+#else
+@import kakao_flutter_sdk_common;
+#endif
+
 #if __has_include(<kakao_map_plugin/KakaoMapPlugin.h>)
 #import <kakao_map_plugin/KakaoMapPlugin.h>
 #else
@@ -180,7 +192,8 @@
   [AppLinksIosPlugin registerWithRegistrar:[registry registrarForPlugin:@"AppLinksIosPlugin"]];
   [ConnectivityPlusPlugin registerWithRegistrar:[registry registrarForPlugin:@"ConnectivityPlusPlugin"]];
   [FPPDeviceInfoPlusPlugin registerWithRegistrar:[registry registrarForPlugin:@"FPPDeviceInfoPlusPlugin"]];
-  [FLTFirebaseAnalyticsPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTFirebaseAnalyticsPlugin"]];
+  [FirebaseAnalyticsPlugin registerWithRegistrar:[registry registrarForPlugin:@"FirebaseAnalyticsPlugin"]];
+  [FLTFirebaseAuthPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTFirebaseAuthPlugin"]];
   [FLTFirebaseCorePlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTFirebaseCorePlugin"]];
   [FLTFirebaseCrashlyticsPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTFirebaseCrashlyticsPlugin"]];
   [FLTFirebaseMessagingPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTFirebaseMessagingPlugin"]];
@@ -194,6 +207,7 @@
   [FLTGoogleSignInPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTGoogleSignInPlugin"]];
   [FLTImagePickerPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTImagePickerPlugin"]];
   [IntegrationTestPlugin registerWithRegistrar:[registry registrarForPlugin:@"IntegrationTestPlugin"]];
+  [KakaoFlutterSdkPlugin registerWithRegistrar:[registry registrarForPlugin:@"KakaoFlutterSdkPlugin"]];
   [KakaoMapPlugin registerWithRegistrar:[registry registrarForPlugin:@"KakaoMapPlugin"]];
   [FPPPackageInfoPlusPlugin registerWithRegistrar:[registry registrarForPlugin:@"FPPPackageInfoPlusPlugin"]];
   [PathProviderPlugin registerWithRegistrar:[registry registrarForPlugin:@"PathProviderPlugin"]];

@@ -36,6 +36,11 @@ public final class GeneratedPluginRegistrant {
       Log.e(TAG, "Error registering plugin firebase_analytics, io.flutter.plugins.firebase.analytics.FlutterFirebaseAnalyticsPlugin", e);
     }
     try {
+      flutterEngine.getPlugins().add(new io.flutter.plugins.firebase.auth.FlutterFirebaseAuthPlugin());
+    } catch (Exception e) {
+      Log.e(TAG, "Error registering plugin firebase_auth, io.flutter.plugins.firebase.auth.FlutterFirebaseAuthPlugin", e);
+    }
+    try {
       flutterEngine.getPlugins().add(new io.flutter.plugins.firebase.core.FlutterFirebaseCorePlugin());
     } catch (Exception e) {
       Log.e(TAG, "Error registering plugin firebase_core, io.flutter.plugins.firebase.core.FlutterFirebaseCorePlugin", e);
@@ -104,6 +109,11 @@ public final class GeneratedPluginRegistrant {
       flutterEngine.getPlugins().add(new dev.flutter.plugins.integration_test.IntegrationTestPlugin());
     } catch (Exception e) {
       Log.e(TAG, "Error registering plugin integration_test, dev.flutter.plugins.integration_test.IntegrationTestPlugin", e);
+    }
+    try {
+      flutterEngine.getPlugins().add(new com.kakao.sdk.flutter.KakaoFlutterSdkPlugin());
+    } catch (Exception e) {
+      Log.e(TAG, "Error registering plugin kakao_flutter_sdk_common, com.kakao.sdk.flutter.KakaoFlutterSdkPlugin", e);
     }
     try {
       flutterEngine.getPlugins().add(new kr.co.kkensu.kakao_map_plugin.KakaoMapPlugin());

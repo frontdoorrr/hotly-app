@@ -2,10 +2,15 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'api_endpoints.dart';
-import '../storage/local_storage.dart';
+import '../auth/firebase_auth_service.dart';
 
-/// Dio Client Provider
+/// Dio Instance Provider (raw Dio object)
 final dioProvider = Provider<Dio>((ref) {
+  return DioClient.instance.dio;
+});
+
+/// DioClient Instance Provider (wrapped client with helper methods)
+final dioClientProvider = Provider<DioClient>((ref) {
   return DioClient.instance;
 });
 
@@ -221,18 +226,24 @@ class ApiException implements Exception {
   String toString() => message;
 }
 
-/// Auth Interceptor (토큰 자동 추가)
+/// Auth Interceptor (Firebase ID Token 자동 추가)
 class AuthInterceptor extends Interceptor {
   @override
   void onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    // 저장된 토큰 가져오기
-    final token = await LocalStorage.instance.getToken();
+    try {
+      // Firebase에서 ID Token 가져오기
+      final firebaseAuthService = FirebaseAuthService();
+      final token = await firebaseAuthService.getIdToken();
 
-    if (token != null) {
-      options.headers['Authorization'] = 'Bearer $token';
+      if (token != null) {
+        options.headers['Authorization'] = 'Bearer $token';
+      }
+    } catch (e) {
+      // 토큰 가져오기 실패해도 요청은 계속 진행
+      print('Failed to get Firebase ID token: $e');
     }
 
     return handler.next(options);
@@ -243,10 +254,10 @@ class AuthInterceptor extends Interceptor {
     DioException err,
     ErrorInterceptorHandler handler,
   ) async {
-    // 401 에러 시 토큰 삭제 (로그아웃 처리)
+    // 401 에러 시 Firebase에서 자동으로 처리됨
+    // authStateChanges 스트림에서 감지하여 로그인 화면으로 이동
     if (err.response?.statusCode == 401) {
-      await LocalStorage.instance.deleteToken();
-      // TODO: 로그인 화면으로 리다이렉트
+      print('Unauthorized: User needs to re-authenticate');
     }
 
     return handler.next(err);

@@ -102,7 +102,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   Expanded(
                     child: AppButton(
                       text: '이전',
-                      type: AppButtonType.outline,
+                      variant: ButtonVariant.outline,
                       onPressed: () {
                         _pageController.previousPage(
                           duration: const Duration(milliseconds: 300),
@@ -115,7 +115,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 Expanded(
                   child: AppButton(
                     text: onboardingState.currentStep == 3 ? '시작하기' : '다음',
-                    type: AppButtonType.primary,
+                    variant: ButtonVariant.primary,
                     onPressed: () {
                       if (onboardingState.currentStep == 3) {
                         _handleComplete();
@@ -280,7 +280,7 @@ class _LocationPermissionStep extends ConsumerWidget {
           const SizedBox(height: 32),
           AppButton(
             text: granted ? '권한 허용됨 ✓' : '위치 권한 허용',
-            type: granted ? AppButtonType.secondary : AppButtonType.primary,
+            variant: granted ? ButtonVariant.secondary : ButtonVariant.primary,
             onPressed: granted ? null : () => _requestLocationPermission(ref),
           ),
           const SizedBox(height: 16),
@@ -346,7 +346,7 @@ class _NotificationPermissionStep extends ConsumerWidget {
           const SizedBox(height: 32),
           AppButton(
             text: granted ? '권한 허용됨 ✓' : '알림 권한 허용',
-            type: granted ? AppButtonType.secondary : AppButtonType.primary,
+            variant: granted ? ButtonVariant.secondary : ButtonVariant.primary,
             onPressed:
                 granted ? null : () => _requestNotificationPermission(ref),
           ),

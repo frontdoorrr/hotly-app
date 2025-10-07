@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../../../../core/network/api_exception.dart';
+import '../../../../core/network/dio_client.dart'; // ApiException이 여기 정의됨
 import '../../../../shared/models/user.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -54,12 +54,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
     });
   }
 
+  // Email/Password Authentication
   Future<void> signInWithEmail({
     required String email,
     required String password,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
-
     final result = await _repository.signInWithEmail(
       email: email,
       password: password,
@@ -70,7 +70,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
         state = state.copyWith(
           isLoading: false,
           error: error,
-          status: AuthStatus.unauthenticated,
         );
       },
       (user) {
@@ -87,14 +86,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> signUpWithEmail({
     required String email,
     required String password,
-    required String name,
+    String? displayName,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
-
     final result = await _repository.signUpWithEmail(
       email: email,
       password: password,
-      name: name,
+      displayName: displayName,
     );
 
     result.fold(
@@ -108,15 +106,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
         state = state.copyWith(
           isLoading: false,
           user: user,
-          status: user.emailConfirmed
-              ? AuthStatus.authenticated
-              : AuthStatus.unauthenticated,
+          status: AuthStatus.authenticated,
           error: null,
         );
       },
     );
   }
 
+  // Social Authentication
   Future<void> signInWithGoogle() async {
     state = state.copyWith(isLoading: true, error: null);
     final result = await _repository.signInWithGoogle();
@@ -157,10 +154,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = const AuthState(status: AuthStatus.unauthenticated);
   }
 
-  Future<void> resetPassword(String email) async {
+  Future<void> signInWithKakao() async {
     state = state.copyWith(isLoading: true, error: null);
-
-    final result = await _repository.resetPassword(email);
+    final result = await _repository.signInWithKakao();
 
     result.fold(
       (error) {
@@ -169,9 +165,33 @@ class AuthNotifier extends StateNotifier<AuthState> {
           error: error,
         );
       },
-      (_) {
+      (user) {
         state = state.copyWith(
           isLoading: false,
+          user: user,
+          status: AuthStatus.authenticated,
+          error: null,
+        );
+      },
+    );
+  }
+
+  Future<void> signInAnonymously() async {
+    state = state.copyWith(isLoading: true, error: null);
+    final result = await _repository.signInAnonymously();
+
+    result.fold(
+      (error) {
+        state = state.copyWith(
+          isLoading: false,
+          error: error,
+        );
+      },
+      (user) {
+        state = state.copyWith(
+          isLoading: false,
+          user: user,
+          status: AuthStatus.authenticated,
           error: null,
         );
       },

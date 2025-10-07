@@ -36,7 +36,8 @@ class SearchRemoteDataSource {
       final List<dynamic> data = response.data['places'] ?? response.data;
       return data.map((json) => Place.fromJson(json)).toList();
     } on DioException catch (e) {
-      throw DioClient.instance._handleError(e);
+      // Re-throw DioException - it will be handled by DioClient interceptors
+      rethrow;
     }
   }
 
@@ -57,7 +58,7 @@ class SearchRemoteDataSource {
       final List<dynamic> data = response.data['suggestions'] ?? response.data;
       return data.map((item) => item.toString()).toList();
     } on DioException catch (e) {
-      throw DioClient.instance._handleError(e);
+      rethrow;
     }
   }
 }

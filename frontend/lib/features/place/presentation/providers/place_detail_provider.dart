@@ -1,7 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../../../../core/network/api_exception.dart';
+import '../../../../core/network/dio_client.dart';
 import '../../../../shared/models/place.dart';
+import '../../data/repositories/place_repository_impl.dart';
 import '../../domain/repositories/place_repository.dart';
 import '../../domain/usecases/get_place_detail.dart';
 

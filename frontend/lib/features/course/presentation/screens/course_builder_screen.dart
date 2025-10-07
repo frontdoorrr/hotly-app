@@ -48,10 +48,10 @@ class _CourseBuilderScreenState extends ConsumerState<CourseBuilderScreen> {
                 ? null
                 : () async {
                     await ShareService.shareCourse(
-                      courseId: courseId ?? 'new',
+                      courseId: widget.courseId ?? 'new',
                       courseName: state.title ?? '새 코스',
                       placeCount: state.places.length,
-                      duration: '${state.totalTime ~/ 60}시간',
+                      duration: '${state.totalDuration.inMinutes ~/ 60}시간',
                     );
                   },
           ),

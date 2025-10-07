@@ -95,12 +95,12 @@ class LinkAnalysisResultView extends ConsumerWidget {
                   children: [
                     Text(
                       statusText,
-                      style: AppTextStyles.subtitle1.copyWith(color: color),
+                      style: AppTextStyles.bodyLarge.copyWith(color: color),
                     ),
                     if (result.cached)
                       Text(
                         '캐시된 결과 (${result.processingTime.toStringAsFixed(2)}s)',
-                        style: AppTextStyles.caption.copyWith(
+                        style: AppTextStyles.bodySmall.copyWith(
                           color: AppColors.textSecondary,
                         ),
                       ),
@@ -129,7 +129,7 @@ class LinkAnalysisResultView extends ConsumerWidget {
                   const SizedBox(height: 4),
                   Text(
                     '${(result.progress! * 100).toInt()}%',
-                    style: AppTextStyles.caption.copyWith(
+                    style: AppTextStyles.bodySmall.copyWith(
                       color: AppColors.textSecondary,
                     ),
                   ),
@@ -153,7 +153,7 @@ class LinkAnalysisResultView extends ConsumerWidget {
 
         // Place information
         if (result.placeInfo != null) ...[
-          Text('장소 정보', style: AppTextStyles.heading3),
+          Text('장소 정보', style: AppTextStyles.h3),
           const SizedBox(height: 12),
           _buildPlaceInfoCard(result.placeInfo!),
         ],
@@ -162,7 +162,7 @@ class LinkAnalysisResultView extends ConsumerWidget {
 
         // Content metadata
         if (result.contentMetadata != null) ...[
-          Text('추출된 콘텐츠', style: AppTextStyles.heading3),
+          Text('추출된 콘텐츠', style: AppTextStyles.h3),
           const SizedBox(height: 12),
           _buildContentMetadataCard(result.contentMetadata!),
         ],
@@ -203,13 +203,13 @@ class LinkAnalysisResultView extends ConsumerWidget {
               children: [
                 Text(
                   '신뢰도',
-                  style: AppTextStyles.caption.copyWith(
+                  style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.textSecondary,
                   ),
                 ),
                 Text(
                   '$percentage%',
-                  style: AppTextStyles.heading3.copyWith(color: color),
+                  style: AppTextStyles.h3.copyWith(color: color),
                 ),
               ],
             ),
@@ -233,7 +233,7 @@ class LinkAnalysisResultView extends ConsumerWidget {
           children: [
             Text(
               placeInfo.name,
-              style: AppTextStyles.heading3,
+              style: AppTextStyles.h3,
             ),
             if (placeInfo.category != null) ...[
               const SizedBox(height: 8),
@@ -245,7 +245,7 @@ class LinkAnalysisResultView extends ConsumerWidget {
                 ),
                 child: Text(
                   placeInfo.category!,
-                  style: AppTextStyles.caption.copyWith(
+                  style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.primary,
                   ),
                 ),
@@ -297,7 +297,7 @@ class LinkAnalysisResultView extends ConsumerWidget {
                         ),
                         child: Text(
                           '#$tag',
-                          style: AppTextStyles.caption,
+                          style: AppTextStyles.bodySmall,
                         ),
                       ),
                     )
@@ -325,7 +325,7 @@ class LinkAnalysisResultView extends ConsumerWidget {
             if (metadata.title != null) ...[
               Text(
                 metadata.title!,
-                style: AppTextStyles.subtitle1,
+                style: AppTextStyles.bodyLarge,
               ),
               const SizedBox(height: 8),
             ],

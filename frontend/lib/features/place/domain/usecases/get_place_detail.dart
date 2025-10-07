@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import '../../../../core/network/api_exception.dart';
+import '../../../../core/network/dio_client.dart';
 import '../../../../shared/models/place.dart';
 import '../repositories/place_repository.dart';
 
@@ -12,7 +12,7 @@ class GetPlaceDetail {
   Future<Either<ApiException, Place>> call(String placeId) async {
     if (placeId.isEmpty) {
       return Left(
-        ApiException(
+        ApiException(type: ApiExceptionType.server, 
           message: 'Place ID cannot be empty',
           statusCode: 400,
         ),

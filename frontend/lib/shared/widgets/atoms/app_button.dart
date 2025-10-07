@@ -60,7 +60,7 @@ class AppButton extends StatelessWidget {
           vertical: AppTheme.space4,
         );
         height = 52.0;
-        fontSize: 18.0;
+        fontSize = 18.0;
         break;
     }
 

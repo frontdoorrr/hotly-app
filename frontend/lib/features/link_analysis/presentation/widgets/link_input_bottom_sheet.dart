@@ -109,7 +109,7 @@ class _LinkInputBottomSheetState extends ConsumerState<LinkInputBottomSheet> {
                   children: [
                     Text(
                       '링크 분석',
-                      style: AppTextStyles.heading2,
+                      style: AppTextStyles.h2,
                     ),
                     IconButton(
                       icon: const Icon(Icons.close),
@@ -176,7 +176,7 @@ class _LinkInputBottomSheetState extends ConsumerState<LinkInputBottomSheet> {
                       const SizedBox(height: 8),
                       Text(
                         '지원: Instagram, Naver Blog, YouTube',
-                        style: AppTextStyles.caption.copyWith(
+                        style: AppTextStyles.bodySmall.copyWith(
                           color: AppColors.textTertiary,
                         ),
                       ),

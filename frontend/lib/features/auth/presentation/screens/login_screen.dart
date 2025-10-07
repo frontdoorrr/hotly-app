@@ -163,7 +163,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 // Login Button
                 AppButton(
                   text: '로그인',
-                  type: AppButtonType.primary,
+                  variant: ButtonVariant.primary,
                   isLoading: authState.isLoading,
                   onPressed: _handleEmailLogin,
                 ),

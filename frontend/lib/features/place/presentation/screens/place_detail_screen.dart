@@ -98,7 +98,7 @@ class PlaceDetailScreen extends ConsumerWidget {
               // Share Button
               IconButton(
                 icon: const Icon(Icons.share, color: Colors.white),
-                onPressed: () => _sharePlace(place.name),
+                onPressed: () => _sharePlace(ref, place.name),
               ),
               const SizedBox(width: 8),
             ],
@@ -313,9 +313,9 @@ class PlaceDetailScreen extends ConsumerWidget {
               Expanded(
                 child: AppButton(
                   text: state.isSaved ? '저장됨' : '저장하기',
-                  type: state.isSaved
-                      ? AppButtonType.secondary
-                      : AppButtonType.outline,
+                  variant: state.isSaved
+                      ? ButtonVariant.secondary
+                      : ButtonVariant.outline,
                   icon: Icon(
                     state.isSaved ? Icons.bookmark : Icons.bookmark_border,
                   ),
@@ -330,7 +330,7 @@ class PlaceDetailScreen extends ConsumerWidget {
               Expanded(
                 child: AppButton(
                   text: '코스에 추가',
-                  type: AppButtonType.primary,
+                  variant: ButtonVariant.primary,
                   icon: const Icon(Icons.add),
                   onPressed: () {
                     // TODO: Show course selection bottom sheet
@@ -345,16 +345,14 @@ class PlaceDetailScreen extends ConsumerWidget {
     );
   }
 
-  void _sharePlace(String placeName) async {
+  void _sharePlace(WidgetRef ref, String placeName) async {
     final placeState = ref.read(placeDetailProvider(placeId));
     if (placeState.place != null) {
       await ShareService.sharePlace(
         placeId: placeState.place!.id,
         placeName: placeState.place!.name,
         address: placeState.place!.address,
-        imageUrl: placeState.place!.images.isNotEmpty
-            ? placeState.place!.images.first
-            : null,
+        imageUrl: placeState.place!.imageUrl,
       );
     }
   }
@@ -421,7 +419,7 @@ class PlaceDetailScreen extends ConsumerWidget {
               const SizedBox(height: 24),
               AppButton(
                 text: '확인',
-                type: AppButtonType.primary,
+                variant: ButtonVariant.primary,
                 onPressed: () => Navigator.pop(context),
               ),
             ],

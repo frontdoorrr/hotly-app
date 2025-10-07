@@ -1,5 +1,5 @@
-# Define minimum iOS version
-platform :ios, '12.0'
+# Define minimum iOS version (Firebase requires iOS 13.0+)
+platform :ios, '13.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -33,11 +33,8 @@ target 'Runner' do
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 
-  # Firebase dependencies
-  pod 'Firebase/Analytics'
-  pod 'Firebase/Crashlytics'
-  pod 'Firebase/Messaging'
-  pod 'Firebase/Performance'
+  # Firebase dependencies - use latest compatible version
+  # Flutter plugins will automatically use the same Firebase version
 
   target 'RunnerTests' do
     inherit! :search_paths
@@ -50,7 +47,7 @@ post_install do |installer|
 
     # Set minimum deployment target for all pods
     target.build_configurations.each do |config|
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
 
       # Enable bitcode (optional, can disable for faster builds)
       config.build_settings['ENABLE_BITCODE'] = 'NO'
@@ -70,7 +67,7 @@ post_install do |installer|
   installer.generated_projects.each do |project|
     project.targets.each do |target|
       target.build_configurations.each do |config|
-        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
       end
     end
   end

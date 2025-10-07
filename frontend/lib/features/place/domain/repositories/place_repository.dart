@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import '../../../../core/network/api_exception.dart';
+import '../../../../core/network/dio_client.dart';
 import '../../../../shared/models/place.dart';
 
 /// Place Repository Interface

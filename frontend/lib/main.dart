@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kakao_map_plugin/kakao_map_plugin.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 import 'core/theme/app_theme.dart';
 import 'core/router/app_router.dart';
@@ -19,16 +20,22 @@ void main() async {
   // Load environment variables
   await dotenv.load(fileName: '.env.dev');
 
-  // Initialize Firebase
+  // Initialize Firebase (Auth, Messaging, Analytics, Crashlytics)
   await Firebase.initializeApp();
 
   // Set background message handler
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
-  // Initialize Kakao Map
+  // Initialize Kakao Flutter SDK (for Kakao Login)
+  KakaoSdk.init(
+    nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY'] ?? '',
+    javaScriptAppKey: dotenv.env['KAKAO_JAVASCRIPT_APP_KEY'] ?? '',
+  );
+
+  // Initialize Kakao Map Plugin (for Map display)
   AuthRepository.initialize(appKey: dotenv.env['KAKAO_MAP_APP_KEY'] ?? '');
 
-  // Initialize Supabase
+  // Initialize Supabase (Database, Storage, Realtime only - Auth는 Firebase 사용)
   await SupabaseService.initialize(
     url: dotenv.env['SUPABASE_URL'] ?? '',
     anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',

@@ -100,4 +100,11 @@ class AppTextStyles {
     fontWeight: fontWeightSemibold,
     height: 1.0,
   );
+
+  // Aliases for backward compatibility
+  static const TextStyle body1 = bodyLarge;
+  static const TextStyle body2 = bodyMedium;
+  static const TextStyle label1 = labelLarge;
+  static const TextStyle label2 = labelMedium;
+  static const TextStyle label3 = labelSmall;
 }

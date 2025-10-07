@@ -4,15 +4,19 @@ import '../../../core/theme/app_theme.dart';
 class AppInput extends StatelessWidget {
   final String? label;
   final String? placeholder;
+  final String? hintText; // Alias for placeholder
   final String? value;
   final ValueChanged<String>? onChanged;
   final String? errorText;
+  final FormFieldValidator<String>? validator;
   final bool isDisabled;
   final bool isRequired;
   final TextInputType? keyboardType;
   final bool obscureText;
   final Widget? leftIcon;
+  final Widget? prefixIcon; // Alias for leftIcon
   final Widget? rightIcon;
+  final Widget? suffixIcon; // Alias for rightIcon
   final int? maxLines;
   final int? maxLength;
   final TextEditingController? controller;
@@ -21,15 +25,19 @@ class AppInput extends StatelessWidget {
     super.key,
     this.label,
     this.placeholder,
+    this.hintText,
     this.value,
     this.onChanged,
     this.errorText,
+    this.validator,
     this.isDisabled = false,
     this.isRequired = false,
     this.keyboardType,
     this.obscureText = false,
     this.leftIcon,
+    this.prefixIcon,
     this.rightIcon,
+    this.suffixIcon,
     this.maxLines = 1,
     this.maxLength,
     this.controller,
@@ -60,19 +68,20 @@ class AppInput extends StatelessWidget {
           ),
           const SizedBox(height: AppTheme.space2),
         ],
-        TextField(
+        TextFormField(
           controller: controller,
           onChanged: onChanged,
+          validator: validator,
           enabled: !isDisabled,
           keyboardType: keyboardType,
           obscureText: obscureText,
           maxLines: maxLines,
           maxLength: maxLength,
           decoration: InputDecoration(
-            hintText: placeholder,
+            hintText: hintText ?? placeholder,
             errorText: errorText,
-            prefixIcon: leftIcon,
-            suffixIcon: rightIcon,
+            prefixIcon: prefixIcon ?? leftIcon,
+            suffixIcon: suffixIcon ?? rightIcon,
           ),
         ),
       ],

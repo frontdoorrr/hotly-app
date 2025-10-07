@@ -103,12 +103,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         });
       },
       center: LatLng(centerLat, centerLng),
-      mapType: MapType.normal,
-      zoomLevel: 3,
       markers: _markers.toList(),
-      onCameraMove: (position) {
-        _onCameraMove(position);
-      },
+      // TODO: kakao_map_plugin doesn't support onCameraMove callback
+      // Consider using onMapTap or periodic updates to reload places
       onMapTap: (latLng) {
         // Deselect marker on map tap
         ref.read(mapProvider.notifier).selectPlace(null);
@@ -136,11 +133,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             offsetY: 40,
             markerImageSrc:
                 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',
-            onTap: () {
-              ref.read(mapProvider.notifier).selectPlace(placeId);
-              // Move camera to marker
-              _mapController?.setCenter(LatLng(lat, lng));
-            },
           ),
         );
       }
@@ -162,25 +154,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     }
   }
 
-  void _onCameraMove(CameraPosition position) {
-    // Calculate visible region bounds based on zoom level
-    // Zoom level 0-21: Higher = more zoomed in
-    final center = position.target;
-    final zoomLevel = position.zoomLevel;
-
-    // Calculate approximate delta based on zoom level
-    // Zoom 3 (city) ~= 0.05 degrees, Zoom 5 (neighborhood) ~= 0.02 degrees
-    double delta = 0.1 / (zoomLevel + 1);
-    if (delta < 0.001) delta = 0.001; // Minimum 100m radius
-    if (delta > 0.5) delta = 0.5; // Maximum 50km radius
-
-    ref.read(mapProvider.notifier).loadPlacesInBounds(
-          swLat: center.latitude - delta,
-          swLng: center.longitude - delta,
-          neLat: center.latitude + delta,
-          neLng: center.longitude + delta,
-        );
-  }
+  // TODO: Implement dynamic place loading when kakao_map_plugin supports camera callbacks
+  // For now, places are loaded based on user's location in _loadNearbyPlaces()
 
   @override
   void dispose() {

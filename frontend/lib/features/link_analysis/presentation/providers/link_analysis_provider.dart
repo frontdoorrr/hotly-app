@@ -137,7 +137,7 @@ class LinkAnalysisNotifier extends StateNotifier<LinkAnalysisState> {
 
 /// Provider for LinkAnalysisRepository
 final linkAnalysisRepositoryProvider = Provider<LinkAnalysisRepository>((ref) {
-  final dio = ref.watch(dioClientProvider);
+  final dio = ref.watch(dioProvider);
   final remoteDataSource = LinkAnalysisRemoteDataSource(dio);
   return LinkAnalysisRepositoryImpl(remoteDataSource);
 });

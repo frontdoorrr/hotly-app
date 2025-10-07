@@ -188,7 +188,7 @@ class MapNotifier extends StateNotifier<MapState> {
 
 /// Provider for MapRepository
 final mapRepositoryProvider = Provider<MapRepository>((ref) {
-  final dio = ref.watch(dioClientProvider);
+  final dio = ref.watch(dioProvider);
   final remoteDataSource = MapRemoteDataSource(dio);
   return MapRepositoryImpl(remoteDataSource);
 });

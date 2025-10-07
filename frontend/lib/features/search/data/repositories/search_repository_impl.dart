@@ -71,8 +71,8 @@ class SearchRepositoryImpl implements SearchRepository {
 
 /// Search Repository Provider
 final searchRepositoryProvider = Provider<SearchRepository>((ref) {
-  final dioClient = ref.watch(dioClientProvider);
+  final dio = ref.watch(dioProvider);
   final localStorage = ref.watch(localStorageProvider);
-  final remoteDataSource = SearchRemoteDataSource(dioClient);
+  final remoteDataSource = SearchRemoteDataSource(dio);
   return SearchRepositoryImpl(remoteDataSource, localStorage);
 });

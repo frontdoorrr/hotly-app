@@ -12,6 +12,10 @@ class AppColors {
   static const Color primary600 = Color(0xFFC53030);
   static const Color primary900 = Color(0xFF742A2A);
 
+  // Primary alias
+  static const Color primary = primary500;
+  static const Color primaryLight = primary50;
+
   // Semantic Colors
   static const Color success = Color(0xFF38A169);
   static const Color warning = Color(0xFFD69E2E);
@@ -42,7 +46,17 @@ class AppColors {
   static const Color textPrimaryDark = white;
   static const Color textSecondaryDark = gray200;
 
+  // Aliases for convenience (defaults to light theme)
+  static const Color textPrimary = textPrimaryLight;
+  static const Color textSecondary = textSecondaryLight;
+  static const Color textTertiary = gray500; // Tertiary text color
+  static const Color background = backgroundLight;
+  static const Color surface = cardLight;
+
   // Border Colors
   static const Color borderLight = gray200;
   static const Color borderDark = gray700;
+
+  // Alias for convenience (defaults to light theme)
+  static const Color border = borderLight;
 }

@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/network/api_exception.dart';
+import '../../../../core/network/dio_client.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../shared/models/place.dart';
 import '../../domain/repositories/place_repository.dart';

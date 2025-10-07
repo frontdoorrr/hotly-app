@@ -41,7 +41,7 @@ class PlaceMarkerInfo extends ConsumerWidget {
               Expanded(
                 child: Text(
                   '선택한 장소',
-                  style: AppTextStyles.heading3,
+                  style: AppTextStyles.h3,
                 ),
               ),
               IconButton(
