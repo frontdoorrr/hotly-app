@@ -5,6 +5,8 @@ services:
       target: development
     ports:
       - "8000:8000"
+    env_file:
+      - ./backend/.env
     environment:
       - POSTGRES_SERVER=db
       - POSTGRES_USER=hotly_user
@@ -13,9 +15,9 @@ services:
       - REDIS_HOST=redis
       - DEBUG=true
       - LOG_LEVEL=DEBUG
+      - BACKEND_CORS_ORIGINS=http://localhost:3000,http://localhost:8080,http://localhost:8000
     volumes:
       - ./backend:/backend
-      - /backend/.venv
     depends_on:
       - db
       - redis

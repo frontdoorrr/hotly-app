@@ -183,5 +183,14 @@ class Settings(BaseSettings):
         case_sensitive = True
         env_file = ".env"
 
+        @classmethod
+        def parse_env_var(cls, field_name: str, raw_val: str) -> any:
+            """Custom env var parser to handle CORS origins as comma-separated string."""
+            # For BACKEND_CORS_ORIGINS, return raw string to let validator handle it
+            if field_name == "BACKEND_CORS_ORIGINS":
+                return raw_val
+            # For other fields, use default JSON parsing
+            return cls.json_loads(raw_val)
+
 
 settings = Settings()
