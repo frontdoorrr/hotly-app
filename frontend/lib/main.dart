@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +7,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:kakao_map_sdk/kakao_map_sdk.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 import 'firebase_options.dart';
 import 'core/theme/app_theme.dart';
@@ -14,6 +16,7 @@ import 'core/storage/local_storage.dart';
 import 'core/auth/supabase_service.dart';
 import 'core/notifications/fcm_service.dart';
 import 'core/notifications/notification_handler.dart';
+import 'features/link_analysis/presentation/widgets/link_input_bottom_sheet.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -82,10 +85,19 @@ class HotlyApp extends ConsumerStatefulWidget {
 }
 
 class _HotlyAppState extends ConsumerState<HotlyApp> {
+  StreamSubscription? _intentDataStreamSubscription;
+
   @override
   void initState() {
     super.initState();
     _setupNotificationHandler();
+    _setupSharingIntentHandler();
+  }
+
+  @override
+  void dispose() {
+    _intentDataStreamSubscription?.cancel();
+    super.dispose();
   }
 
   void _setupNotificationHandler() {
@@ -102,6 +114,56 @@ class _HotlyAppState extends ConsumerState<HotlyApp> {
         }
       });
     };
+  }
+
+  void _setupSharingIntentHandler() {
+    // Handle initial shared text (앱이 종료된 상태에서 공유받은 경우)
+    ReceiveSharingIntent.getInitialText().then((String? sharedText) {
+      if (sharedText != null && sharedText.isNotEmpty) {
+        debugPrint('📤 Initial shared text: $sharedText');
+        _handleSharedUrl(sharedText);
+      }
+    });
+
+    // Handle shared text stream (앱이 실행 중일 때 공유받은 경우)
+    _intentDataStreamSubscription = ReceiveSharingIntent.getTextStream().listen(
+      (String sharedText) {
+        debugPrint('📤 Received shared text: $sharedText');
+        _handleSharedUrl(sharedText);
+      },
+      onError: (err) {
+        debugPrint('❌ Error receiving shared text: $err');
+      },
+    );
+  }
+
+  void _handleSharedUrl(String text) {
+    // URL 패턴 검증
+    final urlPattern = RegExp(
+      r'https?:\/\/(www\.)?(instagram\.com|naver\.com|blog\.naver\.com|youtube\.com|youtu\.be)\/[^\s]+',
+      caseSensitive: false,
+    );
+
+    final match = urlPattern.firstMatch(text);
+    if (match != null) {
+      final url = match.group(0)!;
+      debugPrint('✅ Valid URL detected: $url');
+
+      // 앱이 완전히 빌드된 후 BottomSheet 표시
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          // 현재 context 가져오기
+          final context = ref.read(goRouterProvider).routerDelegate.navigatorKey.currentContext;
+          if (context != null) {
+            LinkInputBottomSheet.show(context);
+            // Provider를 통해 URL 미리 설정
+            // ref.read(linkAnalysisProvider.notifier).setInputUrl(url);
+          }
+        }
+      });
+    } else {
+      debugPrint('⚠️ No valid URL found in shared text');
+    }
   }
 
   @override

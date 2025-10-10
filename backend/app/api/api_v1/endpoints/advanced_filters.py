@@ -26,6 +26,7 @@ from app.schemas.advanced_filter import (
     FilteredPlace,
     SavedFilter,
     SavedFilterRequest,
+    SavedFiltersResponse,
 )
 from app.services.ranking.advanced_filter_service import get_advanced_filter_service
 from app.utils.cache import get_redis_client
@@ -277,7 +278,7 @@ async def save_filter_combination(
 
 @router.get(
     "/saved",
-    response_model=List[SavedFilter],
+    response_model=SavedFiltersResponse,
     summary="저장된 필터 목록",
     description="사용자가 저장한 필터 조합 목록",
 )
@@ -286,7 +287,7 @@ async def get_saved_filters(
     db: Session = Depends(get_db),
     current_user: User = Depends(deps.get_current_active_user),
     include_public: bool = Query(False, description="공개 필터 포함"),
-) -> List[SavedFilter]:
+) -> SavedFiltersResponse:
     """
     저장된 필터 조합 목록 조회
     """
@@ -296,7 +297,7 @@ async def get_saved_filters(
 
         logger.info(f"Retrieved saved filters for user {current_user.id}")
 
-        return saved_filters
+        return SavedFiltersResponse(filters=saved_filters)
 
     except Exception as e:
         logger.error(f"Failed to retrieve saved filters: {e}")

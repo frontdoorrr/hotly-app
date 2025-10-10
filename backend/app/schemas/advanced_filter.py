@@ -383,6 +383,12 @@ class SavedFilter(BaseModel):
     created_at: datetime = Field(..., description="생성일")
     last_used: Optional[datetime] = Field(None, description="마지막 사용일")
 
+
+class SavedFiltersResponse(BaseModel):
+    """저장된 필터 목록 응답"""
+
+    filters: List[SavedFilter] = Field(..., description="저장된 필터 목록")
+
     class Config:
         schema_extra = {
             "example": {
