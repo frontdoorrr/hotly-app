@@ -134,15 +134,15 @@ async def analyze_link(
             from app.schemas.content import ContentMetadata
 
             content_metadata = ContentMetadata(
-                title=content_data.title,
-                description=content_data.description,
-                images=content_data.images,
+                title=content_data.metadata.title,
+                description=content_data.metadata.description,
+                images=content_data.metadata.images,
                 hashtags=getattr(content_data, "hashtags", []),
             )
 
             # Perform AI analysis
             analysis_result = await analysis_service.analyze_content(
-                content_metadata, content_data.images
+                content_metadata, content_data.metadata.images
             )
 
             if not analysis_result.success:
@@ -164,9 +164,9 @@ async def analyze_link(
                 "confidence": analysis_result.confidence,
                 "analysis_time": analysis_result.analysis_time,
                 "content_metadata": {
-                    "title": content_data.title,
-                    "description": content_data.description,
-                    "images": content_data.images[:3],  # Cache only first 3 images
+                    "title": content_data.metadata.title,
+                    "description": content_data.metadata.description,
+                    "images": content_data.metadata.images[:3],  # Cache only first 3 images
                     "extraction_time": content_data.extraction_time,
                 },
             }
@@ -480,14 +480,14 @@ async def _process_analysis_async(
         from app.schemas.content import ContentMetadata
 
         content_metadata = ContentMetadata(
-            title=content_data.title,
-            description=content_data.description,
-            images=content_data.images,
+            title=content_data.metadata.title,
+            description=content_data.metadata.description,
+            images=content_data.metadata.images,
             hashtags=getattr(content_data, "hashtags", []),
         )
 
         analysis_result = await analysis_service.analyze_content(
-            content_metadata, content_data.images
+            content_metadata, content_data.metadata.images
         )
 
         if not analysis_result.success:
@@ -509,9 +509,9 @@ async def _process_analysis_async(
             "confidence": analysis_result.confidence,
             "analysis_time": analysis_result.analysis_time,
             "content_metadata": {
-                "title": content_data.title,
-                "description": content_data.description,
-                "images": content_data.images[:3],
+                "title": content_data.metadata.title,
+                "description": content_data.metadata.description,
+                "images": content_data.metadata.images[:3],
                 "extraction_time": content_data.extraction_time,
             },
         }
@@ -571,14 +571,14 @@ async def _process_batch_analysis(
                     from app.schemas.content import ContentMetadata
 
                     content_metadata = ContentMetadata(
-                        title=content_data.title,
-                        description=content_data.description,
-                        images=content_data.images,
+                        title=content_data.metadata.title,
+                        description=content_data.metadata.description,
+                        images=content_data.metadata.images,
                         hashtags=getattr(content_data, "hashtags", []),
                     )
 
                     analysis_result = await analysis_service.analyze_content(
-                        content_metadata, content_data.images
+                        content_metadata, content_data.metadata.images
                     )
 
                     if analysis_result.success:
@@ -591,9 +591,9 @@ async def _process_batch_analysis(
                             "confidence": analysis_result.confidence,
                             "analysis_time": analysis_result.analysis_time,
                             "content_metadata": {
-                                "title": content_data.title,
-                                "description": content_data.description,
-                                "images": content_data.images[:3],
+                                "title": content_data.metadata.title,
+                                "description": content_data.metadata.description,
+                                "images": content_data.metadata.images[:3],
                                 "extraction_time": content_data.extraction_time,
                             },
                         }
