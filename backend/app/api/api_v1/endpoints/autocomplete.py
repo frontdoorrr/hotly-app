@@ -16,9 +16,16 @@ from app.api import deps
 from app.models.user import User
 from app.schemas.autocomplete import (
     AutocompleteResponse,
+    AutocompleteHealthResponse,
     SearchAnalyticsResponse,
     SuggestionItem,
 )
+from app.schemas.cache import CacheStatsResponse
+from app.schemas.search_optimization import (
+    PopularQueriesResponse,
+    SearchHistoryResponse,
+)
+from app.schemas.user_data import StandardResponse
 from app.services.search.autocomplete_service import get_autocomplete_service
 
 logger = logging.getLogger(__name__)
@@ -96,7 +103,7 @@ async def get_autocomplete_suggestions(
         )
 
 
-@router.get("/trending", response_model=Dict[str, Any])
+@router.get("/trending", response_model=PopularQueriesResponse)
 async def get_trending_searches(
     limit: int = Query(default=10, ge=1, le=50, description="트렌딩 검색어 개수"),
     time_window: int = Query(default=24, ge=1, le=168, description="시간 윈도우 (시간)"),
@@ -148,7 +155,7 @@ async def get_trending_searches(
         )
 
 
-@router.get("/personal-history", response_model=Dict[str, Any])
+@router.get("/personal-history", response_model=SearchHistoryResponse)
 async def get_personal_search_history(
     limit: int = Query(default=20, ge=1, le=100, description="검색 기록 개수"),
     current_user: User = Depends(deps.get_current_user),
@@ -243,7 +250,7 @@ async def get_search_analytics(
         )
 
 
-@router.post("/cache/optimize", response_model=Dict[str, Any])
+@router.post("/cache/optimize", response_model=CacheStatsResponse)
 async def optimize_autocomplete_cache(
     current_user: User = Depends(deps.get_current_active_superuser),
     db: Session = Depends(deps.get_db),
@@ -281,7 +288,7 @@ async def optimize_autocomplete_cache(
         )
 
 
-@router.delete("/history/clear", response_model=Dict[str, Any])
+@router.delete("/history/clear", response_model=StandardResponse)
 async def clear_personal_search_history(
     current_user: User = Depends(deps.get_current_user),
     redis_client: Optional[redis.Redis] = Depends(deps.get_redis_client),
@@ -317,7 +324,7 @@ async def clear_personal_search_history(
         )
 
 
-@router.get("/health", response_model=Dict[str, Any])
+@router.get("/health", response_model=AutocompleteHealthResponse)
 async def autocomplete_health_check(
     db: Session = Depends(deps.get_db),
     redis_client: Optional[redis.Redis] = Depends(deps.get_redis_client),

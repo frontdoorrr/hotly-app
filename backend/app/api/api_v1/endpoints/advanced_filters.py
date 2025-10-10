@@ -24,6 +24,8 @@ from app.schemas.advanced_filter import (
     AdvancedFilterResponse,
     FilterAnalytics,
     FilteredPlace,
+    FilterFacetsResponse,
+    FilterSuggestionsResponse,
     SavedFilter,
     SavedFilterRequest,
     SavedFiltersResponse,
@@ -109,7 +111,7 @@ async def advanced_filter_search(
 
 @router.get(
     "/facets",
-    response_model=Dict[str, Any],
+    response_model=FilterFacetsResponse,
     summary="필터 패싯 정보",
     description="현재 데이터에 기반한 필터 패싯 옵션 조회",
 )
@@ -165,7 +167,7 @@ async def get_filter_facets(
 
 @router.get(
     "/suggestions",
-    response_model=Dict[str, Any],
+    response_model=FilterSuggestionsResponse,
     summary="필터 제안",
     description="현재 필터 조건에 대한 개선 제안",
 )

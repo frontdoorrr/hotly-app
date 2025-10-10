@@ -235,6 +235,51 @@ class RealtimeSearchResponse(BaseModel):
     search_type: str = Field(description="검색 타입")
 
 
+class PerformanceMetrics(BaseModel):
+    """성능 지표"""
+    avg_response_time: float = Field(description="평균 응답 시간 (ms)")
+    p95_response_time: float = Field(description="P95 응답 시간 (ms)")
+    p99_response_time: float = Field(description="P99 응답 시간 (ms)")
+    cache_hit_rate: float = Field(description="캐시 히트율 (%)")
+    error_rate: float = Field(description="에러율 (%)")
+
+
+class PerformanceAnalysisResponse(BaseModel):
+    """검색 성능 분석 응답"""
+
+    overall_metrics: PerformanceMetrics = Field(description="전체 성능 지표")
+    by_query_type: Dict[str, PerformanceMetrics] = Field(default_factory=dict, description="쿼리 타입별 성능")
+    slow_queries: List[Dict[str, Any]] = Field(default_factory=list, description="느린 쿼리 목록")
+    recommendations: List[str] = Field(default_factory=list, description="최적화 권장사항")
+    analysis_period: str = Field(description="분석 기간")
+    total_queries: int = Field(description="총 쿼리 수")
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "overall_metrics": {
+                    "avg_response_time": 45.2,
+                    "p95_response_time": 120.5,
+                    "p99_response_time": 250.8,
+                    "cache_hit_rate": 75.3,
+                    "error_rate": 0.5,
+                },
+                "by_query_type": {
+                    "autocomplete": {"avg_response_time": 25.0, "cache_hit_rate": 85.0},
+                },
+                "slow_queries": [
+                    {"query": "복잡한 검색어", "time": 450.2, "count": 12}
+                ],
+                "recommendations": [
+                    "캐시 TTL 증가 권장",
+                    "인덱스 최적화 필요",
+                ],
+                "analysis_period": "last_7_days",
+                "total_queries": 15234,
+            }
+        }
+
+
 class SearchFeedback(BaseModel):
     """검색 피드백"""
     query: str = Field(description="검색 쿼리")

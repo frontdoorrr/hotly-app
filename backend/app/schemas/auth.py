@@ -238,6 +238,83 @@ class LogoutResponse(BaseModel):
     sessions_terminated: int = Field(default=0, description="종료된 세션 수")
 
 
+class UserProfileResponse(BaseModel):
+    """사용자 프로필 응답"""
+
+    uid: str = Field(..., description="사용자 고유 ID")
+    email: Optional[str] = Field(None, description="이메일")
+    display_name: Optional[str] = Field(None, description="표시 이름")
+    photo_url: Optional[str] = Field(None, description="프로필 사진 URL")
+    phone_number: Optional[str] = Field(None, description="전화번호")
+    email_verified: bool = Field(False, description="이메일 인증 여부")
+    created_at: Optional[str] = Field(None, description="계정 생성일")
+    last_sign_in: Optional[str] = Field(None, description="마지막 로그인 시간")
+    provider_data: List[Dict[str, Any]] = Field(default_factory=list, description="소셜 로그인 제공자 정보")
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "uid": "user-123",
+                "email": "user@example.com",
+                "display_name": "홍길동",
+                "photo_url": "https://example.com/photo.jpg",
+                "email_verified": True,
+                "created_at": "2024-01-15T10:30:45Z",
+                "last_sign_in": "2024-01-20T14:22:10Z",
+                "provider_data": [{"providerId": "google.com"}],
+            }
+        }
+
+
+class UserProfileUpdateResponse(BaseModel):
+    """사용자 프로필 업데이트 응답"""
+
+    success: bool = Field(..., description="업데이트 성공 여부")
+    message: str = Field(..., description="결과 메시지")
+    updated_fields: List[str] = Field(default_factory=list, description="업데이트된 필드 목록")
+    user: UserProfileResponse = Field(..., description="업데이트된 사용자 정보")
+
+
+class AdminUserInfo(BaseModel):
+    """관리자용 사용자 정보"""
+
+    uid: str
+    email: Optional[str] = None
+    display_name: Optional[str] = None
+    disabled: bool = False
+    created_at: Optional[str] = None
+    last_sign_in: Optional[str] = None
+    provider_count: int = 0
+
+
+class AdminUsersListResponse(BaseModel):
+    """관리자용 사용자 목록 응답"""
+
+    users: List[AdminUserInfo] = Field(..., description="사용자 목록")
+    total_count: int = Field(..., description="전체 사용자 수")
+    page: int = Field(1, description="현재 페이지")
+    page_size: int = Field(20, description="페이지 크기")
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "users": [
+                    {
+                        "uid": "user-123",
+                        "email": "user@example.com",
+                        "display_name": "홍길동",
+                        "disabled": False,
+                        "created_at": "2024-01-15T10:30:45Z",
+                        "provider_count": 2,
+                    }
+                ],
+                "total_count": 150,
+                "page": 1,
+                "page_size": 20,
+            }
+        }
+
+
 # Supabase 설정 관련 스키마
 class SupabaseConfig(BaseModel):
     """Supabase 설정"""

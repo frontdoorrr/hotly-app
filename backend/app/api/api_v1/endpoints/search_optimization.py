@@ -15,6 +15,7 @@ from app.schemas.search_optimization import (
     AutocompleteResponse,
     InfiniteScrollResponse,
     PaginationRequest,
+    PerformanceAnalysisResponse,
     SearchCacheStrategy,
     SearchOptimizationConfig,
     SearchOptimizedResponse,
@@ -352,7 +353,7 @@ async def record_client_performance_metrics(
         )
 
 
-@router.get("/performance/analysis", response_model=Dict[str, Any])
+@router.get("/performance/analysis", response_model=PerformanceAnalysisResponse)
 async def get_search_performance_analysis(
     days: int = Query(7, ge=1, le=30),
     current_user=Depends(get_current_user),

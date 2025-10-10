@@ -20,6 +20,7 @@ from app.schemas.notification import (
     NotificationTemplateUpdate,
     OptimalTimingPrediction,
     PersonalizedTimingRequest,
+    PersonalizedTimingResponse,
     PushNotificationRequest,
     PushNotificationResponse,
     TemplatedNotificationRequest,
@@ -708,7 +709,7 @@ async def optimize_timing_for_engagement(
         )
 
 
-@router.get("/personalize/user-behavior", response_model=Dict[str, Any])
+@router.get("/personalize/user-behavior", response_model=PersonalizedTimingResponse)
 async def get_user_behavior_analysis(
     current_user: User = Depends(get_current_user),
     personalization_engine: PersonalizationEngine = Depends(get_personalization_engine),

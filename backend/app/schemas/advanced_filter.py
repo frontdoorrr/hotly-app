@@ -384,6 +384,66 @@ class SavedFilter(BaseModel):
     last_used: Optional[datetime] = Field(None, description="마지막 사용일")
 
 
+class FacetOption(BaseModel):
+    """패싯 옵션 (필터 선택지)"""
+
+    value: str = Field(..., description="옵션 값")
+    count: int = Field(..., description="해당 옵션의 장소 수")
+    label: Optional[str] = Field(None, description="표시 레이블")
+
+
+class FilterFacetsResponse(BaseModel):
+    """필터 패싯 정보 응답"""
+
+    categories: List[FacetOption] = Field(default_factory=list, description="카테고리 옵션")
+    regions: List[FacetOption] = Field(default_factory=list, description="지역 옵션")
+    price_ranges: List[FacetOption] = Field(default_factory=list, description="가격대 옵션")
+    tags: List[FacetOption] = Field(default_factory=list, description="태그 옵션")
+    total_count: int = Field(..., description="전체 장소 수")
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "categories": [
+                    {"value": "cafe", "count": 123, "label": "카페"},
+                    {"value": "restaurant", "count": 456, "label": "레스토랑"},
+                ],
+                "regions": [
+                    {"value": "강남구", "count": 234, "label": "강남구"},
+                ],
+                "price_ranges": [
+                    {"value": "low", "count": 100, "label": "저렴"},
+                ],
+                "tags": [
+                    {"value": "데이트", "count": 89, "label": "데이트"},
+                ],
+                "total_count": 789,
+            }
+        }
+
+
+class FilterSuggestionsResponse(BaseModel):
+    """필터 제안 응답"""
+
+    suggestions: List[str] = Field(default_factory=list, description="제안된 필터 조건")
+    alternative_filters: Dict[str, Any] = Field(default_factory=dict, description="대안 필터")
+    estimated_results: int = Field(0, description="예상 결과 수")
+    message: Optional[str] = Field(None, description="제안 메시지")
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "suggestions": ["평점 4.0 이상으로 조정", "반경 5km로 확대"],
+                "alternative_filters": {
+                    "rating_min": 4.0,
+                    "radius_km": 5.0,
+                },
+                "estimated_results": 45,
+                "message": "현재 조건으로 결과가 없습니다. 제안된 필터를 시도해보세요.",
+            }
+        }
+
+
 class SavedFiltersResponse(BaseModel):
     """저장된 필터 목록 응답"""
 
