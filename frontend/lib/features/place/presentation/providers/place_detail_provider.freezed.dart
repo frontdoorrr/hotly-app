@@ -252,7 +252,7 @@ class _$PlaceDetailStateImpl implements _PlaceDetailState {
                 other.isLoadingSimilar == isLoadingSimilar) &&
             (identical(other.isLiked, isLiked) || other.isLiked == isLiked) &&
             (identical(other.isSaved, isSaved) || other.isSaved == isSaved) &&
-            const DeepCollectionEquality().equals(other.error, error));
+            (identical(other.error, error) || other.error == error));
   }
 
   @override
@@ -264,7 +264,7 @@ class _$PlaceDetailStateImpl implements _PlaceDetailState {
       isLoadingSimilar,
       isLiked,
       isSaved,
-      const DeepCollectionEquality().hash(error));
+      error);
 
   /// Create a copy of PlaceDetailState
   /// with the given fields replaced by the non-null parameter values.

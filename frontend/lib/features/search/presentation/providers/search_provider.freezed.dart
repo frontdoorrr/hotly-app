@@ -272,7 +272,7 @@ class _$SearchStateImpl implements _SearchState {
                 other.isLoadingSuggestions == isLoadingSuggestions) &&
             (identical(other.isLoadingHistory, isLoadingHistory) ||
                 other.isLoadingHistory == isLoadingHistory) &&
-            const DeepCollectionEquality().equals(other.error, error));
+            (identical(other.error, error) || other.error == error));
   }
 
   @override
@@ -285,7 +285,7 @@ class _$SearchStateImpl implements _SearchState {
       isSearching,
       isLoadingSuggestions,
       isLoadingHistory,
-      const DeepCollectionEquality().hash(error));
+      error);
 
   /// Create a copy of SearchState
   /// with the given fields replaced by the non-null parameter values.

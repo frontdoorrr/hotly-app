@@ -182,12 +182,11 @@ class _$AuthStateImpl implements _AuthState {
             (identical(other.status, status) || other.status == status) &&
             (identical(other.isLoading, isLoading) ||
                 other.isLoading == isLoading) &&
-            const DeepCollectionEquality().equals(other.error, error));
+            (identical(other.error, error) || other.error == error));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, user, status, isLoading,
-      const DeepCollectionEquality().hash(error));
+  int get hashCode => Object.hash(runtimeType, user, status, isLoading, error);
 
   /// Create a copy of AuthState
   /// with the given fields replaced by the non-null parameter values.

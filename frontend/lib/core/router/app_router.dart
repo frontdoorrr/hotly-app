@@ -8,11 +8,13 @@ import '../../features/search/presentation/screens/search_screen.dart';
 import '../../features/place/presentation/screens/place_detail_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/map/presentation/screens/map_screen.dart';
+import '../../features/saved/presentation/screens/saved_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/signup_screen.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/onboarding/presentation/providers/onboarding_provider.dart';
+import 'main_shell_screen.dart';
 
 /// App Router Configuration
 /// Using go_router for declarative routing
@@ -59,21 +61,69 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       return null; // No redirect
     },
     routes: [
-      // Home Screen
-      GoRoute(
-        path: '/',
-        name: 'home',
-        builder: (context, state) => const HomeScreen(),
+      // Main Shell with Bottom Navigation
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          return MainShellScreen(
+            currentIndex: navigationShell.currentIndex,
+            child: navigationShell,
+          );
+        },
+        branches: [
+          // Home Tab
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/',
+                name: 'home',
+                builder: (context, state) => const HomeScreen(),
+              ),
+            ],
+          ),
+
+          // Map Tab
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/map',
+                name: 'map',
+                builder: (context, state) => const MapScreen(),
+              ),
+            ],
+          ),
+
+          // Saved Tab
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/saved',
+                name: 'saved',
+                builder: (context, state) => const SavedScreen(),
+              ),
+            ],
+          ),
+
+          // Profile Tab
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/profile',
+                name: 'profile',
+                builder: (context, state) => const ProfileScreen(),
+              ),
+            ],
+          ),
+        ],
       ),
 
-      // Search Screen
+      // Search Screen (outside bottom nav)
       GoRoute(
         path: '/search',
         name: 'search',
         builder: (context, state) => const SearchScreen(),
       ),
 
-      // Place Detail Screen
+      // Place Detail Screen (outside bottom nav)
       GoRoute(
         path: '/places/:placeId',
         name: 'placeDetail',
@@ -83,14 +133,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
 
-      // Course Builder Screen
+      // Course Builder Screen (outside bottom nav)
       GoRoute(
         path: '/courses/create',
         name: 'courseCreate',
         builder: (context, state) => const CourseBuilderScreen(),
       ),
 
-      // Course Edit Screen
+      // Course Edit Screen (outside bottom nav)
       GoRoute(
         path: '/courses/:courseId/edit',
         name: 'courseEdit',
@@ -98,20 +148,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           final courseId = state.pathParameters['courseId']!;
           return CourseBuilderScreen(courseId: courseId);
         },
-      ),
-
-      // Profile Screen
-      GoRoute(
-        path: '/profile',
-        name: 'profile',
-        builder: (context, state) => const ProfileScreen(),
-      ),
-
-      // Map Screen
-      GoRoute(
-        path: '/map',
-        name: 'map',
-        builder: (context, state) => const MapScreen(),
       ),
 
       // Login Screen

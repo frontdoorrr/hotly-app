@@ -11,7 +11,12 @@ class HomeRemoteDataSource {
   HomeRemoteDataSource(this.dio);
 
   /// 추천 장소 API 호출
+  /// TODO: 백엔드 API 구현 후 주석 해제
   Future<List<Place>> getRecommendedPlaces({int limit = 10}) async {
+    // 임시: 빈 리스트 반환 (API 미구현)
+    return [];
+
+    /* API 구현 후 사용할 코드:
     try {
       final response = await dio.get(
         ApiEndpoints.recommendations,
@@ -23,15 +28,21 @@ class HomeRemoteDataSource {
     } on DioException catch (e) {
       rethrow;
     }
+    */
   }
 
   /// 근처 장소 API 호출
+  /// TODO: 백엔드 API 구현 후 주석 해제
   Future<List<Place>> getNearbyPlaces({
     required double latitude,
     required double longitude,
     double radiusKm = 5.0,
     int limit = 20,
   }) async {
+    // 임시: 빈 리스트 반환 (API 미구현)
+    return [];
+
+    /* API 구현 후 사용할 코드:
     try {
       final response = await dio.get(
         ApiEndpoints.placeNearby,
@@ -48,10 +59,16 @@ class HomeRemoteDataSource {
     } on DioException catch (e) {
       rethrow;
     }
+    */
   }
 
   /// 인기 장소 API 호출
+  /// TODO: 백엔드 API 구현 후 주석 해제
   Future<List<Place>> getPopularPlaces({int limit = 12}) async {
+    // 임시: 빈 리스트 반환 (API 미구현)
+    return [];
+
+    /* API 구현 후 사용할 코드:
     try {
       final response = await dio.get(
         ApiEndpoints.places,
@@ -66,5 +83,6 @@ class HomeRemoteDataSource {
     } on DioException catch (e) {
       rethrow;
     }
+    */
   }
 }
