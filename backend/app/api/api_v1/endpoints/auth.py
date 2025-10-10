@@ -196,7 +196,7 @@ async def verify_token(token: str) -> Dict[str, Any]:
         )
 
 
-@router.get("/me", response_model=UserProfileResponse)
+@router.get("/me", response_model=None)  # UserProfileResponse
 async def get_current_user_info(
     current_user: Dict[str, Any] = Depends(get_current_active_user),
 ) -> Dict[str, Any]:
@@ -271,7 +271,7 @@ async def upgrade_anonymous_user(
         )
 
 
-@router.put("/profile", response_model=UserProfileUpdateResponse)
+@router.put("/profile", response_model=None)  # UserProfileUpdateResponse
 async def update_user_profile(
     profile_data: Dict[str, Any],
     current_user: Dict[str, Any] = Depends(get_current_active_user),
@@ -314,7 +314,7 @@ async def update_user_profile(
         )
 
 
-@router.get("/admin/users", response_model=AdminUsersListResponse)
+@router.get("/admin/users", response_model=None)  # AdminUsersListResponse
 async def list_all_users(
     admin_user: Dict[str, Any] = Depends(get_admin_user),
 ) -> Dict[str, Any]:

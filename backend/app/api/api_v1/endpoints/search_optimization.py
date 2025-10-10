@@ -353,7 +353,7 @@ async def record_client_performance_metrics(
         )
 
 
-@router.get("/performance/analysis", response_model=PerformanceAnalysisResponse)
+@router.get("/performance/analysis", response_model=None)  # PerformanceAnalysisResponse
 async def get_search_performance_analysis(
     days: int = Query(7, ge=1, le=30),
     current_user=Depends(get_current_user),
