@@ -435,7 +435,7 @@ class FilterSuggestionsResponse(BaseModel):
     """필터 제안 응답"""
 
     suggestions: List[str] = Field(default_factory=list, description="제안된 필터 조건")
-    alternative_filters: Dict[str, Any] = Field(default_factory=dict, description="대안 필터")
+    alternative_filters: Optional[Dict[str, Any]] = Field(None, description="대안 필터")
     estimated_results: int = Field(0, description="예상 결과 수")
     message: Optional[str] = Field(None, description="제안 메시지")
 
