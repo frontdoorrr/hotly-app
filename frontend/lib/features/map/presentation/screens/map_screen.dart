@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kakao_map_plugin/kakao_map_plugin.dart';
+import 'package:kakao_map_sdk/kakao_map_sdk.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_text_styles.dart';
 import '../providers/map_provider.dart';
 import '../widgets/map_search_bar.dart';
 import '../widgets/place_marker_info.dart';
@@ -16,14 +15,36 @@ class MapScreen extends ConsumerStatefulWidget {
 
 class _MapScreenState extends ConsumerState<MapScreen> {
   KakaoMapController? _mapController;
-  final Set<Marker> _markers = {};
+  bool _isMapReady = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(mapProvider.notifier).getCurrentLocation();
+      if (mounted) {
+        ref.read(mapProvider.notifier).getCurrentLocation();
+      }
     });
+  }
+
+  // 안전하게 카메라 이동
+  Future<void> _moveToLocation(double latitude, double longitude) async {
+    if (!_isMapReady || _mapController == null) return;
+
+    try {
+      await _mapController!.moveCamera(
+        CameraUpdate.newCenterPosition(
+          LatLng(latitude, longitude),
+          zoomLevel: 16,
+        ),
+        animation: const CameraAnimation(
+          500, // duration in milliseconds
+          autoElevation: false,
+        ),
+      );
+    } catch (e) {
+      debugPrint('⛔ Camera move error: $e');
+    }
   }
 
   @override
@@ -34,12 +55,41 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       body: Stack(
         children: [
           // Kakao Map
-          _buildKakaoMap(state),
+          KakaoMap(
+            option: KakaoMapOption(
+              position: const LatLng(37.5665, 126.9780), // 서울시청
+              zoomLevel: 16,
+              mapType: MapType.normal,
+            ),
+            onMapReady: (controller) {
+              _mapController = controller;
+              setState(() {
+                _isMapReady = true;
+              });
+              debugPrint('🗺️ Kakao Map is now ready');
+            },
+          ),
+
+          // Back button
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 8,
+            left: 8,
+            child: SafeArea(
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => Navigator.of(context).pop(),
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: AppColors.textPrimary,
+                ),
+              ),
+            ),
+          ),
 
           // Search bar overlay
           Positioned(
             top: MediaQuery.of(context).padding.top + 16,
-            left: 16,
+            left: 64,
             right: 16,
             child: const MapSearchBar(),
           ),
@@ -50,7 +100,13 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             right: 16,
             child: FloatingActionButton(
               heroTag: 'current_location',
-              onPressed: _moveToCurrentLocation,
+              onPressed: () async {
+                await ref.read(mapProvider.notifier).getCurrentLocation();
+                final location = ref.read(mapProvider).currentLocation;
+                if (location != null) {
+                  _moveToLocation(location.latitude, location.longitude);
+                }
+              },
               backgroundColor: Colors.white,
               child: Icon(
                 Icons.my_location,
@@ -88,78 +144,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
-  Widget _buildKakaoMap(MapState state) {
-    // Default center: Seoul City Hall or current location
-    final centerLat = state.currentLocation?.latitude ?? 37.5665;
-    final centerLng = state.currentLocation?.longitude ?? 126.9780;
-
-    // Create markers from places on map
-    _updateMarkers(state.placesOnMap);
-
-    return KakaoMap(
-      onMapCreated: (controller) {
-        setState(() {
-          _mapController = controller;
-        });
-      },
-      center: LatLng(centerLat, centerLng),
-      markers: _markers.toList(),
-      // TODO: kakao_map_plugin doesn't support onCameraMove callback
-      // Consider using onMapTap or periodic updates to reload places
-      onMapTap: (latLng) {
-        // Deselect marker on map tap
-        ref.read(mapProvider.notifier).selectPlace(null);
-      },
-    );
-  }
-
-  void _updateMarkers(List<Map<String, dynamic>> places) {
-    _markers.clear();
-
-    for (final place in places) {
-      final lat = place['latitude'] as double?;
-      final lng = place['longitude'] as double?;
-      final placeId = place['id']?.toString() ?? '';
-      final placeName = place['name'] as String? ?? 'Unknown';
-
-      if (lat != null && lng != null) {
-        _markers.add(
-          Marker(
-            markerId: placeId,
-            latLng: LatLng(lat, lng),
-            width: 30,
-            height: 40,
-            offsetX: 15,
-            offsetY: 40,
-            markerImageSrc:
-                'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',
-          ),
-        );
-      }
-    }
-
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
-  void _moveToCurrentLocation() async {
-    await ref.read(mapProvider.notifier).getCurrentLocation();
-    final location = ref.read(mapProvider).currentLocation;
-
-    if (location != null && _mapController != null) {
-      _mapController!.setCenter(
-        LatLng(location.latitude, location.longitude),
-      );
-    }
-  }
-
-  // TODO: Implement dynamic place loading when kakao_map_plugin supports camera callbacks
-  // For now, places are loaded based on user's location in _loadNearbyPlaces()
-
   @override
   void dispose() {
-    _mapController?.dispose();
+    _mapController?.finish();
     super.dispose();
   }
 }

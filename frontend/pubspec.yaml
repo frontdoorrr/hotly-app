@@ -67,8 +67,7 @@ dependencies:
   # 지도 및 위치
   geolocator: ^10.1.0
   geocoding: ^2.1.1
-  kakao_map_plugin: ^0.3.7  # Kakao Map SDK (community package)
-  webview_flutter: ^4.4.4  # WebView for Kakao Map JS API fallback
+  kakao_map_sdk: ^1.2.0  # Kakao Maps SDK with iOS/Android/Web support
 
   # 이미지
   image_picker: ^1.0.7
@@ -94,6 +93,7 @@ dependencies:
   # 기타
   equatable: ^2.0.5
   dartz: ^0.10.1
+  google_fonts: ^6.1.0
 
 # ========== Dev Dependencies ==========
 dev_dependencies:
@@ -139,6 +139,7 @@ flutter:
     - .env.dev
     - .env.staging
     - .env.prod
+    - assets/kakao_map.html
 
   # Fonts
   fonts: []
