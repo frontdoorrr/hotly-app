@@ -243,6 +243,17 @@ class PerformanceMetrics(BaseModel):
     cache_hit_rate: float = Field(description="캐시 히트율 (%)")
     error_rate: float = Field(description="에러율 (%)")
 
+    class Config:
+        schema_extra = {
+            "example": {
+                "avg_response_time": 45.2,
+                "p95_response_time": 120.5,
+                "p99_response_time": 250.8,
+                "cache_hit_rate": 75.3,
+                "error_rate": 0.5,
+            }
+        }
+
 
 class PerformanceAnalysisResponse(BaseModel):
     """검색 성능 분석 응답"""

@@ -286,6 +286,18 @@ class AdminUserInfo(BaseModel):
     last_sign_in: Optional[str] = None
     provider_count: int = 0
 
+    class Config:
+        schema_extra = {
+            "example": {
+                "uid": "user-123",
+                "email": "user@example.com",
+                "display_name": "홍길동",
+                "disabled": False,
+                "created_at": "2024-01-15T10:30:45Z",
+                "provider_count": 2,
+            }
+        }
+
 
 class AdminUsersListResponse(BaseModel):
     """관리자용 사용자 목록 응답"""

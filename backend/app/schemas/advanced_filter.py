@@ -391,6 +391,15 @@ class FacetOption(BaseModel):
     count: int = Field(..., description="해당 옵션의 장소 수")
     label: Optional[str] = Field(None, description="표시 레이블")
 
+    class Config:
+        schema_extra = {
+            "example": {
+                "value": "cafe",
+                "count": 123,
+                "label": "카페",
+            }
+        }
+
 
 class FilterFacetsResponse(BaseModel):
     """필터 패싯 정보 응답"""
