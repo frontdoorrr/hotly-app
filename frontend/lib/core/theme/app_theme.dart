@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 import 'app_text_styles.dart';
 
@@ -47,24 +48,30 @@ class AppTheme {
         surface: AppColors.cardLight,
         onSurface: AppColors.textPrimaryLight,
       ),
-      textTheme: const TextTheme(
-        displayLarge: AppTextStyles.h1,
-        displayMedium: AppTextStyles.h2,
-        displaySmall: AppTextStyles.h3,
-        headlineMedium: AppTextStyles.h4,
-        bodyLarge: AppTextStyles.bodyLarge,
-        bodyMedium: AppTextStyles.bodyMedium,
-        bodySmall: AppTextStyles.bodySmall,
-        labelLarge: AppTextStyles.labelLarge,
-        labelMedium: AppTextStyles.labelMedium,
-        labelSmall: AppTextStyles.labelSmall,
+      textTheme: GoogleFonts.notoSansKrTextTheme(
+        TextTheme(
+          displayLarge: AppTextStyles.h1,
+          displayMedium: AppTextStyles.h2,
+          displaySmall: AppTextStyles.h3,
+          headlineMedium: AppTextStyles.h4,
+          titleLarge: AppTextStyles.h3, // 섹션 제목용 (오늘의 추천, 인기 장소 등)
+          bodyLarge: AppTextStyles.bodyLarge,
+          bodyMedium: AppTextStyles.bodyMedium,
+          bodySmall: AppTextStyles.bodySmall,
+          labelLarge: AppTextStyles.labelLarge,
+          labelMedium: AppTextStyles.labelMedium,
+          labelSmall: AppTextStyles.labelSmall,
+        ),
       ),
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         elevation: 0,
         backgroundColor: AppColors.white,
         foregroundColor: AppColors.textPrimaryLight,
         systemOverlayStyle: SystemUiOverlayStyle.dark,
-        titleTextStyle: AppTextStyles.h4,
+        titleTextStyle: GoogleFonts.notoSansKr(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+        ),
       ),
       cardTheme: CardTheme(
         color: AppColors.cardLight,
@@ -169,24 +176,30 @@ class AppTheme {
         surface: AppColors.cardDark,
         onSurface: AppColors.textPrimaryDark,
       ),
-      textTheme: const TextTheme(
-        displayLarge: AppTextStyles.h1,
-        displayMedium: AppTextStyles.h2,
-        displaySmall: AppTextStyles.h3,
-        headlineMedium: AppTextStyles.h4,
-        bodyLarge: AppTextStyles.bodyLarge,
-        bodyMedium: AppTextStyles.bodyMedium,
-        bodySmall: AppTextStyles.bodySmall,
-        labelLarge: AppTextStyles.labelLarge,
-        labelMedium: AppTextStyles.labelMedium,
-        labelSmall: AppTextStyles.labelSmall,
+      textTheme: GoogleFonts.notoSansKrTextTheme(
+        TextTheme(
+          displayLarge: AppTextStyles.h1,
+          displayMedium: AppTextStyles.h2,
+          displaySmall: AppTextStyles.h3,
+          headlineMedium: AppTextStyles.h4,
+          titleLarge: AppTextStyles.h3, // 섹션 제목용 (오늘의 추천, 인기 장소 등)
+          bodyLarge: AppTextStyles.bodyLarge,
+          bodyMedium: AppTextStyles.bodyMedium,
+          bodySmall: AppTextStyles.bodySmall,
+          labelLarge: AppTextStyles.labelLarge,
+          labelMedium: AppTextStyles.labelMedium,
+          labelSmall: AppTextStyles.labelSmall,
+        ),
       ),
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         elevation: 0,
         backgroundColor: AppColors.cardDark,
         foregroundColor: AppColors.textPrimaryDark,
         systemOverlayStyle: SystemUiOverlayStyle.light,
-        titleTextStyle: AppTextStyles.h4,
+        titleTextStyle: GoogleFonts.notoSansKr(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+        ),
       ),
       cardTheme: CardTheme(
         color: AppColors.cardDark,

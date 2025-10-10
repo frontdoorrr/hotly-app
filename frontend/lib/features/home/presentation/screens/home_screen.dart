@@ -25,8 +25,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> _loadData() async {
-    final (lat, lng) = LocalStorage.instance.lastLocation;
-    await ref.read(homeProvider.notifier).refreshAll(lat, lng);
+    // mounted 체크를 ref 사용 직전에 수행
+    if (!mounted) return;
+
+    try {
+      final (lat, lng) = LocalStorage.instance.lastLocation;
+      if (!mounted) return; // ref 사용 직전 재확인
+      await ref.read(homeProvider.notifier).refreshAll(lat, lng);
+    } catch (e) {
+      // disposed 상태에서 ref 접근 시 에러 무시
+      if (mounted) {
+        debugPrint('Failed to load data: $e');
+      }
+    }
   }
 
   @override
@@ -65,11 +76,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             // 추천 장소 섹션
             SliverToBoxAdapter(
               child: _buildRecommendedSection(state),
-            ),
-
-            // 빠른 액세스
-            SliverToBoxAdapter(
-              child: _buildQuickActionsSection(context),
             ),
 
             // 인기 장소 섹션
@@ -137,13 +143,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => LinkInputBottomSheet.show(context),
-        icon: const Icon(Icons.link),
-        label: const Text('링크 분석'),
-        backgroundColor: theme.colorScheme.primary,
-        foregroundColor: Colors.white,
       ),
     );
   }
@@ -223,87 +222,4 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildQuickActionsSection(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Padding(
-      padding: const EdgeInsets.all(AppTheme.space4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '빠른 액세스',
-            style: theme.textTheme.titleLarge,
-          ),
-          const SizedBox(height: AppTheme.space3),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildQuickActionButton(
-                context,
-                icon: Icons.link,
-                label: '링크\n분석',
-                onTap: () => LinkInputBottomSheet.show(context),
-              ),
-              _buildQuickActionButton(
-                context,
-                icon: Icons.search,
-                label: '장소\n검색',
-                onTap: () {
-                  context.push('/search');
-                },
-              ),
-              _buildQuickActionButton(
-                context,
-                icon: Icons.map,
-                label: '지도\n보기',
-                onTap: () {
-                  context.push('/map');
-                },
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuickActionButton(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    final theme = Theme.of(context);
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-      child: Container(
-        width: 100,
-        padding: const EdgeInsets.all(AppTheme.space4),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: theme.colorScheme.outline.withOpacity(0.3),
-          ),
-          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              size: 32,
-              color: theme.colorScheme.primary,
-            ),
-            const SizedBox(height: AppTheme.space2),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.labelSmall,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
