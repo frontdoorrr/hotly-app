@@ -205,3 +205,10 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Flutter/Dart build artifacts (프로젝트 루트에 생성되는 파일들)
+Build\ Runner_*.txt
+*.txt.tmp
+
+# macOS
+.DS_Store
