@@ -26,7 +26,8 @@ class ApiEndpoints {
   static String placeShare(String id) => '/places/$id/share';
 
   // Search
-  static const String search = '/search';
+  static const String search = '/search/places';
+  static const String searchSuggestions = '/search/suggestions';
   static const String autocomplete = '/autocomplete';
   static const String filters = '/filters';
 

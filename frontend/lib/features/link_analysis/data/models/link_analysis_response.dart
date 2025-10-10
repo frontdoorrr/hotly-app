@@ -9,11 +9,11 @@ part 'link_analysis_response.g.dart';
 class LinkAnalysisResponse with _$LinkAnalysisResponse {
   const factory LinkAnalysisResponse({
     required bool success,
-    @JsonKey(name: 'analysis_id') required String analysisId,
+    @JsonKey(name: 'analysisId') required String analysisId,
     required String status,
     @JsonKey(name: 'result') AnalysisResultData? resultData,
     @Default(false) bool cached,
-    @JsonKey(name: 'processing_time') @Default(0.0) double processingTime,
+    @JsonKey(name: 'processingTime') @Default(0.0) double processingTime,
     double? progress,
     String? error,
   }) = _LinkAnalysisResponse;
@@ -26,10 +26,10 @@ class LinkAnalysisResponse with _$LinkAnalysisResponse {
 @freezed
 class AnalysisResultData with _$AnalysisResultData {
   const factory AnalysisResultData({
-    @JsonKey(name: 'place_info') PlaceInfoModel? placeInfo,
+    @JsonKey(name: 'placeInfo') PlaceInfoModel? placeInfo,
     @Default(0.0) double confidence,
-    @JsonKey(name: 'analysis_time') @Default(0.0) double analysisTime,
-    @JsonKey(name: 'content_metadata') ContentMetadataModel? contentMetadata,
+    @JsonKey(name: 'analysisTime') @Default(0.0) double analysisTime,
+    @JsonKey(name: 'contentMetadata') ContentMetadataModel? contentMetadata,
   }) = _AnalysisResultData;
 
   factory AnalysisResultData.fromJson(Map<String, dynamic> json) =>
@@ -73,7 +73,7 @@ class ContentMetadataModel with _$ContentMetadataModel {
     String? description,
     @Default([]) List<String> images,
     @Default([]) List<String> hashtags,
-    @JsonKey(name: 'extraction_time') double? extractionTime,
+    @JsonKey(name: 'extractionTime') double? extractionTime,
   }) = _ContentMetadataModel;
 
   factory ContentMetadataModel.fromJson(Map<String, dynamic> json) =>

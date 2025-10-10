@@ -10,13 +10,13 @@ _$LinkAnalysisResponseImpl _$$LinkAnalysisResponseImplFromJson(
         Map<String, dynamic> json) =>
     _$LinkAnalysisResponseImpl(
       success: json['success'] as bool,
-      analysisId: json['analysis_id'] as String,
+      analysisId: json['analysisId'] as String,
       status: json['status'] as String,
       resultData: json['result'] == null
           ? null
           : AnalysisResultData.fromJson(json['result'] as Map<String, dynamic>),
       cached: json['cached'] as bool? ?? false,
-      processingTime: (json['processing_time'] as num?)?.toDouble() ?? 0.0,
+      processingTime: (json['processingTime'] as num?)?.toDouble() ?? 0.0,
       progress: (json['progress'] as num?)?.toDouble(),
       error: json['error'] as String?,
     );
@@ -25,11 +25,11 @@ Map<String, dynamic> _$$LinkAnalysisResponseImplToJson(
         _$LinkAnalysisResponseImpl instance) =>
     <String, dynamic>{
       'success': instance.success,
-      'analysis_id': instance.analysisId,
+      'analysisId': instance.analysisId,
       'status': instance.status,
       'result': instance.resultData,
       'cached': instance.cached,
-      'processing_time': instance.processingTime,
+      'processingTime': instance.processingTime,
       'progress': instance.progress,
       'error': instance.error,
     };
@@ -37,24 +37,24 @@ Map<String, dynamic> _$$LinkAnalysisResponseImplToJson(
 _$AnalysisResultDataImpl _$$AnalysisResultDataImplFromJson(
         Map<String, dynamic> json) =>
     _$AnalysisResultDataImpl(
-      placeInfo: json['place_info'] == null
+      placeInfo: json['placeInfo'] == null
           ? null
-          : PlaceInfoModel.fromJson(json['place_info'] as Map<String, dynamic>),
+          : PlaceInfoModel.fromJson(json['placeInfo'] as Map<String, dynamic>),
       confidence: (json['confidence'] as num?)?.toDouble() ?? 0.0,
-      analysisTime: (json['analysis_time'] as num?)?.toDouble() ?? 0.0,
-      contentMetadata: json['content_metadata'] == null
+      analysisTime: (json['analysisTime'] as num?)?.toDouble() ?? 0.0,
+      contentMetadata: json['contentMetadata'] == null
           ? null
           : ContentMetadataModel.fromJson(
-              json['content_metadata'] as Map<String, dynamic>),
+              json['contentMetadata'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$$AnalysisResultDataImplToJson(
         _$AnalysisResultDataImpl instance) =>
     <String, dynamic>{
-      'place_info': instance.placeInfo,
+      'placeInfo': instance.placeInfo,
       'confidence': instance.confidence,
-      'analysis_time': instance.analysisTime,
-      'content_metadata': instance.contentMetadata,
+      'analysisTime': instance.analysisTime,
+      'contentMetadata': instance.contentMetadata,
     };
 
 _$PlaceInfoModelImpl _$$PlaceInfoModelImplFromJson(Map<String, dynamic> json) =>
@@ -112,7 +112,7 @@ _$ContentMetadataModelImpl _$$ContentMetadataModelImplFromJson(
               ?.map((e) => e as String)
               .toList() ??
           const [],
-      extractionTime: (json['extraction_time'] as num?)?.toDouble(),
+      extractionTime: (json['extractionTime'] as num?)?.toDouble(),
     );
 
 Map<String, dynamic> _$$ContentMetadataModelImplToJson(
@@ -122,5 +122,5 @@ Map<String, dynamic> _$$ContentMetadataModelImplToJson(
       'description': instance.description,
       'images': instance.images,
       'hashtags': instance.hashtags,
-      'extraction_time': instance.extractionTime,
+      'extractionTime': instance.extractionTime,
     };

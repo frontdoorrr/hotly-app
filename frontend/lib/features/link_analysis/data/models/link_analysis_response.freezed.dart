@@ -21,13 +21,13 @@ LinkAnalysisResponse _$LinkAnalysisResponseFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$LinkAnalysisResponse {
   bool get success => throw _privateConstructorUsedError;
-  @JsonKey(name: 'analysis_id')
+  @JsonKey(name: 'analysisId')
   String get analysisId => throw _privateConstructorUsedError;
   String get status => throw _privateConstructorUsedError;
   @JsonKey(name: 'result')
   AnalysisResultData? get resultData => throw _privateConstructorUsedError;
   bool get cached => throw _privateConstructorUsedError;
-  @JsonKey(name: 'processing_time')
+  @JsonKey(name: 'processingTime')
   double get processingTime => throw _privateConstructorUsedError;
   double? get progress => throw _privateConstructorUsedError;
   String? get error => throw _privateConstructorUsedError;
@@ -50,11 +50,11 @@ abstract class $LinkAnalysisResponseCopyWith<$Res> {
   @useResult
   $Res call(
       {bool success,
-      @JsonKey(name: 'analysis_id') String analysisId,
+      @JsonKey(name: 'analysisId') String analysisId,
       String status,
       @JsonKey(name: 'result') AnalysisResultData? resultData,
       bool cached,
-      @JsonKey(name: 'processing_time') double processingTime,
+      @JsonKey(name: 'processingTime') double processingTime,
       double? progress,
       String? error});
 
@@ -147,11 +147,11 @@ abstract class _$$LinkAnalysisResponseImplCopyWith<$Res>
   @useResult
   $Res call(
       {bool success,
-      @JsonKey(name: 'analysis_id') String analysisId,
+      @JsonKey(name: 'analysisId') String analysisId,
       String status,
       @JsonKey(name: 'result') AnalysisResultData? resultData,
       bool cached,
-      @JsonKey(name: 'processing_time') double processingTime,
+      @JsonKey(name: 'processingTime') double processingTime,
       double? progress,
       String? error});
 
@@ -223,11 +223,11 @@ class __$$LinkAnalysisResponseImplCopyWithImpl<$Res>
 class _$LinkAnalysisResponseImpl implements _LinkAnalysisResponse {
   const _$LinkAnalysisResponseImpl(
       {required this.success,
-      @JsonKey(name: 'analysis_id') required this.analysisId,
+      @JsonKey(name: 'analysisId') required this.analysisId,
       required this.status,
       @JsonKey(name: 'result') this.resultData,
       this.cached = false,
-      @JsonKey(name: 'processing_time') this.processingTime = 0.0,
+      @JsonKey(name: 'processingTime') this.processingTime = 0.0,
       this.progress,
       this.error});
 
@@ -237,7 +237,7 @@ class _$LinkAnalysisResponseImpl implements _LinkAnalysisResponse {
   @override
   final bool success;
   @override
-  @JsonKey(name: 'analysis_id')
+  @JsonKey(name: 'analysisId')
   final String analysisId;
   @override
   final String status;
@@ -248,7 +248,7 @@ class _$LinkAnalysisResponseImpl implements _LinkAnalysisResponse {
   @JsonKey()
   final bool cached;
   @override
-  @JsonKey(name: 'processing_time')
+  @JsonKey(name: 'processingTime')
   final double processingTime;
   @override
   final double? progress;
@@ -305,11 +305,11 @@ class _$LinkAnalysisResponseImpl implements _LinkAnalysisResponse {
 abstract class _LinkAnalysisResponse implements LinkAnalysisResponse {
   const factory _LinkAnalysisResponse(
       {required final bool success,
-      @JsonKey(name: 'analysis_id') required final String analysisId,
+      @JsonKey(name: 'analysisId') required final String analysisId,
       required final String status,
       @JsonKey(name: 'result') final AnalysisResultData? resultData,
       final bool cached,
-      @JsonKey(name: 'processing_time') final double processingTime,
+      @JsonKey(name: 'processingTime') final double processingTime,
       final double? progress,
       final String? error}) = _$LinkAnalysisResponseImpl;
 
@@ -319,7 +319,7 @@ abstract class _LinkAnalysisResponse implements LinkAnalysisResponse {
   @override
   bool get success;
   @override
-  @JsonKey(name: 'analysis_id')
+  @JsonKey(name: 'analysisId')
   String get analysisId;
   @override
   String get status;
@@ -329,7 +329,7 @@ abstract class _LinkAnalysisResponse implements LinkAnalysisResponse {
   @override
   bool get cached;
   @override
-  @JsonKey(name: 'processing_time')
+  @JsonKey(name: 'processingTime')
   double get processingTime;
   @override
   double? get progress;
@@ -350,12 +350,12 @@ AnalysisResultData _$AnalysisResultDataFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$AnalysisResultData {
-  @JsonKey(name: 'place_info')
+  @JsonKey(name: 'placeInfo')
   PlaceInfoModel? get placeInfo => throw _privateConstructorUsedError;
   double get confidence => throw _privateConstructorUsedError;
-  @JsonKey(name: 'analysis_time')
+  @JsonKey(name: 'analysisTime')
   double get analysisTime => throw _privateConstructorUsedError;
-  @JsonKey(name: 'content_metadata')
+  @JsonKey(name: 'contentMetadata')
   ContentMetadataModel? get contentMetadata =>
       throw _privateConstructorUsedError;
 
@@ -376,11 +376,10 @@ abstract class $AnalysisResultDataCopyWith<$Res> {
       _$AnalysisResultDataCopyWithImpl<$Res, AnalysisResultData>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'place_info') PlaceInfoModel? placeInfo,
+      {@JsonKey(name: 'placeInfo') PlaceInfoModel? placeInfo,
       double confidence,
-      @JsonKey(name: 'analysis_time') double analysisTime,
-      @JsonKey(name: 'content_metadata')
-      ContentMetadataModel? contentMetadata});
+      @JsonKey(name: 'analysisTime') double analysisTime,
+      @JsonKey(name: 'contentMetadata') ContentMetadataModel? contentMetadata});
 
   $PlaceInfoModelCopyWith<$Res>? get placeInfo;
   $ContentMetadataModelCopyWith<$Res>? get contentMetadata;
@@ -465,11 +464,10 @@ abstract class _$$AnalysisResultDataImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'place_info') PlaceInfoModel? placeInfo,
+      {@JsonKey(name: 'placeInfo') PlaceInfoModel? placeInfo,
       double confidence,
-      @JsonKey(name: 'analysis_time') double analysisTime,
-      @JsonKey(name: 'content_metadata')
-      ContentMetadataModel? contentMetadata});
+      @JsonKey(name: 'analysisTime') double analysisTime,
+      @JsonKey(name: 'contentMetadata') ContentMetadataModel? contentMetadata});
 
   @override
   $PlaceInfoModelCopyWith<$Res>? get placeInfo;
@@ -520,25 +518,25 @@ class __$$AnalysisResultDataImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$AnalysisResultDataImpl implements _AnalysisResultData {
   const _$AnalysisResultDataImpl(
-      {@JsonKey(name: 'place_info') this.placeInfo,
+      {@JsonKey(name: 'placeInfo') this.placeInfo,
       this.confidence = 0.0,
-      @JsonKey(name: 'analysis_time') this.analysisTime = 0.0,
-      @JsonKey(name: 'content_metadata') this.contentMetadata});
+      @JsonKey(name: 'analysisTime') this.analysisTime = 0.0,
+      @JsonKey(name: 'contentMetadata') this.contentMetadata});
 
   factory _$AnalysisResultDataImpl.fromJson(Map<String, dynamic> json) =>
       _$$AnalysisResultDataImplFromJson(json);
 
   @override
-  @JsonKey(name: 'place_info')
+  @JsonKey(name: 'placeInfo')
   final PlaceInfoModel? placeInfo;
   @override
   @JsonKey()
   final double confidence;
   @override
-  @JsonKey(name: 'analysis_time')
+  @JsonKey(name: 'analysisTime')
   final double analysisTime;
   @override
-  @JsonKey(name: 'content_metadata')
+  @JsonKey(name: 'contentMetadata')
   final ContentMetadataModel? contentMetadata;
 
   @override
@@ -585,25 +583,25 @@ class _$AnalysisResultDataImpl implements _AnalysisResultData {
 
 abstract class _AnalysisResultData implements AnalysisResultData {
   const factory _AnalysisResultData(
-      {@JsonKey(name: 'place_info') final PlaceInfoModel? placeInfo,
+      {@JsonKey(name: 'placeInfo') final PlaceInfoModel? placeInfo,
       final double confidence,
-      @JsonKey(name: 'analysis_time') final double analysisTime,
-      @JsonKey(name: 'content_metadata')
+      @JsonKey(name: 'analysisTime') final double analysisTime,
+      @JsonKey(name: 'contentMetadata')
       final ContentMetadataModel? contentMetadata}) = _$AnalysisResultDataImpl;
 
   factory _AnalysisResultData.fromJson(Map<String, dynamic> json) =
       _$AnalysisResultDataImpl.fromJson;
 
   @override
-  @JsonKey(name: 'place_info')
+  @JsonKey(name: 'placeInfo')
   PlaceInfoModel? get placeInfo;
   @override
   double get confidence;
   @override
-  @JsonKey(name: 'analysis_time')
+  @JsonKey(name: 'analysisTime')
   double get analysisTime;
   @override
-  @JsonKey(name: 'content_metadata')
+  @JsonKey(name: 'contentMetadata')
   ContentMetadataModel? get contentMetadata;
 
   /// Create a copy of AnalysisResultData
@@ -1107,7 +1105,7 @@ mixin _$ContentMetadataModel {
   String? get description => throw _privateConstructorUsedError;
   List<String> get images => throw _privateConstructorUsedError;
   List<String> get hashtags => throw _privateConstructorUsedError;
-  @JsonKey(name: 'extraction_time')
+  @JsonKey(name: 'extractionTime')
   double? get extractionTime => throw _privateConstructorUsedError;
 
   /// Serializes this ContentMetadataModel to a JSON map.
@@ -1131,7 +1129,7 @@ abstract class $ContentMetadataModelCopyWith<$Res> {
       String? description,
       List<String> images,
       List<String> hashtags,
-      @JsonKey(name: 'extraction_time') double? extractionTime});
+      @JsonKey(name: 'extractionTime') double? extractionTime});
 }
 
 /// @nodoc
@@ -1194,7 +1192,7 @@ abstract class _$$ContentMetadataModelImplCopyWith<$Res>
       String? description,
       List<String> images,
       List<String> hashtags,
-      @JsonKey(name: 'extraction_time') double? extractionTime});
+      @JsonKey(name: 'extractionTime') double? extractionTime});
 }
 
 /// @nodoc
@@ -1249,7 +1247,7 @@ class _$ContentMetadataModelImpl implements _ContentMetadataModel {
       this.description,
       final List<String> images = const [],
       final List<String> hashtags = const [],
-      @JsonKey(name: 'extraction_time') this.extractionTime})
+      @JsonKey(name: 'extractionTime') this.extractionTime})
       : _images = images,
         _hashtags = hashtags;
 
@@ -1279,7 +1277,7 @@ class _$ContentMetadataModelImpl implements _ContentMetadataModel {
   }
 
   @override
-  @JsonKey(name: 'extraction_time')
+  @JsonKey(name: 'extractionTime')
   final double? extractionTime;
 
   @override
@@ -1335,7 +1333,7 @@ abstract class _ContentMetadataModel implements ContentMetadataModel {
           final String? description,
           final List<String> images,
           final List<String> hashtags,
-          @JsonKey(name: 'extraction_time') final double? extractionTime}) =
+          @JsonKey(name: 'extractionTime') final double? extractionTime}) =
       _$ContentMetadataModelImpl;
 
   factory _ContentMetadataModel.fromJson(Map<String, dynamic> json) =
@@ -1350,7 +1348,7 @@ abstract class _ContentMetadataModel implements ContentMetadataModel {
   @override
   List<String> get hashtags;
   @override
-  @JsonKey(name: 'extraction_time')
+  @JsonKey(name: 'extractionTime')
   double? get extractionTime;
 
   /// Create a copy of ContentMetadataModel
