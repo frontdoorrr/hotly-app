@@ -22,6 +22,7 @@ from app.models.user import User
 from app.schemas.advanced_filter import (
     AdvancedFilterRequest,
     AdvancedFilterResponse,
+    FacetOption,
     FilterAnalytics,
     FilteredPlace,
     FilterFacetsResponse,
@@ -111,7 +112,7 @@ async def advanced_filter_search(
 
 @router.get(
     "/facets",
-    response_model=None,  # FilterFacetsResponse
+    response_model=FilterFacetsResponse,
     summary="필터 패싯 정보",
     description="현재 데이터에 기반한 필터 패싯 옵션 조회",
 )
@@ -123,7 +124,7 @@ async def get_filter_facets(
     category: Optional[str] = Query(None, description="카테고리 필터"),
     region: Optional[str] = Query(None, description="지역 필터"),
     use_cache: bool = Query(True, description="캐시 사용 여부"),
-) -> Dict[str, Any]:
+) -> FilterFacetsResponse:
     """
     필터 패싯 정보 조회
 
@@ -148,14 +149,27 @@ async def get_filter_facets(
         )
 
         facets = result.get("facets", {})
+        total = result.get("pagination", {}).get("total", 0)
 
         logger.info(f"Retrieved facets for user {current_user.id}")
 
-        return {
-            "facets": facets,
-            "applied_filters": base_filter,
-            "source": result.get("query_info", {}).get("source", "unknown"),
-        }
+        # Extract facet options from the result
+        categories = [FacetOption(**opt) if isinstance(opt, dict) else opt
+                     for opt in facets.get("categories", [])]
+        regions = [FacetOption(**opt) if isinstance(opt, dict) else opt
+                  for opt in facets.get("regions", [])]
+        price_ranges = [FacetOption(**opt) if isinstance(opt, dict) else opt
+                       for opt in facets.get("price_ranges", [])]
+        tags = [FacetOption(**opt) if isinstance(opt, dict) else opt
+               for opt in facets.get("tags", [])]
+
+        return FilterFacetsResponse(
+            categories=categories,
+            regions=regions,
+            price_ranges=price_ranges,
+            tags=tags,
+            total_count=total
+        )
 
     except Exception as e:
         logger.error(f"Failed to retrieve facets: {e}")
@@ -167,7 +181,7 @@ async def get_filter_facets(
 
 @router.get(
     "/suggestions",
-    response_model=None,  # FilterSuggestionsResponse
+    response_model=FilterSuggestionsResponse,
     summary="필터 제안",
     description="현재 필터 조건에 대한 개선 제안",
 )
@@ -180,7 +194,7 @@ async def get_filter_suggestions(
     regions: Optional[List[str]] = Query(None, description="현재 지역 필터"),
     tags: Optional[List[str]] = Query(None, description="현재 태그 필터"),
     rating_min: Optional[float] = Query(None, description="현재 최소 평점"),
-) -> Dict[str, Any]:
+) -> FilterSuggestionsResponse:
     """
     현재 필터 조건에 대한 개선 제안
 
@@ -219,11 +233,22 @@ async def get_filter_suggestions(
 
         logger.info(f"Generated filter suggestions for user {current_user.id}")
 
-        return {
-            "current_results": total_results,
-            "suggestions": suggestions,
-            "applied_filters": current_filter,
-        }
+        # Format suggestions according to schema
+        suggestion_list = suggestions.get("alternative_filters", [])
+        if isinstance(suggestion_list, list):
+            formatted_suggestions = [
+                str(s) if not isinstance(s, str) else s
+                for s in suggestion_list
+            ]
+        else:
+            formatted_suggestions = []
+
+        return FilterSuggestionsResponse(
+            suggestions=formatted_suggestions,
+            alternative_filters=suggestions.get("alternative_filters") if isinstance(suggestions.get("alternative_filters"), dict) else None,
+            estimated_results=total_results,
+            message=suggestions.get("message", f"현재 {total_results}개의 결과가 있습니다.")
+        )
 
     except Exception as e:
         logger.error(f"Failed to generate filter suggestions: {e}")

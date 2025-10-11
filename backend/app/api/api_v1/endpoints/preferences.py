@@ -91,7 +91,7 @@ async def get_preference_analysis(
         raise HTTPException(status_code=500, detail="Failed to analyze preferences")
 
 
-@router.post("/feedback", response_model=dict, status_code=201)
+@router.post("/feedback", response_model=None, status_code=201)
 async def submit_feedback(
     *, db: Session = Depends(get_db), feedback_data: FeedbackCreate
 ) -> dict:
@@ -163,7 +163,7 @@ async def get_user_profile(
         raise HTTPException(status_code=500, detail="Failed to get user profile")
 
 
-@router.post("/profile", response_model=dict, status_code=201)
+@router.post("/profile", response_model=None, status_code=201)
 async def create_user_profile(
     *, db: Session = Depends(get_db), profile_data: UserProfileCreate
 ) -> dict:

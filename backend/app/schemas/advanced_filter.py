@@ -194,14 +194,20 @@ class FilteredPlace(BaseModel):
 
 
 class FacetOption(BaseModel):
-    """패싯 옵션"""
+    """패싯 옵션 (필터 선택지)"""
 
-    name: str = Field(..., description="옵션명")
-    count: int = Field(..., description="해당 옵션의 결과 수")
-    selected: bool = Field(False, description="현재 선택된 옵션 여부")
+    value: str = Field(..., description="옵션 값")
+    count: int = Field(..., description="해당 옵션의 장소 수")
+    label: Optional[str] = Field(None, description="표시 레이블")
 
     class Config:
-        schema_extra = {"example": {"name": "cafe", "count": 25, "selected": True}}
+        schema_extra = {
+            "example": {
+                "value": "cafe",
+                "count": 123,
+                "label": "카페",
+            }
+        }
 
 
 class FilterFacets(BaseModel):
@@ -222,16 +228,16 @@ class FilterFacets(BaseModel):
         schema_extra = {
             "example": {
                 "categories": [
-                    {"name": "cafe", "count": 25, "selected": True},
-                    {"name": "restaurant", "count": 18, "selected": False},
+                    {"value": "cafe", "count": 25, "label": "카페"},
+                    {"value": "restaurant", "count": 18, "label": "레스토랑"},
                 ],
                 "regions": [
-                    {"name": "마포구", "count": 15, "selected": True},
-                    {"name": "강남구", "count": 12, "selected": False},
+                    {"value": "마포구", "count": 15, "label": "마포구"},
+                    {"value": "강남구", "count": 12, "label": "강남구"},
                 ],
                 "price_ranges": [
-                    {"name": "10000-20000", "count": 20, "selected": True},
-                    {"name": "20000-50000", "count": 15, "selected": False},
+                    {"value": "10000-20000", "count": 20, "label": "1만원-2만원"},
+                    {"value": "20000-50000", "count": 15, "label": "2만원-5만원"},
                 ],
             }
         }
@@ -382,23 +388,6 @@ class SavedFilter(BaseModel):
     use_count: int = Field(..., description="사용 횟수")
     created_at: datetime = Field(..., description="생성일")
     last_used: Optional[datetime] = Field(None, description="마지막 사용일")
-
-
-class FacetOption(BaseModel):
-    """패싯 옵션 (필터 선택지)"""
-
-    value: str = Field(..., description="옵션 값")
-    count: int = Field(..., description="해당 옵션의 장소 수")
-    label: Optional[str] = Field(None, description="표시 레이블")
-
-    class Config:
-        schema_extra = {
-            "example": {
-                "value": "cafe",
-                "count": 123,
-                "label": "카페",
-            }
-        }
 
 
 class FilterFacetsResponse(BaseModel):

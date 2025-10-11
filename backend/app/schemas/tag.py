@@ -1,6 +1,6 @@
 """Tag-related Pydantic schemas."""
 
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field, validator
 
@@ -67,7 +67,7 @@ class TagStatistics(BaseModel):
 
     total_unique_tags: int = Field(..., description="Total number of unique tags")
     total_tag_usage: int = Field(..., description="Total tag usage count")
-    most_used_tags: List[Dict[str, any]] = Field(
+    most_used_tags: List[Dict[str, Any]] = Field(
         ..., description="Most frequently used tags"
     )
     tag_categories: Dict[str, List[str]] = Field(

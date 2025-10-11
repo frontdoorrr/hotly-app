@@ -353,13 +353,13 @@ async def record_client_performance_metrics(
         )
 
 
-@router.get("/performance/analysis", response_model=None)  # PerformanceAnalysisResponse
+@router.get("/performance/analysis", response_model=PerformanceAnalysisResponse)
 async def get_search_performance_analysis(
     days: int = Query(7, ge=1, le=30),
     current_user=Depends(get_current_user),
     db=Depends(get_db),
     cache=Depends(get_cache_service),
-):
+) -> PerformanceAnalysisResponse:
     """
     검색 성능 분석
 
@@ -382,7 +382,7 @@ async def get_search_performance_analysis(
 
         analysis["recent_alerts"] = recent_alerts[:5]  # 최근 5개 알림
 
-        return analysis
+        return PerformanceAnalysisResponse(**analysis)
 
     except Exception as e:
         logger.error(f"Performance analysis failed: {e}")

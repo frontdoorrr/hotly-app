@@ -281,7 +281,7 @@ def _minutes_to_time_str(minutes: int) -> str:
 # ============================================================================
 
 
-@router.post("/create-share-link", response_model=dict)
+@router.post("/create-share-link", response_model=None)
 async def create_course_share_link(
     *,
     db: Session = Depends(get_db),
@@ -324,7 +324,7 @@ async def create_course_share_link(
         raise HTTPException(status_code=500, detail="Failed to create share link")
 
 
-@router.get("/shared/{share_id}", response_model=dict)
+@router.get("/shared/{share_id}", response_model=None)
 async def access_shared_course(
     *, share_id: str, accessing_user_id: Optional[str] = None
 ) -> dict:
@@ -357,7 +357,7 @@ async def access_shared_course(
         raise HTTPException(status_code=500, detail="Failed to access shared course")
 
 
-@router.delete("/revoke-share", response_model=dict)
+@router.delete("/revoke-share", response_model=None)
 async def revoke_share_link(
     *,
     db: Session = Depends(get_db),
@@ -393,7 +393,7 @@ async def revoke_share_link(
         raise HTTPException(status_code=500, detail="Failed to revoke share link")
 
 
-@router.post("/save-favorite", response_model=dict)
+@router.post("/save-favorite", response_model=None)
 async def save_course_to_favorites(
     *,
     db: Session = Depends(get_db),
@@ -427,7 +427,7 @@ async def save_course_to_favorites(
         raise HTTPException(status_code=500, detail="Failed to save course")
 
 
-@router.post("/create-folder", response_model=dict)
+@router.post("/create-folder", response_model=None)
 async def create_personal_folder(
     *,
     db: Session = Depends(get_db),
@@ -466,7 +466,7 @@ async def create_personal_folder(
         raise HTTPException(status_code=500, detail="Failed to create folder")
 
 
-@router.post("/organize-folder", response_model=dict)
+@router.post("/organize-folder", response_model=None)
 async def organize_courses_in_folder(
     *,
     db: Session = Depends(get_db),
@@ -516,7 +516,7 @@ async def organize_courses_in_folder(
         raise HTTPException(status_code=500, detail="Failed to organize courses")
 
 
-@router.post("/add-to-wishlist", response_model=dict)
+@router.post("/add-to-wishlist", response_model=None)
 async def add_course_to_wishlist(
     *,
     db: Session = Depends(get_db),
@@ -559,7 +559,7 @@ async def add_course_to_wishlist(
         raise HTTPException(status_code=500, detail="Failed to add to wishlist")
 
 
-@router.post("/like", response_model=dict)
+@router.post("/like", response_model=None)
 async def like_course(
     *,
     db: Session = Depends(get_db),
@@ -596,7 +596,7 @@ async def like_course(
         raise HTTPException(status_code=500, detail=f"Failed to {action} course")
 
 
-@router.post("/add-comment", response_model=dict)
+@router.post("/add-comment", response_model=None)
 async def add_course_comment(
     *,
     db: Session = Depends(get_db),
@@ -642,7 +642,7 @@ async def add_course_comment(
         raise HTTPException(status_code=500, detail="Failed to add comment")
 
 
-@router.get("/{course_id}/ratings", response_model=dict)
+@router.get("/{course_id}/ratings", response_model=None)
 async def get_course_ratings(*, db: Session = Depends(get_db), course_id: str) -> dict:
     """
     Get course rating summary and distribution.
@@ -663,7 +663,7 @@ async def get_course_ratings(*, db: Session = Depends(get_db), course_id: str) -
         raise HTTPException(status_code=500, detail="Failed to get course ratings")
 
 
-@router.post("/discover", response_model=dict)
+@router.post("/discover", response_model=None)
 async def discover_public_courses(
     *,
     db: Session = Depends(get_db),
@@ -713,7 +713,7 @@ async def discover_public_courses(
         raise HTTPException(status_code=500, detail="Failed to discover courses")
 
 
-@router.get("/trending", response_model=dict)
+@router.get("/trending", response_model=None)
 async def get_trending_courses(
     *,
     db: Session = Depends(get_db),
@@ -753,7 +753,7 @@ async def get_trending_courses(
         raise HTTPException(status_code=500, detail="Failed to get trending courses")
 
 
-@router.post("/recommend-from-saves", response_model=dict)
+@router.post("/recommend-from-saves", response_model=None)
 async def recommend_courses_from_saves(
     *,
     db: Session = Depends(get_db),
@@ -797,7 +797,7 @@ async def recommend_courses_from_saves(
         raise HTTPException(status_code=500, detail="Failed to recommend courses")
 
 
-@router.post("/save-shared-course", response_model=dict)
+@router.post("/save-shared-course", response_model=None)
 async def save_shared_course_to_personal(
     *,
     db: Session = Depends(get_db),
@@ -859,7 +859,7 @@ async def save_shared_course_to_personal(
         raise HTTPException(status_code=500, detail="Failed to save shared course")
 
 
-@router.post("/sharing-analytics", response_model=dict)
+@router.post("/sharing-analytics", response_model=None)
 async def get_course_sharing_analytics(
     *,
     course_id: str,
@@ -897,7 +897,7 @@ async def get_course_sharing_analytics(
         raise HTTPException(status_code=500, detail="Failed to get sharing analytics")
 
 
-@router.post("/trend-analysis", response_model=dict)
+@router.post("/trend-analysis", response_model=None)
 async def analyze_course_trends(
     *,
     db: Session = Depends(get_db),
@@ -928,7 +928,7 @@ async def analyze_course_trends(
         raise HTTPException(status_code=500, detail="Failed to analyze trends")
 
 
-@router.post("/user-insights", response_model=dict)
+@router.post("/user-insights", response_model=None)
 async def get_user_course_insights(
     *,
     db: Session = Depends(get_db),
@@ -967,7 +967,7 @@ async def get_user_course_insights(
         raise HTTPException(status_code=500, detail="Failed to generate user insights")
 
 
-@router.post("/quick-share", response_model=dict)
+@router.post("/quick-share", response_model=None)
 async def quick_share_course(
     *,
     db: Session = Depends(get_db),
@@ -1020,7 +1020,7 @@ async def quick_share_course(
         raise HTTPException(status_code=500, detail="Failed to quick share course")
 
 
-@router.post("/validate-ownership", response_model=dict)
+@router.post("/validate-ownership", response_model=None)
 async def validate_course_ownership(
     *,
     course_id: str,
@@ -1067,7 +1067,7 @@ async def validate_course_ownership(
         raise HTTPException(status_code=500, detail="Failed to validate ownership")
 
 
-@router.post("/copy-shared", response_model=dict)
+@router.post("/copy-shared", response_model=None)
 async def copy_shared_course(
     *,
     db: Session = Depends(get_db),

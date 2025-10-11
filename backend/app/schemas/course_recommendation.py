@@ -155,3 +155,7 @@ class CourseRecommendationFeedback(BaseModel):
     actual_duration: Optional[int] = Field(None, description="실제 소요 시간 (분)")
     completed: bool = Field(default=False, description="코스 완주 여부")
     comments: Optional[str] = Field(None, description="추가 코멘트")
+
+
+# Update forward references to resolve ForwardRef('TravelInfo')
+CoursePlaceDetail.update_forward_refs()

@@ -20,7 +20,7 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@router.get("/onboarding/personalized", response_model=dict)
+@router.get("/onboarding/personalized", response_model=None)
 async def get_personalized_onboarding(
     *,
     db: Session = Depends(get_db),
@@ -93,7 +93,7 @@ async def get_personalized_onboarding(
         )
 
 
-@router.post("/ab-test/track", response_model=dict)
+@router.post("/ab-test/track", response_model=None)
 async def track_ab_test_event(
     *,
     db: Session = Depends(get_db),
@@ -143,7 +143,7 @@ async def track_ab_test_event(
         raise HTTPException(status_code=500, detail="Failed to track A/B test event")
 
 
-@router.get("/analytics/onboarding", response_model=dict)
+@router.get("/analytics/onboarding", response_model=None)
 async def get_onboarding_analytics(
     *,
     db: Session = Depends(get_db),
@@ -197,7 +197,7 @@ async def get_onboarding_analytics(
         )
 
 
-@router.post("/personalization/analyze-behavior", response_model=dict)
+@router.post("/personalization/analyze-behavior", response_model=None)
 async def analyze_user_behavior(
     *,
     db: Session = Depends(get_db),
@@ -259,7 +259,7 @@ async def analyze_user_behavior(
         raise HTTPException(status_code=500, detail="Failed to analyze user behavior")
 
 
-@router.get("/personalization/content", response_model=dict)
+@router.get("/personalization/content", response_model=None)
 async def get_dynamic_content(
     *,
     db: Session = Depends(get_db),
@@ -292,7 +292,7 @@ async def get_dynamic_content(
         )
 
 
-@router.post("/experiments/create", response_model=dict)
+@router.post("/experiments/create", response_model=None)
 async def create_ab_experiment(
     *,
     db: Session = Depends(get_db),
@@ -319,7 +319,7 @@ async def create_ab_experiment(
         raise HTTPException(status_code=500, detail="Failed to create A/B experiment")
 
 
-@router.get("/experiments/{experiment_id}/results", response_model=dict)
+@router.get("/experiments/{experiment_id}/results", response_model=None)
 async def get_experiment_results(
     *,
     db: Session = Depends(get_db),
@@ -367,7 +367,7 @@ async def get_experiment_results(
         raise HTTPException(status_code=500, detail="Failed to get experiment results")
 
 
-@router.post("/personalization/track-effectiveness", response_model=dict)
+@router.post("/personalization/track-effectiveness", response_model=None)
 async def track_personalization_effectiveness(
     *,
     db: Session = Depends(get_db),
@@ -400,7 +400,7 @@ async def track_personalization_effectiveness(
         )
 
 
-@router.get("/personalization/optimization-recommendations", response_model=dict)
+@router.get("/personalization/optimization-recommendations", response_model=None)
 async def get_optimization_recommendations(
     *,
     db: Session = Depends(get_db),
@@ -449,7 +449,7 @@ async def get_optimization_recommendations(
         )
 
 
-@router.post("/personalization/track-optimization-impact", response_model=dict)
+@router.post("/personalization/track-optimization-impact", response_model=None)
 async def track_optimization_impact(
     *,
     db: Session = Depends(get_db),

@@ -20,7 +20,7 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@router.post("/start", response_model=dict)
+@router.post("/start", response_model=None)
 async def start_onboarding_flow(
     *,
     db: Session = Depends(get_db),
@@ -61,7 +61,7 @@ async def start_onboarding_flow(
         raise HTTPException(status_code=500, detail="Failed to start onboarding")
 
 
-@router.post("/next-step", response_model=dict)
+@router.post("/next-step", response_model=None)
 async def progress_onboarding_step(
     *,
     db: Session = Depends(get_db),
@@ -105,7 +105,7 @@ async def progress_onboarding_step(
         raise HTTPException(status_code=500, detail="Failed to progress step")
 
 
-@router.post("/complete", response_model=dict)
+@router.post("/complete", response_model=None)
 async def complete_onboarding_flow(
     *, db: Session = Depends(get_db), user_id: str, onboarding_steps: List[dict]
 ) -> dict:
@@ -150,7 +150,7 @@ async def complete_onboarding_flow(
         raise HTTPException(status_code=500, detail="Failed to complete onboarding")
 
 
-@router.post("/track-progress", response_model=dict)
+@router.post("/track-progress", response_model=None)
 async def track_onboarding_progress(
     *,
     db: Session = Depends(get_db),
@@ -184,7 +184,7 @@ async def track_onboarding_progress(
         raise HTTPException(status_code=500, detail="Failed to track progress")
 
 
-@router.post("/skip-step", response_model=dict)
+@router.post("/skip-step", response_model=None)
 async def skip_onboarding_step(
     *,
     db: Session = Depends(get_db),
@@ -223,7 +223,7 @@ async def skip_onboarding_step(
         raise HTTPException(status_code=500, detail="Failed to skip step")
 
 
-@router.post("/check-timeout", response_model=dict)
+@router.post("/check-timeout", response_model=None)
 async def check_onboarding_timeout(
     *,
     db: Session = Depends(get_db),
@@ -261,7 +261,7 @@ async def check_onboarding_timeout(
         raise HTTPException(status_code=500, detail="Failed to check timeout")
 
 
-@router.post("/set-preferences", response_model=dict)
+@router.post("/set-preferences", response_model=None)
 async def set_user_preferences(
     *,
     db: Session = Depends(get_db),
@@ -304,7 +304,7 @@ async def set_user_preferences(
         raise HTTPException(status_code=500, detail="Failed to set preferences")
 
 
-@router.post("/set-location-prefs", response_model=dict)
+@router.post("/set-location-prefs", response_model=None)
 async def set_location_preferences(
     *,
     db: Session = Depends(get_db),
@@ -351,7 +351,7 @@ async def set_location_preferences(
         )
 
 
-@router.post("/get-samples", response_model=dict)
+@router.post("/get-samples", response_model=None)
 async def get_onboarding_samples(
     *,
     db: Session = Depends(get_db),
@@ -396,7 +396,7 @@ async def get_onboarding_samples(
         raise HTTPException(status_code=500, detail="Failed to get samples")
 
 
-@router.post("/start-recommendations", response_model=dict)
+@router.post("/start-recommendations", response_model=None)
 async def start_personalized_recommendations(
     *,
     db: Session = Depends(get_db),
@@ -447,7 +447,7 @@ async def start_personalized_recommendations(
         raise HTTPException(status_code=500, detail="Failed to start recommendations")
 
 
-@router.post("/sample-feedback", response_model=dict)
+@router.post("/sample-feedback", response_model=None)
 async def process_sample_feedback(
     *, db: Session = Depends(get_db), user_id: str, sample_interactions: List[dict]
 ) -> dict:
@@ -479,7 +479,7 @@ async def process_sample_feedback(
         raise HTTPException(status_code=500, detail="Failed to process feedback")
 
 
-@router.post("/get-help", response_model=dict)
+@router.post("/get-help", response_model=None)
 async def get_onboarding_help(
     *,
     db: Session = Depends(get_db),
@@ -511,7 +511,7 @@ async def get_onboarding_help(
         raise HTTPException(status_code=500, detail="Failed to provide guidance")
 
 
-@router.post("/set-budget-prefs", response_model=dict)
+@router.post("/set-budget-prefs", response_model=None)
 async def set_budget_preferences(
     *,
     db: Session = Depends(get_db),
@@ -552,7 +552,7 @@ async def set_budget_preferences(
         raise HTTPException(status_code=500, detail="Failed to set budget preferences")
 
 
-@router.post("/set-social-prefs", response_model=dict)
+@router.post("/set-social-prefs", response_model=None)
 async def set_social_preferences(
     *,
     db: Session = Depends(get_db),
@@ -592,7 +592,7 @@ async def set_social_preferences(
         raise HTTPException(status_code=500, detail="Failed to set social preferences")
 
 
-@router.post("/quick-setup", response_model=dict)
+@router.post("/quick-setup", response_model=None)
 async def quick_onboarding_setup(
     *,
     db: Session = Depends(get_db),
@@ -641,7 +641,7 @@ async def quick_onboarding_setup(
         raise HTTPException(status_code=500, detail="Failed quick setup")
 
 
-@router.post("/analytics", response_model=dict)
+@router.post("/analytics", response_model=None)
 async def get_onboarding_analytics(
     *,
     time_period: str = "30_days",
@@ -680,7 +680,7 @@ async def get_onboarding_analytics(
         raise HTTPException(status_code=500, detail="Failed to get analytics")
 
 
-@router.post("/predict-dropoff", response_model=dict)
+@router.post("/predict-dropoff", response_model=None)
 async def predict_user_dropoff(
     *, db: Session = Depends(get_db), user_id: str, onboarding_session: dict
 ) -> dict:
@@ -705,7 +705,7 @@ async def predict_user_dropoff(
         raise HTTPException(status_code=500, detail="Failed to predict dropoff")
 
 
-@router.post("/validate-preferences", response_model=dict)
+@router.post("/validate-preferences", response_model=None)
 async def validate_preference_selection(*, user_id: str, categories: List[str]) -> dict:
     """
     Validate user preference selections.
@@ -759,7 +759,7 @@ async def validate_preference_selection(*, user_id: str, categories: List[str]) 
         raise HTTPException(status_code=500, detail="Failed to validate preferences")
 
 
-@router.post("/simulate-completion", response_model=dict)
+@router.post("/simulate-completion", response_model=None)
 async def simulate_onboarding_completion(
     *, user_id: str, attempt_number: int, completed_fully: bool
 ) -> dict:
@@ -792,7 +792,7 @@ async def simulate_onboarding_completion(
         raise HTTPException(status_code=500, detail="Failed to simulate completion")
 
 
-@router.get("/progress/{user_id}", response_model=dict)
+@router.get("/progress/{user_id}", response_model=None)
 async def get_detailed_onboarding_progress(
     *,
     db: Session = Depends(get_db),
@@ -822,7 +822,7 @@ async def get_detailed_onboarding_progress(
         raise HTTPException(status_code=500, detail="Failed to get detailed progress")
 
 
-@router.post("/complete-step", response_model=dict)
+@router.post("/complete-step", response_model=None)
 async def complete_onboarding_step_with_validation(
     *,
     db: Session = Depends(get_db),
@@ -869,7 +869,7 @@ async def complete_onboarding_step_with_validation(
         )
 
 
-@router.get("/completion-summary/{user_id}", response_model=dict)
+@router.get("/completion-summary/{user_id}", response_model=None)
 async def get_completion_summary(
     *,
     db: Session = Depends(get_db),
@@ -899,7 +899,7 @@ async def get_completion_summary(
         raise HTTPException(status_code=500, detail="Failed to get completion summary")
 
 
-@router.post("/update-progress", response_model=dict)
+@router.post("/update-progress", response_model=None)
 async def update_onboarding_progress(
     *,
     db: Session = Depends(get_db),
@@ -966,7 +966,7 @@ async def update_onboarding_progress(
         raise HTTPException(status_code=500, detail="Failed to update progress")
 
 
-@router.post("/validate-step-completion", response_model=dict)
+@router.post("/validate-step-completion", response_model=None)
 async def validate_step_completion(
     *,
     db: Session = Depends(get_db),

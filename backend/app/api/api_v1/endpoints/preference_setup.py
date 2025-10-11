@@ -511,7 +511,7 @@ async def assess_preference_quality(
         )
 
 
-@router.post("/essential-survey", response_model=dict)
+@router.post("/essential-survey", response_model=None)
 async def complete_essential_survey(
     *,
     db: Session = Depends(get_db),
@@ -566,7 +566,7 @@ async def complete_essential_survey(
         )
 
 
-@router.post("/survey-flow", response_model=dict)
+@router.post("/survey-flow", response_model=None)
 async def execute_survey_flow(
     *,
     db: Session = Depends(get_db),
@@ -628,7 +628,7 @@ async def execute_survey_flow(
         raise HTTPException(status_code=500, detail="Failed to execute survey flow")
 
 
-@router.post("/skip-optional", response_model=dict)
+@router.post("/skip-optional", response_model=None)
 async def skip_optional_questions(
     *,
     user_id: str,
@@ -680,7 +680,7 @@ async def skip_optional_questions(
         raise HTTPException(status_code=500, detail="Failed to skip questions")
 
 
-@router.post("/track-progress", response_model=dict)
+@router.post("/track-progress", response_model=None)
 async def track_survey_progress(
     *,
     user_id: str,
@@ -742,7 +742,7 @@ async def track_survey_progress(
         raise HTTPException(status_code=500, detail="Failed to track progress")
 
 
-@router.post("/quick-setup", response_model=dict)
+@router.post("/quick-setup", response_model=None)
 async def quick_preference_setup(
     *,
     db: Session = Depends(get_db),
@@ -793,7 +793,7 @@ async def quick_preference_setup(
         raise HTTPException(status_code=500, detail="Failed quick preference setup")
 
 
-@router.post("/execute-workflow-step", response_model=dict)
+@router.post("/execute-workflow-step", response_model=None)
 async def execute_preference_workflow_step(
     *, db: Session = Depends(get_db), step: int, action: str, data: Dict[str, Any]
 ) -> dict:
@@ -831,7 +831,7 @@ async def execute_preference_workflow_step(
         raise HTTPException(status_code=500, detail="Failed to execute workflow step")
 
 
-@router.post("/initialize-from-preferences", response_model=dict)
+@router.post("/initialize-from-preferences", response_model=None)
 async def initialize_personalization_from_preferences(
     *,
     db: Session = Depends(get_db),
@@ -889,7 +889,7 @@ async def initialize_personalization_from_preferences(
         )
 
 
-@router.post("/process-comprehensive", response_model=dict)
+@router.post("/process-comprehensive", response_model=None)
 async def process_comprehensive_preferences(
     *,
     db: Session = Depends(get_db),

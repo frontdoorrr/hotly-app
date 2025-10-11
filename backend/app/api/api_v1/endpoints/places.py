@@ -326,7 +326,7 @@ async def get_place_statistics(
         raise HTTPException(status_code=500, detail="Failed to get statistics")
 
 
-@router.post("/check-duplicate/", response_model=dict)
+@router.post("/check-duplicate/", response_model=None)
 async def check_duplicate_place(
     *,
     db: Session = Depends(get_db),
@@ -386,7 +386,7 @@ async def check_duplicate_place(
         raise HTTPException(status_code=500, detail="Failed to check for duplicates")
 
 
-@router.post("/classify/", response_model=dict)
+@router.post("/classify/", response_model=None)
 async def classify_place(
     *,
     place_in: PlaceCreate,
@@ -427,7 +427,7 @@ async def classify_place(
         raise HTTPException(status_code=500, detail="Failed to classify place")
 
 
-@router.get("/geographic/clusters", response_model=List[dict])
+@router.get("/geographic/clusters", response_model=None)
 async def get_geographic_clusters(
     *,
     db: Session = Depends(get_db),
@@ -472,7 +472,7 @@ async def get_geographic_clusters(
         raise HTTPException(status_code=500, detail="Failed to get geographic clusters")
 
 
-@router.get("/geographic/statistics", response_model=dict)
+@router.get("/geographic/statistics", response_model=None)
 async def get_geographic_statistics(
     *,
     db: Session = Depends(get_db),
@@ -558,7 +558,7 @@ async def get_geographic_statistics(
         )
 
 
-@router.post("/geographic/route-search", response_model=List[dict])
+@router.post("/geographic/route-search", response_model=None)
 async def search_places_along_route(
     *,
     db: Session = Depends(get_db),
@@ -635,7 +635,7 @@ async def search_places_along_route(
         )
 
 
-@router.get("/search/advanced", response_model=List[dict])
+@router.get("/search/advanced", response_model=None)
 async def advanced_search(
     *,
     db: Session = Depends(get_db),
@@ -750,7 +750,7 @@ async def search_autocomplete(
         )
 
 
-@router.get("/search/fuzzy", response_model=List[dict])
+@router.get("/search/fuzzy", response_model=None)
 async def fuzzy_search(
     *,
     db: Session = Depends(get_db),
@@ -806,7 +806,7 @@ async def fuzzy_search(
         raise HTTPException(status_code=500, detail="Failed to perform fuzzy search")
 
 
-@router.get("/search/analytics", response_model=dict)
+@router.get("/search/analytics", response_model=None)
 async def get_search_analytics(
     *,
     db: Session = Depends(get_db),

@@ -18,6 +18,7 @@ from app.schemas.auth import (
     SocialProvider,
     TokenRefreshRequest,
     TokenRefreshResponse,
+    TokenValidationResult,
     UserProfileResponse,
     UserProfileUpdateResponse,
     UserUpgradeRequest,
@@ -30,8 +31,8 @@ router = APIRouter()
 auth_service = firebase_auth_service
 
 
-@router.post("/signup", status_code=status.HTTP_201_CREATED)
-async def sign_up(sign_up_data: SignUpRequest) -> Dict[str, Any]:
+@router.post("/signup", status_code=status.HTTP_201_CREATED, response_model=None)
+async def sign_up(sign_up_data: SignUpRequest):
     """
     회원가입 (Firebase 이메일/비밀번호).
 
@@ -55,8 +56,8 @@ async def sign_up(sign_up_data: SignUpRequest) -> Dict[str, Any]:
     )
 
 
-@router.post("/signin")
-async def sign_in(sign_in_data: SignInRequest) -> Dict[str, Any]:
+@router.post("/signin", response_model=None)
+async def sign_in(sign_in_data: SignInRequest):
     """
     로그인 (Firebase 이메일/비밀번호).
 
@@ -164,8 +165,8 @@ async def refresh_token(refresh_data: TokenRefreshRequest) -> TokenRefreshRespon
         )
 
 
-@router.post("/verify-token")
-async def verify_token(token: str) -> Dict[str, Any]:
+@router.post("/verify-token", response_model=TokenValidationResult)
+async def verify_token(token: str) -> TokenValidationResult:
     """
     Firebase ID 토큰 검증.
 
@@ -182,12 +183,7 @@ async def verify_token(token: str) -> Dict[str, Any]:
     """
     try:
         result = await auth_service.validate_access_token(token)
-        return {
-            "valid": result.is_valid,
-            "user_id": result.user_id,
-            "email": result.email,
-            "permissions": result.permissions,
-        }
+        return result
     except Exception as e:
         logger.error(f"Token verification failed: {e}")
         raise HTTPException(
@@ -196,10 +192,10 @@ async def verify_token(token: str) -> Dict[str, Any]:
         )
 
 
-@router.get("/me", response_model=None)  # UserProfileResponse
+@router.get("/me", response_model=UserProfileResponse)
 async def get_current_user_info(
     current_user: Dict[str, Any] = Depends(get_current_active_user),
-) -> Dict[str, Any]:
+) -> UserProfileResponse:
     """
     현재 로그인한 사용자 정보 조회.
 
@@ -209,7 +205,7 @@ async def get_current_user_info(
     Returns:
         사용자 정보
     """
-    return current_user
+    return UserProfileResponse(**current_user)
 
 
 @router.post("/anonymous", response_model=LoginResponse)
@@ -271,11 +267,11 @@ async def upgrade_anonymous_user(
         )
 
 
-@router.put("/profile", response_model=None)  # UserProfileUpdateResponse
+@router.put("/profile", response_model=UserProfileUpdateResponse)
 async def update_user_profile(
     profile_data: Dict[str, Any],
     current_user: Dict[str, Any] = Depends(get_current_active_user),
-) -> Dict[str, Any]:
+) -> UserProfileUpdateResponse:
     """
     사용자 프로필 업데이트.
 
@@ -314,10 +310,10 @@ async def update_user_profile(
         )
 
 
-@router.get("/admin/users", response_model=None)  # AdminUsersListResponse
+@router.get("/admin/users", response_model=AdminUsersListResponse)
 async def list_all_users(
     admin_user: Dict[str, Any] = Depends(get_admin_user),
-) -> Dict[str, Any]:
+) -> AdminUsersListResponse:
     """
     모든 사용자 목록 조회 (관리자 전용).
 
