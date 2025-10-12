@@ -17,6 +17,12 @@ abstract class LinkAnalysisRepository {
   /// Cancel an ongoing analysis
   Future<Either<Exception, void>> cancelAnalysis(String analysisId);
 
+  /// Save analyzed place to database
+  Future<Either<Exception, Map<String, dynamic>>> saveAnalyzedPlace(
+    String analysisId, {
+    String? sourceUrl,
+  });
+
   /// Validate if URL is supported
   bool isUrlSupported(String url);
 }

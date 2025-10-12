@@ -4,6 +4,12 @@ import '../../../../shared/models/place.dart';
 
 /// Place Repository Interface
 abstract class PlaceRepository {
+  /// 장소 목록 조회
+  Future<Either<ApiException, List<Place>>> getPlaces({
+    int page = 1,
+    int pageSize = 20,
+  });
+
   /// 장소 상세 정보 조회
   Future<Either<ApiException, Place>> getPlaceById(String placeId);
 

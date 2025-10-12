@@ -50,6 +50,22 @@ class LinkAnalysisRepositoryImpl implements LinkAnalysisRepository {
   }
 
   @override
+  Future<Either<Exception, Map<String, dynamic>>> saveAnalyzedPlace(
+    String analysisId, {
+    String? sourceUrl,
+  }) async {
+    try {
+      final response = await _remoteDataSource.saveAnalyzedPlace(
+        analysisId,
+        sourceUrl: sourceUrl,
+      );
+      return Right(response);
+    } on Exception catch (e) {
+      return Left(e);
+    }
+  }
+
+  @override
   bool isUrlSupported(String url) {
     // Supported platforms based on backend ContentExtractor
     final supportedPlatforms = [

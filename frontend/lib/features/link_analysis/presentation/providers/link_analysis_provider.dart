@@ -133,6 +133,37 @@ class LinkAnalysisNotifier extends StateNotifier<LinkAnalysisState> {
   void setInputUrl(String url) {
     state = state.copyWith(inputUrl: url);
   }
+
+  /// Save analyzed place to database
+  Future<bool> savePlace() async {
+    if (state.result == null || state.result!.placeInfo == null) {
+      state = state.copyWith(error: 'No place information to save');
+      return false;
+    }
+
+    final analysisId = state.result!.analysisId;
+
+    try {
+      final result = await _repository.saveAnalyzedPlace(
+        analysisId,
+        sourceUrl: state.inputUrl,
+      );
+
+      return result.fold(
+        (error) {
+          state = state.copyWith(error: 'Failed to save place: ${error.toString()}');
+          return false;
+        },
+        (place) {
+          // Place saved successfully
+          return true;
+        },
+      );
+    } catch (e) {
+      state = state.copyWith(error: 'Failed to save place: $e');
+      return false;
+    }
+  }
 }
 
 /// Provider for LinkAnalysisRepository

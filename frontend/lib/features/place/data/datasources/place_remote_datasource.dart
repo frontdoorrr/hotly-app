@@ -8,6 +8,23 @@ class PlaceRemoteDataSource {
 
   PlaceRemoteDataSource(this._dioClient);
 
+  /// 장소 목록 조회
+  Future<List<Place>> getPlaces({
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    final response = await _dioClient.get(
+      ApiEndpoints.places,
+      queryParameters: {
+        'page': page,
+        'page_size': pageSize,
+      },
+    );
+
+    final List<dynamic> data = response.data['places'] ?? [];
+    return data.map((json) => Place.fromJson(json)).toList();
+  }
+
   /// 장소 상세 정보 조회
   Future<Place> getPlaceById(String placeId) async {
     final response = await _dioClient.get(

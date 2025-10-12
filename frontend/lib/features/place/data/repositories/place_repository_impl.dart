@@ -13,6 +13,22 @@ class PlaceRepositoryImpl implements PlaceRepository {
   PlaceRepositoryImpl(this.remoteDataSource);
 
   @override
+  Future<Either<ApiException, List<Place>>> getPlaces({
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    try {
+      final places = await remoteDataSource.getPlaces(
+        page: page,
+        pageSize: pageSize,
+      );
+      return Right(places);
+    } on ApiException catch (e) {
+      return Left(e);
+    }
+  }
+
+  @override
   Future<Either<ApiException, Place>> getPlaceById(String placeId) async {
     try {
       final place = await remoteDataSource.getPlaceById(placeId);

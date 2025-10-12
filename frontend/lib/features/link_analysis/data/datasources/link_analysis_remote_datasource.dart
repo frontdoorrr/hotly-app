@@ -61,6 +61,27 @@ class LinkAnalysisRemoteDataSource {
     }
   }
 
+  /// Save analyzed place to database
+  ///
+  /// POST /api/v1/link-analysis/analyses/{analysis_id}/save-place
+  Future<Map<String, dynamic>> saveAnalyzedPlace(
+    String analysisId, {
+    String? sourceUrl,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '${ApiEndpoints.linkAnalysisStatus(analysisId)}/save-place',
+        queryParameters: {
+          if (sourceUrl != null) 'source_url': sourceUrl,
+        },
+      );
+
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   /// Analyze multiple URLs in batch
   ///
   /// POST /api/v1/links/bulk-analyze

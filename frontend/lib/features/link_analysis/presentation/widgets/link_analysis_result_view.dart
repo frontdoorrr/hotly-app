@@ -37,7 +37,7 @@ class LinkAnalysisResultView extends ConsumerWidget {
 
           // Result content
           if (result.status == AnalysisStatus.completed)
-            _buildResultContent(context, result),
+            _buildResultContent(context, ref, result),
 
           // Error message
           if (result.status == AnalysisStatus.failed && result.error != null)
@@ -141,7 +141,7 @@ class LinkAnalysisResultView extends ConsumerWidget {
     );
   }
 
-  Widget _buildResultContent(BuildContext context, LinkAnalysisResult result) {
+  Widget _buildResultContent(BuildContext context, WidgetRef ref, LinkAnalysisResult result) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -170,7 +170,7 @@ class LinkAnalysisResultView extends ConsumerWidget {
         const SizedBox(height: 20),
 
         // Action buttons
-        _buildActionButtons(context, result),
+        _buildActionButtons(context, ref, result),
       ],
     );
   }
@@ -379,14 +379,56 @@ class LinkAnalysisResultView extends ConsumerWidget {
     );
   }
 
-  Widget _buildActionButtons(BuildContext context, LinkAnalysisResult result) {
+  Widget _buildActionButtons(BuildContext context, WidgetRef ref, LinkAnalysisResult result) {
     return Row(
       children: [
         Expanded(
           child: OutlinedButton.icon(
-            onPressed: () {
-              // TODO: Navigate to place detail or save place
-              Navigator.of(context).pop();
+            onPressed: () async {
+              // Show loading indicator using root navigator
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                useRootNavigator: true,
+                builder: (dialogContext) => const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+
+              // Save place
+              final success = await ref.read(linkAnalysisProvider.notifier).savePlace();
+
+              // Hide loading dialog using root navigator
+              if (context.mounted) {
+                Navigator.of(context, rootNavigator: true).pop();
+              }
+
+              if (success) {
+                // Show success message and close bottom sheet
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('장소가 저장되었습니다'),
+                      backgroundColor: AppColors.success,
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                  // Close bottom sheet
+                  Navigator.of(context).pop();
+                }
+              } else {
+                // Show error message
+                if (context.mounted) {
+                  final error = ref.read(linkAnalysisProvider).error ?? '저장 실패';
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(error),
+                      backgroundColor: AppColors.error,
+                      duration: const Duration(seconds: 3),
+                    ),
+                  );
+                }
+              }
             },
             icon: const Icon(Icons.bookmark_border),
             label: const Text('장소 저장'),
