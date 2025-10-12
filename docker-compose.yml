@@ -28,7 +28,7 @@ services:
   # Use: flutter run -d 'iPhone 16 Pro' or flutter run -d <android-device>
 
   db:
-    image: postgres:15-alpine
+    image: postgis/postgis:15-3.3
     ports:
       - "5432:5432"
     environment:

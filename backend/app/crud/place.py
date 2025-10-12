@@ -100,9 +100,9 @@ class CRUDPlace(CRUDBase[Place, PlaceCreate, PlaceUpdate]):
             search_query = request.search_query.strip()
             if search_query:
                 # PostgreSQL full-text search
-                ts_query = func.plainto_tsquery("korean", search_query)
+                ts_query = func.plainto_tsquery("simple", search_query)
                 ts_vector = func.to_tsvector(
-                    "korean",
+                    "simple",
                     func.coalesce(Place.name, "")
                     + " "
                     + func.coalesce(Place.address, ""),
@@ -216,9 +216,9 @@ class CRUDPlace(CRUDBase[Place, PlaceCreate, PlaceUpdate]):
             db_query = db_query.filter(Place.category == category)
 
         # Full-text search
-        ts_query = func.plainto_tsquery("korean", query)
+        ts_query = func.plainto_tsquery("simple", query)
         ts_vector = func.to_tsvector(
-            "korean",
+            "simple",
             func.coalesce(Place.name, "") + " " + func.coalesce(Place.address, ""),
         )
 

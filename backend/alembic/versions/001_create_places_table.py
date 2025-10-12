@@ -88,7 +88,7 @@ def upgrade() -> None:
     # Full-text search index for name and address
     op.execute(
         "CREATE INDEX idx_places_search_gin ON places "
-        "USING GIN (to_tsvector('korean', "
+        "USING GIN (to_tsvector('simple', "
         "COALESCE(name, '') || ' ' || COALESCE(address, '')))"
     )
 
