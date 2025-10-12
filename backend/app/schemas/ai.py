@@ -1,7 +1,7 @@
 """AI analysis schemas for place information extraction."""
 
 from enum import Enum
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel, Field, validator
 
@@ -94,6 +94,30 @@ class GeminiResponse(BaseModel):
     processing_time: Optional[float] = Field(None, description="Processing time in seconds")
 
 
+class MultimodalAnalysisMetadata(BaseModel):
+    """Multimodal analysis metadata."""
+
+    # Input information
+    num_images_provided: int
+    num_images_analyzed: int
+    num_video_frames: int
+    text_length_chars: int
+
+    # Processing time breakdown
+    image_download_time: float
+    image_processing_time: float
+    ai_inference_time: float
+    total_time: float
+
+    # Quality metrics
+    avg_image_quality: float
+    text_quality_score: float
+
+    # Analysis reasoning
+    confidence_factors: Dict[str, float]  # {"image_clarity": 0.9, "text_match": 0.8}
+    reasoning: Optional[str] = None  # AI explanation of reasoning
+
+
 class PlaceAnalysisResponse(BaseModel):
     """Response from AI place analysis."""
 
@@ -107,3 +131,6 @@ class PlaceAnalysisResponse(BaseModel):
     analysis_time: float = Field(0.0, description="Time taken for analysis (seconds)")
     error: Optional[str] = Field(None, description="Error message if analysis failed")
     model_version: str = Field("gemini-pro-vision", description="AI model version used")
+
+    # Multimodal analysis metadata
+    multimodal_metadata: Optional[MultimodalAnalysisMetadata] = None
