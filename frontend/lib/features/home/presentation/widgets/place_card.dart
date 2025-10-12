@@ -86,14 +86,16 @@ class PlaceCard extends StatelessWidget {
                     const SizedBox(height: AppTheme.space1),
                     Row(
                       children: [
-                        Text(
-                          place.address,
-                          style: theme.textTheme.bodySmall,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                        Expanded(
+                          child: Text(
+                            place.address ?? '주소 미정',
+                            style: theme.textTheme.bodySmall,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                        const SizedBox(width: AppTheme.space2),
                         if (place.rating > 0) ...[
+                          const SizedBox(width: AppTheme.space2),
                           const Icon(Icons.star, size: 14, color: Colors.amber),
                           const SizedBox(width: 2),
                           Text(

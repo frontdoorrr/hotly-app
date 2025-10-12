@@ -117,22 +117,29 @@ class _HotlyAppState extends ConsumerState<HotlyApp> {
   }
 
   void _setupSharingIntentHandler() {
-    // Handle initial shared text (앱이 종료된 상태에서 공유받은 경우)
-    ReceiveSharingIntent.getInitialText().then((String? sharedText) {
-      if (sharedText != null && sharedText.isNotEmpty) {
-        debugPrint('📤 Initial shared text: $sharedText');
+    // Handle initial shared media (앱이 종료된 상태에서 공유받은 경우)
+    ReceiveSharingIntent.instance.getInitialMedia().then((List<SharedMediaFile> value) {
+      if (value.isNotEmpty) {
+        // Extract text from shared media
+        final sharedText = value.first.path;
+        debugPrint('📤 Initial shared media: $sharedText');
         _handleSharedUrl(sharedText);
+        // Reset after processing
+        ReceiveSharingIntent.instance.reset();
       }
     });
 
-    // Handle shared text stream (앱이 실행 중일 때 공유받은 경우)
-    _intentDataStreamSubscription = ReceiveSharingIntent.getTextStream().listen(
-      (String sharedText) {
-        debugPrint('📤 Received shared text: $sharedText');
-        _handleSharedUrl(sharedText);
+    // Handle shared media stream (앱이 실행 중일 때 공유받은 경우)
+    _intentDataStreamSubscription = ReceiveSharingIntent.instance.getMediaStream().listen(
+      (List<SharedMediaFile> value) {
+        if (value.isNotEmpty) {
+          final sharedText = value.first.path;
+          debugPrint('📤 Received shared media: $sharedText');
+          _handleSharedUrl(sharedText);
+        }
       },
       onError: (err) {
-        debugPrint('❌ Error receiving shared text: $err');
+        debugPrint('❌ Error receiving shared media: $err');
       },
     );
   }

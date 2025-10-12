@@ -15,6 +15,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
+from app.crud.place import place as place_crud
 from app.exceptions.ai import AIAnalysisError, RateLimitError
 from app.exceptions.external import UnsupportedPlatformError
 from app.schemas.link_analysis import (
@@ -26,9 +27,13 @@ from app.schemas.link_analysis import (
     LinkAnalyzeRequest,
     LinkAnalyzeResponse,
 )
+from app.schemas.place import PlaceCreate, PlaceResponse
 from app.services.monitoring.cache_manager import CacheKey, CacheManager
 from app.services.places.content_extractor import ContentExtractor
 from app.services.places.place_analysis_service import PlaceAnalysisService
+
+# Temporary user ID (until authentication is implemented)
+TEMP_USER_ID = "00000000-0000-0000-0000-000000000001"
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -51,6 +56,8 @@ async def analyze_link(
     2. If not cached, extract content and analyze with AI
     3. Cache results for future requests
     4. Return analysis results
+
+    params:
     """
     cache_manager = CacheManager()
 
@@ -633,3 +640,92 @@ async def _process_batch_analysis(
             analysis_store[batch_id].update(
                 {"status": AnalysisStatus.FAILED, "error": str(e)}
             )
+
+
+@router.post("/analyses/{analysis_id}/save-place", response_model=PlaceResponse, status_code=201)
+async def save_analyzed_place(
+    analysis_id: str,
+    source_url: str = None,
+    db: Session = Depends(get_db),
+) -> PlaceResponse:
+    """
+    Save analyzed PlaceInfo as a Place in database.
+
+    This converts the AI-analyzed PlaceInfo from link analysis
+    into a permanent Place record.
+
+    - **analysis_id**: The ID of completed analysis
+    - **source_url**: Optional source URL to attach to the place
+    """
+    try:
+        # Get analysis result
+        if analysis_id not in analysis_store:
+            raise HTTPException(status_code=404, detail="Analysis not found")
+
+        analysis_data = analysis_store[analysis_id]
+
+        if analysis_data["status"] != AnalysisStatus.COMPLETED:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Analysis is not completed yet (status: {analysis_data['status']})"
+            )
+
+        result = analysis_data.get("result")
+        if not result or not result.get("place_info"):
+            raise HTTPException(
+                status_code=400,
+                detail="No place information found in analysis result"
+            )
+
+        # Extract PlaceInfo from result
+        place_info = result["place_info"]
+
+        # Convert PlaceInfo to PlaceCreate
+        place_create = PlaceCreate(
+            name=place_info["name"],
+            description=place_info.get("description"),
+            address=place_info.get("address"),
+            phone=place_info.get("phone"),
+            website=place_info.get("website"),
+            opening_hours=place_info.get("opening_hours"),
+            price_range=place_info.get("price_range"),
+            category=place_info.get("category", "other"),
+            tags=place_info.get("tags", []),
+            keywords=place_info.get("keywords", []),
+            source_url=source_url or analysis_data.get("url"),
+            source_platform=_extract_platform_from_url(source_url or analysis_data.get("url", "")),
+            ai_confidence=result.get("confidence"),
+            recommendation_score=place_info.get("recommendation_score"),
+        )
+
+        # Create place in database
+        from uuid import UUID
+        place = place_crud.create_with_user(
+            db, obj_in=place_create, user_id=UUID(TEMP_USER_ID)
+        )
+
+        logger.info(f"Saved analyzed place: {place.id} - {place.name} (from analysis {analysis_id})")
+
+        return PlaceResponse.from_orm(place)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to save analyzed place: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to save place: {str(e)}")
+
+
+def _extract_platform_from_url(url: str) -> str:
+    """Extract platform name from URL."""
+    if not url:
+        return "unknown"
+
+    url_lower = url.lower()
+    if "instagram.com" in url_lower:
+        return "instagram"
+    elif "naver.com" in url_lower or "blog.naver.com" in url_lower:
+        return "naver_blog"
+    elif "youtube.com" in url_lower or "youtu.be" in url_lower:
+        return "youtube"
+    else:
+        return "other"

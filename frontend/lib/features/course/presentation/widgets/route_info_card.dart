@@ -79,9 +79,16 @@ class RouteInfoCard extends StatelessWidget {
   double _calculateDistanceInMeters() {
     // Simple Euclidean distance for now
     // TODO: Use proper Haversine formula or API
+
+    // Handle null coordinates
+    if (to.place.longitude == null || from.place.longitude == null ||
+        to.place.latitude == null || from.place.latitude == null) {
+      return 0.0;
+    }
+
     const double metersPerDegree = 111000;
-    final dx = (to.place.longitude - from.place.longitude) * metersPerDegree;
-    final dy = (to.place.latitude - from.place.latitude) * metersPerDegree;
+    final dx = (to.place.longitude! - from.place.longitude!) * metersPerDegree;
+    final dy = (to.place.latitude! - from.place.latitude!) * metersPerDegree;
     return (dx * dx + dy * dy) / metersPerDegree;
   }
 }

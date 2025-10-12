@@ -155,53 +155,55 @@ class PlaceDetailScreen extends ConsumerWidget {
                   const SizedBox(height: 20),
 
                   // Address Section
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.location_on,
-                        size: 20,
-                        color: AppColors.primary,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          place.address,
-                          style: AppTextStyles.body1,
+                  if (place.address != null)
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.location_on,
+                          size: 20,
+                          color: AppColors.primary,
                         ),
-                      ),
-                    ],
-                  ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            place.address!,
+                            style: AppTextStyles.body1,
+                          ),
+                        ),
+                      ],
+                    ),
 
                   const SizedBox(height: 16),
 
                   // Action Buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          icon: const Icon(Icons.map),
-                          label: const Text('지도 보기'),
-                          onPressed: () => _openMap(
-                            place.latitude,
-                            place.longitude,
-                            place.name,
+                  if (place.latitude != null && place.longitude != null)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            icon: const Icon(Icons.map),
+                            label: const Text('지도 보기'),
+                            onPressed: () => _openMap(
+                              place.latitude!,
+                              place.longitude!,
+                              place.name,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          icon: const Icon(Icons.directions),
-                          label: const Text('경로 찾기'),
-                          onPressed: () => _openDirections(
-                            place.latitude,
-                            place.longitude,
-                            place.name,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            icon: const Icon(Icons.directions),
+                            label: const Text('경로 찾기'),
+                            onPressed: () => _openDirections(
+                              place.latitude!,
+                              place.longitude!,
+                              place.name,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
                 ],
               ),
             ),

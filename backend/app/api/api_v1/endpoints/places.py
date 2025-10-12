@@ -23,7 +23,7 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 # Temporary user_id for development (will be replaced with auth)
-TEMP_USER_ID = "00000000-0000-0000-0000-000000000000"
+TEMP_USER_ID = "00000000-0000-0000-0000-000000000001"
 
 
 @router.post("/", response_model=PlaceResponse, status_code=201)

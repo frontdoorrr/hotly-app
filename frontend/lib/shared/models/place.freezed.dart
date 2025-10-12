@@ -22,11 +22,11 @@ Place _$PlaceFromJson(Map<String, dynamic> json) {
 mixin _$Place {
   String get id => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
-  String get address => throw _privateConstructorUsedError;
-  double get latitude => throw _privateConstructorUsedError;
-  double get longitude => throw _privateConstructorUsedError;
+  String? get address => throw _privateConstructorUsedError;
+  double? get latitude => throw _privateConstructorUsedError;
+  double? get longitude => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
-  String? get category => throw _privateConstructorUsedError;
+  String get category => throw _privateConstructorUsedError;
   String? get imageUrl => throw _privateConstructorUsedError;
   List<String> get tags => throw _privateConstructorUsedError;
   double get rating => throw _privateConstructorUsedError;
@@ -51,11 +51,11 @@ abstract class $PlaceCopyWith<$Res> {
   $Res call(
       {String id,
       String name,
-      String address,
-      double latitude,
-      double longitude,
+      String? address,
+      double? latitude,
+      double? longitude,
       String? description,
-      String? category,
+      String category,
       String? imageUrl,
       List<String> tags,
       double rating,
@@ -81,11 +81,11 @@ class _$PlaceCopyWithImpl<$Res, $Val extends Place>
   $Res call({
     Object? id = null,
     Object? name = null,
-    Object? address = null,
-    Object? latitude = null,
-    Object? longitude = null,
+    Object? address = freezed,
+    Object? latitude = freezed,
+    Object? longitude = freezed,
     Object? description = freezed,
-    Object? category = freezed,
+    Object? category = null,
     Object? imageUrl = freezed,
     Object? tags = null,
     Object? rating = null,
@@ -102,26 +102,26 @@ class _$PlaceCopyWithImpl<$Res, $Val extends Place>
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
-      address: null == address
+      address: freezed == address
           ? _value.address
           : address // ignore: cast_nullable_to_non_nullable
-              as String,
-      latitude: null == latitude
+              as String?,
+      latitude: freezed == latitude
           ? _value.latitude
           : latitude // ignore: cast_nullable_to_non_nullable
-              as double,
-      longitude: null == longitude
+              as double?,
+      longitude: freezed == longitude
           ? _value.longitude
           : longitude // ignore: cast_nullable_to_non_nullable
-              as double,
+              as double?,
       description: freezed == description
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String?,
-      category: freezed == category
+      category: null == category
           ? _value.category
           : category // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as String,
       imageUrl: freezed == imageUrl
           ? _value.imageUrl
           : imageUrl // ignore: cast_nullable_to_non_nullable
@@ -160,11 +160,11 @@ abstract class _$$PlaceImplCopyWith<$Res> implements $PlaceCopyWith<$Res> {
   $Res call(
       {String id,
       String name,
-      String address,
-      double latitude,
-      double longitude,
+      String? address,
+      double? latitude,
+      double? longitude,
       String? description,
-      String? category,
+      String category,
       String? imageUrl,
       List<String> tags,
       double rating,
@@ -188,11 +188,11 @@ class __$$PlaceImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? name = null,
-    Object? address = null,
-    Object? latitude = null,
-    Object? longitude = null,
+    Object? address = freezed,
+    Object? latitude = freezed,
+    Object? longitude = freezed,
     Object? description = freezed,
-    Object? category = freezed,
+    Object? category = null,
     Object? imageUrl = freezed,
     Object? tags = null,
     Object? rating = null,
@@ -209,26 +209,26 @@ class __$$PlaceImplCopyWithImpl<$Res>
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
-      address: null == address
+      address: freezed == address
           ? _value.address
           : address // ignore: cast_nullable_to_non_nullable
-              as String,
-      latitude: null == latitude
+              as String?,
+      latitude: freezed == latitude
           ? _value.latitude
           : latitude // ignore: cast_nullable_to_non_nullable
-              as double,
-      longitude: null == longitude
+              as double?,
+      longitude: freezed == longitude
           ? _value.longitude
           : longitude // ignore: cast_nullable_to_non_nullable
-              as double,
+              as double?,
       description: freezed == description
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String?,
-      category: freezed == category
+      category: null == category
           ? _value.category
           : category // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as String,
       imageUrl: freezed == imageUrl
           ? _value.imageUrl
           : imageUrl // ignore: cast_nullable_to_non_nullable
@@ -263,11 +263,11 @@ class _$PlaceImpl implements _Place {
   const _$PlaceImpl(
       {required this.id,
       required this.name,
-      required this.address,
-      required this.latitude,
-      required this.longitude,
+      this.address,
+      this.latitude,
+      this.longitude,
       this.description,
-      this.category,
+      required this.category,
       this.imageUrl,
       final List<String> tags = const [],
       this.rating = 0.0,
@@ -284,15 +284,15 @@ class _$PlaceImpl implements _Place {
   @override
   final String name;
   @override
-  final String address;
+  final String? address;
   @override
-  final double latitude;
+  final double? latitude;
   @override
-  final double longitude;
+  final double? longitude;
   @override
   final String? description;
   @override
-  final String? category;
+  final String category;
   @override
   final String? imageUrl;
   final List<String> _tags;
@@ -386,11 +386,11 @@ abstract class _Place implements Place {
   const factory _Place(
       {required final String id,
       required final String name,
-      required final String address,
-      required final double latitude,
-      required final double longitude,
+      final String? address,
+      final double? latitude,
+      final double? longitude,
       final String? description,
-      final String? category,
+      required final String category,
       final String? imageUrl,
       final List<String> tags,
       final double rating,
@@ -405,15 +405,15 @@ abstract class _Place implements Place {
   @override
   String get name;
   @override
-  String get address;
+  String? get address;
   @override
-  double get latitude;
+  double? get latitude;
   @override
-  double get longitude;
+  double? get longitude;
   @override
   String? get description;
   @override
-  String? get category;
+  String get category;
   @override
   String? get imageUrl;
   @override
