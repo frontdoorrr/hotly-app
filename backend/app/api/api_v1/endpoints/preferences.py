@@ -25,7 +25,7 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 # Temporary user_id for development
-TEMP_USER_ID = "00000000-0000-0000-0000-000000000000"
+TEMP_USER_ID = "00000000-0000-0000-0000-000000000001"
 
 
 @router.post("/behavior", response_model=UserBehaviorResponse, status_code=201)
