@@ -126,33 +126,74 @@ class ContentExtractor:
         # Simulate processing time
         await asyncio.sleep(0.1)
 
+        # Use URL hash to select different mock scenarios for variety
+        import hashlib
+
+        url_hash = int(hashlib.md5(url.encode()).hexdigest(), 16) % 5
+
         # Return mock content based on platform
         if platform == PlatformType.INSTAGRAM:
-            metadata = ContentMetadata(
-                title="Amazing restaurant in Seoul",
-                description="Great food and atmosphere!",
-                images=["https://instagram.com/image1.jpg"],
-                location="Seoul, South Korea",
-                hashtags=["#food", "#seoul", "#restaurant"],
-            )
+            mock_scenarios = [
+                # Scenario 1: 성수동 카페
+                ContentMetadata(
+                    title="성수동 카페 오아시스에서 브런치 먹었어요",
+                    description="성수동에 있는 북유럽 감성 카페입니다. 루프탑도 있고 브런치 메뉴가 정말 맛있어요! 에그베네딕트 추천합니다.",
+                    images=[],
+                    location="서울 성동구 성수동",
+                    hashtags=["#성수동카페", "#브런치맛집", "#루프탑카페", "#감성카페", "#데이트코스"],
+                ),
+                # Scenario 2: 강남 고깃집
+                ContentMetadata(
+                    title="강남 숙성 한우 맛집 발견!",
+                    description="강남역 근처 한우 맛집이에요. 60일 숙성 한우라 진짜 부드럽고 맛있어요. 가격은 좀 있지만 특별한 날 추천!",
+                    images=[],
+                    location="서울 강남구 역삼동",
+                    hashtags=["#강남맛집", "#한우맛집", "#숙성한우", "#고기집추천", "#기념일맛집"],
+                ),
+                # Scenario 3: 홍대 디저트 카페
+                ContentMetadata(
+                    title="홍대 티라미수 맛집 🍰",
+                    description="홍대에서 제일 맛있는 티라미수! 커피도 진하고 좋아요. 인테리어도 예뻐서 사진 찍기 좋음",
+                    images=[],
+                    location="서울 마포구 홍대입구",
+                    hashtags=["#홍대카페", "#티라미수맛집", "#디저트카페", "#홍대데이트", "#카페투어"],
+                ),
+                # Scenario 4: 이태원 이탈리안 레스토랑
+                ContentMetadata(
+                    title="이태원 파스타 맛집 추천",
+                    description="정통 이탈리안 레스토랑! 파스타 면을 직접 만들어서 쫄깃하고 소스도 진짜 맛있어요. 와인도 잘 어울림",
+                    images=[],
+                    location="서울 용산구 이태원동",
+                    hashtags=["#이태원맛집", "#파스타맛집", "#이탈리안레스토랑", "#데이트코스", "#와인맛집"],
+                ),
+                # Scenario 5: 여의도 오피스 카페
+                ContentMetadata(
+                    title="여의도 직장인 핫플 카페",
+                    description="여의도에서 일하는 직장인이라면 여기! 아메리카노도 맛있고 브런치도 괜찮아요. 점심시간엔 사람 많으니 참고",
+                    images=[],
+                    location="서울 영등포구 여의도동",
+                    hashtags=["#여의도카페", "#직장인카페", "#브런치카페", "#오피스맛집", "#여의도핫플"],
+                ),
+            ]
+            metadata = mock_scenarios[url_hash]
         elif platform == PlatformType.NAVER_BLOG:
             metadata = ContentMetadata(
-                title="Best places to visit in Gangnam",
-                description="Food tour guide in Gangnam",
-                images=["https://blog.image.jpg"],
-                location="Gangnam, Seoul",
-                hashtags=["#gangnam", "#food", "#travel"],
+                title="서울 핫플 맛집 리스트",
+                description="서울에서 꼭 가봐야 할 맛집들을 정리해봤어요. 강남, 홍대, 성수동 등 지역별로 추천 맛집을 소개합니다.",
+                images=[],
+                location="서울",
+                hashtags=["#서울맛집", "#맛집추천", "#맛집탐방"],
             )
         elif platform == PlatformType.YOUTUBE:
             metadata = ContentMetadata(
-                title="YouTube Video Title",
-                description="YouTube video description",
-                images=["https://img.youtube.com/vi/ABC123/maxresdefault.jpg"],
-                hashtags=["#video", "#youtube"],
+                title="서울 카페 브이로그 | 성수동 카페투어",
+                description="성수동에서 가장 핫한 카페들을 방문해봤어요! 인테리어 예쁘고 커피 맛있는 곳들만 골라서 갔습니다.",
+                images=[],
+                hashtags=["#성수동카페", "#카페브이로그", "#서울카페투어"],
             )
         else:
             metadata = ContentMetadata(
-                title="Content title", description="Content description"
+                title="맛집 정보", description="맛집 관련 콘텐츠입니다."
             )
 
         return ExtractedContent(url=url, platform=platform, metadata=metadata)

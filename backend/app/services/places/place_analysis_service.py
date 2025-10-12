@@ -1,42 +1,60 @@
 """Place analysis service that orchestrates content extraction and AI analysis."""
 
+import logging
 import time
-from typing import List
+from typing import List, Optional
 
 from app.exceptions.ai import AIAnalysisError
-from app.schemas.ai import PlaceAnalysisRequest, PlaceAnalysisResponse, PlaceInfo
+from app.schemas.ai import PlaceAnalysisResponse
 from app.schemas.content import ContentMetadata
-from app.services.ai.gemini_analyzer import GeminiAnalyzer
+from app.services.places.multimodal_orchestrator import MultimodalOrchestrator
+
+logger = logging.getLogger(__name__)
 
 
 class PlaceAnalysisService:
-    """Service for analyzing content and extracting place information."""
+    """Service for analyzing content and extracting place information (multimodal)."""
 
     def __init__(self) -> None:
         """Initialize place analysis service."""
-        self.ai_analyzer = GeminiAnalyzer()  # Phase 1: Direct injection
+        self.orchestrator = MultimodalOrchestrator()
 
     async def analyze_content(
-        self, content: ContentMetadata, images: List[str] = None
+        self,
+        content: ContentMetadata,
+        images: Optional[List[str]] = None,
+        enable_image_analysis: bool = True,
+        max_images: int = 3,
     ) -> PlaceAnalysisResponse:
-        """Analyze content metadata and extract place information."""
+        """
+        Analyze content metadata and extract place information (multimodal).
+
+        Args:
+            content: Content metadata from extraction
+            images: Optional image URLs (overrides content.images)
+            enable_image_analysis: Enable image download and analysis
+            max_images: Maximum number of images to process
+
+        Returns:
+            PlaceAnalysisResponse with multimodal metadata
+        """
         start_time = time.time()
 
         try:
-            # Prepare AI analysis request
-            ai_request = PlaceAnalysisRequest(
-                content_text=content.title or "",
-                content_description=content.description,
-                hashtags=content.hashtags or [],
-                images=images or content.images or [],
-                platform="extracted_content",  # Generic platform for processed content
+            # Override images if provided
+            if images is not None:
+                content.images = images
+
+            # Call multimodal orchestrator
+            (
+                place_info,
+                confidence,
+                multimodal_metadata,
+            ) = await self.orchestrator.analyze_content(
+                content_metadata=content,
+                enable_image_analysis=enable_image_analysis,
+                max_images=max_images,
             )
-
-            # Analyze with AI
-            place_info = await self.ai_analyzer.analyze_place_content(ai_request)
-
-            # Calculate confidence based on available data
-            confidence = self._calculate_confidence(content, place_info)
 
             analysis_time = time.time() - start_time
 
@@ -45,11 +63,13 @@ class PlaceAnalysisService:
                 place_info=place_info,
                 confidence=confidence,
                 analysis_time=analysis_time,
-                model_version="gemini-pro-vision",
+                model_version="gemini-2.0-flash-exp",
+                multimodal_metadata=multimodal_metadata,
             )
 
         except AIAnalysisError as e:
             analysis_time = time.time() - start_time
+            logger.error(f"AI analysis failed: {e}")
 
             return PlaceAnalysisResponse(
                 success=False,
@@ -57,34 +77,18 @@ class PlaceAnalysisService:
                 confidence=0.0,
                 analysis_time=analysis_time,
                 error=str(e),
-                model_version="gemini-pro-vision",
+                model_version="gemini-2.0-flash-exp",
+            )
+        except Exception as e:
+            analysis_time = time.time() - start_time
+            logger.error(f"Unexpected error in place analysis: {e}")
+
+            return PlaceAnalysisResponse(
+                success=False,
+                place_info=None,
+                confidence=0.0,
+                analysis_time=analysis_time,
+                error=f"Analysis failed: {str(e)}",
+                model_version="gemini-2.0-flash-exp",
             )
 
-    def _calculate_confidence(
-        self, content: ContentMetadata, place_info: PlaceInfo
-    ) -> float:
-        """Calculate confidence score based on available data quality."""
-        confidence = 0.5  # Base confidence
-
-        # Boost confidence based on data availability
-        if content.title and len(content.title) > 10:
-            confidence += 0.1
-        if content.description and len(content.description) > 20:
-            confidence += 0.1
-        if content.location:
-            confidence += 0.1
-        if content.hashtags and len(content.hashtags) > 2:
-            confidence += 0.1
-        if content.images and len(content.images) > 0:
-            confidence += 0.1
-
-        # Boost confidence based on extracted place info quality
-        if place_info.address:
-            confidence += 0.1
-        if place_info.phone:
-            confidence += 0.05
-        if len(place_info.keywords) > 3:
-            confidence += 0.05
-
-        # Cap confidence at 1.0
-        return min(confidence, 1.0)
