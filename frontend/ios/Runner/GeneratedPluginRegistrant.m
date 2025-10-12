@@ -120,10 +120,10 @@
 @import kakao_flutter_sdk_common;
 #endif
 
-#if __has_include(<kakao_map_plugin/KakaoMapPlugin.h>)
-#import <kakao_map_plugin/KakaoMapPlugin.h>
+#if __has_include(<kakao_map_sdk/FlutterKakaoMapsPlugin.h>)
+#import <kakao_map_sdk/FlutterKakaoMapsPlugin.h>
 #else
-@import kakao_map_plugin;
+@import kakao_map_sdk;
 #endif
 
 #if __has_include(<package_info_plus/FPPPackageInfoPlusPlugin.h>)
@@ -142,6 +142,12 @@
 #import <permission_handler_apple/PermissionHandlerPlugin.h>
 #else
 @import permission_handler_apple;
+#endif
+
+#if __has_include(<receive_sharing_intent/ReceiveSharingIntentPlugin.h>)
+#import <receive_sharing_intent/ReceiveSharingIntentPlugin.h>
+#else
+@import receive_sharing_intent;
 #endif
 
 #if __has_include(<share_plus/FPPSharePlusPlugin.h>)
@@ -180,12 +186,6 @@
 @import url_launcher_ios;
 #endif
 
-#if __has_include(<webview_flutter_wkwebview/WebViewFlutterPlugin.h>)
-#import <webview_flutter_wkwebview/WebViewFlutterPlugin.h>
-#else
-@import webview_flutter_wkwebview;
-#endif
-
 @implementation GeneratedPluginRegistrant
 
 + (void)registerWithRegistry:(NSObject<FlutterPluginRegistry>*)registry {
@@ -208,17 +208,17 @@
   [FLTImagePickerPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTImagePickerPlugin"]];
   [IntegrationTestPlugin registerWithRegistrar:[registry registrarForPlugin:@"IntegrationTestPlugin"]];
   [KakaoFlutterSdkPlugin registerWithRegistrar:[registry registrarForPlugin:@"KakaoFlutterSdkPlugin"]];
-  [KakaoMapPlugin registerWithRegistrar:[registry registrarForPlugin:@"KakaoMapPlugin"]];
+  [FlutterKakaoMapsPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterKakaoMapsPlugin"]];
   [FPPPackageInfoPlusPlugin registerWithRegistrar:[registry registrarForPlugin:@"FPPPackageInfoPlusPlugin"]];
   [PathProviderPlugin registerWithRegistrar:[registry registrarForPlugin:@"PathProviderPlugin"]];
   [PermissionHandlerPlugin registerWithRegistrar:[registry registrarForPlugin:@"PermissionHandlerPlugin"]];
+  [ReceiveSharingIntentPlugin registerWithRegistrar:[registry registrarForPlugin:@"ReceiveSharingIntentPlugin"]];
   [FPPSharePlusPlugin registerWithRegistrar:[registry registrarForPlugin:@"FPPSharePlusPlugin"]];
   [SharedPreferencesPlugin registerWithRegistrar:[registry registrarForPlugin:@"SharedPreferencesPlugin"]];
   [SignInWithApplePlugin registerWithRegistrar:[registry registrarForPlugin:@"SignInWithApplePlugin"]];
   [SqflitePlugin registerWithRegistrar:[registry registrarForPlugin:@"SqflitePlugin"]];
   [UniLinksPlugin registerWithRegistrar:[registry registrarForPlugin:@"UniLinksPlugin"]];
   [URLLauncherPlugin registerWithRegistrar:[registry registrarForPlugin:@"URLLauncherPlugin"]];
-  [WebViewFlutterPlugin registerWithRegistrar:[registry registrarForPlugin:@"WebViewFlutterPlugin"]];
 }
 
 @end
