@@ -144,6 +144,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          LinkInputBottomSheet.show(context);
+        },
+        icon: const Icon(Icons.link),
+        label: const Text('링크 분석'),
+        tooltip: 'SNS 링크 분석하기',
+      ),
     );
   }
 
