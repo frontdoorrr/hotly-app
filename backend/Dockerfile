@@ -31,6 +31,9 @@ COPY pyproject.toml poetry.lock ./
 # Install dependencies (without installing the project itself)
 RUN poetry install --with dev --no-root
 
+# Install additional dependencies (temporary fix until poetry.lock is updated)
+RUN pip install Pillow==10.0.0
+
 # Copy application code
 COPY . .
 
@@ -52,6 +55,9 @@ COPY pyproject.toml poetry.lock ./
 
 # Install only production dependencies (without the project itself)
 RUN poetry install --only main --no-dev --no-root
+
+# Install additional dependencies (temporary fix until poetry.lock is updated)
+RUN pip install Pillow==10.0.0
 
 # Copy application code
 COPY . .
