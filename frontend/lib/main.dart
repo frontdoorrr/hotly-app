@@ -40,8 +40,13 @@ void main() async {
 
   // Initialize Kakao Maps SDK
   final kakaoMapKey = dotenv.env['KAKAO_NATIVE_APP_KEY'] ?? '';
-  KakaoMapSdk.instance.initialize(kakaoMapKey);
-  print('🗺️ Kakao Maps SDK initialized with key: ${kakaoMapKey.substring(0, 8)}...');
+  if (kakaoMapKey.isNotEmpty) {
+    KakaoMapSdk.instance.initialize(kakaoMapKey);
+    final maskedKey = kakaoMapKey.length >= 8 ? kakaoMapKey.substring(0, 8) : kakaoMapKey;
+    print('🗺️ Kakao Maps SDK initialized with key: $maskedKey...');
+  } else {
+    print('⚠️ Kakao Maps SDK key not configured');
+  }
 
 
   // Initialize Supabase (Database, Storage, Realtime only - Auth는 Firebase 사용)
@@ -117,31 +122,32 @@ class _HotlyAppState extends ConsumerState<HotlyApp> {
   }
 
   void _setupSharingIntentHandler() {
-    // Handle initial shared media (앱이 종료된 상태에서 공유받은 경우)
-    ReceiveSharingIntent.instance.getInitialMedia().then((List<SharedMediaFile> value) {
-      if (value.isNotEmpty) {
-        // Extract text from shared media
-        final sharedText = value.first.path;
-        debugPrint('📤 Initial shared media: $sharedText');
-        _handleSharedUrl(sharedText);
-        // Reset after processing
-        ReceiveSharingIntent.instance.reset();
-      }
-    });
+    // TODO: Fix receive_sharing_intent API compatibility issue
+    // Temporarily disabled to allow app to run
+    debugPrint('⚠️ Sharing intent handler temporarily disabled');
 
-    // Handle shared media stream (앱이 실행 중일 때 공유받은 경우)
-    _intentDataStreamSubscription = ReceiveSharingIntent.instance.getMediaStream().listen(
-      (List<SharedMediaFile> value) {
-        if (value.isNotEmpty) {
-          final sharedText = value.first.path;
-          debugPrint('📤 Received shared media: $sharedText');
-          _handleSharedUrl(sharedText);
-        }
-      },
-      onError: (err) {
-        debugPrint('❌ Error receiving shared media: $err');
-      },
-    );
+    // Handle initial shared text (앱이 종료된 상태에서 공유받은 경우)
+    // ReceiveSharingIntent.instance.getInitialText().then((String? value) {
+    //   if (value != null && value.isNotEmpty) {
+    //     debugPrint('📤 Initial shared text: $value');
+    //     _handleSharedUrl(value);
+    //     // Reset after processing
+    //     ReceiveSharingIntent.instance.reset();
+    //   }
+    // });
+
+    // Handle shared text stream (앱이 실행 중일 때 공유받은 경우)
+    // _intentDataStreamSubscription = ReceiveSharingIntent.instance.getTextStream().listen(
+    //   (String value) {
+    //     if (value.isNotEmpty) {
+    //       debugPrint('📤 Received shared text: $value');
+    //       _handleSharedUrl(value);
+    //     }
+    //   },
+    //   onError: (err) {
+    //     debugPrint('❌ Error receiving shared text: $err');
+    //   },
+    // );
   }
 
   void _handleSharedUrl(String text) {
