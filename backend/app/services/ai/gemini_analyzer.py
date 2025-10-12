@@ -31,9 +31,9 @@ class GeminiAnalyzer:
         if hasattr(settings, "GEMINI_API_KEY") and settings.GEMINI_API_KEY:
             genai.configure(api_key=settings.GEMINI_API_KEY)
 
-        # Use Gemini 1.5 Flash (fast, cost-effective, supports vision)
-        # Alternative: "gemini-1.5-pro" for higher accuracy but slower
-        self.model_name = "gemini-1.5-flash"
+        # Use Gemini 2.0 Flash (fast, cost-effective, supports vision)
+        # Alternative: "gemini-2.5-flash" or "gemini-2.5-pro" for more advanced features
+        self.model_name = "gemini-2.0-flash-exp"
         self.timeout = 60  # 60 seconds timeout
         self.max_retries = 3
         self.base_delay = 1.0  # Base delay for exponential backoff

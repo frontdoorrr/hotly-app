@@ -1,403 +1,285 @@
-"""Advanced Gemini AI analyzer for place information extraction."""
+"""Gemini AI analyzer V2 with enhanced multimodal support."""
 
 import asyncio
 import json
 import time
-import logging
-from typing import List, Optional, Dict, Any
-import os
-import base64
-# import httpx  # Not available, will use mock implementation
+from typing import Any, Dict, List, Optional, Tuple
 
+import google.generativeai as genai
+from PIL import Image
+
+from app.core.config import settings
+from app.exceptions.ai import (
+    AIAnalysisError,
+    AIServiceUnavailableError,
+    InvalidResponseError,
+    RateLimitError,
+)
 from app.schemas.ai import (
-    GeminiRequest, 
-    GeminiResponse, 
-    PlaceAnalysisResult, 
-    AnalysisConfidence,
+    MultimodalAnalysisMetadata,
     PlaceAnalysisRequest,
     PlaceInfo,
-    PlaceCategory
 )
-from app.schemas.content import ExtractedContent
-from app.exceptions.ai import AIAnalysisError, RateLimitError
-from app.prompts.place_extraction import (
-    PLACE_EXTRACTION_PROMPT_V2,
-    PLACE_EXTRACTION_JSON_SCHEMA
+from app.services.ai.prompts.multimodal_prompt import (
+    get_image_analysis_instruction,
+    get_multimodal_prompt,
 )
-
-logger = logging.getLogger(__name__)
 
 
 class GeminiAnalyzerV2:
-    """Advanced Gemini AI analyzer with multimodal capabilities."""
+    """
+    Gemini 2.0 Flash based multimodal analyzer (enhanced version).
 
-    def __init__(self):
+    Improvements:
+    - Direct PIL.Image object processing
+    - Optimized multimodal prompts
+    - Image analysis results reflected in confidence
+    - Detailed metadata collection
+    """
+
+    def __init__(self) -> None:
         """Initialize Gemini analyzer."""
-        self.api_key = os.getenv("GOOGLE_AI_API_KEY")
-        self.base_url = "https://generativelanguage.googleapis.com/v1beta/models"
-        self.model_name = "gemini-pro-vision"
+        if hasattr(settings, "GEMINI_API_KEY") and settings.GEMINI_API_KEY:
+            genai.configure(api_key=settings.GEMINI_API_KEY)
+
+        self.model_name = "gemini-2.0-flash-exp"
+        self.timeout = 60
         self.max_retries = 3
-        self.base_delay = 1.0  # Base delay for exponential backoff
-        
-        if not self.api_key:
-            logger.warning("GOOGLE_AI_API_KEY not set, using mock responses")
+        self.base_delay = 1.0
 
-    async def analyze_place_content_extracted(
-        self, 
-        content: ExtractedContent,
-        min_confidence: str = "medium"
-    ) -> GeminiResponse:
-        """Analyze content to extract place information."""
-        start_time = time.time()
-        
-        try:
-            # Build request
-            request = self._build_gemini_request(content)
-            
-            # Call Gemini API with retries
-            response_data = await self._call_gemini_api_with_retries(request)
-            
-            # Parse and validate response
-            places = self._parse_gemini_response(response_data)
-            
-            # Filter by confidence if specified
-            if min_confidence != "low":
-                places = self._filter_by_confidence(places, min_confidence)
-            
-            processing_time = time.time() - start_time
-            
-            return GeminiResponse(
-                places=places,
-                overall_confidence=self._calculate_overall_confidence(places),
-                processing_time=processing_time
-            )
-            
-        except Exception as e:
-            logger.error(f"Gemini analysis failed: {str(e)}")
-            if isinstance(e, (AIAnalysisError, RateLimitError)):
-                raise
-            raise AIAnalysisError(f"Analysis failed: {str(e)}")
-
-    def _build_gemini_request(self, content: ExtractedContent) -> GeminiRequest:
-        """Build Gemini API request from extracted content."""
-        # Combine text content
-        text_content = f"""
-        Platform: {content.platform.value}
-        Title: {content.metadata.title or 'N/A'}
-        Description: {content.metadata.description or 'N/A'}
-        Location: {content.metadata.location or 'N/A'}
-        Hashtags: {', '.join(content.metadata.hashtags) if content.metadata.hashtags else 'N/A'}
+    async def analyze_multimodal_content(
+        self,
+        request: PlaceAnalysisRequest,
+        pil_images: Optional[List[Image.Image]] = None,
+    ) -> Tuple[PlaceInfo, MultimodalAnalysisMetadata]:
         """
-        
-        return GeminiRequest(
-            content=text_content.strip(),
-            images=content.metadata.images,
-            platform=content.platform.value
+        Analyze multimodal content (text + images).
+
+        Args:
+            request: Analysis request (includes text info)
+            pil_images: List of PIL.Image objects
+
+        Returns:
+            (PlaceInfo, MultimodalAnalysisMetadata)
+        """
+        start_time = time.time()
+
+        try:
+            # Initialize metadata
+            metadata = MultimodalAnalysisMetadata(
+                num_images_provided=len(request.images),
+                num_images_analyzed=len(pil_images) if pil_images else 0,
+                num_video_frames=0,  # TODO: Update when video frame support is added
+                text_length_chars=len(request.content_text or ""),
+                image_download_time=0.0,
+                image_processing_time=0.0,
+                ai_inference_time=0.0,
+                total_time=0.0,
+                avg_image_quality=0.0,
+                text_quality_score=self._calculate_text_quality(request),
+                confidence_factors={},
+            )
+
+            # Generate prompt
+            prompt = self._format_multimodal_prompt(request, pil_images)
+
+            # Call Gemini API
+            ai_start_time = time.time()
+            response_text = await self._call_gemini_api_with_retry(prompt, pil_images)
+            metadata.ai_inference_time = time.time() - ai_start_time
+
+            # Parse response
+            place_data = self._parse_and_validate_response(response_text)
+
+            # Create PlaceInfo
+            place_info = PlaceInfo(**place_data)
+
+            # Calculate confidence factors
+            metadata.confidence_factors = self._calculate_confidence_factors(
+                request, pil_images, place_info
+            )
+
+            # Total processing time
+            metadata.total_time = time.time() - start_time
+
+            return place_info, metadata
+
+        except Exception as e:
+            if isinstance(e, (AIAnalysisError, RateLimitError, InvalidResponseError)):
+                raise
+            raise AIAnalysisError(f"Multimodal analysis failed: {str(e)}")
+
+    def _format_multimodal_prompt(
+        self, request: PlaceAnalysisRequest, pil_images: Optional[List[Image.Image]]
+    ) -> str:
+        """Generate multimodal prompt."""
+        hashtags_str = " ".join(request.hashtags) if request.hashtags else "없음"
+
+        # Adjust prompt based on number of images
+        image_instruction = ""
+        if pil_images and len(pil_images) > 0:
+            image_instruction = get_image_analysis_instruction(len(pil_images))
+
+        prompt = get_multimodal_prompt(
+            platform=request.platform,
+            title=request.content_text or "없음",
+            description=request.content_description or "없음",
+            hashtags=hashtags_str,
+            image_instruction=image_instruction,
         )
 
-    async def _call_gemini_api_with_retries(self, request: GeminiRequest) -> Dict[str, Any]:
-        """Call Gemini API with exponential backoff retries."""
-        last_exception = None
-        
+        return prompt
+
+    async def _call_gemini_api_with_retry(
+        self, prompt: str, images: Optional[List[Image.Image]]
+    ) -> str:
+        """Call Gemini API (with retry)."""
         for attempt in range(self.max_retries):
             try:
-                return await self._call_gemini_api(request)
-                
-            except RateLimitError as e:
-                last_exception = e
-                if attempt < self.max_retries - 1:
-                    # Extract wait time from error message if available
-                    wait_time = self._extract_rate_limit_wait_time(str(e))
-                    logger.warning(f"Rate limited, waiting {wait_time}s before retry {attempt + 1}")
-                    await asyncio.sleep(wait_time)
-                    continue
-                raise
-                
-            except AIAnalysisError as e:
-                last_exception = e
-                if attempt < self.max_retries - 1:
-                    # Exponential backoff for temporary failures
-                    delay = self.base_delay * (2 ** attempt)
-                    logger.warning(f"Temporary failure, retrying in {delay}s: {str(e)}")
-                    await asyncio.sleep(delay)
-                    continue
-                raise
-                
-        raise last_exception or AIAnalysisError("Max retries exceeded")
+                return await self._call_gemini_api(prompt, images)
+            except RateLimitError:
+                if attempt == self.max_retries - 1:
+                    raise
+                delay = self.base_delay * (2**attempt)
+                await asyncio.sleep(delay)
+            except AIServiceUnavailableError:
+                if attempt == self.max_retries - 1:
+                    raise
+                delay = self.base_delay * (2**attempt)
+                await asyncio.sleep(delay)
 
-    async def _call_gemini_api(self, request: GeminiRequest) -> Dict[str, Any]:
-        """Make actual API call to Gemini."""
-        if not self.api_key:
-            # Return mock response for testing
-            return self._generate_mock_response(request)
-        
+        raise AIAnalysisError("Max retries exceeded")
+
+    async def _call_gemini_api(
+        self, prompt: str, images: Optional[List[Image.Image]]
+    ) -> str:
+        """Call Gemini API (multimodal)."""
         try:
-            # Build prompt
-            prompt = self._build_prompt(request)
-            
-            # Prepare API request
-            api_request = {
-                "contents": [{
-                    "parts": self._build_content_parts(prompt, request.images)
-                }],
-                "generationConfig": {
-                    "temperature": 0.1,  # Low temperature for consistent extraction
-                    "topK": 40,
-                    "topP": 0.95,
-                    "maxOutputTokens": 2048,
-                }
-            }
-            
-            url = f"{self.base_url}/{self.model_name}:generateContent?key={self.api_key}"
-            
-            # httpx not available, fall back to mock implementation
-            logger.info("httpx not available, using mock implementation")
-            return self._generate_mock_response(request)
-        except Exception as e:
-            if isinstance(e, (AIAnalysisError, RateLimitError)):
-                raise
-            raise AIAnalysisError(f"API call failed: {str(e)}")
+            if not hasattr(settings, "GEMINI_API_KEY") or not settings.GEMINI_API_KEY:
+                raise AIServiceUnavailableError("Gemini API key not configured")
 
-    def _build_prompt(self, request: GeminiRequest) -> str:
-        """Build optimized prompt for place extraction."""
-        platform_specific_instructions = {
-            "instagram": "Focus on hashtags and visual content. Look for restaurant names, cafe mentions, and location tags.",
-            "naver_blog": "Analyze detailed review content. Extract specific business names, addresses, and detailed descriptions.",
-            "youtube": "Focus on video title and description. Look for location mentions and place recommendations."
-        }
-        
-        platform_instruction = platform_specific_instructions.get(
-            request.platform, 
-            "Analyze the content for place information."
-        )
-        
-        return PLACE_EXTRACTION_PROMPT_V2.format(
-            platform=request.platform,
-            platform_instruction=platform_instruction,
-            content=request.content,
-            json_schema=json.dumps(PLACE_EXTRACTION_JSON_SCHEMA, indent=2)
-        )
+            model = genai.GenerativeModel(self.model_name)
 
-    def _build_content_parts(self, prompt: str, image_urls: List[str]) -> List[Dict[str, Any]]:
-        """Build content parts for multimodal request."""
-        parts = [{"text": prompt}]
-        
-        # Add images for vision analysis (limited to prevent API limits)
-        for i, image_url in enumerate(image_urls[:3]):  # Limit to 3 images
-            try:
-                # For now, just reference the image URL
-                # In production, you'd download and encode the image
-                parts.append({
-                    "text": f"[Image {i+1}: {image_url}]"
-                })
-            except Exception as e:
-                logger.warning(f"Failed to process image {image_url}: {str(e)}")
-                continue
-        
-        return parts
-
-    def _parse_json_response(self, response_text: str) -> Dict[str, Any]:
-        """Parse JSON response from Gemini."""
-        try:
-            # Try to find JSON in the response
-            start_idx = response_text.find('{')
-            end_idx = response_text.rfind('}') + 1
-            
-            if start_idx == -1 or end_idx == 0:
-                raise AIAnalysisError("No JSON found in response")
-            
-            json_text = response_text[start_idx:end_idx]
-            return json.loads(json_text)
-            
-        except json.JSONDecodeError as e:
-            raise AIAnalysisError(f"Invalid JSON response: {str(e)}")
-
-    def _generate_mock_response(self, request: GeminiRequest) -> Dict[str, Any]:
-        """Generate mock response for testing."""
-        # Simulate processing delay
-        
-        # Analyze content for keywords to generate relevant mock data
-        content_lower = request.content.lower()
-        
-        if "korean" in content_lower and "bbq" in content_lower:
-            return {
-                "places": [
-                    {
-                        "name": "Korean BBQ Restaurant",
-                        "address": "Gangnam, Seoul",
-                        "category": "restaurant",
-                        "confidence": "high",
-                        "description": "Korean BBQ restaurant with excellent beef"
-                    }
-                ],
-                "analysis_confidence": "high"
-            }
-        elif "coffee" in content_lower:
-            return {
-                "places": [
-                    {
-                        "name": "Coffee Shop",
-                        "address": "Seoul",
-                        "category": "cafe", 
-                        "confidence": "medium",
-                        "description": "Local coffee shop"
-                    }
-                ],
-                "analysis_confidence": "medium"
-            }
-        else:
-            return {
-                "places": [],
-                "analysis_confidence": "high"
-            }
-
-    def _parse_gemini_response(self, response_data: Dict[str, Any]) -> List[PlaceAnalysisResult]:
-        """Parse Gemini response into structured format."""
-        places = []
-        
-        if "places" in response_data:
-            for place_data in response_data["places"]:
-                try:
-                    # Validate and sanitize data
-                    name = str(place_data.get("name", "")).strip()
-                    if not name:
-                        continue
-                        
-                    address = place_data.get("address", "")
-                    if address:
-                        address = str(address).strip()
-                    
-                    category = str(place_data.get("category", "other")).lower()
-                    
-                    # Parse confidence
-                    confidence_str = str(place_data.get("confidence", "medium")).lower()
-                    if confidence_str in ["high", "medium", "low"]:
-                        confidence = AnalysisConfidence(confidence_str)
-                    else:
-                        confidence = AnalysisConfidence.MEDIUM
-                    
-                    description = place_data.get("description", "")
-                    if description:
-                        description = str(description).strip()
-                    
-                    place = PlaceAnalysisResult(
-                        name=name,
-                        address=address,
-                        category=category,
-                        confidence=confidence,
-                        description=description
-                    )
-                    
-                    places.append(place)
-                    
-                except Exception as e:
-                    logger.warning(f"Failed to parse place data: {str(e)}")
-                    continue
-        
-        return places
-
-    def _filter_by_confidence(self, places: List[PlaceAnalysisResult], min_confidence: str) -> List[PlaceAnalysisResult]:
-        """Filter places by minimum confidence level."""
-        confidence_order = {
-            "low": 0,
-            "medium": 1,
-            "high": 2
-        }
-        
-        min_level = confidence_order.get(min_confidence, 1)
-        
-        return [
-            place for place in places
-            if confidence_order.get(place.confidence.value, 0) >= min_level
-        ]
-
-    def _calculate_overall_confidence(self, places: List[PlaceAnalysisResult]) -> AnalysisConfidence:
-        """Calculate overall confidence based on individual place confidences."""
-        if not places:
-            return AnalysisConfidence.HIGH  # High confidence in finding no places
-        
-        confidence_scores = {
-            AnalysisConfidence.HIGH: 3,
-            AnalysisConfidence.MEDIUM: 2,
-            AnalysisConfidence.LOW: 1
-        }
-        
-        avg_score = sum(confidence_scores[place.confidence] for place in places) / len(places)
-        
-        if avg_score >= 2.5:
-            return AnalysisConfidence.HIGH
-        elif avg_score >= 1.5:
-            return AnalysisConfidence.MEDIUM
-        else:
-            return AnalysisConfidence.LOW
-
-    def _extract_rate_limit_wait_time(self, error_message: str) -> float:
-        """Extract wait time from rate limit error message."""
-        # Try to extract wait time from error message
-        import re
-        match = re.search(r'retry after (\d+)', error_message.lower())
-        if match:
-            return float(match.group(1))
-        return 60.0  # Default wait time
-
-    # Legacy methods for compatibility with existing tests
-    async def analyze_place_content_legacy(self, request: PlaceAnalysisRequest) -> PlaceInfo:
-        """Legacy method for compatibility with existing code."""
-        # Convert to new format
-        content_text = f"""
-        Content: {request.content_text}
-        Description: {request.content_description or ''}
-        Hashtags: {', '.join(request.hashtags) if request.hashtags else ''}
-        Platform: {request.platform}
-        """
-        
-        gemini_request = GeminiRequest(
-            content=content_text.strip(),
-            images=request.images,
-            platform=request.platform
-        )
-        
-        try:
-            response_data = await self._call_gemini_api(gemini_request)
-            
-            # Convert to legacy format
-            if "places" in response_data and response_data["places"]:
-                place_data = response_data["places"][0]  # Take first place
-                
-                return PlaceInfo(
-                    name=place_data.get("name", "Unknown Place"),
-                    address=place_data.get("address"),
-                    category=self._map_category_to_enum(place_data.get("category", "other")),
-                    keywords=place_data.get("keywords", []),
-                    recommendation_score=min(10, max(1, place_data.get("recommendation_score", 7)))
-                )
+            # Construct content
+            if images and len(images) > 0:
+                # Multimodal: [prompt, image1, image2, ...]
+                content = [prompt] + images
             else:
-                # No places found
-                return PlaceInfo(
-                    name="Unknown Place",
-                    category=PlaceCategory.OTHER,
-                    keywords=[],
-                    recommendation_score=5
-                )
-                
+                # Text only
+                content = prompt
+
+            # API call
+            response = await asyncio.to_thread(
+                model.generate_content,
+                content,
+                generation_config=genai.GenerationConfig(
+                    temperature=0.1,  # Low temperature for consistency
+                    top_p=0.8,
+                    top_k=40,
+                    max_output_tokens=2048,
+                ),
+            )
+
+            if not response or not response.text:
+                raise InvalidResponseError("Empty response from Gemini")
+
+            response_text = response.text.strip()
+
+            # Remove markdown code blocks
+            if response_text.startswith("```json"):
+                response_text = response_text[7:]
+                if response_text.endswith("```"):
+                    response_text = response_text[:-3]
+                response_text = response_text.strip()
+            elif response_text.startswith("```"):
+                response_text = response_text[3:]
+                if response_text.endswith("```"):
+                    response_text = response_text[:-3]
+                response_text = response_text.strip()
+
+            return response_text
+
         except Exception as e:
-            if isinstance(e, (AIAnalysisError, RateLimitError)):
+            error_msg = str(e).lower()
+
+            if "quota" in error_msg or "rate limit" in error_msg or "429" in error_msg:
+                raise RateLimitError(f"Gemini rate limit: {str(e)}")
+            if (
+                "unavailable" in error_msg
+                or "503" in error_msg
+                or "500" in error_msg
+            ):
+                raise AIServiceUnavailableError(f"Gemini unavailable: {str(e)}")
+            if "api key" in error_msg or "401" in error_msg:
+                raise AIServiceUnavailableError(f"Gemini auth failed: {str(e)}")
+
+            if isinstance(
+                e, (RateLimitError, AIServiceUnavailableError, InvalidResponseError)
+            ):
                 raise
-            raise AIAnalysisError(f"Legacy analysis failed: {str(e)}")
 
-    def _map_category_to_enum(self, category_str: str) -> PlaceCategory:
-        """Map category string to PlaceCategory enum."""
-        category_mapping = {
-            "restaurant": PlaceCategory.RESTAURANT,
-            "cafe": PlaceCategory.CAFE,
-            "bar": PlaceCategory.BAR,
-            "tourist_attraction": PlaceCategory.TOURIST_ATTRACTION,
-            "shopping": PlaceCategory.SHOPPING,
-            "accommodation": PlaceCategory.ACCOMMODATION,
-            "entertainment": PlaceCategory.ENTERTAINMENT,
-        }
-        
-        return category_mapping.get(category_str.lower(), PlaceCategory.OTHER)
+            raise AIAnalysisError(f"Gemini API call failed: {str(e)}")
 
-    # Keep the default method name for legacy compatibility
-    analyze_place_content = analyze_place_content_legacy
+    def _parse_and_validate_response(self, response_text: str) -> Dict[str, Any]:
+        """Parse and validate JSON response."""
+        try:
+            response_data = json.loads(response_text)
+
+            # Basic field validation
+            if "name" not in response_data:
+                raise InvalidResponseError("Missing 'name' field in response")
+
+            return response_data
+
+        except json.JSONDecodeError as e:
+            raise InvalidResponseError(f"Invalid JSON: {str(e)}")
+        except Exception as e:
+            raise AIAnalysisError(f"Failed to parse response: {str(e)}")
+
+    def _calculate_text_quality(self, request: PlaceAnalysisRequest) -> float:
+        """Calculate text quality score."""
+        score = 0.0
+
+        # Title length
+        if request.content_text and len(request.content_text) > 10:
+            score += 0.3
+
+        # Description exists
+        if request.content_description and len(request.content_description) > 20:
+            score += 0.3
+
+        # Number of hashtags
+        if request.hashtags:
+            score += min(len(request.hashtags) * 0.1, 0.4)
+
+        return min(score, 1.0)
+
+    def _calculate_confidence_factors(
+        self,
+        request: PlaceAnalysisRequest,
+        pil_images: Optional[List[Image.Image]],
+        place_info: PlaceInfo,
+    ) -> Dict[str, float]:
+        """Calculate confidence factors by category."""
+        factors = {}
+
+        # Text richness
+        factors["text_richness"] = self._calculate_text_quality(request)
+
+        # Image provision
+        if pil_images and len(pil_images) > 0:
+            factors["image_provided"] = 1.0
+            factors["image_count_boost"] = min(len(pil_images) * 0.2, 0.6)
+        else:
+            factors["image_provided"] = 0.0
+            factors["image_count_boost"] = 0.0
+
+        # Extracted information completeness
+        factors["name_extracted"] = 1.0 if place_info.name else 0.0
+        factors["address_extracted"] = 0.8 if place_info.address else 0.0
+        factors["category_extracted"] = 0.6 if place_info.category else 0.0
+
+        # Overall confidence
+        factors["overall_confidence"] = sum(factors.values()) / len(factors)
+
+        return factors
