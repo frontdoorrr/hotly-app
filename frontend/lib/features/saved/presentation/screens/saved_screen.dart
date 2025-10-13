@@ -24,6 +24,7 @@ class SavedScreen extends ConsumerWidget {
             onPressed: () {
               ref.read(savedPlacesProvider.notifier).refresh();
             },
+            tooltip: '새로고침',
           ),
         ],
       ),
