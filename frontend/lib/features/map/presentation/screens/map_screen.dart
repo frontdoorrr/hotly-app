@@ -16,6 +16,7 @@ class MapScreen extends ConsumerStatefulWidget {
 class _MapScreenState extends ConsumerState<MapScreen> {
   KakaoMapController? _mapController;
   bool _isMapReady = false;
+  final _mapKey = UniqueKey(); // PlatformView 재생성 방지용 고유 키
 
   @override
   void initState() {
@@ -56,6 +57,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         children: [
           // Kakao Map
           KakaoMap(
+            key: _mapKey, // 고유 키로 PlatformView 재생성 문제 방지
             option: KakaoMapOption(
               position: const LatLng(37.5665, 126.9780), // 서울시청
               zoomLevel: 16,
