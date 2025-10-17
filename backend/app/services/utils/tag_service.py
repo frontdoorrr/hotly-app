@@ -9,6 +9,7 @@ from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
 from app.models.place import Place, PlaceStatus
+from app.models.user_tag import UserTag
 from app.utils.tag_normalizer import TagNormalizer
 
 logger = logging.getLogger(__name__)
@@ -146,8 +147,8 @@ class TagService:
                 place.add_tag(tag)
                 added_tags.append(tag)
 
-        # Update tag usage statistics
-        self._update_tag_statistics(user_id, added_tags)
+        # Update tag usage statistics with place category
+        self._update_tag_statistics(user_id, added_tags, place.category)
 
         self.db.commit()
         logger.info(f"Added {len(added_tags)} tags to place {place_id}")
@@ -347,15 +348,12 @@ class TagService:
     def _get_user_tags_with_stats(
         self, user_id: UUID, limit: Optional[int] = None
     ) -> List[Dict]:
-        """Get user's tags with usage statistics."""
-        # Query to get all tags used by user with counts
+        """Get user's tags with usage statistics from user_tags table."""
+        # Query user_tags table for optimized performance
         query = (
-            self.db.query(
-                func.unnest(Place.tags).label("tag"), func.count().label("count")
-            )
-            .filter(and_(Place.user_id == user_id, Place.status == PlaceStatus.ACTIVE))
-            .group_by("tag")
-            .order_by(func.count().desc())
+            self.db.query(UserTag)
+            .filter(UserTag.user_id == user_id)
+            .order_by(UserTag.usage_count.desc())
         )
 
         if limit:
@@ -364,9 +362,13 @@ class TagService:
         results = query.all()
 
         return [
-            {"tag": row.tag, "count": row.count}
-            for row in results
-            if row.tag  # Filter out null/empty tags
+            {
+                "tag": user_tag.tag,
+                "count": user_tag.usage_count,
+                "last_used": user_tag.last_used,
+                "category_distribution": user_tag.category_distribution or {},
+            }
+            for user_tag in results
         ]
 
     def _get_all_system_tags(self, limit: int = 1000) -> List[str]:
@@ -383,10 +385,36 @@ class TagService:
         results = query.all()
         return [row.tag for row in results if row.tag]
 
-    def _update_tag_statistics(self, user_id: UUID, tags: List[str]) -> None:
-        """Update tag usage statistics (placeholder for future statistics table)."""
-        # For now, this is handled by the place model's tags array
-        # In the future, we might want a separate tag_statistics table
+    def _update_tag_statistics(
+        self, user_id: UUID, tags: List[str], category: Optional[str] = None
+    ) -> None:
+        """Update tag usage statistics in user_tags table."""
+        for tag in tags:
+            if not tag:
+                continue
+
+            # Try to find existing user_tag
+            user_tag = (
+                self.db.query(UserTag)
+                .filter(and_(UserTag.user_id == user_id, UserTag.tag == tag))
+                .first()
+            )
+
+            if user_tag:
+                # Update existing tag statistics
+                user_tag.increment_usage(category)
+            else:
+                # Create new user_tag entry
+                category_dist = {category: 1} if category else {}
+                user_tag = UserTag(
+                    user_id=user_id,
+                    tag=tag,
+                    usage_count=1,
+                    category_distribution=category_dist,
+                )
+                self.db.add(user_tag)
+
+        self.db.commit()
         logger.info(f"Updated tag statistics for user {user_id}: {tags}")
 
     def _merge_tags(

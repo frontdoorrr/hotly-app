@@ -131,3 +131,36 @@ class UserTagClusters(BaseModel):
     uncategorized_tags: List[str] = Field(
         default_factory=list, description="Tags not in any category"
     )
+
+
+# Response schemas for API endpoints
+class TagSuggestionResponse(BaseModel):
+    """Response schema for tag suggestions."""
+
+    tag: str = Field(..., description="Tag name")
+    usage_count: int = Field(..., ge=0, description="Number of times used")
+    match_type: str = Field(..., description="Type of match")
+    category_distribution: Optional[Dict[str, int]] = Field(
+        None, description="Category distribution for this tag"
+    )
+
+
+class TagStatisticsResponse(BaseModel):
+    """Response schema for tag statistics."""
+
+    total_unique_tags: int = Field(..., description="Total number of unique tags")
+    total_tag_usage: int = Field(..., description="Total tag usage count")
+    most_used_tags: List[Dict[str, Any]] = Field(
+        ..., description="Most frequently used tags"
+    )
+    tag_categories: Dict[str, List[str]] = Field(
+        ..., description="Tags grouped by category"
+    )
+    average_tags_per_place: float = Field(..., description="Average tags per place")
+    places_count: int = Field(..., description="Total number of places")
+
+
+class TagClusterResponse(BaseModel):
+    """Response schema for tag clusters."""
+
+    clusters: Dict[str, List[str]] = Field(..., description="Tag clusters by category")

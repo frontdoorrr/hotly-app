@@ -8,6 +8,7 @@ void main() {
     final testPlace = Place(
       id: 'test_1',
       name: '테스트 카페',
+      category: '카페',
       address: '서울시 강남구 테헤란로 123',
       latitude: 37.5665,
       longitude: 126.9780,

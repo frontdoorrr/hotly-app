@@ -43,12 +43,12 @@ class User with _$User {
     return User(
       id: supabaseUser.id,
       email: supabaseUser.email ?? '',
-      name: supabaseUser.userMetadata?['name'] ??
+      name: (supabaseUser.userMetadata?['name'] as String?) ??
             supabaseUser.email?.split('@').first ?? 'User',
-      profileImageUrl: supabaseUser.userMetadata?['avatar_url'],
+      profileImageUrl: supabaseUser.userMetadata?['avatar_url'] as String?,
       phoneNumber: supabaseUser.phone,
       emailConfirmed: supabaseUser.emailConfirmedAt != null,
-      provider: supabaseUser.appMetadata['provider'],
+      provider: supabaseUser.appMetadata['provider'] as String?,
       metadata: supabaseUser.userMetadata,
       lastSignInAt: supabaseUser.lastSignInAt != null
           ? DateTime.tryParse(supabaseUser.lastSignInAt!)

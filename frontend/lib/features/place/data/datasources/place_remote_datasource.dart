@@ -21,8 +21,8 @@ class PlaceRemoteDataSource {
       },
     );
 
-    final List<dynamic> data = response.data['places'] ?? [];
-    return data.map((json) => Place.fromJson(json)).toList();
+    final List<dynamic> data = (response.data['places'] as List<dynamic>?) ?? [];
+    return data.map((json) => Place.fromJson(json as Map<String, dynamic>)).toList();
   }
 
   /// 장소 상세 정보 조회
@@ -31,7 +31,7 @@ class PlaceRemoteDataSource {
       '${ApiEndpoints.places}/$placeId',
     );
 
-    return Place.fromJson(response.data);
+    return Place.fromJson(response.data as Map<String, dynamic>);
   }
 
   /// 장소 좋아요 토글
@@ -60,7 +60,7 @@ class PlaceRemoteDataSource {
       },
     );
 
-    final List<dynamic> data = response.data['places'] ?? response.data;
-    return data.map((json) => Place.fromJson(json)).toList();
+    final List<dynamic> data = (response.data['places'] as List<dynamic>?) ?? (response.data as List<dynamic>);
+    return data.map((json) => Place.fromJson(json as Map<String, dynamic>)).toList();
   }
 }

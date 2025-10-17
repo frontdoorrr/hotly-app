@@ -33,8 +33,8 @@ class SearchRemoteDataSource {
         queryParameters: queryParams,
       );
 
-      final List<dynamic> data = response.data['places'] ?? response.data;
-      return data.map((json) => Place.fromJson(json)).toList();
+      final List<dynamic> data = (response.data['places'] as List<dynamic>?) ?? (response.data as List<dynamic>);
+      return data.map((json) => Place.fromJson(json as Map<String, dynamic>)).toList();
     } on DioException catch (e) {
       // Re-throw DioException - it will be handled by DioClient interceptors
       rethrow;
@@ -55,7 +55,7 @@ class SearchRemoteDataSource {
         },
       );
 
-      final List<dynamic> data = response.data['suggestions'] ?? response.data;
+      final List<dynamic> data = (response.data['suggestions'] as List<dynamic>?) ?? (response.data as List<dynamic>);
       return data.map((item) => item.toString()).toList();
     } on DioException catch (e) {
       rethrow;

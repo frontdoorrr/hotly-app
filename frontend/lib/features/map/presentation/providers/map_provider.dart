@@ -1,7 +1,9 @@
+import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../../core/network/dio_client.dart';
+import '../../../../shared/models/place.dart';
 import '../../data/datasources/map_remote_datasource.dart';
 import '../../data/repositories/map_repository_impl.dart';
 import '../../domain/entities/map_entities.dart';
@@ -16,8 +18,12 @@ class MapState with _$MapState {
     CoordinatePoint? currentLocation,
     @Default([]) List<PlaceSearchResult> searchResults,
     @Default([]) List<Map<String, dynamic>> placesOnMap,
+    @Default([]) List<Place> visiblePlaces, // 현재 화면에 보이는 장소들
+    @Default([]) List<MarkerCluster> clusters, // 마커 클러스터들
+    MapBounds? currentBounds, // 현재 뷰포트
     @Default(false) bool isLoading,
     @Default(false) bool isSearching,
+    @Default(false) bool showSearchThisAreaButton, // "이 지역 검색" 버튼 표시 여부
     String? error,
     String? selectedPlaceId,
   }) = _MapState;

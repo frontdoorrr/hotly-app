@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../shared/models/user.dart';
 import '../providers/profile_provider.dart';
 import '../providers/settings_provider.dart';
 
@@ -106,7 +107,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     );
   }
 
-  Widget _buildUserInfoSection(user) {
+  Widget _buildUserInfoSection(User user) {
     return Container(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -155,7 +156,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     );
   }
 
-  Widget _buildStatsSection(stats) {
+  Widget _buildStatsSection(UserStats? stats) {
     if (stats == null) return const SizedBox.shrink();
 
     return Padding(

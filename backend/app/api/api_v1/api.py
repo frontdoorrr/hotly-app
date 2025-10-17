@@ -22,6 +22,7 @@ from app.api.api_v1.endpoints import (
     search,
     search_optimization,
     search_ranking,
+    tags,
     user_data,
 )
 
@@ -66,3 +67,4 @@ api_router.include_router(
 )
 api_router.include_router(cdn.router, prefix="/cdn", tags=["cdn"])
 api_router.include_router(map.router, prefix="/map", tags=["map"])
+api_router.include_router(tags.router, prefix="/tags", tags=["tags"])
