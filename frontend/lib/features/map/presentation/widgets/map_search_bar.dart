@@ -5,7 +5,9 @@ import '../providers/map_provider.dart';
 
 /// Search bar for map screen
 class MapSearchBar extends ConsumerStatefulWidget {
-  const MapSearchBar({super.key});
+  final Function(double latitude, double longitude)? onPlaceSelected;
+
+  const MapSearchBar({super.key, this.onPlaceSelected});
 
   @override
   ConsumerState<MapSearchBar> createState() => _MapSearchBarState();
@@ -69,9 +71,23 @@ class _MapSearchBarState extends ConsumerState<MapSearchBar> {
                     );
               }
             },
-            onSubmitted: (value) {
+            onSubmitted: (value) async {
               if (value.isNotEmpty) {
-                ref.read(mapProvider.notifier).searchPlaces(query: value);
+                await ref.read(mapProvider.notifier).searchPlaces(query: value);
+
+                // Move to first search result after search completes
+                final results = ref.read(mapProvider).searchResults;
+                if (results.isNotEmpty) {
+                  final firstResult = results.first;
+                  widget.onPlaceSelected?.call(
+                    firstResult.latitude,
+                    firstResult.longitude,
+                  );
+                  ref.read(mapProvider.notifier).selectSearchResult(firstResult);
+                }
+
+                setState(() => _showResults = false);
+                _controller.clear();
               }
             },
           ),
@@ -120,8 +136,8 @@ class _MapSearchBarState extends ConsumerState<MapSearchBar> {
                         )
                       : null,
                   onTap: () {
-                    // Select place and update search results as temporary markers
-                    ref.read(mapProvider.notifier).selectPlace(result.placeId);
+                    // Select search result
+                    ref.read(mapProvider.notifier).selectSearchResult(result);
 
                     // Convert search results to place format for markers
                     final searchPlaces = state.searchResults
@@ -139,6 +155,12 @@ class _MapSearchBarState extends ConsumerState<MapSearchBar> {
                         ref.read(mapProvider).copyWith(
                               placesOnMap: searchPlaces,
                             );
+
+                    // Move camera to selected place
+                    widget.onPlaceSelected?.call(
+                      result.latitude,
+                      result.longitude,
+                    );
 
                     setState(() => _showResults = false);
                     _controller.clear();

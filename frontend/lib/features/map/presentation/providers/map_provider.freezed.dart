@@ -32,6 +32,8 @@ mixin _$MapState {
       throw _privateConstructorUsedError; // "이 지역 검색" 버튼 표시 여부
   String? get error => throw _privateConstructorUsedError;
   String? get selectedPlaceId => throw _privateConstructorUsedError;
+  PlaceSearchResult? get selectedSearchResult =>
+      throw _privateConstructorUsedError;
 
   /// Create a copy of MapState
   /// with the given fields replaced by the non-null parameter values.
@@ -56,10 +58,12 @@ abstract class $MapStateCopyWith<$Res> {
       bool isSearching,
       bool showSearchThisAreaButton,
       String? error,
-      String? selectedPlaceId});
+      String? selectedPlaceId,
+      PlaceSearchResult? selectedSearchResult});
 
   $CoordinatePointCopyWith<$Res>? get currentLocation;
   $MapBoundsCopyWith<$Res>? get currentBounds;
+  $PlaceSearchResultCopyWith<$Res>? get selectedSearchResult;
 }
 
 /// @nodoc
@@ -88,6 +92,7 @@ class _$MapStateCopyWithImpl<$Res, $Val extends MapState>
     Object? showSearchThisAreaButton = null,
     Object? error = freezed,
     Object? selectedPlaceId = freezed,
+    Object? selectedSearchResult = freezed,
   }) {
     return _then(_value.copyWith(
       currentLocation: freezed == currentLocation
@@ -134,6 +139,10 @@ class _$MapStateCopyWithImpl<$Res, $Val extends MapState>
           ? _value.selectedPlaceId
           : selectedPlaceId // ignore: cast_nullable_to_non_nullable
               as String?,
+      selectedSearchResult: freezed == selectedSearchResult
+          ? _value.selectedSearchResult
+          : selectedSearchResult // ignore: cast_nullable_to_non_nullable
+              as PlaceSearchResult?,
     ) as $Val);
   }
 
@@ -164,6 +173,21 @@ class _$MapStateCopyWithImpl<$Res, $Val extends MapState>
       return _then(_value.copyWith(currentBounds: value) as $Val);
     });
   }
+
+  /// Create a copy of MapState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $PlaceSearchResultCopyWith<$Res>? get selectedSearchResult {
+    if (_value.selectedSearchResult == null) {
+      return null;
+    }
+
+    return $PlaceSearchResultCopyWith<$Res>(_value.selectedSearchResult!,
+        (value) {
+      return _then(_value.copyWith(selectedSearchResult: value) as $Val);
+    });
+  }
 }
 
 /// @nodoc
@@ -185,12 +209,15 @@ abstract class _$$MapStateImplCopyWith<$Res>
       bool isSearching,
       bool showSearchThisAreaButton,
       String? error,
-      String? selectedPlaceId});
+      String? selectedPlaceId,
+      PlaceSearchResult? selectedSearchResult});
 
   @override
   $CoordinatePointCopyWith<$Res>? get currentLocation;
   @override
   $MapBoundsCopyWith<$Res>? get currentBounds;
+  @override
+  $PlaceSearchResultCopyWith<$Res>? get selectedSearchResult;
 }
 
 /// @nodoc
@@ -217,6 +244,7 @@ class __$$MapStateImplCopyWithImpl<$Res>
     Object? showSearchThisAreaButton = null,
     Object? error = freezed,
     Object? selectedPlaceId = freezed,
+    Object? selectedSearchResult = freezed,
   }) {
     return _then(_$MapStateImpl(
       currentLocation: freezed == currentLocation
@@ -263,6 +291,10 @@ class __$$MapStateImplCopyWithImpl<$Res>
           ? _value.selectedPlaceId
           : selectedPlaceId // ignore: cast_nullable_to_non_nullable
               as String?,
+      selectedSearchResult: freezed == selectedSearchResult
+          ? _value.selectedSearchResult
+          : selectedSearchResult // ignore: cast_nullable_to_non_nullable
+              as PlaceSearchResult?,
     ));
   }
 }
@@ -281,7 +313,8 @@ class _$MapStateImpl implements _MapState {
       this.isSearching = false,
       this.showSearchThisAreaButton = false,
       this.error,
-      this.selectedPlaceId})
+      this.selectedPlaceId,
+      this.selectedSearchResult})
       : _searchResults = searchResults,
         _placesOnMap = placesOnMap,
         _visiblePlaces = visiblePlaces,
@@ -345,10 +378,12 @@ class _$MapStateImpl implements _MapState {
   final String? error;
   @override
   final String? selectedPlaceId;
+  @override
+  final PlaceSearchResult? selectedSearchResult;
 
   @override
   String toString() {
-    return 'MapState(currentLocation: $currentLocation, searchResults: $searchResults, placesOnMap: $placesOnMap, visiblePlaces: $visiblePlaces, clusters: $clusters, currentBounds: $currentBounds, isLoading: $isLoading, isSearching: $isSearching, showSearchThisAreaButton: $showSearchThisAreaButton, error: $error, selectedPlaceId: $selectedPlaceId)';
+    return 'MapState(currentLocation: $currentLocation, searchResults: $searchResults, placesOnMap: $placesOnMap, visiblePlaces: $visiblePlaces, clusters: $clusters, currentBounds: $currentBounds, isLoading: $isLoading, isSearching: $isSearching, showSearchThisAreaButton: $showSearchThisAreaButton, error: $error, selectedPlaceId: $selectedPlaceId, selectedSearchResult: $selectedSearchResult)';
   }
 
   @override
@@ -376,7 +411,9 @@ class _$MapStateImpl implements _MapState {
                 other.showSearchThisAreaButton == showSearchThisAreaButton) &&
             (identical(other.error, error) || other.error == error) &&
             (identical(other.selectedPlaceId, selectedPlaceId) ||
-                other.selectedPlaceId == selectedPlaceId));
+                other.selectedPlaceId == selectedPlaceId) &&
+            (identical(other.selectedSearchResult, selectedSearchResult) ||
+                other.selectedSearchResult == selectedSearchResult));
   }
 
   @override
@@ -392,7 +429,8 @@ class _$MapStateImpl implements _MapState {
       isSearching,
       showSearchThisAreaButton,
       error,
-      selectedPlaceId);
+      selectedPlaceId,
+      selectedSearchResult);
 
   /// Create a copy of MapState
   /// with the given fields replaced by the non-null parameter values.
@@ -415,7 +453,8 @@ abstract class _MapState implements MapState {
       final bool isSearching,
       final bool showSearchThisAreaButton,
       final String? error,
-      final String? selectedPlaceId}) = _$MapStateImpl;
+      final String? selectedPlaceId,
+      final PlaceSearchResult? selectedSearchResult}) = _$MapStateImpl;
 
   @override
   CoordinatePoint? get currentLocation;
@@ -439,6 +478,8 @@ abstract class _MapState implements MapState {
   String? get error;
   @override
   String? get selectedPlaceId;
+  @override
+  PlaceSearchResult? get selectedSearchResult;
 
   /// Create a copy of MapState
   /// with the given fields replaced by the non-null parameter values.

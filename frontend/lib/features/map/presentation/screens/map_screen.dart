@@ -8,6 +8,7 @@ import '../../domain/entities/map_entities.dart';
 import '../providers/map_provider.dart';
 import '../widgets/map_search_bar.dart';
 import '../widgets/place_marker_info.dart';
+import '../widgets/search_result_info.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
@@ -183,7 +184,11 @@ class _MapScreenState extends ConsumerState<MapScreen>
             top: MediaQuery.of(context).padding.top + 16,
             left: 64,
             right: 16,
-            child: const MapSearchBar(),
+            child: MapSearchBar(
+              onPlaceSelected: (latitude, longitude) {
+                _moveToLocation(latitude, longitude);
+              },
+            ),
           ),
 
           // Current location button
@@ -207,8 +212,21 @@ class _MapScreenState extends ConsumerState<MapScreen>
             ),
           ),
 
-          // Selected place info
-          if (state.selectedPlaceId != null)
+          // Selected search result info
+          if (state.selectedSearchResult != null)
+            Positioned(
+              bottom: 16,
+              left: 16,
+              right: 16,
+              child: SearchResultInfo(
+                place: state.selectedSearchResult!,
+                onClose: () {
+                  ref.read(mapProvider.notifier).selectSearchResult(null);
+                },
+              ),
+            )
+          // Selected saved place info
+          else if (state.selectedPlaceId != null)
             Positioned(
               bottom: 16,
               left: 16,

@@ -138,7 +138,9 @@ class __$$SavedPlacesStateImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$SavedPlacesStateImpl implements _SavedPlacesState {
+class _$SavedPlacesStateImpl
+    with DiagnosticableTreeMixin
+    implements _SavedPlacesState {
   const _$SavedPlacesStateImpl(
       {final List<Place> places = const [],
       this.isLoading = false,
@@ -165,8 +167,19 @@ class _$SavedPlacesStateImpl implements _SavedPlacesState {
   final String? errorMessage;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'SavedPlacesState(places: $places, isLoading: $isLoading, hasError: $hasError, errorMessage: $errorMessage)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'SavedPlacesState'))
+      ..add(DiagnosticsProperty('places', places))
+      ..add(DiagnosticsProperty('isLoading', isLoading))
+      ..add(DiagnosticsProperty('hasError', hasError))
+      ..add(DiagnosticsProperty('errorMessage', errorMessage));
   }
 
   @override

@@ -39,7 +39,7 @@ async def geocode_address(address: str):
     """
     try:
         service = KakaoMapService()
-        result = service.address_to_coordinate(address)
+        result = await service._address_to_coordinate_async(address)
 
         return AddressSearchResult(
             address=address,
@@ -72,7 +72,7 @@ async def reverse_geocode(
     """
     try:
         service = KakaoMapService()
-        result = service.coordinate_to_address(latitude, longitude)
+        result = await service._coordinate_to_address_async(latitude, longitude)
 
         return CoordinateToAddressResult(
             latitude=latitude,
@@ -101,7 +101,7 @@ async def search_places(
     radius_km: float = Query(
         None, gt=0, le=20, description="Search radius in kilometers (max 20km)"
     ),
-    limit: int = Query(15, ge=1, le=45, description="Maximum number of results"),
+    limit: int = Query(15, ge=1, le=15, description="Maximum number of results"),
 ):
     """
     Search places by keyword with optional location bias.
@@ -110,13 +110,13 @@ async def search_places(
     - **latitude**: Optional center point latitude
     - **longitude**: Optional center point longitude
     - **radius_km**: Optional search radius (max 20km)
-    - **limit**: Maximum results (1-45, default 15)
+    - **limit**: Maximum results (1-15, default 15)
 
     Returns list of places matching the search criteria.
     """
     try:
         service = KakaoMapService()
-        results = service.search_places_by_keyword(
+        results = await service._search_places_async(
             keyword=query,
             center_latitude=latitude,
             center_longitude=longitude,

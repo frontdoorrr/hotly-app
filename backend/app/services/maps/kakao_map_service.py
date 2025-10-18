@@ -70,7 +70,10 @@ class KakaoMapService:
 
     def _get_headers(self) -> Dict[str, str]:
         """Get HTTP headers with authorization."""
-        return {"Authorization": f"KakaoAK {self.api_key}"}
+        return {
+            "Authorization": f"KakaoAK {self.api_key}",
+            "KA": "sdk/1.0 os/python origin/hotly-app",
+        }
 
     @retry(
         stop=stop_after_attempt(3),

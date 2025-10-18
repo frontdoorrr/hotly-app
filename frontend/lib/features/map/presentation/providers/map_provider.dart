@@ -26,6 +26,7 @@ class MapState with _$MapState {
     @Default(false) bool showSearchThisAreaButton, // "이 지역 검색" 버튼 표시 여부
     String? error,
     String? selectedPlaceId,
+    PlaceSearchResult? selectedSearchResult, // 선택된 검색 결과
   }) = _MapState;
 }
 
@@ -88,7 +89,7 @@ class MapNotifier extends StateNotifier<MapState> {
       latitude: state.currentLocation?.latitude,
       longitude: state.currentLocation?.longitude,
       radiusKm: radiusKm,
-      limit: 20,
+      limit: 15,
     );
 
     result.fold(
@@ -186,9 +187,20 @@ class MapNotifier extends StateNotifier<MapState> {
     state = state.copyWith(selectedPlaceId: placeId);
   }
 
+  /// Select a search result
+  void selectSearchResult(PlaceSearchResult? result) {
+    state = state.copyWith(
+      selectedSearchResult: result,
+      selectedPlaceId: null, // Clear saved place selection
+    );
+  }
+
   /// Clear search results
   void clearSearch() {
-    state = state.copyWith(searchResults: []);
+    state = state.copyWith(
+      searchResults: [],
+      selectedSearchResult: null,
+    );
   }
 }
 
