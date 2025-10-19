@@ -4,12 +4,14 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
 /// Horizontal scrollable tag filter chips
-class TagFilterChips extends StatelessWidget {
+class TagFilterChips extends StatefulWidget {
   final List<String> availableTags;
   final List<int> tagCounts;
   final Set<String> selectedTags;
   final int totalPlacesCount;
   final ValueChanged<String> onTagSelected;
+  final int initialDisplayCount; // Number of tags to show initially
+  final int incrementCount; // Number of tags to add when "더보기" is clicked
 
   const TagFilterChips({
     super.key,
@@ -18,16 +20,42 @@ class TagFilterChips extends StatelessWidget {
     required this.selectedTags,
     required this.totalPlacesCount,
     required this.onTagSelected,
+    this.initialDisplayCount = 5,
+    this.incrementCount = 5,
   });
 
   @override
+  State<TagFilterChips> createState() => _TagFilterChipsState();
+}
+
+class _TagFilterChipsState extends State<TagFilterChips> {
+  late int _displayCount;
+
+  @override
+  void initState() {
+    super.initState();
+    _displayCount = widget.initialDisplayCount;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Calculate how many tags to display
+    final actualDisplayCount = _displayCount.clamp(0, widget.availableTags.length);
+    final displayTags = widget.availableTags.take(actualDisplayCount).toList();
+    final displayCounts = widget.tagCounts.take(actualDisplayCount).toList();
+
+    final hasMoreTags = actualDisplayCount < widget.availableTags.length;
+    final remainingCount = widget.availableTags.length - actualDisplayCount;
+
+    // Calculate total items (tags + "전체" + "더보기" button if needed)
+    final itemCount = displayTags.length + 1 + (hasMoreTags ? 1 : 0);
+
     return SizedBox(
       height: 48,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: AppTheme.space4),
-        itemCount: availableTags.length + 1, // +1 for "전체" chip
+        itemCount: itemCount,
         separatorBuilder: (_, __) => const SizedBox(width: AppTheme.space2),
         itemBuilder: (context, index) {
           // First chip is always "전체" (All)
@@ -35,35 +63,95 @@ class TagFilterChips extends StatelessWidget {
             return _buildChip(
               context,
               label: '전체',
-              count: totalPlacesCount,
-              isSelected: selectedTags.isEmpty,
+              count: widget.totalPlacesCount,
+              isSelected: widget.selectedTags.isEmpty,
               onTap: () {
                 // Clear all filters
-                if (selectedTags.isNotEmpty) {
-                  // Notify that we want to clear filters
-                  onTagSelected('');
+                if (widget.selectedTags.isNotEmpty) {
+                  widget.onTagSelected('');
                 }
               },
             );
           }
 
+          // Last chip is "더보기" button if there are more tags
+          if (hasMoreTags && index == itemCount - 1) {
+            return _buildMoreButton(context, remainingCount);
+          }
+
           // Other chips are tag filters
           final tagIndex = index - 1;
-          final tag = availableTags[tagIndex];
-          final count = tagCounts[tagIndex];
-          final isSelected = selectedTags.contains(tag);
+          final tag = displayTags[tagIndex];
+          final count = displayCounts[tagIndex];
+          final isSelected = widget.selectedTags.contains(tag);
 
           return _buildChip(
             context,
             label: tag,
             count: count,
             isSelected: isSelected,
-            onTap: () => onTagSelected(tag),
+            onTap: () => widget.onTagSelected(tag),
           );
         },
       ),
     );
   }
+
+  Widget _buildMoreButton(BuildContext context, int remainingCount) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            // Add incrementCount more tags, or show all if less than incrementCount remain
+            _displayCount = (_displayCount + widget.incrementCount)
+                .clamp(0, widget.availableTags.length);
+          });
+        },
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 8,
+          ),
+          decoration: BoxDecoration(
+            color: AppColors.background,
+            border: Border.all(
+              color: AppColors.border,
+              width: 1,
+            ),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '더보기',
+                style: AppTextStyles.label1.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                '+$remainingCount',
+                style: AppTextStyles.label2.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(width: 2),
+              Icon(
+                Icons.keyboard_arrow_down,
+                size: 16,
+                color: AppColors.textSecondary,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
 
   Widget _buildChip(
     BuildContext context, {

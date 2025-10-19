@@ -1,7 +1,7 @@
 """
-Supabase Authentication 스키마 정의
+Firebase Authentication 스키마 정의
 
-이 모듈은 Supabase Auth 시스템의 요청/응답 스키마를 정의합니다.
+이 모듈은 Firebase Auth 시스템의 요청/응답 스키마를 정의합니다.
 """
 from datetime import datetime
 from enum import Enum
@@ -50,7 +50,7 @@ class UserPermissions(BaseModel):
 class UserProfile(BaseModel):
     """사용자 프로필 정보"""
 
-    user_id: str = Field(..., description="Supabase 사용자 ID (UUID)")
+    user_id: str = Field(..., description="Firebase 사용자 ID (UID)")
     email: Optional[EmailStr] = Field(None, description="이메일 주소")
     name: Optional[str] = Field(None, description="사용자 이름")
     profile_image_url: Optional[str] = Field(None, description="프로필 이미지 URL")
@@ -105,10 +105,11 @@ class SignInRequest(BaseModel):
 
 
 class SocialLoginRequest(BaseModel):
-    """소셜 로그인 요청 (Supabase OAuth)"""
+    """소셜 로그인 요청 (Firebase Auth)"""
 
     provider: SocialProvider = Field(..., description="소셜 로그인 제공자")
-    redirect_to: Optional[str] = Field(None, description="OAuth 콜백 후 리다이렉트 URL")
+    id_token: Optional[str] = Field(None, description="소셜 로그인 ID 토큰 (Google, Apple)")
+    access_token: Optional[str] = Field(None, description="소셜 로그인 액세스 토큰 (Kakao)")
     device_id: str = Field(..., description="디바이스 식별자")
     device_info: Optional[Dict[str, Any]] = Field(None, description="디바이스 정보")
 
@@ -325,31 +326,6 @@ class AdminUsersListResponse(BaseModel):
                 "page_size": 20,
             }
         }
-
-
-# Supabase 설정 관련 스키마
-class SupabaseConfig(BaseModel):
-    """Supabase 설정"""
-
-    supabase_url: str = Field(..., description="Supabase 프로젝트 URL")
-    supabase_anon_key: str = Field(..., description="Supabase Anon 키")
-    supabase_service_role_key: str = Field(..., description="Supabase Service Role 키")
-    jwt_secret: str = Field(..., description="JWT 시크릿 키")
-
-    # 소셜 로그인 설정
-    google_client_id: Optional[str] = Field(None, description="Google 클라이언트 ID")
-    apple_client_id: Optional[str] = Field(None, description="Apple 클라이언트 ID")
-    kakao_client_id: Optional[str] = Field(None, description="Kakao 클라이언트 ID")
-
-    # 보안 설정
-    token_expiration_hours: int = Field(default=24, description="토큰 만료 시간(시간)")
-    refresh_token_expiration_days: int = Field(
-        default=30, description="리프레시 토큰 만료 시간(일)"
-    )
-
-    # 레이트 리미팅 설정
-    max_login_attempts_per_minute: int = Field(default=10, description="분당 최대 로그인 시도")
-    max_token_refresh_per_hour: int = Field(default=60, description="시간당 최대 토큰 갱신")
 
 
 class LoginAttempt(BaseModel):

@@ -1,6 +1,6 @@
 # Task 3: 사용자 및 인증 관리 (Authentication & User Management)
 
-## 3-1. Supabase 기반 사용자 시스템 백엔드
+## 3-1. Firebase 기반 사용자 시스템 백엔드
 
 ### 목표
 신뢰성이 높은 다양한 로그인 및 인증 방식을 통해 안전한 사용자 시스템 구축
@@ -16,34 +16,33 @@
 
 ### 세부 작업
 
-#### 3-1-1. Supabase Auth 설정 및 다양한 로그인 구현
-**상세**: Supabase Authentication 설정, OAuth 프로바이더 연동, JWT 토큰 관리
+#### 3-1-1. Firebase Auth 설정 및 다양한 로그인 구현
+**상세**: Firebase Authentication 설정, OAuth 프로바이더 연동, Custom Token 관리
 
 **구현 체크리스트**:
-- [ ] Supabase Python Client 설정
-- [ ] PostgreSQL 사용자 스키마 및 RLS 정책 생성
+- [ ] Firebase Admin SDK 설정
+- [ ] Firebase Authentication 활성화
 - [ ] Google OAuth 로그인 구현
 - [ ] Apple Sign-In 연동
-- [ ] 카카오 OAuth 연동
+- [ ] 카카오 Custom Token 연동
 - [ ] 이메일/비밀번호 로그인
-- [ ] Magic Link 인증 (선택사항)
+- [ ] 익명 인증 (Anonymous Auth)
 
 **결과물**:
-- `app/core/supabase_config.py` - Supabase 설정
-- `app/services/supabase_auth_service.py` - 인증 서비스
-- `app/integrations/oauth_providers.py` - OAuth 프로바이더
-- `app/models/user.py` - 사용자 모델 (PostgreSQL)
-- `migrations/auth_schema.sql` - 인증 관련 SQL 스키마
+- `app/services/auth/firebase_auth_service.py` - Firebase 인증 서비스
+- `app/middleware/jwt_middleware.py` - Firebase JWT 검증
+- `app/schemas/auth.py` - 인증 스키마
+- `app/api/api_v1/endpoints/auth.py` - 인증 API 엔드포인트
+- Service Account Key JSON 파일
 
 **API**:
-- `POST /api/v1/auth/signup` - 회원가입
-- `POST /api/v1/auth/login/email` - 이메일 로그인
-- `POST /api/v1/auth/login/google` - Google 로그인
-- `POST /api/v1/auth/login/apple` - Apple 로그인
-- `POST /api/v1/auth/login/kakao` - 카카오 로그인
-- `POST /api/v1/auth/magic-link` - Magic Link 전송
+- `POST /api/v1/auth/signup` - 회원가입 (클라이언트 SDK 권장)
+- `POST /api/v1/auth/signin` - 이메일 로그인 (클라이언트 SDK 권장)
+- `POST /api/v1/auth/social-login` - 소셜 로그인 (Google, Apple, Kakao)
+- `POST /api/v1/auth/verify-token` - Firebase ID 토큰 검증
+- `POST /api/v1/auth/anonymous` - 익명 사용자 생성
 
-**테스트**: 각 프로바이더별 로그인, JWT 토큰 검증, RLS 정책 검증, 에러 처리
+**테스트**: 각 프로바이더별 로그인, Firebase ID 토큰 검증, Custom Claims 검증, 에러 처리
 
 #### 3-1-2. 인증된 사용자 로직 및 개인별 데이터 연동 시스템
 **상세**: JWT 토큰 관리, 세션 상태 추적, 사용자 컨텍스트 관리
@@ -308,39 +307,45 @@
 
 ---
 
-## Supabase 전환 가이드
+## Firebase 인증 구현 가이드
 
-### Supabase 인증 시스템 구현
-Firebase에서 Supabase로 전환된 새로운 인증 시스템:
+### Firebase Admin SDK 초기화
+Service Account Key를 사용한 Firebase Admin SDK 초기화:
 
-**Supabase 클라이언트 초기화**:
+**Firebase Admin SDK 초기화**:
 ```python
-# app/core/supabase_config.py
-from supabase import create_client, Client
+# app/services/auth/firebase_auth_service.py
+import firebase_admin
+from firebase_admin import credentials, auth
 
-supabase_url = settings.supabase_url
-supabase_key = settings.supabase_anon_key
-
-supabase: Client = create_client(supabase_url, supabase_key)
+cred = credentials.Certificate("path/to/serviceAccountKey.json")
+firebase_admin.initialize_app(cred)
 ```
 
 **인증 서비스 구현**:
 ```python
-# app/services/supabase_auth_service.py
-class SupabaseAuthService:
-    async def sign_up(self, email: str, password: str):
-        return self.supabase.auth.sign_up({"email": email, "password": password})
+# app/services/auth/firebase_auth_service.py
+class FirebaseAuthService:
+    async def validate_access_token(self, token: str):
+        """Firebase ID 토큰 검증"""
+        try:
+            decoded_token = auth.verify_id_token(token)
+            return TokenValidationResult(
+                is_valid=True,
+                user_id=decoded_token['uid'],
+                email=decoded_token.get('email')
+            )
+        except Exception as e:
+            return TokenValidationResult(is_valid=False, error_message=str(e))
 
-    async def sign_in(self, email: str, password: str):
-        return self.supabase.auth.sign_in_with_password({"email": email, "password": password})
-
-    async def sign_in_with_oauth(self, provider: str):
-        return self.supabase.auth.sign_in_with_oauth({"provider": provider})
+    async def create_custom_token(self, uid: str, claims: dict = None):
+        """Custom Token 생성 (Kakao 연동용)"""
+        return auth.create_custom_token(uid, claims)
 ```
 
 **JWT 검증 미들웨어**:
 ```python
-# app/middleware/auth_middleware.py
+# app/middleware/jwt_middleware.py
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer
 
@@ -348,24 +353,22 @@ security = HTTPBearer()
 
 async def get_current_user(credentials = Depends(security)):
     token = credentials.credentials
-    user = supabase.auth.get_user(token)
-    if not user:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-    return user.user
+    validation_result = await firebase_auth_service.validate_access_token(token)
+
+    if not validation_result.is_valid:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+    return {
+        "uid": validation_result.user_id,
+        "email": validation_result.email,
+        "permissions": validation_result.permissions
+    }
 ```
 
-**RLS 정책 적용**:
-```sql
--- migrations/add_rls_policies.sql
-CREATE POLICY "Users can view own data"
-  ON public.users
-  FOR SELECT
-  USING (auth.uid() = id);
-
-CREATE POLICY "Users can update own data"
-  ON public.users
-  FOR UPDATE
-  USING (auth.uid() = id);
+**Custom Claims 설정**:
+```python
+# 사용자 권한 설정 (관리자, 일반 사용자 등)
+auth.set_custom_user_claims(uid, {'admin': True, 'role': 'premium'})
 ```
 
 ## 참고 문서
@@ -379,28 +382,32 @@ CREATE POLICY "Users can update own data"
 - `trd/10-user-profile.md` - 사용자 프로필 기술 설계
 
 ### 구현 참고 자료
-- **Supabase 공식 문서**
-  - [Supabase Auth](https://supabase.com/docs/guides/auth) - 인증 가이드
-  - [Row Level Security](https://supabase.com/docs/guides/auth/row-level-security) - RLS 정책
-  - [Python Client](https://supabase.com/docs/reference/python/introduction) - Python SDK
+- **Firebase 공식 문서**
+  - [Firebase Authentication](https://firebase.google.com/docs/auth) - 인증 가이드
+  - [Firebase Admin SDK (Python)](https://firebase.google.com/docs/admin/setup) - Admin SDK 설정
+  - [Custom Tokens](https://firebase.google.com/docs/auth/admin/create-custom-tokens) - Custom Token 생성
+  - [Verify ID Tokens](https://firebase.google.com/docs/auth/admin/verify-id-tokens) - ID 토큰 검증
 - **프로젝트 내부 참고**
-  - `app/core/supabase_config.py` - Supabase 설정
-  - `app/models/user.py` - 기존 PostgreSQL 모델 활용
-  - `app/schemas/user.py` - Pydantic 스키마
-  - `migrations/` - Alembic 마이그레이션 + RLS
+  - `app/services/auth/firebase_auth_service.py` - Firebase 인증 서비스
+  - `app/middleware/jwt_middleware.py` - JWT 검증 미들웨어
+  - `app/schemas/auth.py` - 인증 스키마
+  - `docs/firebase-setup-guide.md` - Firebase 설정 가이드
+  - `prd/09-authentication.md` - PRD (Firebase 기반)
+  - `trd/09-authentication.md` - TRD (Firebase 기반)
 - `database-schema.md` - 데이터베이스 스키마
 - `rules.md` - 개발 규칙
 
-### Firebase → Supabase 마이그레이션 체크리스트
-- [ ] Supabase 프로젝트 생성 및 환경변수 설정
-- [ ] PostgreSQL 사용자 스키마 및 RLS 정책 생성
-- [ ] OAuth 프로바이더 설정 (Google, Apple, Kakao)
-- [ ] FastAPI 인증 미들웨어 구현
-- [ ] 기존 사용자 데이터 마이그레이션 (선택)
+### Firebase 인증 구현 체크리스트
+- [x] Firebase 프로젝트 생성 및 Service Account Key 발급
+- [x] Firebase Admin SDK 초기화
+- [x] OAuth 프로바이더 설정 (Google, Apple)
+- [x] Kakao Custom Token 연동 구현
+- [x] FastAPI 인증 미들웨어 구현
+- [x] Frontend Flutter Firebase Auth 연동
 - [ ] 테스트 및 검증
 
 ---
 
 *작성일: 2025-01-XX*
 *작성자: Claude*
-*버전: 2.0 (Supabase 전환)*
+*버전: 3.0 (Firebase 기반)*

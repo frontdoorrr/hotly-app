@@ -5,8 +5,7 @@
 ### 공통 준비사항
 - [ ] 앱 버전 확인 (`pubspec.yaml`: version 1.0.0+1)
 - [ ] 프로덕션 환경 변수 설정 (`.env.prod`)
-- [ ] Firebase 프로젝트 설정 완료
-- [ ] Supabase 프로덕션 환경 설정
+- [ ] Firebase 프로젝트 설정 완료 (Authentication, Messaging, Analytics)
 - [ ] API 키 프로덕션 값으로 교체
 - [ ] 디버그 로그 비활성화 확인
 - [ ] 개인정보처리방침 URL 준비

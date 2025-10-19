@@ -25,7 +25,7 @@ mixin _$User {
   String get email => throw _privateConstructorUsedError;
   String? get profileImageUrl => throw _privateConstructorUsedError;
   String? get phoneNumber =>
-      throw _privateConstructorUsedError; // Supabase Auth fields
+      throw _privateConstructorUsedError; // Firebase Auth fields
   bool get emailConfirmed => throw _privateConstructorUsedError;
   String? get provider =>
       throw _privateConstructorUsedError; // 'email', 'google', 'apple'
@@ -296,7 +296,7 @@ class _$UserImpl extends _User {
   final String? profileImageUrl;
   @override
   final String? phoneNumber;
-// Supabase Auth fields
+// Firebase Auth fields
   @override
   @JsonKey()
   final bool emailConfirmed;
@@ -427,7 +427,7 @@ abstract class _User extends User {
   @override
   String? get profileImageUrl;
   @override
-  String? get phoneNumber; // Supabase Auth fields
+  String? get phoneNumber; // Firebase Auth fields
   @override
   bool get emailConfirmed;
   @override

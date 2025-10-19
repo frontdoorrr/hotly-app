@@ -27,7 +27,7 @@ from app.services.auth.firebase_auth_service import firebase_auth_service
 
 router = APIRouter()
 
-# Use Firebase auth service
+# Firebase Authentication Service
 auth_service = firebase_auth_service
 
 

@@ -20,13 +20,6 @@
 4. `google-services.json` 다운로드 → `android/app/` 위치
 5. `GoogleService-Info.plist` 다운로드 → `ios/Runner/` 위치
 
-#### Supabase
-1. [Supabase Dashboard](https://app.supabase.com)에서 프로젝트 생성
-2. Project Settings → API에서 URL과 anon key 복사
-3. Authentication → URL Configuration에서 Redirect URLs 설정:
-   - `hotly://login-callback`
-   - `https://hotly.app/auth/callback` (웹용)
-
 #### Kakao Developers
 1. [Kakao Developers](https://developers.kakao.com)에서 애플리케이션 생성
 2. 플랫폼 설정:
@@ -59,7 +52,7 @@ cp .env.example .env.dev
 # Staging environment with test data
 ENVIRONMENT=staging
 API_BASE_URL=https://staging-api.hotly.app/api/v1
-SUPABASE_URL=https://your-staging-project.supabase.co
+# Firebase configuration (use staging project)
 # ... other staging configs
 ```
 
@@ -68,7 +61,7 @@ SUPABASE_URL=https://your-staging-project.supabase.co
 # Production environment - SECURE THESE VALUES!
 ENVIRONMENT=production
 API_BASE_URL=https://api.hotly.app/api/v1
-SUPABASE_URL=https://your-production-project.supabase.co
+# Firebase configuration (use production project)
 ENABLE_DEBUG_LOGGING=false
 # ... other production configs
 ```
@@ -261,8 +254,7 @@ xcrun altool --upload-app --type ios \
 
 ### 공통
 - [ ] 환경 변수 파일 설정 완료 (`.env.prod`)
-- [ ] Firebase 프로젝트 설정 완료
-- [ ] Supabase 프로젝트 설정 완료
+- [ ] Firebase 프로젝트 설정 완료 (Authentication, Messaging, Analytics)
 - [ ] Kakao API 키 발급 완료
 - [ ] 버전 번호 업데이트 (`pubspec.yaml`)
 - [ ] 개인정보처리방침 페이지 작성
@@ -439,4 +431,4 @@ jobs:
 - [Google Play Console](https://play.google.com/console)
 - [App Store Connect](https://appstoreconnect.apple.com)
 - [Firebase Console](https://console.firebase.google.com)
-- [Supabase Dashboard](https://app.supabase.com)
+- [Firebase Setup Guide](../docs/firebase-setup-guide.md)

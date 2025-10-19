@@ -79,12 +79,7 @@ final database = await openDatabase(
 
 ## 인증 및 권한
 
-### 1. Supabase Auth
-- Row Level Security (RLS) 정책 활성화
-- JWT 토큰 만료 시간: 1시간
-- Refresh 토큰 로테이션
-
-### 2. Firebase Auth
+### 1. Firebase Auth
 - Multi-factor Authentication (MFA) 활성화 권장
 - 익명 로그인 비활성화 (프로덕션)
 
@@ -206,7 +201,7 @@ pod update
 - ✅ Certificate pinning (선택)
 
 ### M4: Insecure Authentication
-- ✅ Supabase Auth + RLS
+- ✅ Firebase Auth + Custom Claims
 - ✅ JWT 토큰 만료 관리
 
 ### M5: Insufficient Cryptography
@@ -239,7 +234,7 @@ pod update
 
 ### 월간
 - [ ] 의존성 취약점 스캔
-- [ ] Firebase/Supabase 보안 설정 확인
+- [ ] Firebase 보안 설정 확인
 - [ ] API 키 로테이션
 
 ### 분기별
@@ -263,7 +258,7 @@ pod update
 
 2. **조사**
    - Firebase Crashlytics 로그 확인
-   - Supabase 로그 분석
+   - Firebase Analytics 로그 분석
 
 3. **패치**
    - 취약점 수정

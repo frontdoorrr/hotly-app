@@ -13,7 +13,6 @@ import 'firebase_options.dart';
 import 'core/theme/app_theme.dart';
 import 'core/router/app_router.dart';
 import 'core/storage/local_storage.dart';
-import 'core/auth/supabase_service.dart';
 import 'core/notifications/fcm_service.dart';
 import 'core/notifications/notification_handler.dart';
 import 'features/link_analysis/presentation/widgets/link_input_bottom_sheet.dart';
@@ -47,13 +46,6 @@ void main() async {
   } else {
     print('⚠️ Kakao Maps SDK key not configured');
   }
-
-
-  // Initialize Supabase (Database, Storage, Realtime only - Auth는 Firebase 사용)
-  await SupabaseService.initialize(
-    url: dotenv.env['SUPABASE_URL'] ?? '',
-    anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
-  );
 
   // Initialize local storage
   await LocalStorage.instance.init();

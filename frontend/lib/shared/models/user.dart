@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import 'package:firebase_auth/firebase_auth.dart' as firebase;
 
 part 'user.freezed.dart';
@@ -16,7 +15,7 @@ class User with _$User {
     String? profileImageUrl,
     String? phoneNumber,
 
-    // Supabase Auth fields
+    // Firebase Auth fields
     @Default(false) bool emailConfirmed,
     String? provider, // 'email', 'google', 'apple'
     @JsonKey(includeFromJson: false, includeToJson: false)
@@ -37,25 +36,6 @@ class User with _$User {
         name: 'Guest',
         email: 'guest@example.com',
       );
-
-  /// Convert Supabase User to App User
-  factory User.fromSupabase(supabase.User supabaseUser) {
-    return User(
-      id: supabaseUser.id,
-      email: supabaseUser.email ?? '',
-      name: (supabaseUser.userMetadata?['name'] as String?) ??
-            supabaseUser.email?.split('@').first ?? 'User',
-      profileImageUrl: supabaseUser.userMetadata?['avatar_url'] as String?,
-      phoneNumber: supabaseUser.phone,
-      emailConfirmed: supabaseUser.emailConfirmedAt != null,
-      provider: supabaseUser.appMetadata['provider'] as String?,
-      metadata: supabaseUser.userMetadata,
-      lastSignInAt: supabaseUser.lastSignInAt != null
-          ? DateTime.tryParse(supabaseUser.lastSignInAt!)
-          : null,
-      createdAt: DateTime.tryParse(supabaseUser.createdAt),
-    );
-  }
 
   /// Convert Firebase User to App User
   factory User.fromFirebase(firebase.User firebaseUser) {

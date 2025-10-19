@@ -1,7 +1,4 @@
 # This is a generated file; do not edit or check into version control.
-app_links=/Users/jeongmun/.pub-cache/hosted/pub.dev/app_links-6.4.1/
-app_links_linux=/Users/jeongmun/.pub-cache/hosted/pub.dev/app_links_linux-1.0.3/
-app_links_web=/Users/jeongmun/.pub-cache/hosted/pub.dev/app_links_web-1.0.4/
 connectivity_plus=/Users/jeongmun/.pub-cache/hosted/pub.dev/connectivity_plus-5.0.2/
 device_info_plus=/Users/jeongmun/.pub-cache/hosted/pub.dev/device_info_plus-9.1.2/
 file_selector_linux=/Users/jeongmun/.pub-cache/hosted/pub.dev/file_selector_linux-0.9.3+2/
@@ -44,7 +41,6 @@ google_sign_in=/Users/jeongmun/.pub-cache/hosted/pub.dev/google_sign_in-6.2.2/
 google_sign_in_android=/Users/jeongmun/.pub-cache/hosted/pub.dev/google_sign_in_android-6.2.1/
 google_sign_in_ios=/Users/jeongmun/.pub-cache/hosted/pub.dev/google_sign_in_ios-5.9.0/
 google_sign_in_web=/Users/jeongmun/.pub-cache/hosted/pub.dev/google_sign_in_web-0.12.4+4/
-gtk=/Users/jeongmun/.pub-cache/hosted/pub.dev/gtk-2.1.0/
 image_picker=/Users/jeongmun/.pub-cache/hosted/pub.dev/image_picker-1.1.2/
 image_picker_android=/Users/jeongmun/.pub-cache/hosted/pub.dev/image_picker_android-0.8.13+1/
 image_picker_for_web=/Users/jeongmun/.pub-cache/hosted/pub.dev/image_picker_for_web-3.0.2/

@@ -216,36 +216,40 @@
 
 ---
 
-## Phase 4: 인증 및 온보딩 (Supabase Auth)
+## Phase 4: 인증 및 온보딩 (Firebase Auth)
 
 ### 4.1 인증 플로우 🔐
-**참고**: `docs/screens/auth-screen-spec.md` | Backend: Supabase Auth
+**참고**: `prd/09-authentication.md` | Backend: Firebase Auth
 
-- [ ] **Supabase Auth 설정**
-  - [ ] supabase_flutter 패키지 설치
-  - [ ] Supabase 클라이언트 초기화 (`lib/core/auth/supabase_client.dart`)
-  - [ ] 환경 변수 설정 (SUPABASE_URL, SUPABASE_ANON_KEY)
+- [x] **Firebase Auth 설정**
+  - [x] firebase_auth, firebase_core 패키지 설치
+  - [x] Firebase 초기화 (`lib/main.dart`)
+  - [x] 환경 변수 설정 (google-services.json, GoogleService-Info.plist)
+  - [x] FlutterFire CLI 설정
 
-- [ ] **도메인 레이어**
-  - [ ] AuthRepository 인터페이스
-  - [ ] User Entity (기존 확장)
-  - [ ] Auth Use Cases (SignIn, SignUp, SignOut, GetCurrentUser)
+- [x] **도메인 레이어**
+  - [x] AuthRepository 인터페이스
+  - [x] User Entity (`lib/shared/models/user.dart`)
+  - [x] Auth Use Cases (SignIn, SignUp, SignOut, GetCurrentUser)
 
-- [ ] **데이터 레이어**
-  - [ ] Supabase Auth Data Source
-  - [ ] AuthRepository 구현
+- [x] **데이터 레이어**
+  - [x] Firebase Auth Service (`lib/core/auth/firebase_auth_service.dart`)
+  - [x] AuthRepository 구현
+  - [x] Kakao Custom Token 연동
 
-- [ ] **프레젠테이션 레이어**
-  - [ ] Auth State Provider (로그인 상태 전역 관리)
-  - [ ] Login Screen (`lib/features/auth/presentation/screens/login_screen.dart`)
-    - [ ] 이메일/비밀번호 로그인
-    - [ ] Google OAuth (Supabase)
-    - [ ] Apple OAuth (Supabase)
-    - [ ] "회원가입" 버튼
-  - [ ] Sign Up Screen
-    - [ ] 이메일/비밀번호 회원가입
-    - [ ] 이메일 인증 안내
-  - [ ] Auth Guard (라우팅 보호)
+- [x] **프레젠테이션 레이어**
+  - [x] Auth State Provider (로그인 상태 전역 관리)
+  - [x] Login Screen (`lib/features/auth/presentation/screens/login_screen.dart`)
+    - [x] 이메일/비밀번호 로그인
+    - [x] Google OAuth (Firebase)
+    - [x] Apple OAuth (Firebase)
+    - [x] Kakao 로그인 (Custom Token)
+    - [x] Anonymous Auth
+    - [x] "회원가입" 버튼
+  - [x] Sign Up Screen
+    - [x] 이메일/비밀번호 회원가입
+    - [x] 이메일 인증 안내
+  - [x] Auth Guard (라우팅 보호)
 
 ### 4.2 온보딩 플로우
 - [ ] Onboarding Screen (`lib/features/onboarding/presentation/screens/onboarding_screen.dart`)
@@ -258,9 +262,10 @@
 - [ ] Skip 기능
 
 **완료 기준**:
-- ✓ Supabase Auth 로그인/로그아웃 동작
-- ✓ OAuth 소셜 로그인 (Google, Apple)
+- ✓ Firebase Auth 로그인/로그아웃 동작
+- ✓ OAuth 소셜 로그인 (Google, Apple, Kakao)
 - ✓ 이메일 인증 플로우
+- ✓ Anonymous Auth 지원
 - ✓ Auth State 전역 관리 (Riverpod)
 - ✓ 온보딩 스텝 진행
 - ✓ 첫 실행 시에만 온보딩 표시
@@ -467,7 +472,7 @@ state.when(
 1. **완료된 항목** ✅
    - [x] Phase 1-2: 프로젝트 기반 & 네트워킹 ✅
    - [x] Phase 3: 모든 화면 구현 (홈, 검색, 장소, 코스, 프로필) ✅
-   - [x] Phase 4: 인증 & 온보딩 (Supabase Auth) ✅
+   - [x] Phase 4: 인증 & 온보딩 (Firebase Auth) ✅
    - [x] Phase 5: 고급 기능 (카카오맵, 링크분석, FCM, 공유) ✅
    - [x] Phase 6: 최적화 & 테스트 (성능, 에러처리, 접근성) ✅
 

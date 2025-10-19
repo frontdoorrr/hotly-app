@@ -101,7 +101,7 @@
   - 0-3-3. API 레이트 리미팅 미들웨어
   - 0-3-4. 입력 검증 및 보안 헤더 설정
   - 0-3-5. 인증/보안 테스트 코드 작성
-- **참고 문서**: `prd/09-authentication.md` (Supabase Auth 요구사항), `trd/09-authentication.md` (Supabase 기술 설계)
+- **참고 문서**: `prd/09-authentication.md` (Firebase Auth 요구사항), `trd/09-authentication.md` (Firebase 기술 설계)
 
 ## 1. 핵심 기능 개발 (Backend Focus)
 
@@ -457,7 +457,7 @@
 
 ## 3. 사용자 및 인증 관리 (Authentication & User Management)
 
-### 3-1. Supabase 기반 사용자 시스템 백엔드 🔄 **부분 완료** (2025-09-14)
+### 3-1. Firebase 기반 사용자 시스템 백엔드 🔄 **부분 완료** (2025-09-14)
 - **목표**: 신뢰성이 높은 다양한 로그인 및 인증 방식을 통해 안전한 사용자 시스템 구축
 - **완료 정의 (DoD)**:
   - 다양한 로그인 (구글, 애플, 카카오) 연동 완료 ✅
@@ -467,12 +467,12 @@
   - Given 다양한 로그인 선택, When 사용자 인증, Then 5초 이내 로그인 완료 ✅
   - Given 인증된 사용자 세션, When 세션 관리, Then 인증된 개인별로 데이터 제공 ✅
 - **하위 작업**:
-  - 3-1-1. Supabase Auth 설정 및 다양한 로그인 구현 ✅ **완료** (2025-09-14)
-    - **상세**: Supabase Auth 설정, 구글/애플/카카오 OAuth 연동, JWT 토큰 관리
-    - **결과물**: Supabase 프로젝트 설정, PostgreSQL RLS 정책, 인증 토큰 관리
+  - 3-1-1. Firebase Auth 설정 및 다양한 로그인 구현 ✅ **완료** (2025-09-14)
+    - **상세**: Firebase Auth 설정, 구글/애플/카카오 OAuth 연동, JWT 토큰 관리
+    - **결과물**: Firebase 프로젝트 설정, Service Account Key, 인증 토큰 관리
     - **테스트**: 로그인 성공률, JWT 토큰 검증, 플랫폼별 OAuth 검증
   - 3-1-2. 인증된 사용자 로직 및 개인별 데이터 연동시스템 ✅ **완료** (2025-09-14)
-    - **상세**: Supabase 세션 관리, RLS 기반 데이터 접근 제어, FastAPI 미들웨어
+    - **상세**: Firebase 세션 관리, Custom Claims 기반 권한 제어, FastAPI 미들웨어
     - **결과물**: 세션 관리 시스템, 사용자 컨텍스트, JWT 검증 미들웨어
     - **테스트**: 세션 지속성, RLS 정책 검증, 개인 데이터 보호
   - 3-1-3. 생체 인증 및 PIN 인증 시스템 📦 **v2로 연기** (MVP 제외)

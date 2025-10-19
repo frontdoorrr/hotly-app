@@ -38,30 +38,6 @@
       "languageVersion": "3.0"
     },
     {
-      "name": "app_links",
-      "rootUri": "file:///Users/jeongmun/.pub-cache/hosted/pub.dev/app_links-6.4.1",
-      "packageUri": "lib/",
-      "languageVersion": "3.5"
-    },
-    {
-      "name": "app_links_linux",
-      "rootUri": "file:///Users/jeongmun/.pub-cache/hosted/pub.dev/app_links_linux-1.0.3",
-      "packageUri": "lib/",
-      "languageVersion": "3.2"
-    },
-    {
-      "name": "app_links_platform_interface",
-      "rootUri": "file:///Users/jeongmun/.pub-cache/hosted/pub.dev/app_links_platform_interface-2.0.2",
-      "packageUri": "lib/",
-      "languageVersion": "3.2"
-    },
-    {
-      "name": "app_links_web",
-      "rootUri": "file:///Users/jeongmun/.pub-cache/hosted/pub.dev/app_links_web-1.0.4",
-      "packageUri": "lib/",
-      "languageVersion": "3.2"
-    },
-    {
       "name": "archive",
       "rootUri": "file:///Users/jeongmun/.pub-cache/hosted/pub.dev/archive-4.0.7",
       "packageUri": "lib/",
@@ -662,12 +638,6 @@
       "languageVersion": "3.7"
     },
     {
-      "name": "functions_client",
-      "rootUri": "file:///Users/jeongmun/.pub-cache/hosted/pub.dev/functions_client-2.4.1",
-      "packageUri": "lib/",
-      "languageVersion": "3.0"
-    },
-    {
       "name": "geocoding",
       "rootUri": "file:///Users/jeongmun/.pub-cache/hosted/pub.dev/geocoding-2.2.2",
       "packageUri": "lib/",
@@ -788,22 +758,10 @@
       "languageVersion": "3.4"
     },
     {
-      "name": "gotrue",
-      "rootUri": "file:///Users/jeongmun/.pub-cache/hosted/pub.dev/gotrue-2.11.1",
-      "packageUri": "lib/",
-      "languageVersion": "3.0"
-    },
-    {
       "name": "graphs",
       "rootUri": "file:///Users/jeongmun/.pub-cache/hosted/pub.dev/graphs-2.3.2",
       "packageUri": "lib/",
       "languageVersion": "3.4"
-    },
-    {
-      "name": "gtk",
-      "rootUri": "file:///Users/jeongmun/.pub-cache/hosted/pub.dev/gtk-2.1.0",
-      "packageUri": "lib/",
-      "languageVersion": "3.0"
     },
     {
       "name": "hive",
@@ -948,12 +906,6 @@
       "rootUri": "file:///Users/jeongmun/.pub-cache/hosted/pub.dev/json_serializable-6.9.0",
       "packageUri": "lib/",
       "languageVersion": "3.5"
-    },
-    {
-      "name": "jwt_decode",
-      "rootUri": "file:///Users/jeongmun/.pub-cache/hosted/pub.dev/jwt_decode-0.3.1",
-      "packageUri": "lib/",
-      "languageVersion": "2.12"
     },
     {
       "name": "kakao_flutter_sdk_auth",
@@ -1202,12 +1154,6 @@
       "languageVersion": "3.0"
     },
     {
-      "name": "postgrest",
-      "rootUri": "file:///Users/jeongmun/.pub-cache/hosted/pub.dev/postgrest-2.4.1",
-      "packageUri": "lib/",
-      "languageVersion": "3.0"
-    },
-    {
       "name": "pretty_dio_logger",
       "rootUri": "file:///Users/jeongmun/.pub-cache/hosted/pub.dev/pretty_dio_logger-1.4.0",
       "packageUri": "lib/",
@@ -1238,22 +1184,10 @@
       "languageVersion": "2.12"
     },
     {
-      "name": "realtime_client",
-      "rootUri": "file:///Users/jeongmun/.pub-cache/hosted/pub.dev/realtime_client-2.4.2",
-      "packageUri": "lib/",
-      "languageVersion": "3.0"
-    },
-    {
       "name": "receive_sharing_intent",
       "rootUri": "file:///Users/jeongmun/.pub-cache/hosted/pub.dev/receive_sharing_intent-1.8.1",
       "packageUri": "lib/",
       "languageVersion": "2.17"
-    },
-    {
-      "name": "retry",
-      "rootUri": "file:///Users/jeongmun/.pub-cache/hosted/pub.dev/retry-3.1.2",
-      "packageUri": "lib/",
-      "languageVersion": "3.0"
     },
     {
       "name": "riverpod",
@@ -1466,12 +1400,6 @@
       "languageVersion": "2.12"
     },
     {
-      "name": "storage_client",
-      "rootUri": "file:///Users/jeongmun/.pub-cache/hosted/pub.dev/storage_client-2.3.1",
-      "packageUri": "lib/",
-      "languageVersion": "3.0"
-    },
-    {
       "name": "stream_channel",
       "rootUri": "file:///Users/jeongmun/.pub-cache/hosted/pub.dev/stream_channel-2.1.4",
       "packageUri": "lib/",
@@ -1488,18 +1416,6 @@
       "rootUri": "file:///Users/jeongmun/.pub-cache/hosted/pub.dev/string_scanner-1.4.1",
       "packageUri": "lib/",
       "languageVersion": "3.1"
-    },
-    {
-      "name": "supabase",
-      "rootUri": "file:///Users/jeongmun/.pub-cache/hosted/pub.dev/supabase-2.6.3",
-      "packageUri": "lib/",
-      "languageVersion": "3.0"
-    },
-    {
-      "name": "supabase_flutter",
-      "rootUri": "file:///Users/jeongmun/.pub-cache/hosted/pub.dev/supabase_flutter-2.8.4",
-      "packageUri": "lib/",
-      "languageVersion": "3.0"
     },
     {
       "name": "sync_http",
@@ -1700,19 +1616,13 @@
       "languageVersion": "3.4"
     },
     {
-      "name": "yet_another_json_isolate",
-      "rootUri": "file:///Users/jeongmun/.pub-cache/hosted/pub.dev/yet_another_json_isolate-2.0.3",
-      "packageUri": "lib/",
-      "languageVersion": "3.0"
-    },
-    {
       "name": "hotly_app",
       "rootUri": "../",
       "packageUri": "lib/",
       "languageVersion": "3.3"
     }
   ],
-  "generated": "2025-10-12T07:10:44.619153Z",
+  "generated": "2025-10-19T12:51:23.156045Z",
   "generator": "pub",
   "generatorVersion": "3.7.2",
   "flutterRoot": "file:///opt/homebrew/Caskroom/flutter/3.29.0/flutter",

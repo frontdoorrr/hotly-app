@@ -32,7 +32,6 @@ joblib = "^1.5.2"
 elasticsearch = "^8.11.0"
 email-validator = "^2.3.0"
 geopy = "^2.4.1"
-supabase = "^2.20.0"
 pyjwt = "^2.10.1"
 
 [tool.poetry.group.dev.dependencies]
