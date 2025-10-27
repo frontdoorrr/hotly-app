@@ -93,10 +93,6 @@
   public *;
 }
 
-# ===== Supabase =====
--keep class io.supabase.** { *; }
--dontwarn io.supabase.**
-
 # ===== SQLite / Database =====
 -keep class org.sqlite.** { *; }
 -keep class org.sqlite.database.** { *; }

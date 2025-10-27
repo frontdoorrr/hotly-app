@@ -25,7 +25,7 @@ android {
 
     defaultConfig {
         applicationId = "com.hotly.hotly_app"
-        // Firebase, Supabase, FCM require minSdk 21+
+        // Firebase and FCM require minSdk 21+
         minSdk = 21
         targetSdk = 34  // Android 14
         versionCode = flutter.versionCode
