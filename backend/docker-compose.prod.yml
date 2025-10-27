@@ -43,8 +43,6 @@ services:
       # API Keys (from .env.production)
       - KAKAO_API_KEY=${KAKAO_API_KEY:?KAKAO_API_KEY is required}
       - GOOGLE_GEMINI_API_KEY=${GOOGLE_GEMINI_API_KEY:?GOOGLE_GEMINI_API_KEY is required}
-      - SUPABASE_URL=${SUPABASE_URL:?SUPABASE_URL is required}
-      - SUPABASE_KEY=${SUPABASE_KEY:?SUPABASE_KEY is required}
 
       # Security
       - SECRET_KEY=${SECRET_KEY:?SECRET_KEY is required}
