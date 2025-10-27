@@ -213,3 +213,10 @@ Build\ Runner_*.txt
 
 # macOS
 .DS_Store
+
+# Firebase configuration files (contain sensitive API keys and credentials)
+**/google-services.json
+**/GoogleService-Info.plist
+**/firebase-service-account*.json
+**/*-firebase-adminsdk-*.json
+backend/app/config/firebase-credentials.json
