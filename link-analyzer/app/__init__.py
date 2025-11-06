@@ -1,0 +1,1 @@
+"""Link Analyzer FastAPI Application."""
