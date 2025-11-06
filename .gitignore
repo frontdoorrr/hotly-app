@@ -220,3 +220,9 @@ Build\ Runner_*.txt
 **/firebase-service-account*.json
 **/*-firebase-adminsdk-*.json
 backend/app/config/firebase-credentials.json
+
+# Gemini 분석 결과 및 테스트 비디오
+gemini_analysis_result.json
+*.mp4
+*.mov
+*.avi
