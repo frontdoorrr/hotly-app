@@ -11,8 +11,21 @@ httpx==0.26.0
 redis==5.0.1
 hiredis==2.3.2
 
-# Google Gemini AI (optional for enhanced analysis)
-google-generativeai==0.3.2
+# AI/ML - Gemini 2.5 API
+google-genai==0.3.0  # Latest Gemini SDK with video support
+google-generativeai==0.3.2  # Legacy SDK (fallback)
+
+# Google APIs
+google-api-python-client==2.110.0  # YouTube Data API v3
+google-auth-httplib2==0.2.0
+google-auth-oauthlib==1.2.0
+
+# Video/Media Download
+yt-dlp==2024.1.1  # Universal video downloader
+
+# Database
+sqlalchemy==2.0.25  # ORM for PostgreSQL
+psycopg2-binary==2.9.9  # PostgreSQL adapter
 
 # Utilities
 python-multipart==0.0.6
