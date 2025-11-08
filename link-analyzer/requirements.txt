@@ -21,7 +21,7 @@ google-auth-httplib2==0.2.0
 google-auth-oauthlib==1.2.0
 
 # Video/Media Download
-yt-dlp==2024.1.1  # Universal video downloader
+yt-dlp>=2024.1.7  # Universal video downloader
 
 # Database
 sqlalchemy==2.0.25  # ORM for PostgreSQL

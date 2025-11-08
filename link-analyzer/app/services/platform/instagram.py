@@ -19,7 +19,7 @@ class InstagramExtractor(PlatformExtractor):
             download_dir: Directory to store downloaded media files
         """
         self.download_dir = Path(download_dir)
-        self.download_dir.mkdir(exist_ok=True)
+        self.download_dir.mkdir(parents=True, exist_ok=True)
 
     async def extract_metadata(self, url: str) -> Dict[str, Any]:
         """
