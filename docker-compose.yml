@@ -24,6 +24,40 @@ services:
       - db
       - redis
     restart: unless-stopped
+    networks:
+      - hotly-network
+
+  link-analyzer:
+    build:
+      context: ./link-analyzer
+      target: runtime
+    ports:
+      - "8001:8001"
+    env_file:
+      - ./link-analyzer/.env
+    environment:
+      # Override specific env vars for Docker environment
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=1
+      - DEBUG=false
+      - LOG_LEVEL=INFO
+      - BACKEND_CORS_ORIGINS=http://localhost:3000,http://localhost:8000,http://localhost:8001
+      # API keys should come from .env file, but can override here if needed
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - YOUTUBE_API_KEY=${YOUTUBE_API_KEY:-}
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - hotly-network
 
   # Frontend service removed - Flutter app runs locally on iOS/Android simulators
   # Use: flutter run -d 'iPhone 16 Pro' or flutter run -d <android-device>
@@ -40,6 +74,8 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     restart: unless-stopped
+    networks:
+      - hotly-network
 
   redis:
     image: redis:7-alpine
@@ -48,8 +84,19 @@ services:
     volumes:
       - redis_data:/data
     command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
     restart: unless-stopped
+    networks:
+      - hotly-network
 
 volumes:
   postgres_data:
   redis_data:
+
+networks:
+  hotly-network:
+    driver: bridge

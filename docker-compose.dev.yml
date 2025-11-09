@@ -1,0 +1,17 @@
+# Development override for docker-compose
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+services:
+  link-analyzer:
+    build:
+      context: ./link-analyzer
+      target: development  # Use development stage with hot reload
+    environment:
+      - DEBUG=true  # Enable debug mode
+      - LOG_LEVEL=DEBUG
+    volumes:
+      # Mount source code for hot reload
+      - ./link-analyzer/app:/app/app:ro  # Read-only mount for security
+      - ./link-analyzer/tests:/app/tests:ro
+    # Override command to use hot reload
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
