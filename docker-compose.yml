@@ -43,9 +43,8 @@ services:
       - DEBUG=false
       - LOG_LEVEL=INFO
       - BACKEND_CORS_ORIGINS=http://localhost:3000,http://localhost:8000,http://localhost:8001
-      # API keys should come from .env file, but can override here if needed
-      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
-      - YOUTUBE_API_KEY=${YOUTUBE_API_KEY:-}
+      # API keys come from .env file via env_file directive above
+      # Do not override them here unless you want to set specific values
     depends_on:
       redis:
         condition: service_healthy
