@@ -1,6 +1,7 @@
 """Integrated link analysis service combining all components."""
 
 import os
+import time
 from typing import Dict, Any, Optional
 from datetime import datetime
 from pathlib import Path
@@ -28,10 +29,7 @@ class LinkAnalyzerService:
     """
 
     def __init__(
-        self,
-        youtube_api_key: str,
-        gemini_api_key: str,
-        download_dir: str = "temp"
+        self, youtube_api_key: str, gemini_api_key: str, download_dir: str = "temp"
     ):
         """
         Initialize link analyzer service.
@@ -53,7 +51,9 @@ class LinkAnalyzerService:
 
         self.download_dir = Path(download_dir)
 
-    async def analyze(self, url: str, options: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def analyze(
+        self, url: str, options: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """
         Analyze social media link end-to-end.
 
@@ -78,43 +78,71 @@ class LinkAnalyzerService:
             options = {}
 
         # Step 1: Detect platform
+        start_step = time.time()
         platform = PlatformExtractor.detect_platform(url)
         if platform is None:
             raise ValueError(f"Unsupported platform or invalid URL: {url}")
+        print(
+            f"  └─ Step 1 - Platform detection: {time.time() - start_step:.3f}s -> {platform.value}"
+        )
 
         # Step 2: Extract metadata
+        start_step = time.time()
         metadata = await self._extract_metadata(platform, url)
+        print(f"  └─ Step 2 - Metadata extraction: {time.time() - start_step:.2f}s")
 
         # Step 3: Analyze content
         video_analysis = None
         image_analysis = None
 
-        if metadata['content_type'] == ContentType.VIDEO:
+        if metadata["content_type"] == ContentType.VIDEO:
+            start_step = time.time()
             video_analysis = await self._analyze_video(platform, metadata, url)
-        elif metadata['content_type'] == ContentType.IMAGE:
+            print(f"  └─ Step 3 - Video analysis: {time.time() - start_step:.2f}s")
+        elif metadata["content_type"] == ContentType.IMAGE:
+            start_step = time.time()
             image_analysis = await self._analyze_image(metadata)
-        elif metadata['content_type'] == ContentType.CAROUSEL:
+            print(f"  └─ Step 3 - Image analysis: {time.time() - start_step:.2f}s")
+        elif metadata["content_type"] == ContentType.CAROUSEL:
             # For carousel, analyze all media
-            video_analysis = await self._analyze_video(platform, metadata, url) if metadata.get('has_video') else None
-            image_analysis = await self._analyze_image(metadata) if metadata.get('has_image') else None
+            if metadata.get("has_video"):
+                start_step = time.time()
+                video_analysis = await self._analyze_video(platform, metadata, url)
+                print(f"  └─ Step 3` - Video analysis: {time.time() - start_step:.2f}s")
+            if metadata.get("has_image"):
+                start_step = time.time()
+                image_analysis = await self._analyze_image(metadata)
+                print(f"  └─ Step 3b - Image analysis: {time.time() - start_step:.2f}s")
 
         # Step 4: Classify content
-        classification = await self._classify_content(metadata, video_analysis, image_analysis)
+        start_step = time.time()
+        classification = await self._classify_content(
+            metadata, video_analysis, image_analysis
+        )
+        print(f"  └─ Step 4 - Content classification: {time.time() - start_step:.2f}s")
 
         # Step 5: Build result
+        start_step = time.time()
         result = {
-            'url': url,
-            'platform': platform.value,
-            'content_type': metadata['content_type'] if isinstance(metadata['content_type'], str) else metadata['content_type'].value,
-            'metadata': metadata,
-            'video_analysis': video_analysis,
-            'image_analysis': image_analysis,
-            'classification': classification,
-            'analyzed_at': datetime.utcnow().isoformat()
+            "url": url,
+            "platform": platform.value,
+            "content_type": (
+                metadata["content_type"]
+                if isinstance(metadata["content_type"], str)
+                else metadata["content_type"].value
+            ),
+            "metadata": metadata,
+            "video_analysis": video_analysis,
+            "image_analysis": image_analysis,
+            "classification": classification,
+            "analyzed_at": datetime.utcnow().isoformat(),
         }
+        print(f"  └─ Step 5 - Build result: {time.time() - start_step:.3f}s")
 
         # Step 6: Cleanup temporary files
+        start_step = time.time()
         await self._cleanup_temp_files(metadata)
+        print(f"  └─ Step 6 - Cleanup: {time.time() - start_step:.3f}s")
 
         return result
 
@@ -130,10 +158,7 @@ class LinkAnalyzerService:
             raise ValueError(f"Unsupported platform: {platform}")
 
     async def _analyze_video(
-        self,
-        platform: Platform,
-        metadata: Dict[str, Any],
-        url: str
+        self, platform: Platform, metadata: Dict[str, Any], url: str
     ) -> Optional[Dict[str, Any]]:
         """
         Analyze video content with Gemini.
@@ -146,107 +171,100 @@ class LinkAnalyzerService:
         try:
             if platform == Platform.YOUTUBE:
                 # YouTube: Direct URL analysis (no download)
-                return await self.video_analyzer.analyze_video_url(url, prompt)
+                return await self.video_analyzer.analyze_video_url(
+                    url,
+                    prompt,
+                )
             else:
                 # Instagram/TikTok: File analysis
-                if 'media_urls' in metadata and metadata['media_urls']:
-                    file_path = metadata['media_urls'][0]  # First video file
-                    return await self.video_analyzer.analyze_video_file(file_path, prompt)
+                if "media_urls" in metadata and metadata["media_urls"]:
+                    file_path = metadata["media_urls"][0]  # First video file
+                    return await self.video_analyzer.analyze_video_file(
+                        file_path,
+                        prompt,
+                    )
                 return None
         except Exception as e:
             print(f"Video analysis failed: {e}")
-            return {'error': str(e)}
+            return {"error": str(e)}
 
-    async def _analyze_image(self, metadata: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    async def _analyze_image(
+        self, metadata: Dict[str, Any]
+    ) -> Optional[Dict[str, Any]]:
         """Analyze image content with Gemini."""
         prompt = self._build_image_analysis_prompt(metadata)
 
         try:
-            if 'media_urls' in metadata and metadata['media_urls']:
+            if "media_urls" in metadata and metadata["media_urls"]:
                 # Use first image file
-                for media_path in metadata['media_urls']:
-                    if media_path.endswith(('.jpg', '.jpeg', '.png', '.webp')):
-                        return await self.image_analyzer.analyze_image(media_path, prompt)
+                for media_path in metadata["media_urls"]:
+                    if media_path.endswith((".jpg", ".jpeg", ".png", ".webp")):
+                        return await self.image_analyzer.analyze_image(
+                            media_path, prompt
+                        )
             return None
         except Exception as e:
             print(f"Image analysis failed: {e}")
-            return {'error': str(e)}
+            return {"error": str(e)}
 
     async def _classify_content(
         self,
         metadata: Dict[str, Any],
         video_analysis: Optional[Dict[str, Any]],
-        image_analysis: Optional[Dict[str, Any]]
+        image_analysis: Optional[Dict[str, Any]],
     ) -> Dict[str, Any]:
         """Classify content using AI."""
         # Build content data for classification
         content_data = {
-            'caption': metadata.get('title') or metadata.get('description', ''),
-            'ocr_texts': [],
-            'transcript': None,
-            'hashtags': metadata.get('hashtags', []),
-            'location': metadata.get('location')
+            "caption": metadata.get("title") or metadata.get("description", ""),
+            "ocr_texts": [],
+            "transcript": None,
+            "hashtags": metadata.get("hashtags", []),
+            "location": metadata.get("location"),
         }
 
         # Extract OCR texts from video analysis
-        if video_analysis and 'extracted_text' in video_analysis:
-            content_data['ocr_texts'].extend(video_analysis['extracted_text'])
+        if video_analysis and "extracted_text" in video_analysis:
+            content_data["ocr_texts"].extend(video_analysis["extracted_text"])
 
         # Extract transcript from video analysis
-        if video_analysis and 'transcript' in video_analysis:
-            content_data['transcript'] = video_analysis['transcript']
+        if video_analysis and "transcript" in video_analysis:
+            content_data["transcript"] = video_analysis["transcript"]
 
         # Extract OCR from image analysis
-        if image_analysis and 'extracted_text' in image_analysis:
-            content_data['ocr_texts'].append(image_analysis['extracted_text'])
+        if image_analysis and "extracted_text" in image_analysis:
+            content_data["ocr_texts"].append(image_analysis["extracted_text"])
 
         try:
             return await self.classifier.classify(content_data)
         except Exception as e:
             print(f"Classification failed: {e}")
-            return {'error': str(e)}
+            return {"error": str(e)}
 
     def _build_video_analysis_prompt(self, metadata: Dict[str, Any]) -> str:
         """Build optimized prompt for video analysis."""
         return """
-        Analyze this video and extract the following information:
+                Analyze this video and extract the following information:
 
-        1. **Transcript**: Transcribe all spoken audio
-        2. **Visible Text**: Extract any text shown in the video (signs, menus, subtitles, etc.)
-        3. **Visual Elements**: Describe key scenes, objects, and activities
-        4. **Summary**: Brief 2-3 sentence summary
+                - **Visible Text**: Extract any text shown in the video (signs, menus, subtitles, captions, labels, etc.)
+                - **Visual Elements**: Describe key scenes, objects, and activities
+                - **Summary**: Brief 2–3 sentence summary
+                - **Informational Post Summary**: If the video is an informational or educational post, summarize the key information and insights presented.
 
-        Focus on:
-        - Restaurant/cafe information (name, menu, prices)
-        - Location/place information
-        - Product information
-        - Any Korean text visible
+                Focus on:
+                - Restaurant/cafe information (name, menu, prices)
+                - Location/place information
+                - Product information
+                - Any Korean text visible
+                - Any structured or informational content presented in the video
 
-        Return structured information.
-        """
-
-    def _build_image_analysis_prompt(self, metadata: Dict[str, Any]) -> str:
-        """Build optimized prompt for image analysis."""
-        return """
-        Analyze this image and extract:
-
-        1. **Text (OCR)**: All visible text (signs, menus, prices, etc.)
-        2. **Objects**: Main objects and elements in the image
-        3. **Scene**: Overall scene description
-
-        Focus on:
-        - Restaurant/cafe menu boards
-        - Store signs and names
-        - Price information
-        - Korean text
-
-        Return structured information.
-        """
+                Return structured information.
+            """
 
     async def _cleanup_temp_files(self, metadata: Dict[str, Any]):
         """Clean up temporary downloaded files."""
-        if 'media_urls' in metadata and metadata['media_urls']:
-            for file_path in metadata['media_urls']:
+        if "media_urls" in metadata and metadata["media_urls"]:
+            for file_path in metadata["media_urls"]:
                 try:
                     path = Path(file_path)
                     if path.exists():

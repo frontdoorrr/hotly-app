@@ -1,6 +1,7 @@
 """Link analysis endpoints."""
 
 import os
+import time
 from typing import Dict
 from fastapi import APIRouter, HTTPException, Depends
 
@@ -65,7 +66,7 @@ async def analyze_link(
     Returns:
         Comprehensive analysis result including:
         - Platform and content type
-        - Metadata (title, description, hashtags)
+        - Metadata (platform-specific data including title, description, hashtags, etc.)
         - Video analysis (transcript, OCR, visual elements)
         - Image analysis (OCR, objects, scene)
         - AI classification (category, place info, menu items, confidence)
@@ -87,7 +88,11 @@ async def analyze_link(
             "url": "https://...",
             "platform": "youtube",
             "content_type": "video",
-            "title": "Video Title",
+            "metadata": {
+                "title": "Video Title",
+                "description": "...",
+                "hashtags": ["tag1", "tag2"]
+            },
             "classification": {
                 "primary_category": "음식점",
                 "confidence": 0.95
@@ -96,22 +101,31 @@ async def analyze_link(
         ```
     """
     try:
+        start_total = time.time()
+        print(f"\n{'='*60}")
+        print(f"🔍 Starting analysis for URL: {request.url}")
+        print(f"{'='*60}")
+
         # Analyze URL with integrated service
+        start_analyze = time.time()
         result = await analyzer.analyze(str(request.url), request.options)
+        elapsed_analyze = time.time() - start_analyze
+        print(f"⏱️  Total analyzer.analyze(): {elapsed_analyze:.2f}s")
 
         # Map to response schema
+        start_response = time.time()
         response = AnalysisResponse(
             url=result['url'],
             platform=Platform(result['platform']),
             content_type=ContentType(result['content_type']),
-            title=result['metadata'].get('title', ''),
-            description=result['metadata'].get('description', ''),
-            hashtags=result['metadata'].get('hashtags', []),
             metadata=result['metadata'],
             analyzed_at=result['analyzed_at']
         )
+        elapsed_response = time.time() - start_response
+        print(f"⏱️  Response schema mapping: {elapsed_response:.3f}s")
 
         # Add video analysis if available
+        start_video = time.time()
         if result.get('video_analysis') and not result['video_analysis'].get('error'):
             video_data = result['video_analysis']
             response.video_analysis = VideoAnalysis(
@@ -119,8 +133,11 @@ async def analyze_link(
                 extracted_text=video_data.get('extracted_text', []),
                 visual_elements=video_data.get('visual_elements', [])
             )
+            elapsed_video = time.time() - start_video
+            print(f"⏱️  Video analysis mapping: {elapsed_video:.3f}s")
 
         # Add image analysis if available
+        start_image = time.time()
         if result.get('image_analysis') and not result['image_analysis'].get('error'):
             image_data = result['image_analysis']
             response.image_analysis = ImageAnalysis(
@@ -128,8 +145,11 @@ async def analyze_link(
                 objects=image_data.get('objects', []),
                 scene_description=image_data.get('scene_description', '')
             )
+            elapsed_image = time.time() - start_image
+            print(f"⏱️  Image analysis mapping: {elapsed_image:.3f}s")
 
         # Add classification if available
+        start_classification = time.time()
         if result.get('classification') and not result['classification'].get('error'):
             classification_data = result['classification']
             response.classification = ClassificationResult(
@@ -146,6 +166,13 @@ async def analyze_link(
                 keywords=classification_data.get('keywords', []),
                 confidence=classification_data.get('confidence', 0.0)
             )
+            elapsed_classification = time.time() - start_classification
+            print(f"⏱️  Classification mapping: {elapsed_classification:.3f}s")
+
+        elapsed_total = time.time() - start_total
+        print(f"{'='*60}")
+        print(f"✅ Total request time: {elapsed_total:.2f}s")
+        print(f"{'='*60}\n")
 
         return response
 

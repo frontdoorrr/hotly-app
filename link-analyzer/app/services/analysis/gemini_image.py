@@ -1,8 +1,22 @@
 """Gemini Vision API based image analysis."""
 
+import asyncio
+import logging
+from datetime import datetime
 from typing import Dict, Any
 from google import genai
 from google.genai import types
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_exponential,
+    retry_if_exception_type,
+    before_sleep_log
+)
+
+from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 class GeminiImageAnalyzer:
@@ -17,6 +31,10 @@ class GeminiImageAnalyzer:
         """
         self.client = genai.Client(api_key=api_key)
         self.model = 'gemini-2.5-flash'
+
+        # Rate limiting
+        self.last_request_time: datetime | None = None
+        self.min_request_interval = settings.GEMINI_MIN_REQUEST_INTERVAL
 
     async def analyze_image(self, image_path: str, prompt: str) -> Dict[str, Any]:
         """
@@ -36,13 +54,15 @@ class GeminiImageAnalyzer:
         Raises:
             ValueError: If image analysis fails
         """
+        # Apply rate limiting
+        await self._apply_rate_limit()
+
         try:
             # Read image file
             with open(image_path, 'rb') as f:
                 image_bytes = f.read()
 
-            response = self.client.models.generate_content(
-                model=self.model,
+            response = await self._call_gemini_with_retry(
                 contents=[
                     types.Part(
                         inline_data=types.Blob(
@@ -82,6 +102,54 @@ class GeminiImageAnalyzer:
             result = await self.analyze_image(image_path, prompt)
             results.append(result)
         return results
+
+    async def _apply_rate_limit(self):
+        """Apply rate limiting between API requests."""
+        if self.last_request_time:
+            elapsed = (datetime.now() - self.last_request_time).total_seconds()
+            if elapsed < self.min_request_interval:
+                wait_time = self.min_request_interval - elapsed
+                logger.info(f"Rate limiting: waiting {wait_time:.2f}s before next image analysis request")
+                await asyncio.sleep(wait_time)
+
+        self.last_request_time = datetime.now()
+
+    @retry(
+        stop=stop_after_attempt(settings.GEMINI_MAX_RETRIES),
+        wait=wait_exponential(
+            multiplier=1,
+            min=settings.GEMINI_RETRY_MIN_WAIT,
+            max=settings.GEMINI_RETRY_MAX_WAIT
+        ),
+        retry=retry_if_exception_type(Exception),
+        before_sleep=before_sleep_log(logger, logging.WARNING)
+    )
+    async def _call_gemini_with_retry(self, contents):
+        """
+        Call Gemini API with retry logic.
+
+        Args:
+            contents: Gemini API contents parameter
+
+        Returns:
+            Gemini API response
+
+        Raises:
+            Exception: If all retries fail
+        """
+        try:
+            # Note: google-genai SDK doesn't have async support yet
+            # We wrap the sync call to maintain async interface
+            response = await asyncio.to_thread(
+                self.client.models.generate_content,
+                model=self.model,
+                contents=contents
+            )
+            return response
+
+        except Exception as e:
+            logger.error(f"Gemini image analysis API call failed: {e}")
+            raise
 
     def _parse_response(self, response) -> Dict[str, Any]:
         """

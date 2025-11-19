@@ -85,19 +85,14 @@ class AnalysisResponse(BaseModel):
     platform: Platform
     content_type: ContentType
 
-    # Metadata from platform
-    title: str = ""
-    description: str = ""
-    hashtags: List[str] = Field(default_factory=list)
-
     # Analysis results
     video_analysis: Optional[VideoAnalysis] = None
     image_analysis: Optional[ImageAnalysis] = None
     classification: Optional[ClassificationResult] = None
 
-    # Metadata
-    analyzed_at: datetime = Field(default_factory=datetime.utcnow)
+    # Platform-specific metadata (includes title, description, hashtags, etc.)
     metadata: Dict[str, Any] = Field(default_factory=dict)
+    analyzed_at: datetime = Field(default_factory=datetime.utcnow)
 
 
 class AnalysisError(BaseModel):

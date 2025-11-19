@@ -30,3 +30,4 @@ psycopg2-binary==2.9.9  # PostgreSQL adapter
 # Utilities
 python-multipart==0.0.6
 python-dotenv==1.0.0
+tenacity==8.2.3  # Retry logic with exponential backoff

@@ -34,6 +34,12 @@ class Settings(BaseSettings):
     # External Services
     GEMINI_API_KEY: str = ""
 
+    # Rate Limiting Configuration
+    GEMINI_MIN_REQUEST_INTERVAL: float = Field(default=2.0)  # Minimum seconds between requests
+    GEMINI_MAX_RETRIES: int = Field(default=3)  # Maximum retry attempts
+    GEMINI_RETRY_MIN_WAIT: float = Field(default=4.0)  # Minimum wait time for exponential backoff (seconds)
+    GEMINI_RETRY_MAX_WAIT: float = Field(default=60.0)  # Maximum wait time for exponential backoff (seconds)
+
     # Service Configuration
     DEBUG: bool = True
     LOG_LEVEL: str = "INFO"

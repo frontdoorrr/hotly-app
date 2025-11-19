@@ -1,7 +1,21 @@
 """Content classification and information extraction using Gemini."""
 
+import asyncio
+import logging
+from datetime import datetime
 from typing import Dict, Any, List
 from google import genai
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_exponential,
+    retry_if_exception_type,
+    before_sleep_log
+)
+
+from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 class ContentClassifier:
@@ -16,6 +30,10 @@ class ContentClassifier:
         """
         self.client = genai.Client(api_key=api_key)
         self.model = 'gemini-2.5-flash'
+
+        # Rate limiting
+        self.last_request_time: datetime | None = None
+        self.min_request_interval = settings.GEMINI_MIN_REQUEST_INTERVAL
 
     async def classify(self, content_data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -46,18 +64,65 @@ class ContentClassifier:
         Raises:
             ValueError: If classification fails
         """
+        # Apply rate limiting
+        await self._apply_rate_limit()
+
         prompt = self._build_classification_prompt(content_data)
 
         try:
-            response = self.client.models.generate_content(
-                model=self.model,
-                contents=prompt
-            )
-
+            response = await self._call_gemini_with_retry(prompt)
             return self._parse_classification(response.text)
 
         except Exception as e:
             raise ValueError(f"Failed to classify content: {e}")
+
+    async def _apply_rate_limit(self):
+        """Apply rate limiting between API requests."""
+        if self.last_request_time:
+            elapsed = (datetime.now() - self.last_request_time).total_seconds()
+            if elapsed < self.min_request_interval:
+                wait_time = self.min_request_interval - elapsed
+                logger.info(f"Rate limiting: waiting {wait_time:.2f}s before next request")
+                await asyncio.sleep(wait_time)
+
+        self.last_request_time = datetime.now()
+
+    @retry(
+        stop=stop_after_attempt(settings.GEMINI_MAX_RETRIES),
+        wait=wait_exponential(
+            multiplier=1,
+            min=settings.GEMINI_RETRY_MIN_WAIT,
+            max=settings.GEMINI_RETRY_MAX_WAIT
+        ),
+        retry=retry_if_exception_type(Exception),
+        before_sleep=before_sleep_log(logger, logging.WARNING)
+    )
+    async def _call_gemini_with_retry(self, prompt: str):
+        """
+        Call Gemini API with retry logic.
+
+        Args:
+            prompt: Classification prompt
+
+        Returns:
+            Gemini API response
+
+        Raises:
+            Exception: If all retries fail
+        """
+        try:
+            # Note: google-genai SDK doesn't have async support yet
+            # We wrap the sync call to maintain async interface
+            response = await asyncio.to_thread(
+                self.client.models.generate_content,
+                model=self.model,
+                contents=prompt
+            )
+            return response
+
+        except Exception as e:
+            logger.error(f"Gemini API call failed: {e}")
+            raise
 
     def _build_classification_prompt(self, content_data: Dict[str, Any]) -> str:
         """
@@ -115,10 +180,17 @@ class ContentClassifier:
   "recommended_for": ["데이트", "가족모임", "혼밥" 등],
   "sentiment": "positive|negative|neutral",
   "sentiment_score": -1.0에서 1.0 사이의 실수,
-  "summary": "2-3문장 핵심 요약",
+  "summary": "콘텐츠의 상세한 요약 (최소 10문장 이상 작성 필수)",
   "keywords": ["주요 키워드 리스트"],
   "confidence": 0.0에서 1.0 사이의 신뢰도 점수
 }
+
+**중요: summary 작성 지침**
+- 최소 10문장 이상 작성해야 합니다
+- 콘텐츠에서 다룬 모든 주요 주제와 내용을 포함하세요
+- 등장하는 모든 인물, 장소, 사건을 구체적으로 언급하세요
+- 단순히 요약하지 말고, 내용의 흐름과 맥락을 상세히 설명하세요
+- 시청자가 영상을 보지 않아도 전체 내용을 이해할 수 있을 정도로 상세하게 작성하세요
 
 비디오의 시각적 요소, 텍스트, 음성 정보를 모두 활용하여 정확하게 분석해주세요.
 JSON 형식만 반환해주세요.
