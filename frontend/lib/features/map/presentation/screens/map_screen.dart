@@ -22,10 +22,9 @@ class _MapScreenState extends ConsumerState<MapScreen>
   KakaoMapController? _mapController;
   bool _isMapReady = false;
   bool _markersAdded = false; // 마커 추가 완료 여부
-  bool _showMap = true; // Hot Reload 대응용
 
-  // GlobalKey를 사용하여 Hot Reload 시에도 platform view 유지
-  static final GlobalKey _mapKey = GlobalKey(debugLabel: 'main_map');
+  // Unique key for KakaoMap widget to prevent recreation issues
+  final GlobalKey _mapKey = GlobalKey();
 
   @override
   bool get wantKeepAlive => true; // StatefulShellRoute에서 상태 유지
@@ -35,6 +34,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     debugPrint('🗺️ MapScreen initState');
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         ref.read(mapProvider.notifier).getCurrentLocation();
@@ -57,27 +57,8 @@ class _MapScreenState extends ConsumerState<MapScreen>
   @override
   void reassemble() {
     super.reassemble();
-    // Hot Reload 시 호출됨 - platform view 재생성 에러 방지
+    // Hot Reload 시 호출됨
     debugPrint('🗺️ MapScreen reassemble (Hot Reload detected)');
-
-    // 이미 지도가 생성되었다면, 일시적으로 숨겼다가 다시 표시하여 재생성 방지
-    if (_isMapReady) {
-      setState(() {
-        _showMap = false;
-        _isMapReady = false;
-        _markersAdded = false; // 마커도 다시 추가되도록 리셋
-      });
-
-      // 다음 프레임에 다시 표시
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          setState(() {
-            _showMap = true;
-          });
-          debugPrint('🗺️ Map visibility restored after Hot Reload');
-        }
-      });
-    }
   }
 
   @override
@@ -129,16 +110,15 @@ class _MapScreenState extends ConsumerState<MapScreen>
     return Scaffold(
       body: Stack(
         children: [
-          // Kakao Map - Hot Reload 시 일시적으로 숨김
-          if (_showMap)
-            KakaoMap(
-              key: _mapKey, // 고유 키로 PlatformView 재생성 문제 방지
-              option: KakaoMapOption(
-                position: const LatLng(37.5665, 126.9780), // 서울시청
-                zoomLevel: 16,
-                mapType: MapType.normal,
-              ),
-              onMapReady: (controller) async {
+          // Kakao Map
+          KakaoMap(
+            key: _mapKey,
+            option: KakaoMapOption(
+              position: const LatLng(37.5665, 126.9780), // 서울시청
+              zoomLevel: 16,
+              mapType: MapType.normal,
+            ),
+            onMapReady: (controller) async {
               _mapController = controller;
               setState(() {
                 _isMapReady = true;

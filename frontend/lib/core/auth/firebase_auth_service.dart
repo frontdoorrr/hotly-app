@@ -20,7 +20,17 @@ class FirebaseAuthService {
     GoogleSignIn? googleSignIn,
     Logger? logger,
   })  : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
-        _googleSignIn = googleSignIn ?? GoogleSignIn(),
+        _googleSignIn = googleSignIn ??
+            GoogleSignIn(
+              // IMPORTANT: Use Web Client ID (NOT iOS Client ID) for Firebase Auth
+              // Web Client ID is required for Firebase Authentication integration
+              serverClientId: '1057941733549-9t060j5aqo490b68kned6vj024od9qdk.apps.googleusercontent.com',
+              // Request necessary scopes for Firebase Auth
+              scopes: [
+                'email',
+                'profile',
+              ],
+            ),
         _logger = logger ?? Logger();
 
   /// 현재 로그인된 사용자
@@ -104,9 +114,12 @@ class FirebaseAuthService {
   Future<UserCredential?> signInWithGoogle() async {
     try {
       _logger.i('Starting Google Sign-In');
+      _logger.i('GoogleSignIn clientId: ${_googleSignIn.clientId}');
 
       // Google Sign-In 시작
+      _logger.i('Calling _googleSignIn.signIn()...');
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      _logger.i('Google Sign-In returned: ${googleUser?.email ?? "null"}');
 
       if (googleUser == null) {
         _logger.w('Google Sign-In cancelled by user');

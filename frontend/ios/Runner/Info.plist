@@ -91,6 +91,24 @@
 				<string>hotly</string>
 			</array>
 		</dict>
+		<!-- Google Sign-In URL Scheme -->
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.1057941733549-gde261hjh5otq1kheb2pibn83r53ejnu</string>
+			</array>
+		</dict>
+		<!-- Kakao SDK URL Scheme -->
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>kakao78ff40eb343af6b500a92c15fcd786db</string>
+			</array>
+		</dict>
 	</array>
 
 	<!-- Universal Links -->
@@ -102,23 +120,34 @@
 
 	<!-- Firebase -->
 	<key>FirebaseAppDelegateProxyEnabled</key>
-	<false/>
+	<true/>
+
+	<!-- Google Sign-In Configuration -->
+	<key>GIDClientID</key>
+	<string>1057941733549-gde261hjh5otq1kheb2pibn83r53ejnu.apps.googleusercontent.com</string>
+
+	<!-- Kakao SDK Configuration -->
+	<key>KAKAO_APP_KEY</key>
+	<string>78ff40eb343af6b500a92c15fcd786db</string>
+
+	<!-- LSApplicationQueriesSchemes for Google Sign-In and Kakao SDK -->
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>googlechromes</string>
+		<string>googlechrome</string>
+		<string>com.google.gplinks</string>
+		<string>kakaokompassauth</string>
+		<string>kakaolink</string>
+		<string>kakaomap</string>
+		<string>kakaotalk</string>
+	</array>
 
 	<!-- ===== App Transport Security ===== -->
 	<key>NSAppTransportSecurity</key>
 	<dict>
-		<!-- Allow insecure connections for development -->
+		<!-- Allow arbitrary loads for development (includes Google OAuth) -->
 		<key>NSAllowsArbitraryLoads</key>
-		<false/>
-		<key>NSExceptionDomains</key>
-		<dict>
-			<!-- Localhost for development -->
-			<key>localhost</key>
-			<dict>
-				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-			</dict>
-		</dict>
+		<true/>
 	</dict>
 
 	<!-- ===== App Display Settings ===== -->

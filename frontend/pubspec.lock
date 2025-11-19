@@ -1216,10 +1216,10 @@ packages:
     dependency: "direct main"
     description:
       name: kakao_map_sdk
-      sha256: c5f1342934df3d0daca801c0b739eb4fdde0c6137859ace94d7737e72f4a8094
+      sha256: "3d63684da4175c51636a745c22f755286de19a7a7cce4d4adbfece42323895ed"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.0"
+    version: "1.2.1"
   leak_tracker:
     dependency: transitive
     description:

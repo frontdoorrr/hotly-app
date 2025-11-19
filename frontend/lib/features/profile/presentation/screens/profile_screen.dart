@@ -209,7 +209,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             ),
             const SizedBox(height: 8),
             Text(
-              '$count',
+              'N',  // Display 'N' instead of count (temporary until API is connected)
               style: AppTextStyles.h3.copyWith(
                 fontWeight: FontWeight.bold,
               ),

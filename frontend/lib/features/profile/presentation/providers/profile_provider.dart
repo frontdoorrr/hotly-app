@@ -27,24 +27,24 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
     state = state.copyWith(isLoading: true);
 
     // TODO: API 연동 시 실제 사용자 정보 로드
-    // For now, use mock data
+    // For now, use zero data (no dummy data)
     await Future.delayed(const Duration(milliseconds: 500));
 
     final mockUser = User(
       id: 'user_001',
-      name: '김민지',
+      name: '사용자',
       email: 'user@hotly.app',
       profileImageUrl: null,
-      savedPlacesCount: 24,
-      likedPlacesCount: 48,
-      coursesCount: 6,
-      createdAt: DateTime.now().subtract(const Duration(days: 30)),
+      savedPlacesCount: 0,
+      likedPlacesCount: 0,
+      coursesCount: 0,
+      createdAt: DateTime.now(),
     );
 
     final mockStats = const UserStats(
-      savedPlaces: 24,
-      likedPlaces: 48,
-      courses: 6,
+      savedPlaces: 0,
+      likedPlaces: 0,
+      courses: 0,
     );
 
     state = state.copyWith(
