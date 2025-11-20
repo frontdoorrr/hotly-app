@@ -8,10 +8,16 @@ from typing import Dict
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
 from app.api.api_v1.api import api_router
 from app.api.health import router as health_router
 from app.core.config import settings
+from app.middleware.rate_limit_middleware import RateLimitMiddleware
+from app.middleware.security_middleware import (
+    SecurityHeadersMiddleware,
+    RequestValidationMiddleware,
+)
 
 
 def create_app() -> FastAPI:
@@ -23,7 +29,18 @@ def create_app() -> FastAPI:
         openapi_url=f"{settings.API_V1_STR}/openapi.json",
     )
 
-    # Set all CORS enabled origins
+    # ============================================================
+    # 미들웨어 등록 (역순으로 실행됨 - 아래가 먼저 실행)
+    # ============================================================
+
+    # 1. Trusted Host 검증 (맨 먼저 실행)
+    if settings.ALLOWED_HOSTS != ["*"]:
+        app.add_middleware(
+            TrustedHostMiddleware,
+            allowed_hosts=settings.ALLOWED_HOSTS
+        )
+
+    # 2. CORS 설정
     if settings.BACKEND_CORS_ORIGINS:
         app.add_middleware(
             CORSMiddleware,
@@ -32,6 +49,22 @@ def create_app() -> FastAPI:
             allow_methods=["*"],
             allow_headers=["*"],
         )
+
+    # 3. 보안 헤더 추가
+    app.add_middleware(SecurityHeadersMiddleware)
+
+    # 4. 요청 검증 (크기, Content-Type)
+    app.add_middleware(
+        RequestValidationMiddleware,
+        max_request_size_mb=settings.MAX_REQUEST_SIZE_MB
+    )
+
+    # 5. 레이트 리미팅
+    app.add_middleware(
+        RateLimitMiddleware,
+        requests_per_minute=settings.RATE_LIMIT_REQUESTS_PER_MINUTE,
+        burst_limit=settings.RATE_LIMIT_BURST
+    )
 
     @app.get("/")
     def read_root() -> Dict[str, str]:

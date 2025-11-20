@@ -170,6 +170,38 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = Field(default="development", description="Environment name")
     DEBUG: bool = Field(default=False, description="Debug mode")
 
+    # Security Headers
+    CONTENT_SECURITY_POLICY: str = Field(
+        default="default-src 'self'",
+        description="Content Security Policy header value"
+    )
+    ALLOWED_HOSTS: List[str] = Field(
+        default_factory=lambda: ["*"],
+        description="Allowed hosts for Host header validation"
+    )
+
+    # Rate Limiting (전역)
+    RATE_LIMIT_REQUESTS_PER_MINUTE: int = Field(
+        default=60,
+        description="Global API rate limit per minute per client"
+    )
+    RATE_LIMIT_BURST: int = Field(
+        default=10,
+        description="Burst limit for rate limiting"
+    )
+
+    # Request Validation
+    MAX_REQUEST_SIZE_MB: int = Field(
+        default=10,
+        description="Maximum request body size in MB"
+    )
+
+    # JWT Configuration
+    JWT_ALGORITHM: str = Field(
+        default="HS256",
+        description="JWT signing algorithm"
+    )
+
     # Logging
     LOG_LEVEL: str = Field(default="INFO", description="Log level")
 
