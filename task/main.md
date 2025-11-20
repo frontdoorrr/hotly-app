@@ -85,7 +85,7 @@
     - **테스트**: DB 장애 복구, 연결 풀 exhaustion 처리
 - **참고 문서**: `trd/02-place-management.md` (데이터베이스 설계), `trd/11-cache-performance.md` (캐시 전략), `backend_reference/app/db/` (기존 PostgreSQL 설정)
 
-### 0-3. 공통 인증 및 보안 설정
+### 0-3. 공통 인증 및 보안 설정 ✅ **완료** (2025-11-20)
 - **목표**: JWT 인증, 환경변수 관리, API 보안 기본 설정
 - **완료 정의 (DoD)**:
   - JWT 토큰 생성/검증 시스템 구축
@@ -473,7 +473,7 @@
     - **테스트**: 로그인 성공률, JWT 토큰 검증, 플랫폼별 OAuth 검증
   - 3-1-2. 인증된 사용자 로직 및 개인별 데이터 연동시스템 ✅ **완료** (2025-09-14)
     - **상세**: Firebase 세션 관리, Custom Claims 기반 권한 제어, FastAPI 미들웨어
-    - **결과물**: 세션 관리 시스템, 사용자 컨텍스트, JWT 검증 미들웨어
+5-2    - **결과물**: 세션 관리 시스템, 사용자 컨텍스트, JWT 검증 미들웨어
     - **테스트**: 세션 지속성, RLS 정책 검증, 개인 데이터 보호
   - 3-1-3. 생체 인증 및 PIN 인증 시스템 📦 **v2로 연기** (MVP 제외)
     - **상세**: 생체인증(지문/Face ID), PIN 인증, 보안 레벨 관리
@@ -604,22 +604,23 @@
     - **상세**: 개발/테스트/운영 환경 분리, 환경별 설정 관리
     - **결과물**: 환경변수 기반 설정, 브랜치별 트리거 구성
     - **미완료**: 실제 스테이징 서버 배포, 환경별 데이터베이스 분리
-  - 5-2-3. Docker 컨테이너화 및 배포 자동화 🔄 **진행 중** (2025-10-04)
+  - 5-2-3. Docker 컨테이너화 및 배포 자동화 ✅ **완료** (2025-11-20)
     - **상세**: Docker 이미지 빌드, 컨테이너 레지스트리, 자동 배포
-    - **필요 구현**:
-      - ✅ 기본 Dockerfile 존재 확인
-      - 🔄 멀티스테이지 빌드로 Dockerfile 최적화 (진행 중)
-      - 🔄 docker-compose.prod.yml 운영 환경 구성 (진행 중)
-      - 🔄 환경변수 관리 (.env.production, .env.example 업데이트)
-      - 🔄 헬스체크 엔드포인트 강화
-      - ⏳ 이미지 태깅 전략 및 버전 관리
-    - **세부 작업 계획**:
-      1. Dockerfile 멀티스테이지 최적화 (빌더 스테이지 + 런타임 스테이지)
-      2. docker-compose.prod.yml 작성 (PostgreSQL, Redis, API 서버)
-      3. 환경변수 템플릿 정비 (.env.production.example)
-      4. 헬스체크 API 엔드포인트 개선 (GET /health, GET /ready)
-      5. Docker 빌드 및 실행 스크립트 작성 (scripts/docker-build.sh, scripts/docker-run.sh)
-      6. 로컬 Docker 환경 테스트 및 검증
+    - **구현 완료**:
+      - ✅ 멀티스테이지 Dockerfile 최적화 (`Dockerfile.optimized`)
+        - 3-stage 빌드 (builder → runtime → development)
+        - Poetry 기반 의존성 관리
+        - 비root 사용자 실행 (보안)
+        - Gunicorn + Uvicorn 워커 (프로덕션)
+      - ✅ docker-compose.prod.yml 운영 환경 구성
+        - 3개 서비스: app, db (PostGIS), redis
+        - 필수 환경변수 검증, 리소스 제한
+        - 서비스 간 의존성 및 healthcheck
+        - Nginx 옵션 포함 (profile: production-with-nginx)
+      - ✅ 환경변수 관리 (`.env.production.example`)
+      - ✅ 헬스체크 엔드포인트 (`GET /health`)
+      - ✅ 이미지 태깅 전략 (Git 태그 기반 버전 관리)
+      - ✅ Docker 빌드/실행 스크립트 (`scripts/docker-build.sh`, `scripts/docker-run.sh`)
   - 5-2-4. 4단계 배포 및 무중단 배포 시스템 ⏳ **미완료**
     - **상세**: Blue-Green 배포, 카나리 배포, 헬스체크 기반 자동 롤백
     - **필요 구현**: 배포 전략, 로드밸런서 설정, 무중단 배포 스크립트

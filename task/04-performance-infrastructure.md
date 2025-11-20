@@ -316,6 +316,131 @@
 
 ---
 
+## 4-3. Link Analyzer 성능 최적화
+
+### 목표
+링크 분석 서비스의 응답 시간 및 처리량 개선을 통한 사용자 경험 향상
+
+### 완료 정의 (DoD)
+- [ ] 링크 분석 API 응답시간 p95 5초 이내 (현재 10초+ 예상)
+- [ ] Gemini API 호출 최적화로 비용 30% 절감
+- [ ] 동시 분석 요청 100건 처리 가능
+- [ ] 캐시 히트 시 응답시간 500ms 이내
+
+### 수용 기준
+- Given 캐시된 URL 요청, When 분석 API 호출, Then 500ms 이내 응답
+- Given 동일 URL 반복 요청, When 1시간 이내, Then 캐시에서 즉시 반환
+- Given 100건 동시 요청, When 부하 테스트, Then 모든 요청 30초 이내 완료
+
+### 세부 작업
+
+#### 4-3-1. 분석 결과 캐싱 시스템 구현
+**상세**: Redis 기반 분석 결과 캐싱, URL 해시 기반 키 관리, TTL 전략
+
+**구현 체크리스트**:
+- [ ] URL 정규화 및 해시 기반 캐시 키 생성
+- [ ] 분석 결과 Redis 캐싱 구현
+- [ ] TTL 전략 설계 (플랫폼별 차등 적용)
+- [ ] 캐시 무효화 API 구현
+- [ ] 캐시 히트율 모니터링
+
+**결과물**:
+- `link-analyzer/app/cache/analysis_cache.py` - 분석 결과 캐시
+- `link-analyzer/app/utils/url_normalizer.py` - URL 정규화
+- `link-analyzer/app/monitoring/cache_metrics.py` - 캐시 메트릭
+
+**API**:
+- `GET /api/v1/cache/stats` - 캐시 통계
+- `DELETE /api/v1/cache/{url_hash}` - 특정 URL 캐시 삭제
+
+**성능**: 캐시 히트율 70% 이상, 캐시 응답 100ms 이내
+
+**테스트**: 캐시 정확성, TTL 만료, 무효화 기능
+
+#### 4-3-2. Gemini API 호출 최적화
+**상세**: 배치 처리, 요청 병합, 불필요한 재분석 방지
+
+**구현 체크리스트**:
+- [ ] 이미지/비디오 분석 배치 처리 구현
+- [ ] 동일 콘텐츠 중복 분석 방지
+- [ ] 분석 결과 부분 재사용 (메타데이터 vs AI 분석 분리)
+- [ ] API 호출 비용 추적 및 모니터링
+- [ ] 저품질 콘텐츠 조기 필터링
+
+**결과물**:
+- `link-analyzer/app/services/analysis/batch_processor.py` - 배치 처리
+- `link-analyzer/app/services/analysis/deduplicator.py` - 중복 제거
+- `link-analyzer/app/monitoring/api_cost_tracker.py` - 비용 추적
+
+**성능**: API 호출 30% 감소, 배치 처리로 처리량 2배 향상
+
+**테스트**: 배치 처리 정확성, 중복 감지, 비용 계산
+
+#### 4-3-3. 비동기 처리 및 큐 시스템
+**상세**: 대용량 요청 처리를 위한 작업 큐, 백그라운드 처리
+
+**구현 체크리스트**:
+- [ ] Redis Queue 또는 Celery 기반 작업 큐 구현
+- [ ] 분석 작업 비동기 처리
+- [ ] 작업 상태 추적 API
+- [ ] 우선순위 큐 지원
+- [ ] 재시도 로직 강화
+
+**결과물**:
+- `link-analyzer/app/queue/task_queue.py` - 작업 큐
+- `link-analyzer/app/workers/analysis_worker.py` - 분석 워커
+- `link-analyzer/app/schemas/task_status.py` - 작업 상태 스키마
+
+**API**:
+- `POST /api/v1/analyze/async` - 비동기 분석 요청
+- `GET /api/v1/analyze/status/{task_id}` - 작업 상태 조회
+
+**성능**: 동시 100건 요청 처리, 작업 상태 조회 50ms 이내
+
+**테스트**: 큐 처리 순서, 재시도 로직, 상태 추적
+
+#### 4-3-4. 콘텐츠 추출 병렬화
+**상세**: 플랫폼별 콘텐츠 추출 병렬 처리, 연결 풀링
+
+**구현 체크리스트**:
+- [ ] httpx AsyncClient 연결 풀 최적화
+- [ ] 다중 이미지/비디오 병렬 다운로드
+- [ ] 플랫폼별 rate limit 준수하며 병렬화
+- [ ] 타임아웃 및 실패 처리 개선
+- [ ] 메모리 사용량 최적화
+
+**결과물**:
+- `link-analyzer/app/services/extraction/parallel_extractor.py` - 병렬 추출
+- `link-analyzer/app/utils/connection_pool.py` - 연결 풀 관리
+
+**성능**: 다중 콘텐츠 추출 시간 50% 단축
+
+**테스트**: 병렬 처리 정확성, 메모리 사용량, rate limit 준수
+
+#### 4-3-5. 성능 테스트 및 벤치마크
+**상세**: 부하 테스트, 성능 프로파일링, 병목 지점 분석
+
+**구현 체크리스트**:
+- [ ] Locust 기반 부하 테스트 시나리오
+- [ ] API 엔드포인트별 성능 벤치마크
+- [ ] 메모리/CPU 프로파일링
+- [ ] 병목 지점 식별 및 문서화
+- [ ] 성능 개선 전후 비교 리포트
+
+**결과물**:
+- `link-analyzer/tests/performance/locustfile.py` - 부하 테스트
+- `link-analyzer/tests/performance/benchmarks.py` - 벤치마크
+- `link-analyzer/docs/performance_report.md` - 성능 리포트
+
+**성능 목표**:
+- 단일 분석: p50 3초, p95 5초
+- 캐시 히트: p50 100ms, p95 500ms
+- 동시 100건: 전체 30초 이내 완료
+
+**테스트**: 부하 테스트 자동화, 성능 회귀 감지
+
+---
+
 ## Backend Reference 활용 가이드
 
 ### 성능 최적화 참고
