@@ -26,9 +26,7 @@ mixin _$LinkAnalysisResult {
   double? get progress => throw _privateConstructorUsedError;
   String? get error => throw _privateConstructorUsedError;
 
-  /// Create a copy of LinkAnalysisResult
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $LinkAnalysisResultCopyWith<LinkAnalysisResult> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -64,8 +62,6 @@ class _$LinkAnalysisResultCopyWithImpl<$Res, $Val extends LinkAnalysisResult>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of LinkAnalysisResult
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -119,8 +115,6 @@ class _$LinkAnalysisResultCopyWithImpl<$Res, $Val extends LinkAnalysisResult>
     ) as $Val);
   }
 
-  /// Create a copy of LinkAnalysisResult
-  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $PlaceInfoCopyWith<$Res>? get placeInfo {
@@ -133,8 +127,6 @@ class _$LinkAnalysisResultCopyWithImpl<$Res, $Val extends LinkAnalysisResult>
     });
   }
 
-  /// Create a copy of LinkAnalysisResult
-  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $ContentMetadataCopyWith<$Res>? get contentMetadata {
@@ -181,8 +173,6 @@ class __$$LinkAnalysisResultImplCopyWithImpl<$Res>
       $Res Function(_$LinkAnalysisResultImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of LinkAnalysisResult
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -304,9 +294,7 @@ class _$LinkAnalysisResultImpl implements _LinkAnalysisResult {
   int get hashCode => Object.hash(runtimeType, analysisId, status, placeInfo,
       contentMetadata, confidence, processingTime, cached, progress, error);
 
-  /// Create a copy of LinkAnalysisResult
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$LinkAnalysisResultImplCopyWith<_$LinkAnalysisResultImpl> get copyWith =>
@@ -344,11 +332,8 @@ abstract class _LinkAnalysisResult implements LinkAnalysisResult {
   double? get progress;
   @override
   String? get error;
-
-  /// Create a copy of LinkAnalysisResult
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$LinkAnalysisResultImplCopyWith<_$LinkAnalysisResultImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -363,9 +348,7 @@ mixin _$PlaceInfo {
   double? get rating => throw _privateConstructorUsedError;
   Coordinates? get coordinates => throw _privateConstructorUsedError;
 
-  /// Create a copy of PlaceInfo
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $PlaceInfoCopyWith<PlaceInfo> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -397,8 +380,6 @@ class _$PlaceInfoCopyWithImpl<$Res, $Val extends PlaceInfo>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of PlaceInfo
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -442,8 +423,6 @@ class _$PlaceInfoCopyWithImpl<$Res, $Val extends PlaceInfo>
     ) as $Val);
   }
 
-  /// Create a copy of PlaceInfo
-  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $CoordinatesCopyWith<$Res>? get coordinates {
@@ -486,8 +465,6 @@ class __$$PlaceInfoImplCopyWithImpl<$Res>
       _$PlaceInfoImpl _value, $Res Function(_$PlaceInfoImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of PlaceInfo
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -601,9 +578,7 @@ class _$PlaceInfoImpl implements _PlaceInfo {
       rating,
       coordinates);
 
-  /// Create a copy of PlaceInfo
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$PlaceInfoImplCopyWith<_$PlaceInfoImpl> get copyWith =>
@@ -634,11 +609,8 @@ abstract class _PlaceInfo implements PlaceInfo {
   double? get rating;
   @override
   Coordinates? get coordinates;
-
-  /// Create a copy of PlaceInfo
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$PlaceInfoImplCopyWith<_$PlaceInfoImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -648,9 +620,7 @@ mixin _$Coordinates {
   double get latitude => throw _privateConstructorUsedError;
   double get longitude => throw _privateConstructorUsedError;
 
-  /// Create a copy of Coordinates
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $CoordinatesCopyWith<Coordinates> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -674,8 +644,6 @@ class _$CoordinatesCopyWithImpl<$Res, $Val extends Coordinates>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of Coordinates
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -714,8 +682,6 @@ class __$$CoordinatesImplCopyWithImpl<$Res>
       _$CoordinatesImpl _value, $Res Function(_$CoordinatesImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of Coordinates
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -764,9 +730,7 @@ class _$CoordinatesImpl implements _Coordinates {
   @override
   int get hashCode => Object.hash(runtimeType, latitude, longitude);
 
-  /// Create a copy of Coordinates
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$CoordinatesImplCopyWith<_$CoordinatesImpl> get copyWith =>
@@ -782,11 +746,8 @@ abstract class _Coordinates implements Coordinates {
   double get latitude;
   @override
   double get longitude;
-
-  /// Create a copy of Coordinates
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$CoordinatesImplCopyWith<_$CoordinatesImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -799,9 +760,7 @@ mixin _$ContentMetadata {
   List<String> get hashtags => throw _privateConstructorUsedError;
   double? get extractionTime => throw _privateConstructorUsedError;
 
-  /// Create a copy of ContentMetadata
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $ContentMetadataCopyWith<ContentMetadata> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -830,8 +789,6 @@ class _$ContentMetadataCopyWithImpl<$Res, $Val extends ContentMetadata>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of ContentMetadata
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -890,8 +847,6 @@ class __$$ContentMetadataImplCopyWithImpl<$Res>
       _$ContentMetadataImpl _value, $Res Function(_$ContentMetadataImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of ContentMetadata
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -991,9 +946,7 @@ class _$ContentMetadataImpl implements _ContentMetadata {
       const DeepCollectionEquality().hash(_hashtags),
       extractionTime);
 
-  /// Create a copy of ContentMetadata
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$ContentMetadataImplCopyWith<_$ContentMetadataImpl> get copyWith =>
@@ -1019,11 +972,8 @@ abstract class _ContentMetadata implements ContentMetadata {
   List<String> get hashtags;
   @override
   double? get extractionTime;
-
-  /// Create a copy of ContentMetadata
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$ContentMetadataImplCopyWith<_$ContentMetadataImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

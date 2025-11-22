@@ -19,9 +19,7 @@ mixin _$CoordinatePoint {
   double get latitude => throw _privateConstructorUsedError;
   double get longitude => throw _privateConstructorUsedError;
 
-  /// Create a copy of CoordinatePoint
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $CoordinatePointCopyWith<CoordinatePoint> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -45,8 +43,6 @@ class _$CoordinatePointCopyWithImpl<$Res, $Val extends CoordinatePoint>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of CoordinatePoint
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -85,8 +81,6 @@ class __$$CoordinatePointImplCopyWithImpl<$Res>
       _$CoordinatePointImpl _value, $Res Function(_$CoordinatePointImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of CoordinatePoint
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -136,9 +130,7 @@ class _$CoordinatePointImpl implements _CoordinatePoint {
   @override
   int get hashCode => Object.hash(runtimeType, latitude, longitude);
 
-  /// Create a copy of CoordinatePoint
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$CoordinatePointImplCopyWith<_$CoordinatePointImpl> get copyWith =>
@@ -155,11 +147,8 @@ abstract class _CoordinatePoint implements CoordinatePoint {
   double get latitude;
   @override
   double get longitude;
-
-  /// Create a copy of CoordinatePoint
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$CoordinatePointImplCopyWith<_$CoordinatePointImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -173,9 +162,7 @@ mixin _$AddressSearchResult {
   String? get jibunAddress => throw _privateConstructorUsedError;
   String? get buildingName => throw _privateConstructorUsedError;
 
-  /// Create a copy of AddressSearchResult
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $AddressSearchResultCopyWith<AddressSearchResult> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -205,8 +192,6 @@ class _$AddressSearchResultCopyWithImpl<$Res, $Val extends AddressSearchResult>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of AddressSearchResult
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -271,8 +256,6 @@ class __$$AddressSearchResultImplCopyWithImpl<$Res>
       $Res Function(_$AddressSearchResultImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of AddressSearchResult
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -363,9 +346,7 @@ class _$AddressSearchResultImpl implements _AddressSearchResult {
   int get hashCode => Object.hash(runtimeType, address, latitude, longitude,
       roadAddress, jibunAddress, buildingName);
 
-  /// Create a copy of AddressSearchResult
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$AddressSearchResultImplCopyWith<_$AddressSearchResultImpl> get copyWith =>
@@ -394,11 +375,8 @@ abstract class _AddressSearchResult implements AddressSearchResult {
   String? get jibunAddress;
   @override
   String? get buildingName;
-
-  /// Create a copy of AddressSearchResult
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$AddressSearchResultImplCopyWith<_$AddressSearchResultImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -413,9 +391,7 @@ mixin _$ReverseGeocodeResult {
   String? get region2depth => throw _privateConstructorUsedError;
   String? get region3depth => throw _privateConstructorUsedError;
 
-  /// Create a copy of ReverseGeocodeResult
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $ReverseGeocodeResultCopyWith<ReverseGeocodeResult> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -447,8 +423,6 @@ class _$ReverseGeocodeResultCopyWithImpl<$Res,
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of ReverseGeocodeResult
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -519,8 +493,6 @@ class __$$ReverseGeocodeResultImplCopyWithImpl<$Res>
       $Res Function(_$ReverseGeocodeResultImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of ReverseGeocodeResult
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -622,9 +594,7 @@ class _$ReverseGeocodeResultImpl implements _ReverseGeocodeResult {
   int get hashCode => Object.hash(runtimeType, latitude, longitude, roadAddress,
       jibunAddress, region1depth, region2depth, region3depth);
 
-  /// Create a copy of ReverseGeocodeResult
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$ReverseGeocodeResultImplCopyWith<_$ReverseGeocodeResultImpl>
@@ -657,11 +627,8 @@ abstract class _ReverseGeocodeResult implements ReverseGeocodeResult {
   String? get region2depth;
   @override
   String? get region3depth;
-
-  /// Create a copy of ReverseGeocodeResult
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$ReverseGeocodeResultImplCopyWith<_$ReverseGeocodeResultImpl>
       get copyWith => throw _privateConstructorUsedError;
 }
@@ -679,9 +646,7 @@ mixin _$PlaceSearchResult {
   String? get placeUrl => throw _privateConstructorUsedError;
   double? get distance => throw _privateConstructorUsedError;
 
-  /// Create a copy of PlaceSearchResult
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $PlaceSearchResultCopyWith<PlaceSearchResult> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -715,8 +680,6 @@ class _$PlaceSearchResultCopyWithImpl<$Res, $Val extends PlaceSearchResult>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of PlaceSearchResult
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -805,8 +768,6 @@ class __$$PlaceSearchResultImplCopyWithImpl<$Res>
       $Res Function(_$PlaceSearchResultImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of PlaceSearchResult
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -945,9 +906,7 @@ class _$PlaceSearchResultImpl implements _PlaceSearchResult {
       placeUrl,
       distance);
 
-  /// Create a copy of PlaceSearchResult
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$PlaceSearchResultImplCopyWith<_$PlaceSearchResultImpl> get copyWith =>
@@ -988,11 +947,8 @@ abstract class _PlaceSearchResult implements PlaceSearchResult {
   String? get placeUrl;
   @override
   double? get distance;
-
-  /// Create a copy of PlaceSearchResult
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$PlaceSearchResultImplCopyWith<_$PlaceSearchResultImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1006,9 +962,7 @@ mixin _$MarkerCluster {
   List<String> get placeIds => throw _privateConstructorUsedError;
   MapBounds? get bounds => throw _privateConstructorUsedError;
 
-  /// Create a copy of MarkerCluster
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $MarkerClusterCopyWith<MarkerCluster> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1040,8 +994,6 @@ class _$MarkerClusterCopyWithImpl<$Res, $Val extends MarkerCluster>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of MarkerCluster
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1080,8 +1032,6 @@ class _$MarkerClusterCopyWithImpl<$Res, $Val extends MarkerCluster>
     ) as $Val);
   }
 
-  /// Create a copy of MarkerCluster
-  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $MapBoundsCopyWith<$Res>? get bounds {
@@ -1123,8 +1073,6 @@ class __$$MarkerClusterImplCopyWithImpl<$Res>
       _$MarkerClusterImpl _value, $Res Function(_$MarkerClusterImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of MarkerCluster
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1227,9 +1175,7 @@ class _$MarkerClusterImpl implements _MarkerCluster {
       const DeepCollectionEquality().hash(_placeIds),
       bounds);
 
-  /// Create a copy of MarkerCluster
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$MarkerClusterImplCopyWith<_$MarkerClusterImpl> get copyWith =>
@@ -1257,11 +1203,8 @@ abstract class _MarkerCluster implements MarkerCluster {
   List<String> get placeIds;
   @override
   MapBounds? get bounds;
-
-  /// Create a copy of MarkerCluster
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$MarkerClusterImplCopyWith<_$MarkerClusterImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1273,9 +1216,7 @@ mixin _$MapBounds {
   double get east => throw _privateConstructorUsedError;
   double get west => throw _privateConstructorUsedError;
 
-  /// Create a copy of MapBounds
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $MapBoundsCopyWith<MapBounds> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1298,8 +1239,6 @@ class _$MapBoundsCopyWithImpl<$Res, $Val extends MapBounds>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of MapBounds
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1348,8 +1287,6 @@ class __$$MapBoundsImplCopyWithImpl<$Res>
       _$MapBoundsImpl _value, $Res Function(_$MapBoundsImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of MapBounds
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1416,9 +1353,7 @@ class _$MapBoundsImpl implements _MapBounds {
   @override
   int get hashCode => Object.hash(runtimeType, north, south, east, west);
 
-  /// Create a copy of MapBounds
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$MapBoundsImplCopyWith<_$MapBoundsImpl> get copyWith =>
@@ -1440,11 +1375,8 @@ abstract class _MapBounds implements MapBounds {
   double get east;
   @override
   double get west;
-
-  /// Create a copy of MapBounds
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$MapBoundsImplCopyWith<_$MapBoundsImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1458,9 +1390,7 @@ mixin _$RoutePolyline {
   List<Map<String, dynamic>> get waypoints =>
       throw _privateConstructorUsedError;
 
-  /// Create a copy of RoutePolyline
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $RoutePolylineCopyWith<RoutePolyline> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1489,8 +1419,6 @@ class _$RoutePolylineCopyWithImpl<$Res, $Val extends RoutePolyline>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of RoutePolyline
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1549,8 +1477,6 @@ class __$$RoutePolylineImplCopyWithImpl<$Res>
       _$RoutePolylineImpl _value, $Res Function(_$RoutePolylineImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of RoutePolyline
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1649,9 +1575,7 @@ class _$RoutePolylineImpl implements _RoutePolyline {
       totalDurationMinutes,
       const DeepCollectionEquality().hash(_waypoints));
 
-  /// Create a copy of RoutePolyline
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$RoutePolylineImplCopyWith<_$RoutePolylineImpl> get copyWith =>
@@ -1677,11 +1601,8 @@ abstract class _RoutePolyline implements RoutePolyline {
   int get totalDurationMinutes;
   @override
   List<Map<String, dynamic>> get waypoints;
-
-  /// Create a copy of RoutePolyline
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$RoutePolylineImplCopyWith<_$RoutePolylineImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

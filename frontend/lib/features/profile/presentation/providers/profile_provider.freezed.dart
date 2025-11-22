@@ -20,11 +20,10 @@ mixin _$ProfileState {
   UserStats? get stats => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
   bool get isLoadingStats => throw _privateConstructorUsedError;
+  bool get isAuthenticated => throw _privateConstructorUsedError;
   String? get error => throw _privateConstructorUsedError;
 
-  /// Create a copy of ProfileState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $ProfileStateCopyWith<ProfileState> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -40,6 +39,7 @@ abstract class $ProfileStateCopyWith<$Res> {
       UserStats? stats,
       bool isLoading,
       bool isLoadingStats,
+      bool isAuthenticated,
       String? error});
 
   $UserCopyWith<$Res>? get user;
@@ -56,8 +56,6 @@ class _$ProfileStateCopyWithImpl<$Res, $Val extends ProfileState>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of ProfileState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -65,6 +63,7 @@ class _$ProfileStateCopyWithImpl<$Res, $Val extends ProfileState>
     Object? stats = freezed,
     Object? isLoading = null,
     Object? isLoadingStats = null,
+    Object? isAuthenticated = null,
     Object? error = freezed,
   }) {
     return _then(_value.copyWith(
@@ -84,6 +83,10 @@ class _$ProfileStateCopyWithImpl<$Res, $Val extends ProfileState>
           ? _value.isLoadingStats
           : isLoadingStats // ignore: cast_nullable_to_non_nullable
               as bool,
+      isAuthenticated: null == isAuthenticated
+          ? _value.isAuthenticated
+          : isAuthenticated // ignore: cast_nullable_to_non_nullable
+              as bool,
       error: freezed == error
           ? _value.error
           : error // ignore: cast_nullable_to_non_nullable
@@ -91,8 +94,6 @@ class _$ProfileStateCopyWithImpl<$Res, $Val extends ProfileState>
     ) as $Val);
   }
 
-  /// Create a copy of ProfileState
-  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $UserCopyWith<$Res>? get user {
@@ -105,8 +106,6 @@ class _$ProfileStateCopyWithImpl<$Res, $Val extends ProfileState>
     });
   }
 
-  /// Create a copy of ProfileState
-  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $UserStatsCopyWith<$Res>? get stats {
@@ -133,6 +132,7 @@ abstract class _$$ProfileStateImplCopyWith<$Res>
       UserStats? stats,
       bool isLoading,
       bool isLoadingStats,
+      bool isAuthenticated,
       String? error});
 
   @override
@@ -149,8 +149,6 @@ class __$$ProfileStateImplCopyWithImpl<$Res>
       _$ProfileStateImpl _value, $Res Function(_$ProfileStateImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of ProfileState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -158,6 +156,7 @@ class __$$ProfileStateImplCopyWithImpl<$Res>
     Object? stats = freezed,
     Object? isLoading = null,
     Object? isLoadingStats = null,
+    Object? isAuthenticated = null,
     Object? error = freezed,
   }) {
     return _then(_$ProfileStateImpl(
@@ -177,6 +176,10 @@ class __$$ProfileStateImplCopyWithImpl<$Res>
           ? _value.isLoadingStats
           : isLoadingStats // ignore: cast_nullable_to_non_nullable
               as bool,
+      isAuthenticated: null == isAuthenticated
+          ? _value.isAuthenticated
+          : isAuthenticated // ignore: cast_nullable_to_non_nullable
+              as bool,
       error: freezed == error
           ? _value.error
           : error // ignore: cast_nullable_to_non_nullable
@@ -193,6 +196,7 @@ class _$ProfileStateImpl implements _ProfileState {
       this.stats,
       this.isLoading = false,
       this.isLoadingStats = false,
+      this.isAuthenticated = false,
       this.error});
 
   @override
@@ -206,11 +210,14 @@ class _$ProfileStateImpl implements _ProfileState {
   @JsonKey()
   final bool isLoadingStats;
   @override
+  @JsonKey()
+  final bool isAuthenticated;
+  @override
   final String? error;
 
   @override
   String toString() {
-    return 'ProfileState(user: $user, stats: $stats, isLoading: $isLoading, isLoadingStats: $isLoadingStats, error: $error)';
+    return 'ProfileState(user: $user, stats: $stats, isLoading: $isLoading, isLoadingStats: $isLoadingStats, isAuthenticated: $isAuthenticated, error: $error)';
   }
 
   @override
@@ -224,16 +231,16 @@ class _$ProfileStateImpl implements _ProfileState {
                 other.isLoading == isLoading) &&
             (identical(other.isLoadingStats, isLoadingStats) ||
                 other.isLoadingStats == isLoadingStats) &&
+            (identical(other.isAuthenticated, isAuthenticated) ||
+                other.isAuthenticated == isAuthenticated) &&
             (identical(other.error, error) || other.error == error));
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, user, stats, isLoading, isLoadingStats, error);
+  int get hashCode => Object.hash(runtimeType, user, stats, isLoading,
+      isLoadingStats, isAuthenticated, error);
 
-  /// Create a copy of ProfileState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$ProfileStateImplCopyWith<_$ProfileStateImpl> get copyWith =>
@@ -246,6 +253,7 @@ abstract class _ProfileState implements ProfileState {
       final UserStats? stats,
       final bool isLoading,
       final bool isLoadingStats,
+      final bool isAuthenticated,
       final String? error}) = _$ProfileStateImpl;
 
   @override
@@ -257,12 +265,11 @@ abstract class _ProfileState implements ProfileState {
   @override
   bool get isLoadingStats;
   @override
-  String? get error;
-
-  /// Create a copy of ProfileState
-  /// with the given fields replaced by the non-null parameter values.
+  bool get isAuthenticated;
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  String? get error;
+  @override
+  @JsonKey(ignore: true)
   _$$ProfileStateImplCopyWith<_$ProfileStateImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

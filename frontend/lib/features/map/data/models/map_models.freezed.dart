@@ -31,12 +31,8 @@ mixin _$AddressSearchResultModel {
   @JsonKey(name: 'building_name')
   String? get buildingName => throw _privateConstructorUsedError;
 
-  /// Serializes this AddressSearchResultModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of AddressSearchResultModel
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $AddressSearchResultModelCopyWith<AddressSearchResultModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -67,8 +63,6 @@ class _$AddressSearchResultModelCopyWithImpl<$Res,
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of AddressSearchResultModel
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -136,8 +130,6 @@ class __$$AddressSearchResultModelImplCopyWithImpl<$Res>
       $Res Function(_$AddressSearchResultModelImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of AddressSearchResultModel
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -230,14 +222,12 @@ class _$AddressSearchResultModelImpl implements _AddressSearchResultModel {
                 other.buildingName == buildingName));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(runtimeType, address, latitude, longitude,
       roadAddress, jibunAddress, buildingName);
 
-  /// Create a copy of AddressSearchResultModel
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$AddressSearchResultModelImplCopyWith<_$AddressSearchResultModelImpl>
@@ -280,11 +270,8 @@ abstract class _AddressSearchResultModel implements AddressSearchResultModel {
   @override
   @JsonKey(name: 'building_name')
   String? get buildingName;
-
-  /// Create a copy of AddressSearchResultModel
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$AddressSearchResultModelImplCopyWith<_$AddressSearchResultModelImpl>
       get copyWith => throw _privateConstructorUsedError;
 }
@@ -309,12 +296,8 @@ mixin _$ReverseGeocodeResultModel {
   @JsonKey(name: 'region_3depth')
   String? get region3depth => throw _privateConstructorUsedError;
 
-  /// Serializes this ReverseGeocodeResultModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of ReverseGeocodeResultModel
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $ReverseGeocodeResultModelCopyWith<ReverseGeocodeResultModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -346,8 +329,6 @@ class _$ReverseGeocodeResultModelCopyWithImpl<$Res,
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of ReverseGeocodeResultModel
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -421,8 +402,6 @@ class __$$ReverseGeocodeResultModelImplCopyWithImpl<$Res>
       $Res Function(_$ReverseGeocodeResultModelImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of ReverseGeocodeResultModel
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -528,14 +507,12 @@ class _$ReverseGeocodeResultModelImpl implements _ReverseGeocodeResultModel {
                 other.region3depth == region3depth));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(runtimeType, latitude, longitude, roadAddress,
       jibunAddress, region1depth, region2depth, region3depth);
 
-  /// Create a copy of ReverseGeocodeResultModel
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$ReverseGeocodeResultModelImplCopyWith<_$ReverseGeocodeResultModelImpl>
@@ -583,11 +560,8 @@ abstract class _ReverseGeocodeResultModel implements ReverseGeocodeResultModel {
   @override
   @JsonKey(name: 'region_3depth')
   String? get region3depth;
-
-  /// Create a copy of ReverseGeocodeResultModel
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$ReverseGeocodeResultModelImplCopyWith<_$ReverseGeocodeResultModelImpl>
       get copyWith => throw _privateConstructorUsedError;
 }
@@ -615,12 +589,8 @@ mixin _$PlaceSearchResultModel {
   String? get placeUrl => throw _privateConstructorUsedError;
   double? get distance => throw _privateConstructorUsedError;
 
-  /// Serializes this PlaceSearchResultModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of PlaceSearchResultModel
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $PlaceSearchResultModelCopyWith<PlaceSearchResultModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -655,8 +625,6 @@ class _$PlaceSearchResultModelCopyWithImpl<$Res,
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of PlaceSearchResultModel
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -748,8 +716,6 @@ class __$$PlaceSearchResultModelImplCopyWithImpl<$Res>
       $Res Function(_$PlaceSearchResultModelImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of PlaceSearchResultModel
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -882,7 +848,7 @@ class _$PlaceSearchResultModelImpl implements _PlaceSearchResultModel {
                 other.distance == distance));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -897,9 +863,7 @@ class _$PlaceSearchResultModelImpl implements _PlaceSearchResultModel {
       placeUrl,
       distance);
 
-  /// Create a copy of PlaceSearchResultModel
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$PlaceSearchResultModelImplCopyWith<_$PlaceSearchResultModelImpl>
@@ -955,11 +919,8 @@ abstract class _PlaceSearchResultModel implements PlaceSearchResultModel {
   String? get placeUrl;
   @override
   double? get distance;
-
-  /// Create a copy of PlaceSearchResultModel
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$PlaceSearchResultModelImplCopyWith<_$PlaceSearchResultModelImpl>
       get copyWith => throw _privateConstructorUsedError;
 }

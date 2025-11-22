@@ -23,12 +23,8 @@ mixin _$TagInfo {
   String get tag => throw _privateConstructorUsedError;
   int get count => throw _privateConstructorUsedError;
 
-  /// Serializes this TagInfo to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of TagInfo
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $TagInfoCopyWith<TagInfo> get copyWith => throw _privateConstructorUsedError;
 }
 
@@ -50,8 +46,6 @@ class _$TagInfoCopyWithImpl<$Res, $Val extends TagInfo>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of TagInfo
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -89,8 +83,6 @@ class __$$TagInfoImplCopyWithImpl<$Res>
       _$TagInfoImpl _value, $Res Function(_$TagInfoImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of TagInfo
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -137,13 +129,11 @@ class _$TagInfoImpl implements _TagInfo {
             (identical(other.count, count) || other.count == count));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(runtimeType, tag, count);
 
-  /// Create a copy of TagInfo
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$TagInfoImplCopyWith<_$TagInfoImpl> get copyWith =>
@@ -167,11 +157,8 @@ abstract class _TagInfo implements TagInfo {
   String get tag;
   @override
   int get count;
-
-  /// Create a copy of TagInfo
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$TagInfoImplCopyWith<_$TagInfoImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -190,12 +177,8 @@ mixin _$TagStatistics {
   double get averageTagsPerPlace => throw _privateConstructorUsedError;
   int get placesCount => throw _privateConstructorUsedError;
 
-  /// Serializes this TagStatistics to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of TagStatistics
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $TagStatisticsCopyWith<TagStatistics> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -225,8 +208,6 @@ class _$TagStatisticsCopyWithImpl<$Res, $Val extends TagStatistics>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of TagStatistics
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -291,8 +272,6 @@ class __$$TagStatisticsImplCopyWithImpl<$Res>
       _$TagStatisticsImpl _value, $Res Function(_$TagStatisticsImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of TagStatistics
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -397,7 +376,7 @@ class _$TagStatisticsImpl implements _TagStatistics {
                 other.placesCount == placesCount));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -408,9 +387,7 @@ class _$TagStatisticsImpl implements _TagStatistics {
       averageTagsPerPlace,
       placesCount);
 
-  /// Create a copy of TagStatistics
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$TagStatisticsImplCopyWith<_$TagStatisticsImpl> get copyWith =>
@@ -448,11 +425,8 @@ abstract class _TagStatistics implements TagStatistics {
   double get averageTagsPerPlace;
   @override
   int get placesCount;
-
-  /// Create a copy of TagStatistics
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$TagStatisticsImplCopyWith<_$TagStatisticsImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -465,12 +439,8 @@ TagCluster _$TagClusterFromJson(Map<String, dynamic> json) {
 mixin _$TagCluster {
   Map<String, List<String>> get clusters => throw _privateConstructorUsedError;
 
-  /// Serializes this TagCluster to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of TagCluster
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $TagClusterCopyWith<TagCluster> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -494,8 +464,6 @@ class _$TagClusterCopyWithImpl<$Res, $Val extends TagCluster>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of TagCluster
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -529,8 +497,6 @@ class __$$TagClusterImplCopyWithImpl<$Res>
       _$TagClusterImpl _value, $Res Function(_$TagClusterImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of TagCluster
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -575,14 +541,12 @@ class _$TagClusterImpl implements _TagCluster {
             const DeepCollectionEquality().equals(other._clusters, _clusters));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   int get hashCode =>
       Object.hash(runtimeType, const DeepCollectionEquality().hash(_clusters));
 
-  /// Create a copy of TagCluster
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$TagClusterImplCopyWith<_$TagClusterImpl> get copyWith =>
@@ -605,11 +569,8 @@ abstract class _TagCluster implements TagCluster {
 
   @override
   Map<String, List<String>> get clusters;
-
-  /// Create a copy of TagCluster
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$TagClusterImplCopyWith<_$TagClusterImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

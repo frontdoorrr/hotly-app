@@ -34,12 +34,8 @@ mixin _$Place {
   bool get isLiked => throw _privateConstructorUsedError;
   bool get isSaved => throw _privateConstructorUsedError;
 
-  /// Serializes this Place to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of Place
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $PlaceCopyWith<Place> get copyWith => throw _privateConstructorUsedError;
 }
 
@@ -74,8 +70,6 @@ class _$PlaceCopyWithImpl<$Res, $Val extends Place>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of Place
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -181,8 +175,6 @@ class __$$PlaceImplCopyWithImpl<$Res>
       _$PlaceImpl _value, $Res Function(_$PlaceImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of Place
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -348,7 +340,7 @@ class _$PlaceImpl implements _Place {
             (identical(other.isSaved, isSaved) || other.isSaved == isSaved));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -366,9 +358,7 @@ class _$PlaceImpl implements _Place {
       isLiked,
       isSaved);
 
-  /// Create a copy of Place
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$PlaceImplCopyWith<_$PlaceImpl> get copyWith =>
@@ -426,11 +416,8 @@ abstract class _Place implements Place {
   bool get isLiked;
   @override
   bool get isSaved;
-
-  /// Create a copy of Place
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$PlaceImplCopyWith<_$PlaceImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -447,12 +434,8 @@ mixin _$CoursePlace {
   DateTime get startTime => throw _privateConstructorUsedError;
   Duration get duration => throw _privateConstructorUsedError;
 
-  /// Serializes this CoursePlace to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of CoursePlace
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $CoursePlaceCopyWith<CoursePlace> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -483,8 +466,6 @@ class _$CoursePlaceCopyWithImpl<$Res, $Val extends CoursePlace>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of CoursePlace
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -518,8 +499,6 @@ class _$CoursePlaceCopyWithImpl<$Res, $Val extends CoursePlace>
     ) as $Val);
   }
 
-  /// Create a copy of CoursePlace
-  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $PlaceCopyWith<$Res> get place {
@@ -556,8 +535,6 @@ class __$$CoursePlaceImplCopyWithImpl<$Res>
       _$CoursePlaceImpl _value, $Res Function(_$CoursePlaceImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of CoursePlace
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -635,14 +612,12 @@ class _$CoursePlaceImpl implements _CoursePlace {
                 other.duration == duration));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   int get hashCode =>
       Object.hash(runtimeType, id, place, order, startTime, duration);
 
-  /// Create a copy of CoursePlace
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$CoursePlaceImplCopyWith<_$CoursePlaceImpl> get copyWith =>
@@ -677,11 +652,8 @@ abstract class _CoursePlace implements CoursePlace {
   DateTime get startTime;
   @override
   Duration get duration;
-
-  /// Create a copy of CoursePlace
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$CoursePlaceImplCopyWith<_$CoursePlaceImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

@@ -38,12 +38,8 @@ mixin _$User {
   int get coursesCount => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
 
-  /// Serializes this User to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of User
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $UserCopyWith<User> get copyWith => throw _privateConstructorUsedError;
 }
 
@@ -79,8 +75,6 @@ class _$UserCopyWithImpl<$Res, $Val extends User>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of User
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -186,8 +180,6 @@ class __$$UserImplCopyWithImpl<$Res>
   __$$UserImplCopyWithImpl(_$UserImpl _value, $Res Function(_$UserImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of User
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -364,7 +356,7 @@ class _$UserImpl extends _User {
                 other.createdAt == createdAt));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -382,9 +374,7 @@ class _$UserImpl extends _User {
       coursesCount,
       createdAt);
 
-  /// Create a copy of User
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$UserImplCopyWith<_$UserImpl> get copyWith =>
@@ -427,17 +417,17 @@ abstract class _User extends User {
   @override
   String? get profileImageUrl;
   @override
-  String? get phoneNumber; // Firebase Auth fields
-  @override
+  String? get phoneNumber;
+  @override // Firebase Auth fields
   bool get emailConfirmed;
   @override
-  String? get provider; // 'email', 'google', 'apple'
-  @override
+  String? get provider;
+  @override // 'email', 'google', 'apple'
   @JsonKey(includeFromJson: false, includeToJson: false)
   Map<String, dynamic>? get metadata;
   @override
-  DateTime? get lastSignInAt; // App statistics
-  @override
+  DateTime? get lastSignInAt;
+  @override // App statistics
   int get savedPlacesCount;
   @override
   int get likedPlacesCount;
@@ -445,11 +435,8 @@ abstract class _User extends User {
   int get coursesCount;
   @override
   DateTime? get createdAt;
-
-  /// Create a copy of User
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$UserImplCopyWith<_$UserImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -464,12 +451,8 @@ mixin _$UserStats {
   int get likedPlaces => throw _privateConstructorUsedError;
   int get courses => throw _privateConstructorUsedError;
 
-  /// Serializes this UserStats to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of UserStats
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $UserStatsCopyWith<UserStats> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -492,8 +475,6 @@ class _$UserStatsCopyWithImpl<$Res, $Val extends UserStats>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of UserStats
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -537,8 +518,6 @@ class __$$UserStatsImplCopyWithImpl<$Res>
       _$UserStatsImpl _value, $Res Function(_$UserStatsImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of UserStats
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -599,14 +578,12 @@ class _$UserStatsImpl implements _UserStats {
             (identical(other.courses, courses) || other.courses == courses));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   int get hashCode =>
       Object.hash(runtimeType, savedPlaces, likedPlaces, courses);
 
-  /// Create a copy of UserStats
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$UserStatsImplCopyWith<_$UserStatsImpl> get copyWith =>
@@ -635,11 +612,8 @@ abstract class _UserStats implements UserStats {
   int get likedPlaces;
   @override
   int get courses;
-
-  /// Create a copy of UserStats
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$UserStatsImplCopyWith<_$UserStatsImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

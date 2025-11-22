@@ -22,9 +22,7 @@ mixin _$LinkAnalysisState {
   String? get error => throw _privateConstructorUsedError;
   String? get inputUrl => throw _privateConstructorUsedError;
 
-  /// Create a copy of LinkAnalysisState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $LinkAnalysisStateCopyWith<LinkAnalysisState> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -55,8 +53,6 @@ class _$LinkAnalysisStateCopyWithImpl<$Res, $Val extends LinkAnalysisState>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of LinkAnalysisState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -90,8 +86,6 @@ class _$LinkAnalysisStateCopyWithImpl<$Res, $Val extends LinkAnalysisState>
     ) as $Val);
   }
 
-  /// Create a copy of LinkAnalysisState
-  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $LinkAnalysisResultCopyWith<$Res>? get result {
@@ -132,8 +126,6 @@ class __$$LinkAnalysisStateImplCopyWithImpl<$Res>
       $Res Function(_$LinkAnalysisStateImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of LinkAnalysisState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -215,9 +207,7 @@ class _$LinkAnalysisStateImpl implements _LinkAnalysisState {
   int get hashCode =>
       Object.hash(runtimeType, result, isLoading, isPolling, error, inputUrl);
 
-  /// Create a copy of LinkAnalysisState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$LinkAnalysisStateImplCopyWith<_$LinkAnalysisStateImpl> get copyWith =>
@@ -243,11 +233,8 @@ abstract class _LinkAnalysisState implements LinkAnalysisState {
   String? get error;
   @override
   String? get inputUrl;
-
-  /// Create a copy of LinkAnalysisState
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$LinkAnalysisStateImplCopyWith<_$LinkAnalysisStateImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

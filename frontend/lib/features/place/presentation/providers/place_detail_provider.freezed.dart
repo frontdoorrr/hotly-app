@@ -24,9 +24,7 @@ mixin _$PlaceDetailState {
   bool get isSaved => throw _privateConstructorUsedError;
   ApiException? get error => throw _privateConstructorUsedError;
 
-  /// Create a copy of PlaceDetailState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $PlaceDetailStateCopyWith<PlaceDetailState> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -59,8 +57,6 @@ class _$PlaceDetailStateCopyWithImpl<$Res, $Val extends PlaceDetailState>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of PlaceDetailState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -104,8 +100,6 @@ class _$PlaceDetailStateCopyWithImpl<$Res, $Val extends PlaceDetailState>
     ) as $Val);
   }
 
-  /// Create a copy of PlaceDetailState
-  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $PlaceCopyWith<$Res>? get place {
@@ -148,8 +142,6 @@ class __$$PlaceDetailStateImplCopyWithImpl<$Res>
       $Res Function(_$PlaceDetailStateImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of PlaceDetailState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -266,9 +258,7 @@ class _$PlaceDetailStateImpl implements _PlaceDetailState {
       isSaved,
       error);
 
-  /// Create a copy of PlaceDetailState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$PlaceDetailStateImplCopyWith<_$PlaceDetailStateImpl> get copyWith =>
@@ -300,11 +290,8 @@ abstract class _PlaceDetailState implements PlaceDetailState {
   bool get isSaved;
   @override
   ApiException? get error;
-
-  /// Create a copy of PlaceDetailState
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$PlaceDetailStateImplCopyWith<_$PlaceDetailStateImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

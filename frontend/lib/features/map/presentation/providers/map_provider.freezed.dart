@@ -35,9 +35,7 @@ mixin _$MapState {
   PlaceSearchResult? get selectedSearchResult =>
       throw _privateConstructorUsedError;
 
-  /// Create a copy of MapState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $MapStateCopyWith<MapState> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -76,8 +74,6 @@ class _$MapStateCopyWithImpl<$Res, $Val extends MapState>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of MapState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -146,8 +142,6 @@ class _$MapStateCopyWithImpl<$Res, $Val extends MapState>
     ) as $Val);
   }
 
-  /// Create a copy of MapState
-  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $CoordinatePointCopyWith<$Res>? get currentLocation {
@@ -160,8 +154,6 @@ class _$MapStateCopyWithImpl<$Res, $Val extends MapState>
     });
   }
 
-  /// Create a copy of MapState
-  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $MapBoundsCopyWith<$Res>? get currentBounds {
@@ -174,8 +166,6 @@ class _$MapStateCopyWithImpl<$Res, $Val extends MapState>
     });
   }
 
-  /// Create a copy of MapState
-  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $PlaceSearchResultCopyWith<$Res>? get selectedSearchResult {
@@ -228,8 +218,6 @@ class __$$MapStateImplCopyWithImpl<$Res>
       _$MapStateImpl _value, $Res Function(_$MapStateImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of MapState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -432,9 +420,7 @@ class _$MapStateImpl implements _MapState {
       selectedPlaceId,
       selectedSearchResult);
 
-  /// Create a copy of MapState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$MapStateImplCopyWith<_$MapStateImpl> get copyWith =>
@@ -463,28 +449,25 @@ abstract class _MapState implements MapState {
   @override
   List<Map<String, dynamic>> get placesOnMap;
   @override
-  List<Place> get visiblePlaces; // 현재 화면에 보이는 장소들
-  @override
-  List<MarkerCluster> get clusters; // 마커 클러스터들
-  @override
-  MapBounds? get currentBounds; // 현재 뷰포트
-  @override
+  List<Place> get visiblePlaces;
+  @override // 현재 화면에 보이는 장소들
+  List<MarkerCluster> get clusters;
+  @override // 마커 클러스터들
+  MapBounds? get currentBounds;
+  @override // 현재 뷰포트
   bool get isLoading;
   @override
   bool get isSearching;
   @override
-  bool get showSearchThisAreaButton; // "이 지역 검색" 버튼 표시 여부
-  @override
+  bool get showSearchThisAreaButton;
+  @override // "이 지역 검색" 버튼 표시 여부
   String? get error;
   @override
   String? get selectedPlaceId;
   @override
   PlaceSearchResult? get selectedSearchResult;
-
-  /// Create a copy of MapState
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$MapStateImplCopyWith<_$MapStateImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

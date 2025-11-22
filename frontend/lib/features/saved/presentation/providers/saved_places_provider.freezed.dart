@@ -21,9 +21,7 @@ mixin _$SavedPlacesState {
   bool get hasError => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
 
-  /// Create a copy of SavedPlacesState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $SavedPlacesStateCopyWith<SavedPlacesState> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -51,8 +49,6 @@ class _$SavedPlacesStateCopyWithImpl<$Res, $Val extends SavedPlacesState>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of SavedPlacesState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -105,8 +101,6 @@ class __$$SavedPlacesStateImplCopyWithImpl<$Res>
       $Res Function(_$SavedPlacesStateImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of SavedPlacesState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -204,9 +198,7 @@ class _$SavedPlacesStateImpl
       hasError,
       errorMessage);
 
-  /// Create a copy of SavedPlacesState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$SavedPlacesStateImplCopyWith<_$SavedPlacesStateImpl> get copyWith =>
@@ -229,11 +221,8 @@ abstract class _SavedPlacesState implements SavedPlacesState {
   bool get hasError;
   @override
   String? get errorMessage;
-
-  /// Create a copy of SavedPlacesState
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$SavedPlacesStateImplCopyWith<_$SavedPlacesStateImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

@@ -23,9 +23,7 @@ mixin _$CourseBuilderState {
   bool get isSaving => throw _privateConstructorUsedError;
   String? get error => throw _privateConstructorUsedError;
 
-  /// Create a copy of CourseBuilderState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $CourseBuilderStateCopyWith<CourseBuilderState> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -55,8 +53,6 @@ class _$CourseBuilderStateCopyWithImpl<$Res, $Val extends CourseBuilderState>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of CourseBuilderState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -121,8 +117,6 @@ class __$$CourseBuilderStateImplCopyWithImpl<$Res>
       $Res Function(_$CourseBuilderStateImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of CourseBuilderState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -224,9 +218,7 @@ class _$CourseBuilderStateImpl implements _CourseBuilderState {
       isSaving,
       error);
 
-  /// Create a copy of CourseBuilderState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$CourseBuilderStateImplCopyWith<_$CourseBuilderStateImpl> get copyWith =>
@@ -255,11 +247,8 @@ abstract class _CourseBuilderState implements CourseBuilderState {
   bool get isSaving;
   @override
   String? get error;
-
-  /// Create a copy of CourseBuilderState
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$CourseBuilderStateImplCopyWith<_$CourseBuilderStateImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

@@ -20,9 +20,7 @@ mixin _$AppSettings {
   bool get notificationsEnabled => throw _privateConstructorUsedError;
   String get language => throw _privateConstructorUsedError;
 
-  /// Create a copy of AppSettings
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $AppSettingsCopyWith<AppSettings> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -46,8 +44,6 @@ class _$AppSettingsCopyWithImpl<$Res, $Val extends AppSettings>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of AppSettings
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -91,8 +87,6 @@ class __$$AppSettingsImplCopyWithImpl<$Res>
       _$AppSettingsImpl _value, $Res Function(_$AppSettingsImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of AppSettings
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -157,9 +151,7 @@ class _$AppSettingsImpl implements _AppSettings {
   int get hashCode =>
       Object.hash(runtimeType, themeMode, notificationsEnabled, language);
 
-  /// Create a copy of AppSettings
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$AppSettingsImplCopyWith<_$AppSettingsImpl> get copyWith =>
@@ -178,11 +170,8 @@ abstract class _AppSettings implements AppSettings {
   bool get notificationsEnabled;
   @override
   String get language;
-
-  /// Create a copy of AppSettings
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$AppSettingsImplCopyWith<_$AppSettingsImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
