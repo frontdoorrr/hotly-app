@@ -38,6 +38,12 @@ except ImportError:
     FIREBASE_AVAILABLE = False
 
 from app.core.config import settings
+from app.core.security import (
+    create_access_token,
+    create_refresh_token,
+    verify_access_token as verify_jwt_access_token,
+    verify_refresh_token as verify_jwt_refresh_token,
+)
 from app.schemas.auth import (
     AuthError,
     LoginAttempt,
@@ -348,35 +354,52 @@ class FirebaseAuthService:
             linked_providers=[provider] if provider != SocialProvider.ANONYMOUS else [],
         )
 
-    async def _generate_tokens(self, user_id: str) -> tuple[str, str]:
-        """액세스 토큰과 리프레시 토큰 생성"""
-        # 실제로는 JWT나 Firebase 토큰을 생성
-        access_token = f"access_token_{user_id}_{uuid4()}"
-        refresh_token = f"refresh_token_{user_id}_{uuid4()}"
+    async def _generate_tokens(self, user_id: str, additional_claims: Optional[Dict[str, Any]] = None) -> tuple[str, str]:
+        """
+        JWT 액세스 토큰과 리프레시 토큰 생성
 
-        # 토큰을 캐시에 저장
-        await self.cache.set(
-            f"access_token:{access_token}",
-            {
-                "user_id": user_id,
-                "expires_at": (datetime.utcnow() + timedelta(hours=1)).isoformat(),
-            },
-            ttl=3600,
+        0-3 보안 설정의 JWT 유틸리티를 사용하여 표준 JWT 토큰을 생성합니다.
+
+        Args:
+            user_id: 사용자 ID
+            additional_claims: 추가 클레임 (권한, 역할 등)
+
+        Returns:
+            (access_token, refresh_token) 튜플
+        """
+        # 0-3 security.py의 JWT 유틸리티 사용
+        access_token = create_access_token(
+            subject=user_id,
+            additional_claims=additional_claims
         )
+        refresh_token = create_refresh_token(subject=user_id)
 
+        # 토큰 메타데이터를 캐시에 저장 (세션 관리, 로그아웃 시 무효화용)
         await self.cache.set(
-            f"refresh_token:{refresh_token}",
+            f"token_metadata:{user_id}",
             {
                 "user_id": user_id,
-                "expires_at": (datetime.utcnow() + timedelta(days=30)).isoformat(),
+                "created_at": datetime.utcnow().isoformat(),
+                "access_token_hash": hash(access_token) % 10**8,  # 토큰 식별용 해시
             },
-            ttl=30 * 24 * 3600,
+            ttl=settings.ACCESS_TOKEN_EXPIRE_HOURS * 3600,
         )
 
         return access_token, refresh_token
 
     async def validate_access_token(self, token: str) -> TokenValidationResult:
-        """액세스 토큰 검증"""
+        """
+        액세스 토큰 검증
+
+        0-3 보안 설정의 JWT 검증을 우선 사용하고,
+        Firebase 토큰은 폴백으로 지원합니다.
+
+        Args:
+            token: JWT 또는 Firebase ID 토큰
+
+        Returns:
+            토큰 검증 결과
+        """
         try:
             if not token:
                 return TokenValidationResult(
@@ -385,50 +408,60 @@ class FirebaseAuthService:
                     error_message="토큰이 제공되지 않았습니다.",
                 )
 
-            # 캐시에서 토큰 정보 조회
-            token_info = await self.cache.get(f"access_token:{token}")
-            if not token_info:
-                # Firebase Auth로 토큰 검증 시도
-                if self.firebase_auth.verify_id_token:
-                    try:
-                        decoded_token = self.firebase_auth.verify_id_token(token)
-                        return TokenValidationResult(
-                            is_valid=True,
-                            user_id=decoded_token["uid"],
-                            email=decoded_token.get("email"),
-                            expires_at=datetime.fromtimestamp(decoded_token["exp"]),
-                        )
-                    except ExpiredIdTokenError:
-                        return TokenValidationResult(
-                            is_valid=False,
-                            error_code=AuthError.TOKEN_EXPIRED,
-                            error_message="토큰이 만료되었습니다.",
-                        )
-                    except InvalidIdTokenError:
-                        return TokenValidationResult(
-                            is_valid=False,
-                            error_code=AuthError.INVALID_TOKEN,
-                            error_message="유효하지 않은 토큰입니다.",
-                        )
+            # 1. 0-3 JWT 유틸리티로 검증 시도 (우선)
+            jwt_payload = verify_jwt_access_token(token)
+            if jwt_payload:
+                user_id = jwt_payload.get("sub")
+                expires_at = datetime.fromtimestamp(jwt_payload.get("exp", 0))
 
                 return TokenValidationResult(
-                    is_valid=False,
-                    error_code=AuthError.INVALID_TOKEN,
-                    error_message="토큰을 찾을 수 없습니다.",
+                    is_valid=True,
+                    user_id=user_id,
+                    email=jwt_payload.get("email"),
+                    expires_at=expires_at,
+                    permissions=jwt_payload.get("permissions"),
                 )
 
-            # 토큰 만료 시간 확인
-            expires_at = datetime.fromisoformat(token_info["expires_at"])
-            if datetime.utcnow() > expires_at:
-                await self.cache.delete(f"access_token:{token}")
+            # 2. Firebase ID 토큰 검증 (폴백)
+            if self.firebase_auth and self.firebase_auth.verify_id_token:
+                try:
+                    decoded_token = self.firebase_auth.verify_id_token(token)
+                    return TokenValidationResult(
+                        is_valid=True,
+                        user_id=decoded_token["uid"],
+                        email=decoded_token.get("email"),
+                        expires_at=datetime.fromtimestamp(decoded_token["exp"]),
+                    )
+                except ExpiredIdTokenError:
+                    return TokenValidationResult(
+                        is_valid=False,
+                        error_code=AuthError.TOKEN_EXPIRED,
+                        error_message="토큰이 만료되었습니다.",
+                    )
+                except InvalidIdTokenError:
+                    pass  # 다음 단계로 진행
+
+            # 3. 레거시 캐시 기반 토큰 검증 (하위 호환성)
+            token_info = await self.cache.get(f"access_token:{token}")
+            if token_info:
+                expires_at = datetime.fromisoformat(token_info["expires_at"])
+                if datetime.utcnow() > expires_at:
+                    await self.cache.delete(f"access_token:{token}")
+                    return TokenValidationResult(
+                        is_valid=False,
+                        error_code=AuthError.TOKEN_EXPIRED,
+                        error_message="토큰이 만료되었습니다.",
+                    )
                 return TokenValidationResult(
-                    is_valid=False,
-                    error_code=AuthError.TOKEN_EXPIRED,
-                    error_message="토큰이 만료되었습니다.",
+                    is_valid=True,
+                    user_id=token_info["user_id"],
+                    expires_at=expires_at
                 )
 
             return TokenValidationResult(
-                is_valid=True, user_id=token_info["user_id"], expires_at=expires_at
+                is_valid=False,
+                error_code=AuthError.INVALID_TOKEN,
+                error_message="유효하지 않은 토큰입니다.",
             )
 
         except Exception as e:
@@ -442,7 +475,18 @@ class FirebaseAuthService:
     async def refresh_tokens(
         self, request: TokenRefreshRequest
     ) -> TokenRefreshResponse:
-        """토큰 갱신"""
+        """
+        토큰 갱신
+
+        0-3 보안 설정의 JWT 리프레시 토큰을 검증하고
+        새로운 액세스/리프레시 토큰을 발급합니다.
+
+        Args:
+            request: 토큰 갱신 요청
+
+        Returns:
+            새 토큰 또는 에러 응답
+        """
         try:
             # 레이트 리미팅 체크
             if not await self._check_rate_limit(request.device_id, "refresh"):
@@ -452,28 +496,43 @@ class FirebaseAuthService:
                     error_message="토큰 갱신 한도를 초과했습니다.",
                 )
 
-            # 리프레시 토큰 검증
-            token_info = await self.cache.get(f"refresh_token:{request.refresh_token}")
-            if not token_info:
+            # 1. 0-3 JWT 리프레시 토큰 검증 시도
+            jwt_payload = verify_jwt_refresh_token(request.refresh_token)
+            if jwt_payload:
+                user_id = jwt_payload.get("sub")
+
+                # 새 토큰 생성
+                new_access_token, new_refresh_token = await self._generate_tokens(user_id)
+
                 return TokenRefreshResponse(
-                    success=False,
-                    error_code=AuthError.INVALID_TOKEN,
-                    error_message="유효하지 않은 리프레시 토큰입니다.",
+                    success=True,
+                    new_access_token=new_access_token,
+                    new_refresh_token=new_refresh_token,
+                    expires_in=settings.ACCESS_TOKEN_EXPIRE_HOURS * 3600,
                 )
 
-            # 새 토큰 생성
-            new_access_token, new_refresh_token = await self._generate_tokens(
-                token_info["user_id"]
-            )
+            # 2. 레거시 캐시 기반 리프레시 토큰 검증 (하위 호환성)
+            token_info = await self.cache.get(f"refresh_token:{request.refresh_token}")
+            if token_info:
+                # 새 토큰 생성
+                new_access_token, new_refresh_token = await self._generate_tokens(
+                    token_info["user_id"]
+                )
 
-            # 기존 토큰 삭제
-            await self.cache.delete(f"refresh_token:{request.refresh_token}")
+                # 기존 토큰 삭제
+                await self.cache.delete(f"refresh_token:{request.refresh_token}")
+
+                return TokenRefreshResponse(
+                    success=True,
+                    new_access_token=new_access_token,
+                    new_refresh_token=new_refresh_token,
+                    expires_in=settings.ACCESS_TOKEN_EXPIRE_HOURS * 3600,
+                )
 
             return TokenRefreshResponse(
-                success=True,
-                new_access_token=new_access_token,
-                new_refresh_token=new_refresh_token,
-                expires_in=3600,
+                success=False,
+                error_code=AuthError.INVALID_TOKEN,
+                error_message="유효하지 않은 리프레시 토큰입니다.",
             )
 
         except Exception as e:

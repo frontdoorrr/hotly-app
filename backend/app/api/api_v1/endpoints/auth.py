@@ -2,10 +2,15 @@
 import logging
 from typing import Any, Dict
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 logger = logging.getLogger(__name__)
 
+from app.middleware.auth_rate_limit import (
+    check_login_rate_limit,
+    check_refresh_rate_limit,
+    check_verify_rate_limit,
+)
 from app.middleware.jwt_middleware import get_admin_user, get_current_active_user
 from app.schemas.auth import (
     AdminUsersListResponse,
@@ -111,7 +116,10 @@ async def sign_out(
 
 
 @router.post("/social-login", response_model=LoginResponse)
-async def social_login(login_request: SocialLoginRequest) -> LoginResponse:
+async def social_login(
+    login_request: SocialLoginRequest,
+    _: None = Depends(check_login_rate_limit),
+) -> LoginResponse:
     """
     소셜 로그인 (Google, Apple, Kakao).
 
@@ -139,7 +147,10 @@ async def social_login(login_request: SocialLoginRequest) -> LoginResponse:
 
 
 @router.post("/refresh", response_model=TokenRefreshResponse)
-async def refresh_token(refresh_data: TokenRefreshRequest) -> TokenRefreshResponse:
+async def refresh_token(
+    refresh_data: TokenRefreshRequest,
+    _: None = Depends(check_refresh_rate_limit),
+) -> TokenRefreshResponse:
     """
     토큰 갱신.
 
@@ -166,7 +177,10 @@ async def refresh_token(refresh_data: TokenRefreshRequest) -> TokenRefreshRespon
 
 
 @router.post("/verify-token", response_model=TokenValidationResult)
-async def verify_token(token: str) -> TokenValidationResult:
+async def verify_token(
+    token: str,
+    _: None = Depends(check_verify_rate_limit),
+) -> TokenValidationResult:
     """
     Firebase ID 토큰 검증.
 
