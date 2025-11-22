@@ -11,6 +11,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   # 상태 관리
   flutter_riverpod: ^2.4.10
@@ -72,7 +74,7 @@ dependencies:
   photo_view: ^0.14.0
 
   # 유틸리티
-  intl: ^0.19.0
+  intl: ^0.20.2
   uuid: ^4.3.3
   url_launcher: ^6.2.4
   share_plus: ^7.2.2
@@ -124,6 +126,7 @@ dev_dependencies:
 
 # ========== Flutter 설정 ==========
 flutter:
+  generate: true
   uses-material-design: true
 
   # Assets

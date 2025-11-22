@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:kakao_map_sdk/kakao_map_sdk.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
+import 'l10n/app_localizations.dart';
 
 import 'firebase_options.dart';
 import 'core/theme/app_theme.dart';
@@ -15,6 +17,8 @@ import 'core/router/app_router.dart';
 import 'core/storage/local_storage.dart';
 import 'core/notifications/fcm_service.dart';
 import 'core/notifications/notification_handler.dart';
+import 'core/utils/app_logger.dart';
+import 'core/monitoring/crashlytics_service.dart';
 import 'features/link_analysis/presentation/widgets/link_input_bottom_sheet.dart';
 
 void main() async {
@@ -42,9 +46,9 @@ void main() async {
   if (kakaoMapKey.isNotEmpty) {
     KakaoMapSdk.instance.initialize(kakaoMapKey);
     final maskedKey = kakaoMapKey.length >= 8 ? kakaoMapKey.substring(0, 8) : kakaoMapKey;
-    print('🗺️ Kakao Maps SDK initialized with key: $maskedKey...');
+    AppLogger.i('Kakao Maps SDK initialized with key: $maskedKey...', tag: 'Init');
   } else {
-    print('⚠️ Kakao Maps SDK key not configured');
+    AppLogger.w('Kakao Maps SDK key not configured', tag: 'Init');
   }
 
   // Initialize local storage
@@ -52,6 +56,9 @@ void main() async {
 
   // Initialize FCM
   await FCMService().initialize();
+
+  // Initialize Crashlytics
+  await CrashlyticsService.instance.initialize();
 
   // Set system UI overlay style
   SystemChrome.setSystemUIOverlayStyle(
@@ -116,7 +123,7 @@ class _HotlyAppState extends ConsumerState<HotlyApp> {
   void _setupSharingIntentHandler() {
     // TODO: Fix receive_sharing_intent API compatibility issue
     // Temporarily disabled to allow app to run
-    debugPrint('⚠️ Sharing intent handler temporarily disabled');
+    AppLogger.w('Sharing intent handler temporarily disabled', tag: 'Init');
 
     // Handle initial shared text (앱이 종료된 상태에서 공유받은 경우)
     // ReceiveSharingIntent.instance.getInitialText().then((String? value) {
@@ -152,7 +159,7 @@ class _HotlyAppState extends ConsumerState<HotlyApp> {
     final match = urlPattern.firstMatch(text);
     if (match != null) {
       final url = match.group(0)!;
-      debugPrint('✅ Valid URL detected: $url');
+      AppLogger.d('Valid URL detected: $url', tag: 'Share');
 
       // 앱이 완전히 빌드된 후 BottomSheet 표시
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -167,7 +174,7 @@ class _HotlyAppState extends ConsumerState<HotlyApp> {
         }
       });
     } else {
-      debugPrint('⚠️ No valid URL found in shared text');
+      AppLogger.w('No valid URL found in shared text', tag: 'Share');
     }
   }
 
@@ -182,6 +189,17 @@ class _HotlyAppState extends ConsumerState<HotlyApp> {
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
       routerConfig: router,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('ko'),
+        Locale('en'),
+      ],
+      locale: const Locale('ko'),
     );
   }
 }

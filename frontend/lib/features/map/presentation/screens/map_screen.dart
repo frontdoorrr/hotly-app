@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kakao_map_sdk/kakao_map_sdk.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../../../../shared/models/place.dart';
 import '../../../saved/presentation/providers/saved_places_provider.dart';
 import '../../domain/entities/map_entities.dart';
@@ -33,7 +34,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    debugPrint('🗺️ MapScreen initState');
+    AppLogger.d('MapScreen initState', tag: 'Map');
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -46,7 +47,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
       savedPlacesProvider.select((state) => state.places),
       (previous, next) {
         if (_isMapReady && !_markersAdded && next.isNotEmpty) {
-          debugPrint('🗺️ Places loaded, adding markers...');
+          AppLogger.d('Places loaded, adding markers...', tag: 'Map');
           _addMarkersToMap(next);
           _markersAdded = true;
         }
@@ -58,7 +59,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
   void reassemble() {
     super.reassemble();
     // Hot Reload 시 호출됨
-    debugPrint('🗺️ MapScreen reassemble (Hot Reload detected)');
+    AppLogger.d('MapScreen reassemble (Hot Reload detected)', tag: 'Map');
   }
 
   @override
@@ -68,12 +69,12 @@ class _MapScreenState extends ConsumerState<MapScreen>
 
     switch (state) {
       case AppLifecycleState.resumed:
-        debugPrint('🗺️ MapScreen resumed');
+        AppLogger.d('MapScreen resumed', tag: 'Map');
         _mapController?.resume();
         break;
       case AppLifecycleState.paused:
       case AppLifecycleState.inactive:
-        debugPrint('🗺️ MapScreen paused/inactive');
+        AppLogger.d('MapScreen paused/inactive', tag: 'Map');
         _mapController?.pause();
         break;
       case AppLifecycleState.detached:
@@ -98,7 +99,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
         ),
       );
     } catch (e) {
-      debugPrint('⛔ Camera move error: $e');
+      AppLogger.e('Camera move error', tag: 'Map', error: e);
     }
   }
 
@@ -123,14 +124,14 @@ class _MapScreenState extends ConsumerState<MapScreen>
               setState(() {
                 _isMapReady = true;
               });
-              debugPrint('🗺️ Kakao Map is now ready');
+              AppLogger.d('Kakao Map is now ready', tag: 'Map');
 
               // 저장된 장소 마커 추가 (이미 로드된 경우)
               final savedPlacesState = ref.read(savedPlacesProvider);
               if (!savedPlacesState.isLoading &&
                   savedPlacesState.places.isNotEmpty &&
                   !_markersAdded) {
-                debugPrint('🗺️ Places already loaded, adding markers...');
+                AppLogger.d('Places already loaded, adding markers...', tag: 'Map');
                 await _addMarkersToMap(savedPlacesState.places);
                 _markersAdded = true;
               }
@@ -238,13 +239,13 @@ class _MapScreenState extends ConsumerState<MapScreen>
   Future<void> _addMarkersToMap(List<Place> places) async {
     if (_mapController == null || !mounted) return;
 
-    debugPrint('🗺️ Starting to add ${places.length} markers');
+    AppLogger.d('Starting to add ${places.length} markers', tag: 'Map');
 
     try {
       // 마커 아이콘 생성 (한 번만 생성해서 재사용)
       final markerIcon = await _createMarkerIcon();
       if (markerIcon == null) {
-        debugPrint('⛔ Failed to create marker icon');
+        AppLogger.e('Failed to create marker icon', tag: 'Map');
         return;
       }
 
@@ -252,7 +253,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
       for (final place in places) {
         // 좌표가 없는 장소는 스킵
         if (place.latitude == null || place.longitude == null) {
-          debugPrint('⚠️ Skipping place without coordinates: ${place.name}');
+          AppLogger.w('Skipping place without coordinates: ${place.name}', tag: 'Map');
           continue;
         }
 
@@ -270,20 +271,20 @@ class _MapScreenState extends ConsumerState<MapScreen>
             id: place.id,
             text: place.name,
             onClick: () {
-              debugPrint('🔍 Marker tapped: ${place.name}');
+              AppLogger.d('Marker tapped: ${place.name}', tag: 'Map');
               ref.read(mapProvider.notifier).selectPlace(place.id);
             },
           );
 
-          debugPrint('✅ Added marker for: ${place.name}');
+          AppLogger.d('Added marker for: ${place.name}', tag: 'Map');
         } catch (e) {
-          debugPrint('⛔ Failed to add marker for ${place.name}: $e');
+          AppLogger.e('Failed to add marker for ${place.name}', tag: 'Map', error: e);
         }
       }
 
-      debugPrint('🎉 Finished adding markers');
+      AppLogger.i('Finished adding markers', tag: 'Map');
     } catch (e) {
-      debugPrint('⛔ Failed to add markers: $e');
+      AppLogger.e('Failed to add markers', tag: 'Map', error: e);
     }
   }
 
@@ -328,7 +329,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
 
       return icon;
     } catch (e) {
-      debugPrint('⛔ Failed to create marker icon: $e');
+      AppLogger.e('Failed to create marker icon', tag: 'Map', error: e);
       return null;
     }
   }
@@ -341,7 +342,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
       // 현재 위치 아이콘 생성 (파란색 원)
       final currentLocationIcon = await _createCurrentLocationIcon();
       if (currentLocationIcon == null) {
-        debugPrint('⛔ Failed to create current location icon');
+        AppLogger.e('Failed to create current location icon', tag: 'Map');
         return;
       }
 
@@ -359,9 +360,9 @@ class _MapScreenState extends ConsumerState<MapScreen>
         text: '현재 위치',
       );
 
-      debugPrint('📍 Added current location marker');
+      AppLogger.d('Added current location marker', tag: 'Map');
     } catch (e) {
-      debugPrint('⛔ Failed to add current location marker: $e');
+      AppLogger.e('Failed to add current location marker', tag: 'Map', error: e);
     }
   }
 
@@ -396,14 +397,14 @@ class _MapScreenState extends ConsumerState<MapScreen>
 
       return icon;
     } catch (e) {
-      debugPrint('⛔ Failed to create current location icon: $e');
+      AppLogger.e('Failed to create current location icon', tag: 'Map', error: e);
       return null;
     }
   }
 
   @override
   void dispose() {
-    debugPrint('🗺️ MapScreen dispose');
+    AppLogger.d('MapScreen dispose', tag: 'Map');
     WidgetsBinding.instance.removeObserver(this);
     _mapController?.finish();
     _mapController = null;

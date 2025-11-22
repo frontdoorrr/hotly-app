@@ -276,6 +276,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           const Icon(
             Icons.bookmark_border,
@@ -310,6 +311,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           const Icon(
             Icons.map_outlined,

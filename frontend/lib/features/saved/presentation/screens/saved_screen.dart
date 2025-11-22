@@ -1,28 +1,68 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../shared/models/place.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../home/presentation/widgets/place_card.dart';
 import '../providers/saved_places_provider.dart';
 import '../widgets/tag_filter_chips.dart';
 
-class SavedScreen extends ConsumerStatefulWidget {
+class SavedScreen extends ConsumerWidget {
   const SavedScreen({super.key});
 
   @override
-  ConsumerState<SavedScreen> createState() => _SavedScreenState();
-}
-
-class _SavedScreenState extends ConsumerState<SavedScreen> {
-  // Selected tags for filtering
-  final Set<String> _selectedTags = {};
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final authState = ref.watch(authProvider);
     final state = ref.watch(savedPlacesProvider);
+
+    // 로그인 안 됨
+    if (authState.status != AuthStatus.authenticated) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('저장한 장소'),
+          automaticallyImplyLeading: false,
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.bookmark_border,
+                  size: 80,
+                  color: AppColors.textSecondary,
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  '로그인이 필요합니다',
+                  style: AppTextStyles.h3,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '로그인하고 마음에 드는 장소를 저장해보세요',
+                  style: AppTextStyles.body2.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 32),
+                ElevatedButton(
+                  onPressed: () {
+                    context.push('/login');
+                  },
+                  child: const Text('로그인하기'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -43,6 +83,7 @@ class _SavedScreenState extends ConsumerState<SavedScreen> {
   }
 
   Widget _buildBody(BuildContext context, SavedPlacesState state, WidgetRef ref) {
+    final notifier = ref.read(savedPlacesProvider.notifier);
     if (state.isLoading) {
       return const Center(
         child: CircularProgressIndicator(),
@@ -90,11 +131,9 @@ class _SavedScreenState extends ConsumerState<SavedScreen> {
       return _buildEmptyState(context);
     }
 
-    // Calculate tag statistics
-    final tagStats = _calculateTagStatistics(state.places);
-
-    // Filter places based on selected tags
-    final filteredPlaces = _filterPlaces(state.places);
+    // Calculate tag statistics and filtered places from provider
+    final tagStats = notifier.tagStatistics;
+    final filteredPlaces = notifier.filteredPlaces;
 
     return Column(
       children: [
@@ -103,15 +142,21 @@ class _SavedScreenState extends ConsumerState<SavedScreen> {
           TagFilterChips(
             availableTags: tagStats.keys.toList(),
             tagCounts: tagStats.values.toList(),
-            selectedTags: _selectedTags,
+            selectedTags: state.selectedTags,
             totalPlacesCount: state.places.length,
-            onTagSelected: _handleTagSelected,
+            onTagSelected: (tag) {
+              if (tag.isEmpty) {
+                notifier.clearTagFilters();
+              } else {
+                notifier.toggleTag(tag);
+              }
+            },
           ),
 
         // Places list
         Expanded(
           child: filteredPlaces.isEmpty
-              ? _buildNoResultsState(context)
+              ? _buildNoResultsState(context, ref)
               : RefreshIndicator(
                   onRefresh: () async {
                     await ref.read(savedPlacesProvider.notifier).refresh();
@@ -138,52 +183,7 @@ class _SavedScreenState extends ConsumerState<SavedScreen> {
     );
   }
 
-  /// Calculate tag statistics from places
-  Map<String, int> _calculateTagStatistics(List<Place> places) {
-    final tagCounts = <String, int>{};
-
-    for (final place in places) {
-      for (final tag in place.tags) {
-        tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
-      }
-    }
-
-    // Sort by count descending
-    final sortedEntries = tagCounts.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-
-    return Map.fromEntries(sortedEntries);
-  }
-
-  /// Filter places based on selected tags
-  List<Place> _filterPlaces(List<Place> places) {
-    if (_selectedTags.isEmpty) {
-      return places;
-    }
-
-    return places.where((place) {
-      // Check if place has any of the selected tags
-      return place.tags.any((tag) => _selectedTags.contains(tag));
-    }).toList();
-  }
-
-  /// Handle tag selection
-  void _handleTagSelected(String tag) {
-    setState(() {
-      if (tag.isEmpty) {
-        // Clear all filters
-        _selectedTags.clear();
-      } else if (_selectedTags.contains(tag)) {
-        // Deselect tag
-        _selectedTags.remove(tag);
-      } else {
-        // Select tag
-        _selectedTags.add(tag);
-      }
-    });
-  }
-
-  Widget _buildNoResultsState(BuildContext context) {
+  Widget _buildNoResultsState(BuildContext context, WidgetRef ref) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -210,9 +210,7 @@ class _SavedScreenState extends ConsumerState<SavedScreen> {
           const SizedBox(height: AppTheme.space4),
           OutlinedButton(
             onPressed: () {
-              setState(() {
-                _selectedTags.clear();
-              });
+              ref.read(savedPlacesProvider.notifier).clearTagFilters();
             },
             child: const Text('필터 초기화'),
           ),

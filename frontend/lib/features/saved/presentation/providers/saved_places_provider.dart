@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../../../../shared/models/place.dart';
 import '../../../../shared/data/mock_places.dart';
 import '../../../place/domain/repositories/place_repository.dart';
@@ -12,6 +13,7 @@ part 'saved_places_provider.freezed.dart';
 class SavedPlacesState with _$SavedPlacesState {
   const factory SavedPlacesState({
     @Default([]) List<Place> places,
+    @Default({}) Set<String> selectedTags,
     @Default(false) bool isLoading,
     @Default(false) bool hasError,
     String? errorMessage,
@@ -30,7 +32,7 @@ class SavedPlacesNotifier extends StateNotifier<SavedPlacesState> {
 
     // 개발 모드에서는 Mock 데이터 우선 사용
     if (kDebugMode) {
-      debugPrint('📦 Loading mock places data (${MockPlaces.savedPlaces.length} places)');
+      AppLogger.d('Loading mock places data (${MockPlaces.savedPlaces.length} places)', tag: 'SavedPlaces');
       await Future.delayed(const Duration(milliseconds: 500)); // API 호출 시뮬레이션
 
       state = state.copyWith(
@@ -46,8 +48,8 @@ class SavedPlacesNotifier extends StateNotifier<SavedPlacesState> {
 
     result.fold(
       (error) {
-        debugPrint('⚠️ Failed to load places from API: ${error.message}');
-        debugPrint('📦 Falling back to mock data');
+        AppLogger.w('Failed to load places from API: ${error.message}', tag: 'SavedPlaces');
+        AppLogger.d('Falling back to mock data', tag: 'SavedPlaces');
 
         // API 실패 시 Mock 데이터로 fallback
         state = state.copyWith(
@@ -69,6 +71,45 @@ class SavedPlacesNotifier extends StateNotifier<SavedPlacesState> {
 
   Future<void> refresh() async {
     await loadPlaces();
+  }
+
+  /// 태그 선택/해제
+  void toggleTag(String tag) {
+    final currentTags = Set<String>.from(state.selectedTags);
+    if (currentTags.contains(tag)) {
+      currentTags.remove(tag);
+    } else {
+      currentTags.add(tag);
+    }
+    state = state.copyWith(selectedTags: currentTags);
+  }
+
+  /// 모든 태그 필터 초기화
+  void clearTagFilters() {
+    state = state.copyWith(selectedTags: {});
+  }
+
+  /// 필터링된 장소 목록
+  List<Place> get filteredPlaces {
+    if (state.selectedTags.isEmpty) {
+      return state.places;
+    }
+    return state.places.where((place) {
+      return place.tags.any((tag) => state.selectedTags.contains(tag));
+    }).toList();
+  }
+
+  /// 태그 통계 계산
+  Map<String, int> get tagStatistics {
+    final tagCounts = <String, int>{};
+    for (final place in state.places) {
+      for (final tag in place.tags) {
+        tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
+      }
+    }
+    final sortedEntries = tagCounts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    return Map.fromEntries(sortedEntries);
   }
 }
 

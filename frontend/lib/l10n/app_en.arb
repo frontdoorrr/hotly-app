@@ -1,0 +1,26 @@
+{
+  "@@locale": "en",
+
+  "appName": "Hotly",
+  "loginRequired": "Login required",
+  "loginButton": "Log in",
+  "savedPlaces": "Saved Places",
+  "noSavedPlaces": "No saved places",
+  "savePlacePrompt": "Save places you like",
+  "loginToSavePlaces": "Log in to save your favorite places",
+  "refresh": "Refresh",
+  "errorOccurred": "An error occurred",
+  "cannotLoadPlaces": "Cannot load places",
+  "retry": "Retry",
+  "noFilterResults": "No places match the filter",
+  "tryOtherTags": "Try selecting other tags",
+  "clearFilters": "Clear filters",
+  "currentLocation": "Current location",
+  "connectionTimeout": "Connection timed out. Please try again.",
+  "serverError": "Server error occurred.",
+  "authRequired": "Authentication required. Please log in again.",
+  "notFound": "Requested data not found.",
+  "requestCancelled": "Request was cancelled.",
+  "checkNetwork": "Please check your network connection.",
+  "allPlaces": "All"
+}

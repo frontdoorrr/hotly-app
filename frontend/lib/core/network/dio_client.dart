@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'api_endpoints.dart';
 import '../auth/firebase_auth_service.dart';
+import '../utils/app_logger.dart';
 
 /// Dio Instance Provider (raw Dio object)
 final dioProvider = Provider<Dio>((ref) {
@@ -243,7 +244,7 @@ class AuthInterceptor extends Interceptor {
       }
     } catch (e) {
       // 토큰 가져오기 실패해도 요청은 계속 진행
-      print('Failed to get Firebase ID token: $e');
+      AppLogger.e('Failed to get Firebase ID token', tag: 'Auth', error: e);
     }
 
     return handler.next(options);
@@ -257,7 +258,7 @@ class AuthInterceptor extends Interceptor {
     // 401 에러 시 Firebase에서 자동으로 처리됨
     // authStateChanges 스트림에서 감지하여 로그인 화면으로 이동
     if (err.response?.statusCode == 401) {
-      print('Unauthorized: User needs to re-authenticate');
+      AppLogger.w('Unauthorized: User needs to re-authenticate', tag: 'Auth');
     }
 
     return handler.next(err);

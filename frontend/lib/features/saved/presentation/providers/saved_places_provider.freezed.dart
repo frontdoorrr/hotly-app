@@ -17,6 +17,7 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$SavedPlacesState {
   List<Place> get places => throw _privateConstructorUsedError;
+  Set<String> get selectedTags => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
   bool get hasError => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
@@ -34,6 +35,7 @@ abstract class $SavedPlacesStateCopyWith<$Res> {
   @useResult
   $Res call(
       {List<Place> places,
+      Set<String> selectedTags,
       bool isLoading,
       bool hasError,
       String? errorMessage});
@@ -53,6 +55,7 @@ class _$SavedPlacesStateCopyWithImpl<$Res, $Val extends SavedPlacesState>
   @override
   $Res call({
     Object? places = null,
+    Object? selectedTags = null,
     Object? isLoading = null,
     Object? hasError = null,
     Object? errorMessage = freezed,
@@ -62,6 +65,10 @@ class _$SavedPlacesStateCopyWithImpl<$Res, $Val extends SavedPlacesState>
           ? _value.places
           : places // ignore: cast_nullable_to_non_nullable
               as List<Place>,
+      selectedTags: null == selectedTags
+          ? _value.selectedTags
+          : selectedTags // ignore: cast_nullable_to_non_nullable
+              as Set<String>,
       isLoading: null == isLoading
           ? _value.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
@@ -88,6 +95,7 @@ abstract class _$$SavedPlacesStateImplCopyWith<$Res>
   @useResult
   $Res call(
       {List<Place> places,
+      Set<String> selectedTags,
       bool isLoading,
       bool hasError,
       String? errorMessage});
@@ -105,6 +113,7 @@ class __$$SavedPlacesStateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? places = null,
+    Object? selectedTags = null,
     Object? isLoading = null,
     Object? hasError = null,
     Object? errorMessage = freezed,
@@ -114,6 +123,10 @@ class __$$SavedPlacesStateImplCopyWithImpl<$Res>
           ? _value._places
           : places // ignore: cast_nullable_to_non_nullable
               as List<Place>,
+      selectedTags: null == selectedTags
+          ? _value._selectedTags
+          : selectedTags // ignore: cast_nullable_to_non_nullable
+              as Set<String>,
       isLoading: null == isLoading
           ? _value.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
@@ -137,10 +150,12 @@ class _$SavedPlacesStateImpl
     implements _SavedPlacesState {
   const _$SavedPlacesStateImpl(
       {final List<Place> places = const [],
+      final Set<String> selectedTags = const {},
       this.isLoading = false,
       this.hasError = false,
       this.errorMessage})
-      : _places = places;
+      : _places = places,
+        _selectedTags = selectedTags;
 
   final List<Place> _places;
   @override
@@ -149,6 +164,15 @@ class _$SavedPlacesStateImpl
     if (_places is EqualUnmodifiableListView) return _places;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_places);
+  }
+
+  final Set<String> _selectedTags;
+  @override
+  @JsonKey()
+  Set<String> get selectedTags {
+    if (_selectedTags is EqualUnmodifiableSetView) return _selectedTags;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableSetView(_selectedTags);
   }
 
   @override
@@ -162,7 +186,7 @@ class _$SavedPlacesStateImpl
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'SavedPlacesState(places: $places, isLoading: $isLoading, hasError: $hasError, errorMessage: $errorMessage)';
+    return 'SavedPlacesState(places: $places, selectedTags: $selectedTags, isLoading: $isLoading, hasError: $hasError, errorMessage: $errorMessage)';
   }
 
   @override
@@ -171,6 +195,7 @@ class _$SavedPlacesStateImpl
     properties
       ..add(DiagnosticsProperty('type', 'SavedPlacesState'))
       ..add(DiagnosticsProperty('places', places))
+      ..add(DiagnosticsProperty('selectedTags', selectedTags))
       ..add(DiagnosticsProperty('isLoading', isLoading))
       ..add(DiagnosticsProperty('hasError', hasError))
       ..add(DiagnosticsProperty('errorMessage', errorMessage));
@@ -182,6 +207,8 @@ class _$SavedPlacesStateImpl
         (other.runtimeType == runtimeType &&
             other is _$SavedPlacesStateImpl &&
             const DeepCollectionEquality().equals(other._places, _places) &&
+            const DeepCollectionEquality()
+                .equals(other._selectedTags, _selectedTags) &&
             (identical(other.isLoading, isLoading) ||
                 other.isLoading == isLoading) &&
             (identical(other.hasError, hasError) ||
@@ -194,6 +221,7 @@ class _$SavedPlacesStateImpl
   int get hashCode => Object.hash(
       runtimeType,
       const DeepCollectionEquality().hash(_places),
+      const DeepCollectionEquality().hash(_selectedTags),
       isLoading,
       hasError,
       errorMessage);
@@ -209,12 +237,15 @@ class _$SavedPlacesStateImpl
 abstract class _SavedPlacesState implements SavedPlacesState {
   const factory _SavedPlacesState(
       {final List<Place> places,
+      final Set<String> selectedTags,
       final bool isLoading,
       final bool hasError,
       final String? errorMessage}) = _$SavedPlacesStateImpl;
 
   @override
   List<Place> get places;
+  @override
+  Set<String> get selectedTags;
   @override
   bool get isLoading;
   @override

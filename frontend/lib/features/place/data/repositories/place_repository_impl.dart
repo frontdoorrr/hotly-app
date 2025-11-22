@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/dio_client.dart';
-import '../../../../core/network/dio_client.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../../../../shared/models/place.dart';
 import '../../../../shared/data/mock_places.dart';
 import '../../../map/domain/entities/map_entities.dart';
@@ -39,11 +39,11 @@ class PlaceRepositoryImpl implements PlaceRepository {
     try {
       // 개발 모드에서는 Mock 데이터 필터링
       if (kDebugMode) {
-        debugPrint('📍 Fetching places in bounds: '
+        AppLogger.d('Fetching places in bounds: '
             'N:${bounds.north.toStringAsFixed(4)}, '
             'S:${bounds.south.toStringAsFixed(4)}, '
             'E:${bounds.east.toStringAsFixed(4)}, '
-            'W:${bounds.west.toStringAsFixed(4)}');
+            'W:${bounds.west.toStringAsFixed(4)}', tag: 'PlaceRepo');
 
         await Future.delayed(const Duration(milliseconds: 200)); // API 시뮬레이션
 
@@ -60,7 +60,7 @@ class PlaceRepositoryImpl implements PlaceRepository {
               lng >= bounds.west;
         }).toList();
 
-        debugPrint('✅ Found ${filteredPlaces.length} places in bounds');
+        AppLogger.d('Found ${filteredPlaces.length} places in bounds', tag: 'PlaceRepo');
         return Right(filteredPlaces);
       }
 
