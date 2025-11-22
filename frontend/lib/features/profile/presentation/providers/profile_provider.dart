@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../../../shared/models/user.dart';
 import '../../../../core/storage/local_storage.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 
 part 'profile_provider.freezed.dart';
 
@@ -12,36 +13,41 @@ class ProfileState with _$ProfileState {
     UserStats? stats,
     @Default(false) bool isLoading,
     @Default(false) bool isLoadingStats,
+    @Default(false) bool isAuthenticated,
     String? error,
   }) = _ProfileState;
 }
 
 class ProfileNotifier extends StateNotifier<ProfileState> {
   final LocalStorage _localStorage;
+  final Ref _ref;
 
-  ProfileNotifier(this._localStorage) : super(const ProfileState()) {
+  ProfileNotifier(this._localStorage, this._ref) : super(const ProfileState()) {
     _loadUserProfile();
   }
 
   Future<void> _loadUserProfile() async {
     state = state.copyWith(isLoading: true);
 
-    // TODO: API 연동 시 실제 사용자 정보 로드
-    // For now, use zero data (no dummy data)
-    await Future.delayed(const Duration(milliseconds: 500));
+    // authProvider에서 인증 상태 확인
+    final authState = _ref.read(authProvider);
 
-    final mockUser = User(
-      id: 'user_001',
-      name: '사용자',
-      email: 'user@hotly.app',
-      profileImageUrl: null,
-      savedPlacesCount: 0,
-      likedPlacesCount: 0,
-      coursesCount: 0,
-      createdAt: DateTime.now(),
-    );
+    if (authState.status != AuthStatus.authenticated || authState.user == null) {
+      // 로그인되지 않음
+      state = state.copyWith(
+        isLoading: false,
+        user: null,
+        stats: null,
+        isAuthenticated: false,
+      );
+      return;
+    }
 
-    final mockStats = const UserStats(
+    // 로그인된 사용자 정보 사용
+    final user = authState.user!;
+
+    // TODO: API에서 추가 사용자 통계 로드
+    final stats = const UserStats(
       savedPlaces: 0,
       likedPlaces: 0,
       courses: 0,
@@ -49,8 +55,9 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
 
     state = state.copyWith(
       isLoading: false,
-      user: mockUser,
-      stats: mockStats,
+      user: user,
+      stats: stats,
+      isAuthenticated: true,
     );
   }
 
@@ -59,10 +66,14 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
   }
 
   Future<void> logout() async {
+    // authProvider의 signOut 호출
+    await _ref.read(authProvider.notifier).signOut();
     await _localStorage.clearAll();
-    state = ProfileState(
-      user: User.initial(),
-      stats: const UserStats(),
+
+    state = const ProfileState(
+      user: null,
+      stats: null,
+      isAuthenticated: false,
     );
   }
 }
@@ -70,5 +81,13 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
 final profileProvider =
     StateNotifierProvider<ProfileNotifier, ProfileState>((ref) {
   final localStorage = ref.watch(localStorageProvider);
-  return ProfileNotifier(localStorage);
+
+  // authProvider 상태 변경 시 프로필 갱신
+  ref.listen(authProvider, (previous, next) {
+    if (previous?.status != next.status) {
+      ref.invalidateSelf();
+    }
+  });
+
+  return ProfileNotifier(localStorage, ref);
 });

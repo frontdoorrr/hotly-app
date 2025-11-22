@@ -115,8 +115,8 @@ dev_dependencies:
   # Lint 및 분석
   flutter_lints: ^3.0.1
   very_good_analysis: ^5.1.0
-  custom_lint: ^0.6.7
-  riverpod_lint: ^2.3.13
+  custom_lint: ^0.6.4
+  riverpod_lint: ^2.3.10
 
   # 유틸리티
   flutter_launcher_icons: ^0.13.1

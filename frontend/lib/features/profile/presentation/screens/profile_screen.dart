@@ -36,13 +36,58 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     final profileState = ref.watch(profileProvider);
     final user = profileState.user;
 
-    if (profileState.isLoading || user == null) {
+    // 로딩 중
+    if (profileState.isLoading) {
       return Scaffold(
         appBar: AppBar(
           title: const Text('프로필'),
         ),
         body: const Center(
           child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    // 로그인 안 됨
+    if (!profileState.isAuthenticated || user == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('프로필'),
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.account_circle_outlined,
+                  size: 80,
+                  color: AppColors.textSecondary,
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  '로그인이 필요합니다',
+                  style: AppTextStyles.h3,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '로그인하고 나만의 장소를 저장해보세요',
+                  style: AppTextStyles.body2.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 32),
+                ElevatedButton(
+                  onPressed: () {
+                    context.push('/login');
+                  },
+                  child: const Text('로그인하기'),
+                ),
+              ],
+            ),
+          ),
         ),
       );
     }
