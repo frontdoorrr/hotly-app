@@ -68,7 +68,7 @@ class TestSocialLoginToJWTFlow:
         )
         auth_service.cache.get = AsyncMock(return_value=None)
         auth_service.cache.set = AsyncMock()
-        auth_service._check_rate_limit = AsyncMock(return_value=True)
+        # Note: Rate limiting은 API 엔드포인트 레벨에서 처리됨
 
         from app.schemas.auth import SocialLoginRequest
 
@@ -94,7 +94,7 @@ class TestSocialLoginToJWTFlow:
         """Kakao 소셜 로그인 시 JWT 토큰 반환"""
         auth_service.cache.get = AsyncMock(return_value=None)
         auth_service.cache.set = AsyncMock()
-        auth_service._check_rate_limit = AsyncMock(return_value=True)
+        # Rate limiting handled at endpoint level
 
         # Kakao API 호출 모의
         with patch("app.services.auth.firebase_auth_service.REQUESTS_AVAILABLE", False):
@@ -180,7 +180,7 @@ class TestTokenRefreshFlow:
         """유효한 JWT 리프레시 토큰으로 새 토큰 발급"""
         auth_service.cache.get = AsyncMock(return_value=None)
         auth_service.cache.set = AsyncMock()
-        auth_service._check_rate_limit = AsyncMock(return_value=True)
+        # Rate limiting handled at endpoint level
 
         # 리프레시 토큰 생성
         refresh_token = create_refresh_token(subject="user_123")
@@ -214,7 +214,7 @@ class TestTokenRefreshFlow:
         auth_service.cache.get = AsyncMock(return_value=legacy_token_data)
         auth_service.cache.set = AsyncMock()
         auth_service.cache.delete = AsyncMock()
-        auth_service._check_rate_limit = AsyncMock(return_value=True)
+        # Rate limiting handled at endpoint level
 
         from app.schemas.auth import TokenRefreshRequest
 
@@ -237,7 +237,7 @@ class TestCompleteAuthFlow:
         """로그인 → 검증 → 갱신 전체 플로우"""
         auth_service.cache.get = AsyncMock(return_value=None)
         auth_service.cache.set = AsyncMock()
-        auth_service._check_rate_limit = AsyncMock(return_value=True)
+        # Rate limiting handled at endpoint level
 
         # 1. 소셜 로그인 (Mock)
         with patch("app.services.auth.firebase_auth_service.REQUESTS_AVAILABLE", False):
@@ -278,22 +278,24 @@ class TestRateLimitingIntegration:
     """레이트 리미팅 통합 테스트"""
 
     @pytest.mark.asyncio
-    async def test_socialLogin_withRateLimitExceeded_fails(self, auth_service):
-        """로그인 레이트 리미트 초과 시 실패"""
-        auth_service._check_rate_limit = AsyncMock(return_value=False)
+    async def test_authRateLimiter_exceedsLimit_raisesHTTPException(self):
+        """AuthRateLimiter 레이트 리미트 초과 시 HTTPException 발생"""
+        from app.middleware.auth_rate_limit import AuthRateLimiter
+        from fastapi import HTTPException
+        from unittest.mock import MagicMock
 
-        from app.schemas.auth import SocialLoginRequest, AuthError
+        mock_request = MagicMock()
+        mock_request.client.host = "127.0.0.1"
+        mock_request.headers = {}
 
-        request = SocialLoginRequest(
-            provider=SocialProvider.GOOGLE,
-            id_token="token",
-            device_id="device_123"
-        )
+        with patch("app.middleware.auth_rate_limit.cache_service") as mock_cache:
+            mock_cache.get = AsyncMock(return_value=10)  # 제한 도달
 
-        result = await auth_service.login_with_social(request)
+            with pytest.raises(HTTPException) as exc_info:
+                await AuthRateLimiter.check_rate_limit(mock_request, "login")
 
-        assert result.success is False
-        assert result.error_code == AuthError.RATE_LIMIT_EXCEEDED
+            assert exc_info.value.status_code == 429
+            assert "rate_limit_exceeded" in str(exc_info.value.detail)
 
     @pytest.mark.asyncio
     async def test_multipleEndpoints_haveDifferentLimits(self):

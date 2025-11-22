@@ -178,7 +178,7 @@ class TestFirebaseAuthServiceJWTIntegration:
         """유효한 리프레시 토큰으로 새 토큰 발급"""
         auth_service.cache.set = AsyncMock()
         auth_service.cache.get = AsyncMock(return_value=None)
-        auth_service._check_rate_limit = AsyncMock(return_value=True)
+        # Note: Rate limiting handled at endpoint level
 
         # 리프레시 토큰 생성
         _, refresh_token = await auth_service._generate_tokens("user_123")
@@ -204,7 +204,6 @@ class TestFirebaseAuthServiceJWTIntegration:
     async def test_refreshTokens_withInvalidToken_returnsError(self, auth_service):
         """유효하지 않은 리프레시 토큰으로 갱신 시 에러"""
         auth_service.cache.get = AsyncMock(return_value=None)
-        auth_service._check_rate_limit = AsyncMock(return_value=True)
 
         request = TokenRefreshRequest(
             refresh_token="invalid.token.here",
@@ -216,20 +215,8 @@ class TestFirebaseAuthServiceJWTIntegration:
         assert result.success is False
         assert result.error_code == AuthError.INVALID_TOKEN
 
-    @pytest.mark.asyncio
-    async def test_refreshTokens_withRateLimitExceeded_returnsError(self, auth_service):
-        """레이트 리미트 초과 시 에러"""
-        auth_service._check_rate_limit = AsyncMock(return_value=False)
-
-        request = TokenRefreshRequest(
-            refresh_token="some_token",
-            device_id="device_123"
-        )
-
-        result = await auth_service.refresh_tokens(request)
-
-        assert result.success is False
-        assert result.error_code == AuthError.RATE_LIMIT_EXCEEDED
+    # Note: Rate limit tests moved to TestAuthRateLimiting class
+    # Service no longer handles rate limiting - it's at endpoint level
 
 
 class TestAuthRateLimiting:

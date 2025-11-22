@@ -77,10 +77,7 @@ class FirebaseAuthService:
         self.firebase_app = firebase_app or self._initialize_firebase()
         self.firebase_auth = firebase_auth or auth
         self.cache = cache_service
-
-        # 레이트 리미팅 설정
-        self.max_login_attempts = settings.MAX_LOGIN_ATTEMPTS_PER_MINUTE or 10
-        self.max_token_refresh = settings.MAX_TOKEN_REFRESH_PER_HOUR or 60
+        # Note: Rate limiting은 API 엔드포인트 레벨에서 처리됨 (auth_rate_limit.py)
 
     def _initialize_firebase(self):
         """Firebase 앱 초기화"""
@@ -129,14 +126,6 @@ class FirebaseAuthService:
     async def login_with_social(self, request: SocialLoginRequest) -> LoginResponse:
         """소셜 로그인 처리"""
         try:
-            # 레이트 리미팅 체크
-            if not await self._check_rate_limit(request.device_id, "login"):
-                return LoginResponse(
-                    success=False,
-                    error_code=AuthError.RATE_LIMIT_EXCEEDED,
-                    error_message="로그인 시도 한도를 초과했습니다.",
-                )
-
             # 소셜 제공자별 인증 처리
             user_info = await self._authenticate_social_user(request)
             if not user_info:
@@ -488,14 +477,6 @@ class FirebaseAuthService:
             새 토큰 또는 에러 응답
         """
         try:
-            # 레이트 리미팅 체크
-            if not await self._check_rate_limit(request.device_id, "refresh"):
-                return TokenRefreshResponse(
-                    success=False,
-                    error_code=AuthError.RATE_LIMIT_EXCEEDED,
-                    error_message="토큰 갱신 한도를 초과했습니다.",
-                )
-
             # 1. 0-3 JWT 리프레시 토큰 검증 시도
             jwt_payload = verify_jwt_refresh_token(request.refresh_token)
             if jwt_payload:
@@ -824,33 +805,6 @@ class FirebaseAuthService:
                 is_suspicious=False,
                 reason="Error during suspicious activity check",
             )
-
-    async def _check_rate_limit(self, device_id: str, operation: str) -> bool:
-        """레이트 리미팅 확인"""
-        try:
-            rate_limit_key = f"rate_limit:{operation}:{device_id}"
-            current_count = await self.cache.get(rate_limit_key)
-
-            max_attempts = (
-                self.max_login_attempts
-                if operation == "login"
-                else self.max_token_refresh
-            )
-            ttl = 60 if operation == "login" else 3600
-
-            if current_count is None:
-                await self.cache.set(rate_limit_key, 1, ttl=ttl)
-                return True
-
-            if current_count >= max_attempts:
-                return False
-
-            await self.cache.set(rate_limit_key, current_count + 1, ttl=ttl)
-            return True
-
-        except Exception as e:
-            logger.error(f"Rate limit check failed: {e}")
-            return True  # 에러 시에는 허용
 
     async def _log_login_attempt(
         self,
