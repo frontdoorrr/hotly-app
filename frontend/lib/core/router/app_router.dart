@@ -7,6 +7,7 @@ import '../../features/course/presentation/screens/course_builder_screen.dart';
 import '../../features/search/presentation/screens/search_screen.dart';
 import '../../features/place/presentation/screens/place_detail_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
+import '../../features/profile/presentation/screens/profile_edit_screen.dart';
 import '../../features/map/presentation/screens/map_screen.dart';
 import '../../features/saved/presentation/screens/saved_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
@@ -162,6 +163,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/signup',
         name: 'signup',
         builder: (context, state) => const SignUpScreen(),
+      ),
+
+      // Profile Edit Screen
+      GoRoute(
+        path: '/profile/edit',
+        name: 'profileEdit',
+        builder: (context, state) => const ProfileEditScreen(),
       ),
 
       // Onboarding Screen

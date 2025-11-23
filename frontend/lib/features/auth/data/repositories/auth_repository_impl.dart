@@ -307,18 +307,32 @@ class AuthRepositoryFirebaseImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<ApiException, void>> updateProfile({
+  Future<Either<ApiException, User>> updateProfile({
     String? displayName,
-    String? photoURL,
+    String? photoUrl,
   }) async {
     try {
       await _firebaseAuthService.updateProfile(
         displayName: displayName,
-        photoURL: photoURL,
+        photoURL: photoUrl,
       );
-      return const Right(null);
+
+      // Reload user to get updated info
+      await _firebaseAuthService.currentUser?.reload();
+      final updatedUser = _firebaseAuthService.currentUser;
+
+      if (updatedUser == null) {
+        return Left(ApiException(
+          type: ApiExceptionType.server,
+          message: '사용자 정보를 가져올 수 없습니다',
+          statusCode: 400,
+        ));
+      }
+
+      return Right(User.fromFirebase(updatedUser));
     } catch (e) {
-      return Left(ApiException(type: ApiExceptionType.server, 
+      return Left(ApiException(
+        type: ApiExceptionType.server,
         message: '프로필 업데이트 실패: $e',
         statusCode: 500,
       ));

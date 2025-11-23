@@ -5,6 +5,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../shared/models/user.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/profile_provider.dart';
 import '../providers/settings_provider.dart';
 
@@ -190,10 +191,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             icon: const Icon(Icons.edit),
             label: const Text('프로필 편집'),
             onPressed: () {
-              // TODO: Navigate to profile edit screen
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('프로필 편집 기능 개발 중')),
-              );
+              context.push('/profile/edit');
             },
           ),
         ],
@@ -438,6 +436,14 @@ class _SettingsSheet extends ConsumerWidget {
             leading: const Icon(Icons.logout, color: AppColors.error),
             onTap: () => _showLogoutDialog(context, ref),
           ),
+
+          // Delete Account
+          ListTile(
+            title: const Text('회원 탈퇴'),
+            textColor: AppColors.error,
+            leading: const Icon(Icons.delete_forever, color: AppColors.error),
+            onTap: () => _showDeleteAccountDialog(context, ref),
+          ),
         ],
       ),
     );
@@ -596,6 +602,48 @@ class _SettingsSheet extends ConsumerWidget {
               foregroundColor: AppColors.error,
             ),
             child: const Text('로그아웃'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteAccountDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('회원 탈퇴'),
+        content: const Text(
+          '정말 탈퇴하시겠습니까?\n\n'
+          '모든 데이터가 삭제되며 복구할 수 없습니다.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () async {
+              try {
+                await ref.read(authProvider.notifier).deleteAccount();
+                if (!context.mounted) return;
+                Navigator.pop(context); // Close dialog
+                Navigator.pop(context); // Close bottom sheet
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('회원 탈퇴가 완료되었습니다')),
+                );
+              } catch (e) {
+                if (!context.mounted) return;
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('탈퇴 실패: $e')),
+                );
+              }
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.error,
+            ),
+            child: const Text('탈퇴하기'),
           ),
         ],
       ),

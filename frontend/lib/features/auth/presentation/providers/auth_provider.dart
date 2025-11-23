@@ -154,6 +154,49 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = const AuthState(status: AuthStatus.unauthenticated);
   }
 
+  Future<void> updateProfile({String? displayName, String? photoUrl}) async {
+    state = state.copyWith(isLoading: true, error: null);
+    final result = await _repository.updateProfile(
+      displayName: displayName,
+      photoUrl: photoUrl,
+    );
+
+    result.fold(
+      (error) {
+        state = state.copyWith(
+          isLoading: false,
+          error: error,
+        );
+        throw error;
+      },
+      (user) {
+        state = state.copyWith(
+          isLoading: false,
+          user: user,
+          error: null,
+        );
+      },
+    );
+  }
+
+  Future<void> deleteAccount() async {
+    state = state.copyWith(isLoading: true, error: null);
+    final result = await _repository.deleteAccount();
+
+    result.fold(
+      (error) {
+        state = state.copyWith(
+          isLoading: false,
+          error: error,
+        );
+        throw error;
+      },
+      (_) {
+        state = const AuthState(status: AuthStatus.unauthenticated);
+      },
+    );
+  }
+
   Future<void> signInWithKakao() async {
     state = state.copyWith(isLoading: true, error: null);
     final result = await _repository.signInWithKakao();

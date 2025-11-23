@@ -51,9 +51,9 @@ abstract class AuthRepository {
   Future<Either<ApiException, void>> deleteAccount();
 
   /// 프로필 업데이트
-  Future<Either<ApiException, void>> updateProfile({
+  Future<Either<ApiException, User>> updateProfile({
     String? displayName,
-    String? photoURL,
+    String? photoUrl,
   });
 
   /// 익명 사용자 여부 확인
