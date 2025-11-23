@@ -24,6 +24,7 @@ from app.api.api_v1.endpoints import (
     search_ranking,
     tags,
     user_data,
+    users,
 )
 
 api_router = APIRouter()
@@ -68,3 +69,4 @@ api_router.include_router(
 api_router.include_router(cdn.router, prefix="/cdn", tags=["cdn"])
 api_router.include_router(map.router, prefix="/map", tags=["map"])
 api_router.include_router(tags.router, prefix="/tags", tags=["tags"])
+api_router.include_router(users.router, prefix="/users", tags=["users"])

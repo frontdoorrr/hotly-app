@@ -17,6 +17,7 @@ from .user_preference import (
     PreferenceSurveyResponse,
 )
 from .user_preference import UserPreference as UserPreferenceSetting
+from .user_settings import UserSettings
 
 __all__ = [
     "Place",
@@ -34,4 +35,5 @@ __all__ = [
     "PreferenceLearningSession",
     "PreferenceSurvey",
     "PreferenceSurveyResponse",
+    "UserSettings",
 ]

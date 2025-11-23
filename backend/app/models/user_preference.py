@@ -31,6 +31,10 @@ class UserPreference(Base):
     categories = Column(JSON, nullable=False, default=list)
     category_weights = Column(JSON, nullable=False, default=dict)
 
+    # Detailed preferences (preset + custom tags)
+    food_preferences = Column(JSON, nullable=True, default=dict)  # {"preset": [], "custom": []}
+    atmosphere_preferences = Column(JSON, nullable=True, default=dict)  # {"preset": [], "custom": []}
+
     # Location preferences
     location_preferences = Column(JSON, nullable=True)
     max_travel_distance_km = Column(Integer, default=10)

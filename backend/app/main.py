@@ -4,11 +4,13 @@ Hotly App FastAPI application.
 Main application entry point following backend_reference patterns.
 """
 
+from pathlib import Path
 from typing import Dict
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.api.api_v1.api import api_router
 from app.api.health import router as health_router
@@ -104,6 +106,11 @@ def create_app() -> FastAPI:
 
     # Include API v1 routes
     app.include_router(api_router, prefix=settings.API_V1_STR)
+
+    # Mount static files for uploads
+    uploads_dir = Path("uploads")
+    uploads_dir.mkdir(exist_ok=True)
+    app.mount("/uploads", StaticFiles(directory=str(uploads_dir)), name="uploads")
 
     return app
 
