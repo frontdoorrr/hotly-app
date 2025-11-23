@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:frontend/core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../shared/widgets/atoms/app_button.dart';
@@ -89,7 +90,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'AI 기반 핫플 아카이빙',
+                  context.l10n.app_tagline,
                   style: AppTextStyles.body1.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -100,15 +101,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 // Email Input
                 AppInput(
                   controller: _emailController,
-                  label: '이메일',
+                  label: context.l10n.auth_email,
                   hintText: 'example@email.com',
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return '이메일을 입력해주세요';
+                      return context.l10n.auth_emailRequired;
                     }
                     if (!value.contains('@')) {
-                      return '올바른 이메일 형식이 아닙니다';
+                      return context.l10n.auth_emailInvalid;
                     }
                     return null;
                   },
@@ -118,8 +119,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 // Password Input
                 AppInput(
                   controller: _passwordController,
-                  label: '비밀번호',
-                  hintText: '비밀번호를 입력하세요',
+                  label: context.l10n.auth_password,
+                  hintText: context.l10n.auth_passwordHint,
                   obscureText: _obscurePassword,
                   suffixIcon: IconButton(
                     icon: Icon(
@@ -133,7 +134,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return '비밀번호를 입력해주세요';
+                      return context.l10n.auth_passwordRequired;
                     }
                     return null;
                   },
@@ -146,12 +147,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   child: TextButton(
                     onPressed: () {
                       // TODO: Navigate to forgot password screen
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('비밀번호 찾기 기능 개발 중')),
-                      );
                     },
                     child: Text(
-                      '비밀번호 찾기',
+                      context.l10n.auth_forgotPassword,
                       style: AppTextStyles.label2.copyWith(
                         color: AppColors.primary,
                       ),
@@ -162,7 +160,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                 // Login Button
                 AppButton(
-                  text: '로그인',
+                  text: context.l10n.auth_login,
                   variant: ButtonVariant.primary,
                   isLoading: authState.isLoading,
                   onPressed: _handleEmailLogin,
@@ -176,7 +174,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
-                        '또는 소셜 로그인으로',
+                        context.l10n.auth_orSocialLogin,
                         style: AppTextStyles.label2.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -215,7 +213,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      '계정이 없으신가요? ',
+                      '${context.l10n.auth_noAccount} ',
                       style: AppTextStyles.body2,
                     ),
                     TextButton(
@@ -223,7 +221,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         context.push('/signup');
                       },
                       child: Text(
-                        '회원가입',
+                        context.l10n.auth_signup,
                         style: AppTextStyles.body2.copyWith(
                           color: AppColors.primary,
                           fontWeight: FontWeight.bold,

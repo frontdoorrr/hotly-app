@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend/core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/sharing/share_service.dart';
 import '../../../../shared/models/course.dart';
@@ -40,7 +41,7 @@ class _CourseBuilderScreenState extends ConsumerState<CourseBuilderScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('코스 만들기'),
+        title: Text(context.l10n.profile_createCourse),
         actions: [
           IconButton(
             icon: const Icon(Icons.share),
@@ -49,9 +50,9 @@ class _CourseBuilderScreenState extends ConsumerState<CourseBuilderScreen> {
                 : () async {
                     await ShareService.shareCourse(
                       courseId: widget.courseId ?? 'new',
-                      courseName: state.title ?? '새 코스',
+                      courseName: state.title ?? context.l10n.course_newCourse,
                       placeCount: state.places.length,
-                      duration: '${state.totalDuration.inMinutes ~/ 60}시간',
+                      duration: _formatDuration(state.totalDuration),
                     );
                   },
           ),
@@ -59,7 +60,7 @@ class _CourseBuilderScreenState extends ConsumerState<CourseBuilderScreen> {
             onPressed: () {
               // TODO: Navigate to preview
             },
-            child: const Text('미리보기'),
+            child: Text(context.l10n.common_preview),
           ),
         ],
       ),
@@ -74,8 +75,8 @@ class _CourseBuilderScreenState extends ConsumerState<CourseBuilderScreen> {
                 children: [
                   // Title Input
                   AppInput(
-                    label: '코스 제목',
-                    placeholder: '예: 강남 데이트 코스',
+                    label: context.l10n.course_title,
+                    placeholder: context.l10n.course_titleHint,
                     controller: _titleController,
                     onChanged: notifier.setTitle,
                     isRequired: true,
@@ -84,7 +85,7 @@ class _CourseBuilderScreenState extends ConsumerState<CourseBuilderScreen> {
 
                   // Course Type Chips
                   Text(
-                    '코스 타입',
+                    context.l10n.course_type,
                     style: theme.textTheme.labelMedium,
                   ),
                   const SizedBox(height: AppTheme.space2),
@@ -93,28 +94,28 @@ class _CourseBuilderScreenState extends ConsumerState<CourseBuilderScreen> {
                     children: [
                       _buildTypeChip(
                         context,
-                        '데이트',
+                        context.l10n.course_date,
                         CourseType.date,
                         state.type,
                         notifier.setType,
                       ),
                       _buildTypeChip(
                         context,
-                        '여행',
+                        context.l10n.course_travel,
                         CourseType.travel,
                         state.type,
                         notifier.setType,
                       ),
                       _buildTypeChip(
                         context,
-                        '맛집투어',
+                        context.l10n.course_foodTour,
                         CourseType.foodTour,
                         state.type,
                         notifier.setType,
                       ),
                       _buildTypeChip(
                         context,
-                        '기타',
+                        context.l10n.course_other,
                         CourseType.other,
                         state.type,
                         notifier.setType,
@@ -139,11 +140,11 @@ class _CourseBuilderScreenState extends ConsumerState<CourseBuilderScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '장소 (${state.places.length})',
+                    '${context.l10n.course_places} (${state.places.length})',
                     style: theme.textTheme.labelLarge,
                   ),
                   Text(
-                    '총 ${_formatDuration(state.totalDuration)}',
+                    '${context.l10n.course_totalDuration} ${_formatDuration(state.totalDuration)}',
                     style: theme.textTheme.labelMedium?.copyWith(
                       color: theme.colorScheme.primary,
                     ),
@@ -168,7 +169,7 @@ class _CourseBuilderScreenState extends ConsumerState<CourseBuilderScreen> {
                       ),
                       const SizedBox(height: AppTheme.space4),
                       Text(
-                        '장소를 추가해주세요',
+                        context.l10n.course_addPlacePrompt,
                         style: theme.textTheme.bodyLarge?.copyWith(
                           color: Colors.grey,
                         ),
@@ -227,7 +228,7 @@ class _CourseBuilderScreenState extends ConsumerState<CourseBuilderScreen> {
                   _showAddPlaceDialog(context);
                 },
                 icon: const Icon(Icons.add),
-                label: const Text('장소 추가하기'),
+                label: Text(context.l10n.course_addPlace),
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size.fromHeight(48),
                 ),
@@ -253,7 +254,7 @@ class _CourseBuilderScreenState extends ConsumerState<CourseBuilderScreen> {
             children: [
               Expanded(
                 child: AppButton(
-                  text: '취소',
+                  text: context.l10n.common_cancel,
                   variant: ButtonVariant.outline,
                   onPressed: () => Navigator.of(context).pop(),
                 ),
@@ -262,7 +263,7 @@ class _CourseBuilderScreenState extends ConsumerState<CourseBuilderScreen> {
               Expanded(
                 flex: 2,
                 child: AppButton(
-                  text: '저장하기',
+                  text: context.l10n.common_save,
                   isLoading: state.isSaving,
                   isDisabled: state.title.isEmpty || state.places.isEmpty,
                   onPressed: () async {
@@ -312,21 +313,21 @@ class _CourseBuilderScreenState extends ConsumerState<CourseBuilderScreen> {
     final minutes = duration.inMinutes.remainder(60);
 
     if (hours > 0 && minutes > 0) {
-      return '$hours시간 $minutes분';
+      return '$hours${context.l10n.course_hour} $minutes${context.l10n.course_minute}';
     } else if (hours > 0) {
-      return '$hours시간';
+      return '$hours${context.l10n.course_hour}';
     } else if (minutes > 0) {
-      return '$minutes분';
+      return '$minutes${context.l10n.course_minute}';
     } else {
-      return '0분';
+      return '0${context.l10n.course_minute}';
     }
   }
 
   void _showAddPlaceDialog(BuildContext context) {
     // TODO: Implement proper place selection flow
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('장소 검색 기능은 개발 중입니다'),
+      SnackBar(
+        content: Text(context.l10n.course_searchInDevelopment),
       ),
     );
   }

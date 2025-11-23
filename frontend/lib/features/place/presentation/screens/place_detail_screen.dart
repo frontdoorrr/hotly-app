@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:frontend/core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/sharing/share_service.dart';
@@ -45,7 +46,7 @@ class PlaceDetailScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                '장소 정보를 불러올 수 없습니다',
+                context.l10n.place_cannotLoadPlaces,
                 style: AppTextStyles.h4,
               ),
               const SizedBox(height: 8),
@@ -59,7 +60,7 @@ class PlaceDetailScreen extends ConsumerWidget {
               ElevatedButton(
                 onPressed: () =>
                     ref.read(placeDetailProvider(placeId).notifier).refresh(),
-                child: const Text('다시 시도'),
+                child: Text(context.l10n.common_retry),
               ),
             ],
           ),
@@ -182,7 +183,7 @@ class PlaceDetailScreen extends ConsumerWidget {
                         Expanded(
                           child: OutlinedButton.icon(
                             icon: const Icon(Icons.map),
-                            label: const Text('지도 보기'),
+                            label: Text(context.l10n.map_viewOnMap),
                             onPressed: () => _openMap(
                               place.latitude!,
                               place.longitude!,
@@ -194,7 +195,7 @@ class PlaceDetailScreen extends ConsumerWidget {
                         Expanded(
                           child: OutlinedButton.icon(
                             icon: const Icon(Icons.directions),
-                            label: const Text('경로 찾기'),
+                            label: Text(context.l10n.map_findRoute),
                             onPressed: () => _openDirections(
                               place.latitude!,
                               place.longitude!,
@@ -220,7 +221,7 @@ class PlaceDetailScreen extends ConsumerWidget {
                     const Divider(),
                     const SizedBox(height: 16),
                     Text(
-                      '소개',
+                      context.l10n.place_introduction,
                       style: AppTextStyles.h4.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -249,7 +250,7 @@ class PlaceDetailScreen extends ConsumerWidget {
                     const Divider(),
                     const SizedBox(height: 16),
                     Text(
-                      '비슷한 장소',
+                      context.l10n.place_similarPlaces,
                       style: AppTextStyles.h4.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -314,7 +315,7 @@ class PlaceDetailScreen extends ConsumerWidget {
             children: [
               Expanded(
                 child: AppButton(
-                  text: state.isSaved ? '저장됨' : '저장하기',
+                  text: state.isSaved ? context.l10n.place_saved : context.l10n.place_saveButton,
                   variant: state.isSaved
                       ? ButtonVariant.secondary
                       : ButtonVariant.outline,
@@ -331,7 +332,7 @@ class PlaceDetailScreen extends ConsumerWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: AppButton(
-                  text: '코스에 추가',
+                  text: context.l10n.place_addToCourse,
                   variant: ButtonVariant.primary,
                   icon: const Icon(Icons.add),
                   onPressed: () {
@@ -405,14 +406,14 @@ class PlaceDetailScreen extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                '코스에 추가',
+                context.l10n.place_addToCourse,
                 style: AppTextStyles.h3.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 16),
               Text(
-                '이 기능은 코스 빌더 화면에서 사용할 수 있습니다.',
+                context.l10n.place_availableInCourseBuilder,
                 style: AppTextStyles.body2.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -420,7 +421,7 @@ class PlaceDetailScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 24),
               AppButton(
-                text: '확인',
+                text: context.l10n.common_ok,
                 variant: ButtonVariant.primary,
                 onPressed: () => Navigator.pop(context),
               ),

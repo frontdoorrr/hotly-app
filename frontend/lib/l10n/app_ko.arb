@@ -6,108 +6,731 @@
     "description": "앱 이름"
   },
 
-  "loginRequired": "로그인이 필요합니다",
-  "@loginRequired": {
-    "description": "로그인 필요 메시지"
+  "common_ok": "확인",
+  "@common_ok": {
+    "description": "확인 버튼"
   },
 
-  "loginButton": "로그인하기",
-  "@loginButton": {
-    "description": "로그인 버튼 텍스트"
+  "common_cancel": "취소",
+  "@common_cancel": {
+    "description": "취소 버튼"
   },
 
-  "savedPlaces": "저장한 장소",
-  "@savedPlaces": {
-    "description": "저장한 장소 화면 제목"
+  "common_save": "저장",
+  "@common_save": {
+    "description": "저장 버튼"
   },
 
-  "noSavedPlaces": "저장한 장소가 없습니다",
-  "@noSavedPlaces": {
-    "description": "저장한 장소가 없을 때 메시지"
+  "common_close": "닫기",
+  "@common_close": {
+    "description": "닫기 버튼"
   },
 
-  "savePlacePrompt": "마음에 드는 장소를 저장해보세요",
-  "@savePlacePrompt": {
-    "description": "장소 저장 안내 메시지"
+  "common_next": "다음",
+  "@common_next": {
+    "description": "다음 버튼"
   },
 
-  "loginToSavePlaces": "로그인하고 마음에 드는 장소를 저장해보세요",
-  "@loginToSavePlaces": {
-    "description": "로그인 후 장소 저장 안내"
+  "common_previous": "이전",
+  "@common_previous": {
+    "description": "이전 버튼"
   },
 
-  "refresh": "새로고침",
-  "@refresh": {
+  "common_start": "시작하기",
+  "@common_start": {
+    "description": "시작하기 버튼"
+  },
+
+  "common_refresh": "새로고침",
+  "@common_refresh": {
     "description": "새로고침 버튼"
   },
 
-  "errorOccurred": "오류가 발생했습니다",
-  "@errorOccurred": {
-    "description": "일반 오류 메시지"
-  },
-
-  "cannotLoadPlaces": "장소를 불러올 수 없습니다",
-  "@cannotLoadPlaces": {
-    "description": "장소 로딩 실패 메시지"
-  },
-
-  "retry": "다시 시도",
-  "@retry": {
+  "common_retry": "다시 시도",
+  "@common_retry": {
     "description": "재시도 버튼"
   },
 
-  "noFilterResults": "필터 조건에 맞는 장소가 없습니다",
-  "@noFilterResults": {
-    "description": "필터 결과 없음 메시지"
+  "common_all": "전체",
+  "@common_all": {
+    "description": "전체 필터 태그"
   },
 
-  "tryOtherTags": "다른 태그를 선택해보세요",
-  "@tryOtherTags": {
-    "description": "다른 태그 선택 안내"
+  "common_more": "더보기",
+  "@common_more": {
+    "description": "더보기 버튼"
   },
 
-  "clearFilters": "필터 초기화",
-  "@clearFilters": {
-    "description": "필터 초기화 버튼"
+  "common_detail": "상세보기",
+  "@common_detail": {
+    "description": "상세보기 버튼"
   },
 
-  "currentLocation": "현재 위치",
-  "@currentLocation": {
-    "description": "현재 위치 마커 텍스트"
+  "common_preview": "미리보기",
+  "@common_preview": {
+    "description": "미리보기 버튼"
   },
 
-  "connectionTimeout": "연결 시간이 초과되었습니다. 다시 시도해주세요.",
-  "@connectionTimeout": {
-    "description": "연결 타임아웃 메시지"
+  "nav_home": "홈",
+  "@nav_home": {
+    "description": "홈 탭"
   },
 
-  "serverError": "서버 오류가 발생했습니다.",
-  "@serverError": {
-    "description": "서버 오류 메시지"
+  "nav_map": "지도",
+  "@nav_map": {
+    "description": "지도 탭"
   },
 
-  "authRequired": "인증이 필요합니다. 다시 로그인해주세요.",
-  "@authRequired": {
+  "nav_saved": "저장",
+  "@nav_saved": {
+    "description": "저장 탭"
+  },
+
+  "nav_profile": "프로필",
+  "@nav_profile": {
+    "description": "프로필 탭"
+  },
+
+  "auth_login": "로그인",
+  "@auth_login": {
+    "description": "로그인 텍스트"
+  },
+
+  "auth_loginButton": "로그인하기",
+  "@auth_loginButton": {
+    "description": "로그인 버튼 텍스트"
+  },
+
+  "auth_logout": "로그아웃",
+  "@auth_logout": {
+    "description": "로그아웃 버튼"
+  },
+
+  "auth_logoutSuccess": "로그아웃되었습니다",
+  "@auth_logoutSuccess": {
+    "description": "로그아웃 성공 메시지"
+  },
+
+  "auth_signup": "회원가입",
+  "@auth_signup": {
+    "description": "회원가입 텍스트"
+  },
+
+  "auth_signupButton": "가입하기",
+  "@auth_signupButton": {
+    "description": "가입하기 버튼"
+  },
+
+  "auth_email": "이메일",
+  "@auth_email": {
+    "description": "이메일 레이블"
+  },
+
+  "auth_password": "비밀번호",
+  "@auth_password": {
+    "description": "비밀번호 레이블"
+  },
+
+  "auth_name": "이름",
+  "@auth_name": {
+    "description": "이름 레이블"
+  },
+
+  "auth_termsOfService": "이용약관",
+  "@auth_termsOfService": {
+    "description": "이용약관 링크"
+  },
+
+  "auth_privacyPolicy": "개인정보처리방침",
+  "@auth_privacyPolicy": {
+    "description": "개인정보처리방침 링크"
+  },
+
+  "auth_loginRequired": "로그인이 필요합니다",
+  "@auth_loginRequired": {
+    "description": "로그인 필요 메시지"
+  },
+
+  "auth_authRequired": "인증이 필요합니다. 다시 로그인해주세요.",
+  "@auth_authRequired": {
     "description": "인증 필요 메시지"
   },
 
-  "notFound": "요청한 데이터를 찾을 수 없습니다.",
-  "@notFound": {
+  "auth_deleteAccount": "탈퇴하기",
+  "@auth_deleteAccount": {
+    "description": "계정 탈퇴 버튼"
+  },
+
+  "auth_providerKakao": "카카오",
+  "@auth_providerKakao": {
+    "description": "카카오 로그인 제공자"
+  },
+
+  "auth_providerEmail": "이메일",
+  "@auth_providerEmail": {
+    "description": "이메일 로그인 제공자"
+  },
+
+  "auth_emailRequired": "이메일을 입력해주세요",
+  "@auth_emailRequired": {
+    "description": "이메일 필수 입력 메시지"
+  },
+
+  "auth_emailInvalid": "올바른 이메일 형식이 아닙니다",
+  "@auth_emailInvalid": {
+    "description": "이메일 형식 오류 메시지"
+  },
+
+  "auth_passwordRequired": "비밀번호를 입력해주세요",
+  "@auth_passwordRequired": {
+    "description": "비밀번호 필수 입력 메시지"
+  },
+
+  "auth_passwordHint": "비밀번호를 입력하세요",
+  "@auth_passwordHint": {
+    "description": "비밀번호 힌트 텍스트"
+  },
+
+  "auth_forgotPassword": "비밀번호 찾기",
+  "@auth_forgotPassword": {
+    "description": "비밀번호 찾기 버튼"
+  },
+
+  "auth_orSocialLogin": "또는 소셜 로그인으로",
+  "@auth_orSocialLogin": {
+    "description": "소셜 로그인 구분선"
+  },
+
+  "auth_noAccount": "계정이 없으신가요?",
+  "@auth_noAccount": {
+    "description": "회원가입 유도 메시지"
+  },
+
+  "auth_hasAccount": "이미 계정이 있으신가요?",
+  "@auth_hasAccount": {
+    "description": "로그인 유도 메시지"
+  },
+
+  "auth_nameRequired": "이름을 입력해주세요",
+  "@auth_nameRequired": {
+    "description": "이름 필수 입력 메시지"
+  },
+
+  "auth_passwordTooShort": "비밀번호는 6자 이상이어야 합니다",
+  "@auth_passwordTooShort": {
+    "description": "비밀번호 길이 오류 메시지"
+  },
+
+  "app_tagline": "AI 기반 핫플 아카이빙",
+  "@app_tagline": {
+    "description": "앱 태그라인"
+  },
+
+  "auth_nameHint": "이름을 입력하세요",
+  "@auth_nameHint": {
+    "description": "이름 힌트 텍스트"
+  },
+
+  "auth_nameTooShort": "이름은 2자 이상이어야 합니다",
+  "@auth_nameTooShort": {
+    "description": "이름 길이 오류 메시지"
+  },
+
+  "auth_passwordMinLength": "비밀번호는 최소 6자 이상이어야 합니다",
+  "@auth_passwordMinLength": {
+    "description": "비밀번호 최소 길이 메시지"
+  },
+
+  "auth_passwordConfirm": "비밀번호 확인",
+  "@auth_passwordConfirm": {
+    "description": "비밀번호 확인 레이블"
+  },
+
+  "auth_passwordConfirmHint": "비밀번호를 다시 입력하세요",
+  "@auth_passwordConfirmHint": {
+    "description": "비밀번호 확인 힌트"
+  },
+
+  "auth_passwordConfirmRequired": "비밀번호를 다시 입력해주세요",
+  "@auth_passwordConfirmRequired": {
+    "description": "비밀번호 확인 필수 메시지"
+  },
+
+  "auth_passwordMismatch": "비밀번호가 일치하지 않습니다",
+  "@auth_passwordMismatch": {
+    "description": "비밀번호 불일치 메시지"
+  },
+
+  "auth_agreeToTerms": "이용약관 및 개인정보처리방침에 동의해주세요",
+  "@auth_agreeToTerms": {
+    "description": "약관 동의 필요 메시지"
+  },
+
+  "auth_and": "및",
+  "@auth_and": {
+    "description": "접속사"
+  },
+
+  "auth_agreeText": "에 동의합니다",
+  "@auth_agreeText": {
+    "description": "동의 텍스트"
+  },
+
+  "auth_emailVerification": "이메일 인증",
+  "@auth_emailVerification": {
+    "description": "이메일 인증 제목"
+  },
+
+  "auth_emailVerificationSent": "가입하신 이메일로 인증 링크를 발송했습니다.\n이메일을 확인한 후 다시 로그인해주세요.",
+  "@auth_emailVerificationSent": {
+    "description": "이메일 인증 발송 메시지"
+  },
+
+  "place_savedPlaces": "저장한 장소",
+  "@place_savedPlaces": {
+    "description": "저장한 장소 화면 제목"
+  },
+
+  "place_noSavedPlaces": "저장한 장소가 없습니다",
+  "@place_noSavedPlaces": {
+    "description": "저장한 장소가 없을 때 메시지"
+  },
+
+  "place_savePlacePrompt": "마음에 드는 장소를 저장해보세요",
+  "@place_savePlacePrompt": {
+    "description": "장소 저장 안내 메시지"
+  },
+
+  "place_loginToSavePlaces": "로그인하고 마음에 드는 장소를 저장해보세요",
+  "@place_loginToSavePlaces": {
+    "description": "로그인 후 장소 저장 안내"
+  },
+
+  "place_cannotLoadPlaces": "장소를 불러올 수 없습니다",
+  "@place_cannotLoadPlaces": {
+    "description": "장소 로딩 실패 메시지"
+  },
+
+  "place_noFilterResults": "필터 조건에 맞는 장소가 없습니다",
+  "@place_noFilterResults": {
+    "description": "필터 결과 없음 메시지"
+  },
+
+  "place_tryOtherTags": "다른 태그를 선택해보세요",
+  "@place_tryOtherTags": {
+    "description": "다른 태그 선택 안내"
+  },
+
+  "place_clearFilters": "필터 초기화",
+  "@place_clearFilters": {
+    "description": "필터 초기화 버튼"
+  },
+
+  "place_introduction": "소개",
+  "@place_introduction": {
+    "description": "장소 소개 섹션"
+  },
+
+  "place_saved": "저장됨",
+  "@place_saved": {
+    "description": "저장됨 상태"
+  },
+
+  "place_saveButton": "저장하기",
+  "@place_saveButton": {
+    "description": "저장하기 버튼"
+  },
+
+  "place_confidence": "신뢰도",
+  "@place_confidence": {
+    "description": "분석 신뢰도"
+  },
+
+  "map_currentLocation": "현재 위치",
+  "@map_currentLocation": {
+    "description": "현재 위치 마커 텍스트"
+  },
+
+  "course_date": "데이트",
+  "@course_date": {
+    "description": "데이트 코스 유형"
+  },
+
+  "course_travel": "여행",
+  "@course_travel": {
+    "description": "여행 코스 유형"
+  },
+
+  "course_foodTour": "맛집투어",
+  "@course_foodTour": {
+    "description": "맛집투어 코스 유형"
+  },
+
+  "course_other": "기타",
+  "@course_other": {
+    "description": "기타 코스 유형"
+  },
+
+  "course_walking": "도보",
+  "@course_walking": {
+    "description": "도보 이동 수단"
+  },
+
+  "course_driving": "차량",
+  "@course_driving": {
+    "description": "차량 이동 수단"
+  },
+
+  "link_analyze": "분석하기",
+  "@link_analyze": {
+    "description": "링크 분석 버튼"
+  },
+
+  "profile_title": "프로필",
+  "@profile_title": {
+    "description": "프로필 화면 제목"
+  },
+
+  "profile_saved": "저장",
+  "@profile_saved": {
+    "description": "저장 통계 레이블"
+  },
+
+  "profile_likes": "좋아요",
+  "@profile_likes": {
+    "description": "좋아요 통계 레이블"
+  },
+
+  "profile_courses": "코스",
+  "@profile_courses": {
+    "description": "코스 통계 레이블"
+  },
+
+  "profile_edit": "프로필 편집",
+  "@profile_edit": {
+    "description": "프로필 편집 버튼"
+  },
+
+  "profile_savedPlacesTab": "저장된 장소",
+  "@profile_savedPlacesTab": {
+    "description": "저장된 장소 탭"
+  },
+
+  "profile_myCoursesTab": "내 코스",
+  "@profile_myCoursesTab": {
+    "description": "내 코스 탭"
+  },
+
+  "profile_noSavedPlaces": "저장된 장소가 없습니다",
+  "@profile_noSavedPlaces": {
+    "description": "저장된 장소 없음 메시지"
+  },
+
+  "profile_findPlaces": "장소 찾기",
+  "@profile_findPlaces": {
+    "description": "장소 찾기 버튼"
+  },
+
+  "profile_noCourses": "생성한 코스가 없습니다",
+  "@profile_noCourses": {
+    "description": "생성한 코스 없음 메시지"
+  },
+
+  "profile_createCoursePrompt": "나만의 데이트 코스를 만들어보세요",
+  "@profile_createCoursePrompt": {
+    "description": "코스 생성 안내 메시지"
+  },
+
+  "profile_createCourse": "코스 만들기",
+  "@profile_createCourse": {
+    "description": "코스 만들기 버튼"
+  },
+
+  "profile_loginPrompt": "로그인하고 나만의 장소를 저장해보세요",
+  "@profile_loginPrompt": {
+    "description": "로그인 안내 메시지"
+  },
+
+  "settings_title": "설정",
+  "@settings_title": {
+    "description": "설정 섹션 제목"
+  },
+
+  "settings_theme": "테마",
+  "@settings_theme": {
+    "description": "테마 설정"
+  },
+
+  "settings_language": "언어",
+  "@settings_language": {
+    "description": "언어 설정"
+  },
+
+  "settings_korean": "한국어",
+  "@settings_korean": {
+    "description": "한국어 언어 옵션"
+  },
+
+  "settings_notifications": "알림 설정",
+  "@settings_notifications": {
+    "description": "알림 설정"
+  },
+
+  "settings_notificationsDesc": "푸시 알림 받기",
+  "@settings_notificationsDesc": {
+    "description": "알림 설정 설명"
+  },
+
+  "settings_themeSystem": "시스템 설정",
+  "@settings_themeSystem": {
+    "description": "시스템 테마"
+  },
+
+  "settings_themeLight": "라이트 모드",
+  "@settings_themeLight": {
+    "description": "라이트 테마"
+  },
+
+  "settings_themeDark": "다크 모드",
+  "@settings_themeDark": {
+    "description": "다크 테마"
+  },
+
+  "settings_selectTheme": "테마 선택",
+  "@settings_selectTheme": {
+    "description": "테마 선택 다이얼로그 제목"
+  },
+
+  "settings_selectLanguage": "언어 선택",
+  "@settings_selectLanguage": {
+    "description": "언어 선택 다이얼로그 제목"
+  },
+
+  "settings_appInfo": "앱 정보",
+  "@settings_appInfo": {
+    "description": "앱 정보"
+  },
+
+  "settings_appName": "앱 이름",
+  "@settings_appName": {
+    "description": "앱 이름 레이블"
+  },
+
+  "settings_version": "버전",
+  "@settings_version": {
+    "description": "버전 레이블"
+  },
+
+  "settings_buildNumber": "빌드 번호",
+  "@settings_buildNumber": {
+    "description": "빌드 번호 레이블"
+  },
+
+  "auth_logoutConfirm": "정말 로그아웃하시겠습니까?",
+  "@auth_logoutConfirm": {
+    "description": "로그아웃 확인 메시지"
+  },
+
+  "auth_deleteAccountTitle": "회원 탈퇴",
+  "@auth_deleteAccountTitle": {
+    "description": "회원 탈퇴 제목"
+  },
+
+  "auth_deleteAccountConfirm": "정말 탈퇴하시겠습니까?\n\n모든 데이터가 삭제되며 복구할 수 없습니다.",
+  "@auth_deleteAccountConfirm": {
+    "description": "회원 탈퇴 확인 메시지"
+  },
+
+  "auth_deleteAccountSuccess": "회원 탈퇴가 완료되었습니다",
+  "@auth_deleteAccountSuccess": {
+    "description": "회원 탈퇴 성공 메시지"
+  },
+
+  "auth_deleteAccountFailed": "탈퇴 실패",
+  "@auth_deleteAccountFailed": {
+    "description": "회원 탈퇴 실패 메시지"
+  },
+
+  "onboarding_cafe": "카페",
+  "@onboarding_cafe": {
+    "description": "온보딩 관심사 - 카페"
+  },
+
+  "onboarding_restaurant": "맛집",
+  "@onboarding_restaurant": {
+    "description": "온보딩 관심사 - 맛집"
+  },
+
+  "onboarding_date": "데이트",
+  "@onboarding_date": {
+    "description": "온보딩 관심사 - 데이트"
+  },
+
+  "onboarding_view": "뷰맛집",
+  "@onboarding_view": {
+    "description": "온보딩 관심사 - 뷰맛집"
+  },
+
+  "onboarding_mood": "감성",
+  "@onboarding_mood": {
+    "description": "온보딩 관심사 - 감성"
+  },
+
+  "onboarding_healing": "힐링",
+  "@onboarding_healing": {
+    "description": "온보딩 관심사 - 힐링"
+  },
+
+  "onboarding_activity": "액티비티",
+  "@onboarding_activity": {
+    "description": "온보딩 관심사 - 액티비티"
+  },
+
+  "onboarding_shopping": "쇼핑",
+  "@onboarding_shopping": {
+    "description": "온보딩 관심사 - 쇼핑"
+  },
+
+  "common_skip": "Skip",
+  "@common_skip": {
+    "description": "건너뛰기 버튼"
+  },
+
+  "onboarding_welcome": "Hotly에 오신 것을 환영합니다!",
+  "@onboarding_welcome": {
+    "description": "온보딩 환영 메시지"
+  },
+
+  "onboarding_welcomeDesc": "AI가 추천하는 핫플레이스와\n나만의 데이트 코스를 만들어보세요",
+  "@onboarding_welcomeDesc": {
+    "description": "온보딩 환영 설명"
+  },
+
+  "onboarding_selectInterests": "관심사를 선택해주세요",
+  "@onboarding_selectInterests": {
+    "description": "관심사 선택 제목"
+  },
+
+  "onboarding_interestsDesc": "선택한 관심사를 바탕으로 맞춤 장소를 추천해드려요",
+  "@onboarding_interestsDesc": {
+    "description": "관심사 선택 설명"
+  },
+
+  "onboarding_locationTitle": "위치 권한",
+  "@onboarding_locationTitle": {
+    "description": "위치 권한 제목"
+  },
+
+  "onboarding_locationDesc": "현재 위치 주변의 핫플레이스를\n추천해드리기 위해 위치 권한이 필요해요",
+  "@onboarding_locationDesc": {
+    "description": "위치 권한 설명"
+  },
+
+  "onboarding_permissionGranted": "권한 허용됨 ✓",
+  "@onboarding_permissionGranted": {
+    "description": "권한 허용됨"
+  },
+
+  "onboarding_locationAllow": "위치 권한 허용",
+  "@onboarding_locationAllow": {
+    "description": "위치 권한 허용 버튼"
+  },
+
+  "onboarding_later": "나중에 설정하기",
+  "@onboarding_later": {
+    "description": "나중에 설정하기 버튼"
+  },
+
+  "onboarding_notificationTitle": "알림 권한",
+  "@onboarding_notificationTitle": {
+    "description": "알림 권한 제목"
+  },
+
+  "onboarding_notificationDesc": "새로운 핫플레이스와 맞춤 추천 소식을\n알려드리기 위해 알림 권한이 필요해요",
+  "@onboarding_notificationDesc": {
+    "description": "알림 권한 설명"
+  },
+
+  "onboarding_notificationAllow": "알림 권한 허용",
+  "@onboarding_notificationAllow": {
+    "description": "알림 권한 허용 버튼"
+  },
+
+  "profile_nameHint": "표시될 이름을 입력하세요",
+  "profile_loggedInWith": "계정으로 로그인",
+  "profile_joinDate": "가입일",
+  "profile_photoChangeLater": "프로필 사진 변경은 추후 지원 예정입니다",
+  "profile_updateSuccess": "프로필이 업데이트되었습니다",
+  "profile_updateFailed": "프로필 업데이트 실패",
+
+  "course_newCourse": "새 코스",
+  "course_title": "코스 제목",
+  "course_titleHint": "예: 강남 데이트 코스",
+  "course_type": "코스 타입",
+  "course_places": "장소",
+  "course_totalDuration": "총",
+  "course_addPlacePrompt": "장소를 추가해주세요",
+  "course_addPlace": "장소 추가하기",
+  "course_searchInDevelopment": "장소 검색 기능은 개발 중입니다",
+  "course_hour": "시간",
+  "course_minute": "분",
+
+  "place_similarPlaces": "비슷한 장소",
+  "place_addToCourse": "코스에 추가",
+  "place_availableInCourseBuilder": "이 기능은 코스 빌더 화면에서 사용할 수 있습니다.",
+
+  "map_viewOnMap": "지도 보기",
+  "map_findRoute": "경로 찾기",
+
+  "error_occurred": "오류가 발생했습니다",
+  "@error_occurred": {
+    "description": "일반 오류 메시지"
+  },
+
+  "error_connectionTimeout": "연결 시간이 초과되었습니다. 다시 시도해주세요.",
+  "@error_connectionTimeout": {
+    "description": "연결 타임아웃 메시지"
+  },
+
+  "error_serverError": "서버 오류가 발생했습니다.",
+  "@error_serverError": {
+    "description": "서버 오류 메시지"
+  },
+
+  "error_notFound": "요청한 데이터를 찾을 수 없습니다.",
+  "@error_notFound": {
     "description": "404 오류 메시지"
   },
 
-  "requestCancelled": "요청이 취소되었습니다.",
-  "@requestCancelled": {
+  "error_requestCancelled": "요청이 취소되었습니다.",
+  "@error_requestCancelled": {
     "description": "요청 취소 메시지"
   },
 
-  "checkNetwork": "네트워크 연결을 확인해주세요.",
-  "@checkNetwork": {
+  "error_checkNetwork": "네트워크 연결을 확인해주세요.",
+  "@error_checkNetwork": {
     "description": "네트워크 오류 메시지"
   },
 
-  "allPlaces": "전체",
-  "@allPlaces": {
-    "description": "전체 장소 필터 태그"
-  }
+  "loginRequired": "로그인이 필요합니다",
+  "loginButton": "로그인하기",
+  "savedPlaces": "저장한 장소",
+  "noSavedPlaces": "저장한 장소가 없습니다",
+  "savePlacePrompt": "마음에 드는 장소를 저장해보세요",
+  "loginToSavePlaces": "로그인하고 마음에 드는 장소를 저장해보세요",
+  "refresh": "새로고침",
+  "errorOccurred": "오류가 발생했습니다",
+  "cannotLoadPlaces": "장소를 불러올 수 없습니다",
+  "retry": "다시 시도",
+  "noFilterResults": "필터 조건에 맞는 장소가 없습니다",
+  "tryOtherTags": "다른 태그를 선택해보세요",
+  "clearFilters": "필터 초기화",
+  "currentLocation": "현재 위치",
+  "connectionTimeout": "연결 시간이 초과되었습니다. 다시 시도해주세요.",
+  "serverError": "서버 오류가 발생했습니다.",
+  "authRequired": "인증이 필요합니다. 다시 로그인해주세요.",
+  "notFound": "요청한 데이터를 찾을 수 없습니다.",
+  "requestCancelled": "요청이 취소되었습니다.",
+  "checkNetwork": "네트워크 연결을 확인해주세요.",
+  "allPlaces": "전체"
 }

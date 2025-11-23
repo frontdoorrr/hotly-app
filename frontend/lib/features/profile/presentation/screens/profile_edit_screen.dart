@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:frontend/core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/app_logger.dart';
@@ -41,14 +42,14 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
 
     if (user == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('프로필 편집')),
-        body: const Center(child: Text('로그인이 필요합니다')),
+        appBar: AppBar(title: Text(context.l10n.profile_edit)),
+        body: Center(child: Text(context.l10n.auth_loginRequired)),
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('프로필 편집'),
+        title: Text(context.l10n.profile_edit),
         actions: [
           TextButton(
             onPressed: _isLoading ? null : _saveProfile,
@@ -58,7 +59,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('저장'),
+                : Text(context.l10n.common_save),
           ),
         ],
       ),
@@ -75,17 +76,17 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
               // Name Field
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: '이름',
-                  hintText: '표시될 이름을 입력하세요',
-                  prefixIcon: Icon(Icons.person_outline),
+                decoration: InputDecoration(
+                  labelText: context.l10n.auth_name,
+                  hintText: context.l10n.profile_nameHint,
+                  prefixIcon: const Icon(Icons.person_outline),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return '이름을 입력해주세요';
+                    return context.l10n.auth_nameRequired;
                   }
                   if (value.trim().length < 2) {
-                    return '이름은 2자 이상이어야 합니다';
+                    return context.l10n.auth_nameTooShort;
                   }
                   return null;
                 },
@@ -95,9 +96,9 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
               // Email Field (read-only)
               TextFormField(
                 initialValue: user.email,
-                decoration: const InputDecoration(
-                  labelText: '이메일',
-                  prefixIcon: Icon(Icons.email_outlined),
+                decoration: InputDecoration(
+                  labelText: context.l10n.auth_email,
+                  prefixIcon: const Icon(Icons.email_outlined),
                 ),
                 readOnly: true,
                 enabled: false,
@@ -120,7 +121,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        '${_getProviderName(user.provider!)} 계정으로 로그인',
+                        '${_getProviderName(context, user.provider!)} ${context.l10n.profile_loggedInWith}',
                         style: AppTextStyles.body2.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -141,7 +142,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      '가입일: ${_formatDate(user.createdAt!)}',
+                      '${context.l10n.profile_joinDate}: ${_formatDate(user.createdAt!)}',
                       style: AppTextStyles.labelSmall.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -208,7 +209,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       });
       // TODO: Upload image to Firebase Storage and get URL
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('프로필 사진 변경은 추후 지원 예정입니다')),
+        SnackBar(content: Text(context.l10n.profile_photoChangeLater)),
       );
     }
   }
@@ -230,7 +231,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('프로필이 업데이트되었습니다')),
+        SnackBar(content: Text(context.l10n.profile_updateSuccess)),
       );
 
       context.pop();
@@ -239,7 +240,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('프로필 업데이트 실패: $e')),
+        SnackBar(content: Text('${context.l10n.profile_updateFailed}: $e')),
       );
     } finally {
       if (mounted) {
@@ -261,16 +262,16 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     }
   }
 
-  String _getProviderName(String provider) {
+  String _getProviderName(BuildContext context, String provider) {
     switch (provider) {
       case 'google':
         return 'Google';
       case 'apple':
         return 'Apple';
       case 'kakao':
-        return '카카오';
+        return context.l10n.auth_providerKakao;
       default:
-        return '이메일';
+        return context.l10n.auth_providerEmail;
     }
   }
 

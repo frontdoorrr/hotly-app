@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:frontend/core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -23,7 +24,7 @@ class SavedScreen extends ConsumerWidget {
     if (authState.status != AuthStatus.authenticated) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('저장한 장소'),
+          title: Text(context.l10n.place_savedPlaces),
           automaticallyImplyLeading: false,
         ),
         body: Center(
@@ -39,12 +40,12 @@ class SavedScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  '로그인이 필요합니다',
+                  context.l10n.auth_loginRequired,
                   style: AppTextStyles.h3,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '로그인하고 마음에 드는 장소를 저장해보세요',
+                  context.l10n.place_loginToSavePlaces,
                   style: AppTextStyles.body2.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -55,7 +56,7 @@ class SavedScreen extends ConsumerWidget {
                   onPressed: () {
                     context.push('/login');
                   },
-                  child: const Text('로그인하기'),
+                  child: Text(context.l10n.auth_loginButton),
                 ),
               ],
             ),
@@ -66,7 +67,7 @@ class SavedScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('저장한 장소'),
+        title: Text(context.l10n.place_savedPlaces),
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
@@ -74,7 +75,7 @@ class SavedScreen extends ConsumerWidget {
             onPressed: () {
               ref.read(savedPlacesProvider.notifier).refresh();
             },
-            tooltip: '새로고침',
+            tooltip: context.l10n.common_refresh,
           ),
         ],
       ),
@@ -102,14 +103,14 @@ class SavedScreen extends ConsumerWidget {
             ),
             const SizedBox(height: AppTheme.space4),
             Text(
-              '오류가 발생했습니다',
+              context.l10n.error_occurred,
               style: AppTextStyles.h3.copyWith(
                 color: AppColors.error,
               ),
             ),
             const SizedBox(height: AppTheme.space2),
             Text(
-              state.errorMessage ?? '장소를 불러올 수 없습니다',
+              state.errorMessage ?? context.l10n.place_cannotLoadPlaces,
               style: AppTextStyles.body2.copyWith(
                 color: AppColors.textSecondary,
               ),
@@ -120,7 +121,7 @@ class SavedScreen extends ConsumerWidget {
               onPressed: () {
                 ref.read(savedPlacesProvider.notifier).refresh();
               },
-              child: const Text('다시 시도'),
+              child: Text(context.l10n.common_retry),
             ),
           ],
         ),
@@ -195,14 +196,14 @@ class SavedScreen extends ConsumerWidget {
           ),
           const SizedBox(height: AppTheme.space4),
           Text(
-            '필터 조건에 맞는 장소가 없습니다',
+            context.l10n.place_noFilterResults,
             style: AppTextStyles.h3.copyWith(
               color: AppColors.textSecondary,
             ),
           ),
           const SizedBox(height: AppTheme.space2),
           Text(
-            '다른 태그를 선택해보세요',
+            context.l10n.place_tryOtherTags,
             style: AppTextStyles.body2.copyWith(
               color: AppColors.textSecondary,
             ),
@@ -212,7 +213,7 @@ class SavedScreen extends ConsumerWidget {
             onPressed: () {
               ref.read(savedPlacesProvider.notifier).clearTagFilters();
             },
-            child: const Text('필터 초기화'),
+            child: Text(context.l10n.place_clearFilters),
           ),
         ],
       ),
@@ -233,14 +234,14 @@ class SavedScreen extends ConsumerWidget {
           ),
           const SizedBox(height: AppTheme.space4),
           Text(
-            '저장한 장소가 없습니다',
+            context.l10n.place_noSavedPlaces,
             style: theme.textTheme.titleMedium?.copyWith(
               color: theme.colorScheme.outline,
             ),
           ),
           const SizedBox(height: AppTheme.space2),
           Text(
-            '마음에 드는 장소를 저장해보세요',
+            context.l10n.place_savePlacePrompt,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.outline,
             ),

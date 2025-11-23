@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:frontend/core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../shared/models/user.dart';
@@ -41,7 +42,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     if (profileState.isLoading) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('프로필'),
+          title: Text(context.l10n.profile_title),
         ),
         body: const Center(
           child: CircularProgressIndicator(),
@@ -53,7 +54,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     if (!profileState.isAuthenticated || user == null) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('프로필'),
+          title: Text(context.l10n.profile_title),
         ),
         body: Center(
           child: Padding(
@@ -68,12 +69,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  '로그인이 필요합니다',
+                  context.l10n.auth_loginRequired,
                   style: AppTextStyles.h3,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '로그인하고 나만의 장소를 저장해보세요',
+                  context.l10n.profile_loginPrompt,
                   style: AppTextStyles.body2.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -84,7 +85,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                   onPressed: () {
                     context.push('/login');
                   },
-                  child: const Text('로그인하기'),
+                  child: Text(context.l10n.auth_loginButton),
                 ),
               ],
             ),
@@ -95,7 +96,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('프로필'),
+        title: Text(context.l10n.profile_title),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -130,9 +131,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                 labelColor: AppColors.primary,
                 unselectedLabelColor: AppColors.textSecondary,
                 indicatorColor: AppColors.primary,
-                tabs: const [
-                  Tab(text: '저장된 장소'),
-                  Tab(text: '내 코스'),
+                tabs: [
+                  Tab(text: context.l10n.profile_savedPlacesTab),
+                  Tab(text: context.l10n.profile_myCoursesTab),
                 ],
               ),
             ),
@@ -189,7 +190,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           const SizedBox(height: 16),
           OutlinedButton.icon(
             icon: const Icon(Icons.edit),
-            label: const Text('프로필 편집'),
+            label: Text(context.l10n.profile_edit),
             onPressed: () {
               context.push('/profile/edit');
             },
@@ -209,19 +210,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
         children: [
           _buildStatCard(
             icon: Icons.bookmark,
-            label: '저장',
+            label: context.l10n.profile_saved,
             count: stats.savedPlaces,
             onTap: () {},
           ),
           _buildStatCard(
             icon: Icons.favorite,
-            label: '좋아요',
+            label: context.l10n.profile_likes,
             count: stats.likedPlaces,
             onTap: () {},
           ),
           _buildStatCard(
             icon: Icons.map,
-            label: '코스',
+            label: context.l10n.profile_courses,
             count: stats.courses,
             onTap: () {
               context.push('/courses/create');
@@ -283,12 +284,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           ),
           const SizedBox(height: 16),
           Text(
-            '저장된 장소가 없습니다',
+            context.l10n.profile_noSavedPlaces,
             style: AppTextStyles.h4,
           ),
           const SizedBox(height: 8),
           Text(
-            '마음에 드는 장소를 저장해보세요',
+            context.l10n.place_savePlacePrompt,
             style: AppTextStyles.body2.copyWith(
               color: AppColors.textSecondary,
             ),
@@ -298,7 +299,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             onPressed: () {
               context.go('/search');
             },
-            child: const Text('장소 찾기'),
+            child: Text(context.l10n.profile_findPlaces),
           ),
         ],
       ),
@@ -318,12 +319,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           ),
           const SizedBox(height: 16),
           Text(
-            '생성한 코스가 없습니다',
+            context.l10n.profile_noCourses,
             style: AppTextStyles.h4,
           ),
           const SizedBox(height: 8),
           Text(
-            '나만�� 데이트 코스를 만들어보세요',
+            context.l10n.profile_createCoursePrompt,
             style: AppTextStyles.body2.copyWith(
               color: AppColors.textSecondary,
             ),
@@ -333,7 +334,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             onPressed: () {
               context.push('/courses/create');
             },
-            child: const Text('코스 만들기'),
+            child: Text(context.l10n.profile_createCourse),
           ),
         ],
       ),
@@ -385,7 +386,7 @@ class _SettingsSheet extends ConsumerWidget {
           ),
 
           Text(
-            '설정',
+            context.l10n.settings_title,
             style: AppTextStyles.h3.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -394,8 +395,8 @@ class _SettingsSheet extends ConsumerWidget {
 
           // Notifications
           SwitchListTile(
-            title: const Text('알림 설정'),
-            subtitle: const Text('푸시 알림 받기'),
+            title: Text(context.l10n.settings_notifications),
+            subtitle: Text(context.l10n.settings_notificationsDesc),
             value: settings.notificationsEnabled,
             onChanged: (value) {
               ref.read(settingsProvider.notifier).setNotifications(value);
@@ -404,16 +405,16 @@ class _SettingsSheet extends ConsumerWidget {
 
           // Theme
           ListTile(
-            title: const Text('테마'),
-            subtitle: Text(_getThemeLabel(settings.themeMode)),
+            title: Text(context.l10n.settings_theme),
+            subtitle: Text(_getThemeLabel(context, settings.themeMode)),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => _showThemeDialog(context, ref),
           ),
 
           // Language
           ListTile(
-            title: const Text('언어'),
-            subtitle: Text(settings.language == 'ko' ? '한국어' : 'English'),
+            title: Text(context.l10n.settings_language),
+            subtitle: Text(settings.language == 'ko' ? context.l10n.settings_korean : 'English'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => _showLanguageDialog(context, ref),
           ),
@@ -422,7 +423,7 @@ class _SettingsSheet extends ConsumerWidget {
 
           // App Info
           ListTile(
-            title: const Text('앱 정보'),
+            title: Text(context.l10n.settings_appInfo),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => _showAppInfo(context),
           ),
@@ -431,7 +432,7 @@ class _SettingsSheet extends ConsumerWidget {
 
           // Logout
           ListTile(
-            title: const Text('로그아웃'),
+            title: Text(context.l10n.auth_logout),
             textColor: AppColors.error,
             leading: const Icon(Icons.logout, color: AppColors.error),
             onTap: () => _showLogoutDialog(context, ref),
@@ -439,7 +440,7 @@ class _SettingsSheet extends ConsumerWidget {
 
           // Delete Account
           ListTile(
-            title: const Text('회원 탈퇴'),
+            title: Text(context.l10n.auth_deleteAccountTitle),
             textColor: AppColors.error,
             leading: const Icon(Icons.delete_forever, color: AppColors.error),
             onTap: () => _showDeleteAccountDialog(context, ref),
@@ -449,14 +450,14 @@ class _SettingsSheet extends ConsumerWidget {
     );
   }
 
-  String _getThemeLabel(ThemeMode mode) {
+  String _getThemeLabel(BuildContext context, ThemeMode mode) {
     switch (mode) {
       case ThemeMode.system:
-        return '시스템 설정';
+        return context.l10n.settings_themeSystem;
       case ThemeMode.light:
-        return '라이트 모드';
+        return context.l10n.settings_themeLight;
       case ThemeMode.dark:
-        return '다크 모드';
+        return context.l10n.settings_themeDark;
     }
   }
 
@@ -465,41 +466,41 @@ class _SettingsSheet extends ConsumerWidget {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('테마 선택'),
+      builder: (dialogContext) => AlertDialog(
+        title: Text(context.l10n.settings_selectTheme),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             RadioListTile<ThemeMode>(
-              title: const Text('시스템 설정'),
+              title: Text(context.l10n.settings_themeSystem),
               value: ThemeMode.system,
               groupValue: currentTheme,
               onChanged: (value) {
                 if (value != null) {
                   ref.read(settingsProvider.notifier).setThemeMode(value);
-                  Navigator.pop(context);
+                  Navigator.pop(dialogContext);
                 }
               },
             ),
             RadioListTile<ThemeMode>(
-              title: const Text('라이트 모드'),
+              title: Text(context.l10n.settings_themeLight),
               value: ThemeMode.light,
               groupValue: currentTheme,
               onChanged: (value) {
                 if (value != null) {
                   ref.read(settingsProvider.notifier).setThemeMode(value);
-                  Navigator.pop(context);
+                  Navigator.pop(dialogContext);
                 }
               },
             ),
             RadioListTile<ThemeMode>(
-              title: const Text('다크 모드'),
+              title: Text(context.l10n.settings_themeDark),
               value: ThemeMode.dark,
               groupValue: currentTheme,
               onChanged: (value) {
                 if (value != null) {
                   ref.read(settingsProvider.notifier).setThemeMode(value);
-                  Navigator.pop(context);
+                  Navigator.pop(dialogContext);
                 }
               },
             ),
@@ -514,19 +515,19 @@ class _SettingsSheet extends ConsumerWidget {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('언어 선택'),
+      builder: (dialogContext) => AlertDialog(
+        title: Text(context.l10n.settings_selectLanguage),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             RadioListTile<String>(
-              title: const Text('한국어'),
+              title: Text(context.l10n.settings_korean),
               value: 'ko',
               groupValue: currentLanguage,
               onChanged: (value) {
                 if (value != null) {
                   ref.read(settingsProvider.notifier).setLanguage(value);
-                  Navigator.pop(context);
+                  Navigator.pop(dialogContext);
                 }
               },
             ),
@@ -537,7 +538,7 @@ class _SettingsSheet extends ConsumerWidget {
               onChanged: (value) {
                 if (value != null) {
                   ref.read(settingsProvider.notifier).setLanguage(value);
-                  Navigator.pop(context);
+                  Navigator.pop(dialogContext);
                 }
               },
             ),
@@ -554,23 +555,23 @@ class _SettingsSheet extends ConsumerWidget {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('앱 정보'),
+      builder: (dialogContext) => AlertDialog(
+        title: Text(context.l10n.settings_appInfo),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('앱 이름: ${packageInfo.appName}'),
+            Text('${context.l10n.settings_appName}: ${packageInfo.appName}'),
             const SizedBox(height: 8),
-            Text('버전: ${packageInfo.version}'),
+            Text('${context.l10n.settings_version}: ${packageInfo.version}'),
             const SizedBox(height: 8),
-            Text('빌드 번호: ${packageInfo.buildNumber}'),
+            Text('${context.l10n.settings_buildNumber}: ${packageInfo.buildNumber}'),
           ],
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('확인'),
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(context.l10n.common_ok),
           ),
         ],
       ),
@@ -580,28 +581,28 @@ class _SettingsSheet extends ConsumerWidget {
   void _showLogoutDialog(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('로그아웃'),
-        content: const Text('정말 로그아웃하시겠습니까?'),
+      builder: (dialogContext) => AlertDialog(
+        title: Text(context.l10n.auth_logout),
+        content: Text(context.l10n.auth_logoutConfirm),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('취소'),
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(context.l10n.common_cancel),
           ),
           TextButton(
             onPressed: () async {
               await ref.read(profileProvider.notifier).logout();
               if (!context.mounted) return;
-              Navigator.pop(context); // Close dialog
+              Navigator.pop(dialogContext); // Close dialog
               Navigator.pop(context); // Close bottom sheet
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('로그아웃되었습니다')),
+                SnackBar(content: Text(context.l10n.auth_logoutSuccess)),
               );
             },
             style: TextButton.styleFrom(
               foregroundColor: AppColors.error,
             ),
-            child: const Text('로그아웃'),
+            child: Text(context.l10n.auth_logout),
           ),
         ],
       ),
@@ -611,39 +612,36 @@ class _SettingsSheet extends ConsumerWidget {
   void _showDeleteAccountDialog(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('회원 탈퇴'),
-        content: const Text(
-          '정말 탈퇴하시겠습니까?\n\n'
-          '모든 데이터가 삭제되며 복구할 수 없습니다.',
-        ),
+      builder: (dialogContext) => AlertDialog(
+        title: Text(context.l10n.auth_deleteAccountTitle),
+        content: Text(context.l10n.auth_deleteAccountConfirm),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('취소'),
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(context.l10n.common_cancel),
           ),
           TextButton(
             onPressed: () async {
               try {
                 await ref.read(authProvider.notifier).deleteAccount();
                 if (!context.mounted) return;
-                Navigator.pop(context); // Close dialog
+                Navigator.pop(dialogContext); // Close dialog
                 Navigator.pop(context); // Close bottom sheet
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('회원 탈퇴가 완료되었습니다')),
+                  SnackBar(content: Text(context.l10n.auth_deleteAccountSuccess)),
                 );
               } catch (e) {
                 if (!context.mounted) return;
-                Navigator.pop(context);
+                Navigator.pop(dialogContext);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('탈퇴 실패: $e')),
+                  SnackBar(content: Text('${context.l10n.auth_deleteAccountFailed}: $e')),
                 );
               }
             },
             style: TextButton.styleFrom(
               foregroundColor: AppColors.error,
             ),
-            child: const Text('탈퇴하기'),
+            child: Text(context.l10n.auth_deleteAccount),
           ),
         ],
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:frontend/core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../shared/widgets/atoms/app_button.dart';
@@ -48,7 +49,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           TextButton(
             onPressed: _handleSkip,
             child: Text(
-              'Skip',
+              context.l10n.common_skip,
               style: AppTextStyles.button.copyWith(
                 color: AppColors.textSecondary,
               ),
@@ -84,7 +85,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             child: PageView(
               controller: _pageController,
               onPageChanged: _onPageChanged,
-              children: [
+              children: const [
                 _WelcomeStep(),
                 _InterestsStep(),
                 _LocationPermissionStep(),
@@ -101,7 +102,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 if (onboardingState.currentStep > 0)
                   Expanded(
                     child: AppButton(
-                      text: '이전',
+                      text: context.l10n.common_previous,
                       variant: ButtonVariant.outline,
                       onPressed: () {
                         _pageController.previousPage(
@@ -114,7 +115,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 if (onboardingState.currentStep > 0) const SizedBox(width: 12),
                 Expanded(
                   child: AppButton(
-                    text: onboardingState.currentStep == 3 ? '시작하기' : '다음',
+                    text: onboardingState.currentStep == 3
+                        ? context.l10n.common_start
+                        : context.l10n.common_next,
                     variant: ButtonVariant.primary,
                     onPressed: () {
                       if (onboardingState.currentStep == 3) {
@@ -138,6 +141,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 }
 
 class _WelcomeStep extends StatelessWidget {
+  const _WelcomeStep();
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -152,7 +157,7 @@ class _WelcomeStep extends StatelessWidget {
           ),
           const SizedBox(height: 32),
           Text(
-            'Hotly에 오신 것을 환영합니다!',
+            context.l10n.onboarding_welcome,
             style: AppTextStyles.h1.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -160,7 +165,7 @@ class _WelcomeStep extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'AI가 추천하는 핫플레이스와\n나만의 데이트 코스를 만들어보세요',
+            context.l10n.onboarding_welcomeDesc,
             style: AppTextStyles.body1.copyWith(
               color: AppColors.textSecondary,
               height: 1.6,
@@ -174,22 +179,27 @@ class _WelcomeStep extends StatelessWidget {
 }
 
 class _InterestsStep extends ConsumerWidget {
-  final List<String> interests = [
-    '카페',
-    '맛집',
-    '데이트',
-    '뷰맛집',
-    '감성',
-    '힐링',
-    '액티비티',
-    '쇼핑',
-  ];
+  const _InterestsStep();
+
+  List<String> _getInterests(BuildContext context) {
+    return [
+      context.l10n.onboarding_cafe,
+      context.l10n.onboarding_restaurant,
+      context.l10n.onboarding_date,
+      context.l10n.onboarding_view,
+      context.l10n.onboarding_mood,
+      context.l10n.onboarding_healing,
+      context.l10n.onboarding_activity,
+      context.l10n.onboarding_shopping,
+    ];
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedInterests = ref.watch(
       onboardingProvider.select((s) => s.selectedInterests),
     );
+    final interests = _getInterests(context);
 
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -197,14 +207,14 @@ class _InterestsStep extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '관심사를 선택해주세요',
+            context.l10n.onboarding_selectInterests,
             style: AppTextStyles.h2.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            '선택한 관심사를 바탕으로 맞춤 장소를 추천해드려요',
+            context.l10n.onboarding_interestsDesc,
             style: AppTextStyles.body2.copyWith(
               color: AppColors.textSecondary,
             ),
@@ -237,6 +247,8 @@ class _InterestsStep extends ConsumerWidget {
 }
 
 class _LocationPermissionStep extends ConsumerWidget {
+  const _LocationPermissionStep();
+
   Future<void> _requestLocationPermission(WidgetRef ref) async {
     final status = await Permission.location.request();
     ref
@@ -262,7 +274,7 @@ class _LocationPermissionStep extends ConsumerWidget {
           ),
           const SizedBox(height: 32),
           Text(
-            '위치 권한',
+            context.l10n.onboarding_locationTitle,
             style: AppTextStyles.h2.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -270,7 +282,7 @@ class _LocationPermissionStep extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            '현재 위치 주변의 핫플레이스를\n추천해드리기 위해 위치 권한이 필요해요',
+            context.l10n.onboarding_locationDesc,
             style: AppTextStyles.body1.copyWith(
               color: AppColors.textSecondary,
               height: 1.6,
@@ -279,7 +291,9 @@ class _LocationPermissionStep extends ConsumerWidget {
           ),
           const SizedBox(height: 32),
           AppButton(
-            text: granted ? '권한 허용됨 ✓' : '위치 권한 허용',
+            text: granted
+                ? context.l10n.onboarding_permissionGranted
+                : context.l10n.onboarding_locationAllow,
             variant: granted ? ButtonVariant.secondary : ButtonVariant.primary,
             onPressed: granted ? null : () => _requestLocationPermission(ref),
           ),
@@ -290,7 +304,7 @@ class _LocationPermissionStep extends ConsumerWidget {
               ref.read(onboardingProvider.notifier).nextStep();
             },
             child: Text(
-              '나중에 설정하기',
+              context.l10n.onboarding_later,
               style: AppTextStyles.button.copyWith(
                 color: AppColors.textSecondary,
               ),
@@ -303,6 +317,8 @@ class _LocationPermissionStep extends ConsumerWidget {
 }
 
 class _NotificationPermissionStep extends ConsumerWidget {
+  const _NotificationPermissionStep();
+
   Future<void> _requestNotificationPermission(WidgetRef ref) async {
     final status = await Permission.notification.request();
     ref
@@ -328,7 +344,7 @@ class _NotificationPermissionStep extends ConsumerWidget {
           ),
           const SizedBox(height: 32),
           Text(
-            '알림 권한',
+            context.l10n.onboarding_notificationTitle,
             style: AppTextStyles.h2.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -336,7 +352,7 @@ class _NotificationPermissionStep extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            '새로운 핫플레이스와 맞춤 추천 소식을\n알려드리기 위해 알림 권한이 필요해요',
+            context.l10n.onboarding_notificationDesc,
             style: AppTextStyles.body1.copyWith(
               color: AppColors.textSecondary,
               height: 1.6,
@@ -345,7 +361,9 @@ class _NotificationPermissionStep extends ConsumerWidget {
           ),
           const SizedBox(height: 32),
           AppButton(
-            text: granted ? '권한 허용됨 ✓' : '알림 권한 허용',
+            text: granted
+                ? context.l10n.onboarding_permissionGranted
+                : context.l10n.onboarding_notificationAllow,
             variant: granted ? ButtonVariant.secondary : ButtonVariant.primary,
             onPressed:
                 granted ? null : () => _requestNotificationPermission(ref),
@@ -356,7 +374,7 @@ class _NotificationPermissionStep extends ConsumerWidget {
               // Can still complete without notification
             },
             child: Text(
-              '나중에 설정하기',
+              context.l10n.onboarding_later,
               style: AppTextStyles.button.copyWith(
                 color: AppColors.textSecondary,
               ),

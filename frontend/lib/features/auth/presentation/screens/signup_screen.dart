@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:frontend/core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../shared/widgets/atoms/app_button.dart';
@@ -38,8 +39,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
     if (!_agreedToTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('이용약관 및 개인정보처리방침에 동의해주세요'),
+        SnackBar(
+          content: Text(context.l10n.auth_agreeToTerms),
           backgroundColor: AppColors.error,
         ),
       );
@@ -78,18 +79,16 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: const Text('이메일 인증'),
-        content: const Text(
-          '가입하신 이메일로 인증 링크를 발송했습니다.\n이메일을 확인한 후 다시 로그인해주세요.',
-        ),
+      builder: (dialogContext) => AlertDialog(
+        title: Text(context.l10n.auth_emailVerification),
+        content: Text(context.l10n.auth_emailVerificationSent),
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
               context.go('/login');
             },
-            child: const Text('확인'),
+            child: Text(context.l10n.common_ok),
           ),
         ],
       ),
@@ -102,7 +101,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('회원가입'),
+        title: Text(context.l10n.auth_signup),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -115,14 +114,14 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 // Name Input
                 AppInput(
                   controller: _nameController,
-                  label: '이름',
-                  hintText: '이름을 입력하세요',
+                  label: context.l10n.auth_name,
+                  hintText: context.l10n.auth_nameHint,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return '이름을 입력해주세요';
+                      return context.l10n.auth_nameRequired;
                     }
                     if (value.length < 2) {
-                      return '이름은 2자 이상이어야 합니다';
+                      return context.l10n.auth_nameTooShort;
                     }
                     return null;
                   },
@@ -132,15 +131,15 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 // Email Input
                 AppInput(
                   controller: _emailController,
-                  label: '이메일',
+                  label: context.l10n.auth_email,
                   hintText: 'example@email.com',
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return '이메일을 입력해주세요';
+                      return context.l10n.auth_emailRequired;
                     }
                     if (!value.contains('@')) {
-                      return '올바른 이메일 형식이 아닙니다';
+                      return context.l10n.auth_emailInvalid;
                     }
                     return null;
                   },
@@ -150,8 +149,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 // Password Input
                 AppInput(
                   controller: _passwordController,
-                  label: '비밀번호',
-                  hintText: '8자 이상 입력하세요',
+                  label: context.l10n.auth_password,
+                  hintText: context.l10n.auth_passwordHint,
                   obscureText: _obscurePassword,
                   suffixIcon: IconButton(
                     icon: Icon(
@@ -165,10 +164,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return '비밀번호를 입력해주세요';
+                      return context.l10n.auth_passwordRequired;
                     }
                     if (value.length < 6) {
-                      return '비밀번호는 최소 6자 이상이어야 합니다';
+                      return context.l10n.auth_passwordMinLength;
                     }
                     return null;
                   },
@@ -178,8 +177,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 // Password Confirm Input
                 AppInput(
                   controller: _passwordConfirmController,
-                  label: '비밀번호 확인',
-                  hintText: '비밀번호를 다시 입력하세요',
+                  label: context.l10n.auth_passwordConfirm,
+                  hintText: context.l10n.auth_passwordConfirmHint,
                   obscureText: _obscurePasswordConfirm,
                   suffixIcon: IconButton(
                     icon: Icon(
@@ -195,10 +194,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return '비밀번호를 다시 입력해주세요';
+                      return context.l10n.auth_passwordConfirmRequired;
                     }
                     if (value != _passwordController.text) {
-                      return '비밀번호가 일치하지 않습니다';
+                      return context.l10n.auth_passwordMismatch;
                     }
                     return null;
                   },
@@ -228,21 +227,21 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                             style: AppTextStyles.body2,
                             children: [
                               TextSpan(
-                                text: '이용약관',
+                                text: context.l10n.auth_termsOfService,
                                 style: TextStyle(
                                   color: AppColors.primary,
                                   decoration: TextDecoration.underline,
                                 ),
                               ),
-                              const TextSpan(text: ' 및 '),
+                              TextSpan(text: ' ${context.l10n.auth_and} '),
                               TextSpan(
-                                text: '개인정보처리방침',
+                                text: context.l10n.auth_privacyPolicy,
                                 style: TextStyle(
                                   color: AppColors.primary,
                                   decoration: TextDecoration.underline,
                                 ),
                               ),
-                              const TextSpan(text: '에 동의합니다'),
+                              TextSpan(text: context.l10n.auth_agreeText),
                             ],
                           ),
                         ),
@@ -254,7 +253,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
                 // Sign Up Button
                 AppButton(
-                  text: '가입하기',
+                  text: context.l10n.auth_signupButton,
                   variant: ButtonVariant.primary,
                   isLoading: authState.isLoading,
                   onPressed: _handleSignUp,
@@ -266,7 +265,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      '이미 계정이 있으신가요? ',
+                      '${context.l10n.auth_hasAccount} ',
                       style: AppTextStyles.body2,
                     ),
                     TextButton(
@@ -274,7 +273,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         context.pop();
                       },
                       child: Text(
-                        '로그인',
+                        context.l10n.auth_login,
                         style: AppTextStyles.body2.copyWith(
                           color: AppColors.primary,
                           fontWeight: FontWeight.bold,
