@@ -207,10 +207,27 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       setState(() {
         _newImagePath = pickedFile.path;
       });
-      // TODO: Upload image to Firebase Storage and get URL
+
+      // 백엔드 API를 통해 이미지 업로드
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.profile_photoChangeLater)),
+        const SnackBar(content: Text('프로필 사진 업로드 중...')),
       );
+
+      final imageUrl = await ref
+          .read(profileProvider.notifier)
+          .uploadProfileImage(pickedFile.path);
+
+      if (!mounted) return;
+
+      if (imageUrl != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('프로필 사진이 업데이트되었습니다')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('프로필 사진 업로드에 실패했습니다')),
+        );
+      }
     }
   }
 
@@ -221,20 +238,25 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
 
     try {
       final newName = _nameController.text.trim();
-      await ref.read(authProvider.notifier).updateProfile(
+
+      // 백엔드 API를 통해 프로필 업데이트
+      final success = await ref.read(profileProvider.notifier).updateProfile(
             displayName: newName,
           );
 
-      // Refresh profile state
-      await ref.read(profileProvider.notifier).refresh();
-
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.profile_updateSuccess)),
-      );
-
-      context.pop();
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.profile_updateSuccess)),
+        );
+        context.pop();
+      } else {
+        final error = ref.read(profileProvider).error;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${context.l10n.profile_updateFailed}: $error')),
+        );
+      }
     } catch (e) {
       AppLogger.e('Failed to update profile', tag: 'ProfileEdit', error: e);
       if (!mounted) return;

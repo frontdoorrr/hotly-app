@@ -43,79 +43,80 @@ TEMP_USER_ID = "00000000-0000-0000-0000-000000000001"
 # ============================================================================
 
 
-@router.post("/generate", response_model=CourseGenerateResponse)
-async def generate_optimized_course(
-    request: CourseGenerateRequest,
-    db: Session = Depends(get_db),
-    current_user_id: str = TEMP_USER_ID,
-):
-    """
-    Generate AI-optimized course using Genetic Algorithm.
-
-    **New! Genetic Algorithm Optimization:**
-    - 50 population, 100 generations for optimal route finding
-    - Multi-criteria optimization (distance 40%, time 25%, variety 20%, preference 15%)
-    - Haversine formula for accurate distance calculation (±10m accuracy)
-    - PostGIS integration for coordinate extraction
-
-    **Performance:**
-    - Course generation: < 500ms
-    - Distance calculation: < 1ms per pair
-    - Optimization: < 100ms for 6 places
-
-    **Requirements:**
-    - 3-6 places required
-    - Places must exist in database with valid coordinates
-
-    **Example:**
-    ```json
-    {
-      "place_ids": ["place1", "place2", "place3", "place4"],
-      "transport_method": "walking",
-      "start_time": "10:00",
-      "preferences": {
-        "max_total_duration": 480,
-        "avoid_rush_hours": true
-      }
-    }
-    ```
-    """
-    try:
-        # Measure generation time for performance monitoring
-        start_time = time_module.time()
-
-        # Initialize course generation service
-        generator = CourseGeneratorService(db)
-
-        # Generate optimized course
-        result = generator.generate_course(request)
-
-        # Calculate actual generation time
-        generation_time_ms = int((time_module.time() - start_time) * 1000)
-
-        # Update generation time in response
-        result.generation_time_ms = generation_time_ms
-
-        logger.info(
-            f"Course generated in {generation_time_ms}ms for user {current_user_id}: "
-            f"{len(request.place_ids)} places, "
-            f"score={result.optimization_score:.3f}"
-        )
-
-        return result
-
-    except ValueError as e:
-        # Handle validation errors from service
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e),
-        )
-    except Exception as e:
-        logger.error(f"Failed to generate course: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Course generation failed: {str(e)}",
-        )
+# TODO: 추후 사용 - 코스 생성 API (현재 비활성화)
+# @router.post("/generate", response_model=CourseGenerateResponse)
+# async def generate_optimized_course(
+#     request: CourseGenerateRequest,
+#     db: Session = Depends(get_db),
+#     current_user_id: str = TEMP_USER_ID,
+# ):
+#     """
+#     Generate AI-optimized course using Genetic Algorithm.
+#
+#     **New! Genetic Algorithm Optimization:**
+#     - 50 population, 100 generations for optimal route finding
+#     - Multi-criteria optimization (distance 40%, time 25%, variety 20%, preference 15%)
+#     - Haversine formula for accurate distance calculation (±10m accuracy)
+#     - PostGIS integration for coordinate extraction
+#
+#     **Performance:**
+#     - Course generation: < 500ms
+#     - Distance calculation: < 1ms per pair
+#     - Optimization: < 100ms for 6 places
+#
+#     **Requirements:**
+#     - 3-6 places required
+#     - Places must exist in database with valid coordinates
+#
+#     **Example:**
+#     ```json
+#     {
+#       "place_ids": ["place1", "place2", "place3", "place4"],
+#       "transport_method": "walking",
+#       "start_time": "10:00",
+#       "preferences": {
+#         "max_total_duration": 480,
+#         "avoid_rush_hours": true
+#       }
+#     }
+#     ```
+#     """
+#     try:
+#         # Measure generation time for performance monitoring
+#         start_time = time_module.time()
+#
+#         # Initialize course generation service
+#         generator = CourseGeneratorService(db)
+#
+#         # Generate optimized course
+#         result = generator.generate_course(request)
+#
+#         # Calculate actual generation time
+#         generation_time_ms = int((time_module.time() - start_time) * 1000)
+#
+#         # Update generation time in response
+#         result.generation_time_ms = generation_time_ms
+#
+#         logger.info(
+#             f"Course generated in {generation_time_ms}ms for user {current_user_id}: "
+#             f"{len(request.place_ids)} places, "
+#             f"score={result.optimization_score:.3f}"
+#         )
+#
+#         return result
+#
+#     except ValueError as e:
+#         # Handle validation errors from service
+#         raise HTTPException(
+#             status_code=status.HTTP_400_BAD_REQUEST,
+#             detail=str(e),
+#         )
+#     except Exception as e:
+#         logger.error(f"Failed to generate course: {e}", exc_info=True)
+#         raise HTTPException(
+#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+#             detail=f"Course generation failed: {str(e)}",
+#         )
 
 
 @router.get("/{course_id}", response_model=CourseGenerateResponse)

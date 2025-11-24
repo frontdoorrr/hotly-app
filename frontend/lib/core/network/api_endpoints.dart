@@ -36,8 +36,14 @@ class ApiEndpoints {
   static String courseDetail(String id) => '/courses/$id';
   static String courseShare(String id) => '/courses/$id/share';
 
-  // User Data
-  static const String userProfile = '/user-data/profile';
+  // Users (Profile)
+  static const String userProfile = '/users/me/profile';
+  static const String userProfileImage = '/users/me/profile/image';
+  static const String userPreferences = '/users/me/preferences';
+  static const String userSettings = '/users/me/settings';
+  static const String userDelete = '/users/me';
+
+  // User Data (Legacy)
   static const String userStats = '/user-data/stats';
   static const String userFolders = '/user-data/folders';
   static const String userSavedPlaces = '/user-data/saved-places';

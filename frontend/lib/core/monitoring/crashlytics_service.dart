@@ -44,7 +44,7 @@ class CrashlyticsService {
 
   /// 커스텀 키 설정
   Future<void> setCustomKey(String key, dynamic value) async {
-    await FirebaseCrashlytics.instance.setCustomKey(key, value);
+    await FirebaseCrashlytics.instance.setCustomKey(key, value as Object);
   }
 
   /// 비치명적 에러 기록
