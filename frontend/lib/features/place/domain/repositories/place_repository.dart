@@ -26,6 +26,9 @@ abstract class PlaceRepository {
   /// 장소 저장 토글
   Future<Either<ApiException, void>> toggleSave(String placeId);
 
+  /// 저장된 장소 목록 조회
+  Future<Either<ApiException, List<Place>>> getSavedPlaces();
+
   /// 비슷한 장소 조회
   Future<Either<ApiException, List<Place>>> getSimilarPlaces({
     required String placeId,

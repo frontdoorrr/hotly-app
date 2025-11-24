@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../shared/models/place.dart';
-import '../../../../shared/data/mock_places.dart';
 import '../../../place/domain/repositories/place_repository.dart';
 import '../../../place/data/repositories/place_repository_impl.dart';
 
@@ -30,36 +29,22 @@ class SavedPlacesNotifier extends StateNotifier<SavedPlacesState> {
   Future<void> loadPlaces() async {
     state = state.copyWith(isLoading: true, hasError: false);
 
-    // 개발 모드에서는 Mock 데이터 우선 사용
-    if (kDebugMode) {
-      AppLogger.d('Loading mock places data (${MockPlaces.savedPlaces.length} places)', tag: 'SavedPlaces');
-      await Future.delayed(const Duration(milliseconds: 500)); // API 호출 시뮬레이션
+    AppLogger.d('Loading saved places from API', tag: 'SavedPlaces');
 
-      state = state.copyWith(
-        isLoading: false,
-        hasError: false,
-        places: MockPlaces.savedPlaces,
-      );
-      return;
-    }
-
-    // 프로덕션 모드에서는 실제 API 호출
-    final result = await _repository.getPlaces(page: 1, pageSize: 100);
+    final result = await _repository.getSavedPlaces();
 
     result.fold(
       (error) {
-        AppLogger.w('Failed to load places from API: ${error.message}', tag: 'SavedPlaces');
-        AppLogger.d('Falling back to mock data', tag: 'SavedPlaces');
-
-        // API 실패 시 Mock 데이터로 fallback
+        AppLogger.e('Failed to load saved places: ${error.message}', tag: 'SavedPlaces');
         state = state.copyWith(
           isLoading: false,
-          hasError: false,
-          places: MockPlaces.savedPlaces,
-          errorMessage: 'Using mock data (API error: ${error.message})',
+          hasError: true,
+          places: [],
+          errorMessage: error.message,
         );
       },
       (places) {
+        AppLogger.d('Loaded ${places.length} saved places', tag: 'SavedPlaces');
         state = state.copyWith(
           isLoading: false,
           hasError: false,

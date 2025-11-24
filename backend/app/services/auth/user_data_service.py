@@ -16,7 +16,7 @@ from app.models.user_data import (
     UserDataAccess,
     UserPersonalData,
     UserPrivacySettings,
-    UserSettings,
+    UserSettingsData,
 )
 
 
@@ -199,11 +199,11 @@ class UserSettingsService:
     def __init__(self, db: Session = None):
         self.db = db or next(get_db())
 
-    def initialize_default_settings(self, user_id: str) -> UserSettings:
+    def initialize_default_settings(self, user_id: str) -> UserSettingsData:
         """사용자 기본 설정 초기화"""
-        default_settings_data = UserSettings.get_default_settings()
+        default_settings_data = UserSettingsData.get_default_settings()
 
-        settings = UserSettings(
+        settings = UserSettingsData(
             user_id=user_id,
             settings_type="app_preferences",
             settings_data=default_settings_data,
@@ -217,15 +217,15 @@ class UserSettingsService:
 
     def update_settings(
         self, user_id: str, settings_type: str, settings_updates: Dict[str, Any]
-    ) -> UserSettings:
+    ) -> UserSettingsData:
         """사용자 설정 업데이트"""
         # 기존 설정 조회 (Mock)
-        current_settings_data = UserSettings.get_default_settings()
+        current_settings_data = UserSettingsData.get_default_settings()
 
         # 설정 업데이트 (Deep merge)
         self._deep_merge_dict(current_settings_data, settings_updates)
 
-        updated_settings = UserSettings(
+        updated_settings = UserSettingsData(
             user_id=user_id,
             settings_type=settings_type,
             settings_data=current_settings_data,

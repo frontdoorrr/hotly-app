@@ -123,7 +123,7 @@ def test_user_activity_log_creation():
 def test_user_settings_creation():
     """사용자 설정 생성 테스트"""
     try:
-        from app.models.user_data import UserSettings
+        from app.models.user_data import UserSettingsData
 
         # Given: 사용자 설정 정보
         user_id = "user_123"
@@ -139,7 +139,7 @@ def test_user_settings_creation():
         }
 
         # When: UserSettings 모델 생성
-        user_settings = UserSettings(
+        user_settings = UserSettingsData(
             user_id=user_id,
             settings_type="app_preferences",
             settings_data=settings_data,
@@ -168,7 +168,7 @@ def test_user_settings_creation():
 def test_default_settings():
     """기본 설정 테스트"""
     try:
-        from app.models.user_data import UserSettings
+        from app.models.user_data import UserSettingsData
 
         # Given & When: 기본 설정 조회
         default_settings = UserSettings.get_default_settings()

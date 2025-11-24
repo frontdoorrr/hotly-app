@@ -109,9 +109,9 @@ class UserDataAccess(Base):
         return datetime.utcnow() > self.expires_at
 
 
-class UserSettings(Base):
-    """사용자 설정 모델"""
-    __tablename__ = "user_settings"
+class UserSettingsData(Base):
+    """사용자 설정 데이터 모델 (JSON 기반)"""
+    __tablename__ = "user_settings_data"
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(String(255), index=True, nullable=False)

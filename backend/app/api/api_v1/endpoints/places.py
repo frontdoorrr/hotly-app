@@ -9,6 +9,8 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
 from app.crud.place import place as place_crud
+from app.middleware.auth_middleware import get_current_user
+from app.models.user_data import AuthenticatedUser
 from app.schemas.place import (
     PlaceCreate,
     PlaceListRequest,
@@ -115,6 +117,7 @@ async def create_place(
 async def get_places(
     *,
     db: Session = Depends(get_db),
+    current_user: AuthenticatedUser = Depends(get_current_user),
     category: str = Query(None, description="Filter by category"),
     tags: List[str] = Query(None, description="Filter by tags"),
     latitude: float = Query(None, description="Center latitude for radius search"),
@@ -151,7 +154,7 @@ async def get_places(
 
         # Get places and total count
         places, total = place_crud.get_list_with_filters(
-            db, request=request, user_id=UUID(TEMP_USER_ID)
+            db, request=request, user_id=current_user.id
         )
 
         # Calculate pagination info

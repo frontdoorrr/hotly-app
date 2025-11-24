@@ -1,10 +1,8 @@
 import 'package:dartz/dartz.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../shared/models/place.dart';
-import '../../../../shared/data/mock_places.dart';
 import '../../../map/domain/entities/map_entities.dart';
 import '../../domain/repositories/place_repository.dart';
 import '../datasources/place_remote_datasource.dart';
@@ -37,34 +35,12 @@ class PlaceRepositoryImpl implements PlaceRepository {
     int? zoomLevel,
   }) async {
     try {
-      // 개발 모드에서는 Mock 데이터 필터링
-      if (kDebugMode) {
-        AppLogger.d('Fetching places in bounds: '
-            'N:${bounds.north.toStringAsFixed(4)}, '
-            'S:${bounds.south.toStringAsFixed(4)}, '
-            'E:${bounds.east.toStringAsFixed(4)}, '
-            'W:${bounds.west.toStringAsFixed(4)}', tag: 'PlaceRepo');
+      AppLogger.d('Fetching places in bounds: '
+          'N:${bounds.north.toStringAsFixed(4)}, '
+          'S:${bounds.south.toStringAsFixed(4)}, '
+          'E:${bounds.east.toStringAsFixed(4)}, '
+          'W:${bounds.west.toStringAsFixed(4)}', tag: 'PlaceRepo');
 
-        await Future.delayed(const Duration(milliseconds: 200)); // API 시뮬레이션
-
-        // bounds 내의 장소만 필터링
-        final filteredPlaces = MockPlaces.savedPlaces.where((place) {
-          if (place.latitude == null || place.longitude == null) return false;
-
-          final lat = place.latitude!;
-          final lng = place.longitude!;
-
-          return lat <= bounds.north &&
-              lat >= bounds.south &&
-              lng <= bounds.east &&
-              lng >= bounds.west;
-        }).toList();
-
-        AppLogger.d('Found ${filteredPlaces.length} places in bounds', tag: 'PlaceRepo');
-        return Right(filteredPlaces);
-      }
-
-      // 프로덕션: 실제 API 호출
       // TODO: remoteDataSource.getPlacesByBounds() 구현 필요
       final places = await remoteDataSource.getPlaces(page: 1, pageSize: 100);
 
@@ -81,6 +57,7 @@ class PlaceRepositoryImpl implements PlaceRepository {
             lng >= bounds.west;
       }).toList();
 
+      AppLogger.d('Found ${filteredPlaces.length} places in bounds', tag: 'PlaceRepo');
       return Right(filteredPlaces);
     } on ApiException catch (e) {
       return Left(e);
@@ -112,6 +89,16 @@ class PlaceRepositoryImpl implements PlaceRepository {
     try {
       await remoteDataSource.toggleSave(placeId);
       return const Right(null);
+    } on ApiException catch (e) {
+      return Left(e);
+    }
+  }
+
+  @override
+  Future<Either<ApiException, List<Place>>> getSavedPlaces() async {
+    try {
+      final places = await remoteDataSource.getSavedPlaces();
+      return Right(places);
     } on ApiException catch (e) {
       return Left(e);
     }

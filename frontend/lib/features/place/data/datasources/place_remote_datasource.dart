@@ -48,6 +48,20 @@ class PlaceRemoteDataSource {
     );
   }
 
+  /// 저장된 장소 목록 조회
+  Future<List<Place>> getSavedPlaces() async {
+    final response = await _dioClient.get(
+      ApiEndpoints.places,
+      queryParameters: {
+        'page': 1,
+        'page_size': 100,
+      },
+    );
+
+    final List<dynamic> data = (response.data['places'] as List<dynamic>?) ?? [];
+    return data.map((json) => Place.fromJson(json as Map<String, dynamic>)).toList();
+  }
+
   /// 비슷한 장소 조회
   Future<List<Place>> getSimilarPlaces({
     required String placeId,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:frontend/core/l10n/l10n_extension.dart';
+import 'package:hotly_app/core/l10n/l10n_extension.dart';
 
 /// Main Shell Screen with Bottom Navigation Bar
 class MainShellScreen extends StatelessWidget {
