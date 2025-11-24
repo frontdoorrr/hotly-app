@@ -429,13 +429,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profile_updateFailed => 'Failed to update profile';
 
   @override
-  String get profile_imageUploading => '프로필 사진 업로드 중...';
+  String get profile_imageUploading => 'Uploading profile photo...';
 
   @override
-  String get profile_imageUpdateSuccess => '프로필 사진이 업데이트되었습니다';
+  String get profile_imageUpdateSuccess => 'Profile photo updated successfully';
 
   @override
-  String get profile_imageUpdateFailed => '프로필 사진 업로드에 실패했습니다';
+  String get profile_imageUpdateFailed => 'Failed to upload profile photo';
 
   @override
   String get course_newCourse => 'New Course';

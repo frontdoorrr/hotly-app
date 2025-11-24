@@ -149,6 +149,9 @@
   "profile_photoChangeLater": "Profile photo change will be available soon",
   "profile_updateSuccess": "Profile updated successfully",
   "profile_updateFailed": "Failed to update profile",
+  "profile_imageUploading": "Uploading profile photo...",
+  "profile_imageUpdateSuccess": "Profile photo updated successfully",
+  "profile_imageUpdateFailed": "Failed to upload profile photo",
 
   "course_newCourse": "New Course",
   "course_title": "Course Title",
