@@ -662,6 +662,9 @@
   "profile_photoChangeLater": "프로필 사진 변경은 추후 지원 예정입니다",
   "profile_updateSuccess": "프로필이 업데이트되었습니다",
   "profile_updateFailed": "프로필 업데이트 실패",
+  "profile_imageUploading": "프로필 사진 업로드 중...",
+  "profile_imageUpdateSuccess": "프로필 사진이 업데이트되었습니다",
+  "profile_imageUpdateFailed": "프로필 사진 업로드에 실패했습니다",
 
   "course_newCourse": "새 코스",
   "course_title": "코스 제목",

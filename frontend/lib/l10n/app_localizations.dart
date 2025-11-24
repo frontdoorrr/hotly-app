@@ -920,6 +920,24 @@ abstract class AppLocalizations {
   /// **'프로필 업데이트 실패'**
   String get profile_updateFailed;
 
+  /// No description provided for @profile_imageUploading.
+  ///
+  /// In ko, this message translates to:
+  /// **'프로필 사진 업로드 중...'**
+  String get profile_imageUploading;
+
+  /// No description provided for @profile_imageUpdateSuccess.
+  ///
+  /// In ko, this message translates to:
+  /// **'프로필 사진이 업데이트되었습니다'**
+  String get profile_imageUpdateSuccess;
+
+  /// No description provided for @profile_imageUpdateFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'프로필 사진 업로드에 실패했습니다'**
+  String get profile_imageUpdateFailed;
+
   /// No description provided for @course_newCourse.
   ///
   /// In ko, this message translates to:

@@ -424,6 +424,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get profile_updateFailed => '프로필 업데이트 실패';
 
   @override
+  String get profile_imageUploading => '프로필 사진 업로드 중...';
+
+  @override
+  String get profile_imageUpdateSuccess => '프로필 사진이 업데이트되었습니다';
+
+  @override
+  String get profile_imageUpdateFailed => '프로필 사진 업로드에 실패했습니다';
+
+  @override
   String get course_newCourse => '새 코스';
 
   @override

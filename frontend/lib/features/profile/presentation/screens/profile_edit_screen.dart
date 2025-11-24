@@ -210,7 +210,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
 
       // 백엔드 API를 통해 이미지 업로드
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('프로필 사진 업로드 중...')),
+        SnackBar(content: Text(context.l10n.profile_imageUploading)),
       );
 
       final imageUrl = await ref
@@ -221,11 +221,11 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
 
       if (imageUrl != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('프로필 사진이 업데이트되었습니다')),
+          SnackBar(content: Text(context.l10n.profile_imageUpdateSuccess)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('프로필 사진 업로드에 실패했습니다')),
+          SnackBar(content: Text(context.l10n.profile_imageUpdateFailed)),
         );
       }
     }
