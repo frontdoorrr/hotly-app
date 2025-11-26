@@ -1,7 +1,9 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
+import uuid
 
-from sqlalchemy import Boolean, Column, DateTime, Integer, String, Text
+from sqlalchemy import Boolean, Column, DateTime, String, Text
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
@@ -12,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class User(Base):
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     firebase_uid = Column(String(128), unique=True, index=True, nullable=True)
 
     # Basic info

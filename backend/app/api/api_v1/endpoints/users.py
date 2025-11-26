@@ -8,7 +8,9 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_active_user, get_db
+from app.api.deps import get_db
+from app.middleware.auth_middleware import get_current_user
+from app.models.user_data import AuthenticatedUser
 from app.crud.user import crud_user, crud_user_preference, crud_user_settings
 from app.schemas.user import (
     AccountDeleteRequest,
@@ -30,31 +32,26 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-def _get_user_uuid(current_user: Dict[str, Any]) -> UUID:
+def _get_user_uuid(current_user: AuthenticatedUser) -> UUID:
     """Extract and convert user ID to UUID."""
-    user_id = current_user.get("uid") or current_user.get("user_id")
-    try:
-        return UUID(user_id)
-    except (ValueError, TypeError):
-        # If not a valid UUID, use it as-is for Firebase UID lookup
-        return user_id
+    return current_user.id
 
 
 # Profile endpoints
 @router.get("/me/profile", response_model=UserProfileResponse)
 async def get_my_profile(
     db: Session = Depends(get_db),
-    current_user: Dict[str, Any] = Depends(get_current_active_user),
+    current_user: AuthenticatedUser = Depends(get_current_user),
 ) -> UserProfileResponse:
     """Get current user's profile."""
-    firebase_uid = current_user.get("uid") or current_user.get("user_id")
+    firebase_uid = current_user.firebase_uid
 
     # Get or create user in database
     user = crud_user.get_or_create_by_firebase_uid(
         db,
         firebase_uid=firebase_uid,
-        email=current_user.get("email", ""),
-        full_name=current_user.get("name"),
+        email=current_user.email or "",
+        full_name=current_user.display_name,
         hashed_password="",  # Firebase handles auth
     )
 
@@ -76,10 +73,10 @@ async def get_my_profile(
 async def update_my_profile(
     profile_data: UserProfileUpdate,
     db: Session = Depends(get_db),
-    current_user: Dict[str, Any] = Depends(get_current_active_user),
+    current_user: AuthenticatedUser = Depends(get_current_user),
 ) -> UserProfileResponse:
     """Update current user's profile."""
-    firebase_uid = current_user.get("uid") or current_user.get("user_id")
+    firebase_uid = current_user.firebase_uid
 
     # Get user from database
     user = crud_user.get_by_firebase_uid(db, firebase_uid=firebase_uid)
@@ -118,10 +115,10 @@ async def update_my_profile(
 async def upload_profile_image(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    current_user: Dict[str, Any] = Depends(get_current_active_user),
+    current_user: AuthenticatedUser = Depends(get_current_user),
 ) -> Dict[str, str]:
     """Upload profile image."""
-    firebase_uid = current_user.get("uid") or current_user.get("user_id")
+    firebase_uid = current_user.firebase_uid
 
     # Get user from database
     user = crud_user.get_by_firebase_uid(db, firebase_uid=firebase_uid)
@@ -155,7 +152,7 @@ async def upload_profile_image(
 @router.get("/me/preferences", response_model=UserPreferencesResponse)
 async def get_my_preferences(
     db: Session = Depends(get_db),
-    current_user: Dict[str, Any] = Depends(get_current_active_user),
+    current_user: AuthenticatedUser = Depends(get_current_user),
 ) -> UserPreferencesResponse:
     """Get current user's preferences."""
     user_id = _get_user_uuid(current_user)
@@ -176,7 +173,7 @@ async def get_my_preferences(
 async def update_my_preferences(
     preferences_data: UserPreferencesUpdate,
     db: Session = Depends(get_db),
-    current_user: Dict[str, Any] = Depends(get_current_active_user),
+    current_user: AuthenticatedUser = Depends(get_current_user),
 ) -> UserPreferencesResponse:
     """Update current user's preferences."""
     user_id = _get_user_uuid(current_user)
@@ -204,7 +201,7 @@ async def update_my_preferences(
 @router.get("/me/settings", response_model=UserSettingsResponse)
 async def get_my_settings(
     db: Session = Depends(get_db),
-    current_user: Dict[str, Any] = Depends(get_current_active_user),
+    current_user: AuthenticatedUser = Depends(get_current_user),
 ) -> UserSettingsResponse:
     """Get current user's settings."""
     user_id = _get_user_uuid(current_user)
@@ -232,7 +229,7 @@ async def get_my_settings(
 async def update_my_settings(
     settings_data: UserSettingsUpdate,
     db: Session = Depends(get_db),
-    current_user: Dict[str, Any] = Depends(get_current_active_user),
+    current_user: AuthenticatedUser = Depends(get_current_user),
 ) -> UserSettingsResponse:
     """Update current user's settings."""
     user_id = _get_user_uuid(current_user)
@@ -268,7 +265,7 @@ async def update_my_settings(
 async def delete_my_account(
     request: AccountDeleteRequest,
     db: Session = Depends(get_db),
-    current_user: Dict[str, Any] = Depends(get_current_active_user),
+    current_user: AuthenticatedUser = Depends(get_current_user),
 ) -> Dict[str, Any]:
     """
     Soft delete user account.
@@ -281,7 +278,7 @@ async def delete_my_account(
             detail="Please confirm account deletion",
         )
 
-    firebase_uid = current_user.get("uid") or current_user.get("user_id")
+    firebase_uid = current_user.firebase_uid
 
     # Get user from database
     user = crud_user.get_by_firebase_uid(db, firebase_uid=firebase_uid)
@@ -306,14 +303,14 @@ async def delete_my_account(
 async def restore_my_account(
     request: AccountRestoreRequest,
     db: Session = Depends(get_db),
-    current_user: Dict[str, Any] = Depends(get_current_active_user),
+    current_user: AuthenticatedUser = Depends(get_current_user),
 ) -> Dict[str, str]:
     """
     Restore soft-deleted account.
 
     Only works within 30 days of deletion.
     """
-    firebase_uid = current_user.get("uid") or current_user.get("user_id")
+    firebase_uid = current_user.firebase_uid
 
     # Get user (including deleted)
     user = crud_user.get_by_firebase_uid(db, firebase_uid=firebase_uid)
@@ -346,14 +343,14 @@ async def restore_my_account(
 @router.get("/me/export", response_model=DataExportResponse)
 async def export_my_data(
     db: Session = Depends(get_db),
-    current_user: Dict[str, Any] = Depends(get_current_active_user),
+    current_user: AuthenticatedUser = Depends(get_current_user),
 ) -> DataExportResponse:
     """
     Export all user data (GDPR compliance).
 
     Returns profile, preferences, and settings in a single response.
     """
-    firebase_uid = current_user.get("uid") or current_user.get("user_id")
+    firebase_uid = current_user.firebase_uid
     user_id = _get_user_uuid(current_user)
 
     # Get user

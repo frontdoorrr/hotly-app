@@ -44,7 +44,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         self, db: Session, *, db_obj: User, profile_data: UserProfileUpdate
     ) -> User:
         """Update user profile fields."""
-        update_data = profile_data.model_dump(exclude_unset=True)
+        update_data = profile_data.dict(exclude_unset=True)
         for field, value in update_data.items():
             setattr(db_obj, field, value)
         db_obj.updated_at = datetime.utcnow()
@@ -114,19 +114,19 @@ class CRUDUserPreference:
         self, db: Session, *, user_id: UUID, obj_in: UserPreferencesUpdate
     ) -> UserPreference:
         """Create user preferences."""
-        obj_data = obj_in.model_dump(exclude_unset=True)
+        obj_data = obj_in.dict(exclude_unset=True)
 
         # Convert nested models to dict
         if "food_preferences" in obj_data and obj_data["food_preferences"]:
             obj_data["food_preferences"] = (
-                obj_data["food_preferences"].model_dump()
-                if hasattr(obj_data["food_preferences"], "model_dump")
+                obj_data["food_preferences"].dict()
+                if hasattr(obj_data.get("food_preferences"), "dict")
                 else obj_data["food_preferences"]
             )
         if "atmosphere_preferences" in obj_data and obj_data["atmosphere_preferences"]:
             obj_data["atmosphere_preferences"] = (
-                obj_data["atmosphere_preferences"].model_dump()
-                if hasattr(obj_data["atmosphere_preferences"], "model_dump")
+                obj_data["atmosphere_preferences"].dict()
+                if hasattr(obj_data.get("food_preferences"), "dict")
                 else obj_data["atmosphere_preferences"]
             )
 
@@ -144,13 +144,13 @@ class CRUDUserPreference:
         obj_in: UserPreferencesUpdate,
     ) -> UserPreference:
         """Update user preferences."""
-        update_data = obj_in.model_dump(exclude_unset=True)
+        update_data = obj_in.dict(exclude_unset=True)
 
         # Convert nested models to dict
         if "food_preferences" in update_data and update_data["food_preferences"]:
             update_data["food_preferences"] = (
-                update_data["food_preferences"].model_dump()
-                if hasattr(update_data["food_preferences"], "model_dump")
+                update_data["food_preferences"].dict()
+                if hasattr(obj_data.get("food_preferences"), "dict")
                 else update_data["food_preferences"]
             )
         if (
@@ -158,8 +158,8 @@ class CRUDUserPreference:
             and update_data["atmosphere_preferences"]
         ):
             update_data["atmosphere_preferences"] = (
-                update_data["atmosphere_preferences"].model_dump()
-                if hasattr(update_data["atmosphere_preferences"], "model_dump")
+                update_data["atmosphere_preferences"].dict()
+                if hasattr(obj_data.get("food_preferences"), "dict")
                 else update_data["atmosphere_preferences"]
             )
 
@@ -202,7 +202,7 @@ class CRUDUserSettings:
         self, db: Session, *, user_id: UUID, obj_in: UserSettingsUpdate
     ) -> UserSettings:
         """Create user settings."""
-        obj_data = obj_in.model_dump(exclude_unset=True)
+        obj_data = obj_in.dict(exclude_unset=True)
         db_obj = UserSettings(user_id=user_id, **obj_data)
         db.add(db_obj)
         db.commit()
@@ -217,7 +217,7 @@ class CRUDUserSettings:
         obj_in: UserSettingsUpdate,
     ) -> UserSettings:
         """Update user settings."""
-        update_data = obj_in.model_dump(exclude_unset=True)
+        update_data = obj_in.dict(exclude_unset=True)
         for field, value in update_data.items():
             setattr(db_obj, field, value)
         db_obj.updated_at = datetime.utcnow()

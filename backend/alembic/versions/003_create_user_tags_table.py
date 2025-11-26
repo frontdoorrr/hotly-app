@@ -39,7 +39,7 @@ def upgrade() -> None:
             "category_distribution",
             postgresql.JSONB,
             nullable=False,
-            server_default="'{}'::jsonb",
+            server_default=sa.text("'{}'::jsonb"),
         ),
         sa.Column(
             "created_at",
