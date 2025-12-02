@@ -20,6 +20,8 @@ import 'core/notifications/notification_handler.dart';
 import 'core/utils/app_logger.dart';
 import 'core/monitoring/crashlytics_service.dart';
 import 'features/link_analysis/presentation/widgets/link_input_bottom_sheet.dart';
+import 'features/share_queue/presentation/providers/share_queue_provider.dart';
+import 'features/share_queue/data/services/share_queue_storage_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -121,32 +123,43 @@ class _HotlyAppState extends ConsumerState<HotlyApp> {
   }
 
   void _setupSharingIntentHandler() {
-    // TODO: Fix receive_sharing_intent API compatibility issue
-    // Temporarily disabled to allow app to run
-    AppLogger.w('Sharing intent handler temporarily disabled', tag: 'Init');
+    // 앱 시작 시 ShareQueue 새로고침 (App Groups에서 데이터 로드)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ref.read(shareQueueProvider.notifier).refreshQueue();
+      }
+    });
 
-    // Handle initial shared text (앱이 종료된 상태에서 공유받은 경우)
-    // ReceiveSharingIntent.instance.getInitialText().then((String? value) {
-    //   if (value != null && value.isNotEmpty) {
-    //     debugPrint('📤 Initial shared text: $value');
-    //     _handleSharedUrl(value);
-    //     // Reset after processing
-    //     ReceiveSharingIntent.instance.reset();
-    //   }
-    // });
+    // Handle initial shared media (앱이 종료된 상태에서 공유받은 경우)
+    ReceiveSharingIntent.instance.getInitialMedia().then((List<SharedMediaFile> mediaFiles) {
+      if (mediaFiles.isNotEmpty) {
+        for (final file in mediaFiles) {
+          final value = file.path;
+          if (value.isNotEmpty) {
+            AppLogger.d('📤 Initial shared media: $value (type: ${file.type})', tag: 'Share');
+            _handleSharedUrl(value);
+          }
+        }
+        // Reset after processing
+        ReceiveSharingIntent.instance.reset();
+      }
+    });
 
-    // Handle shared text stream (앱이 실행 중일 때 공유받은 경우)
-    // _intentDataStreamSubscription = ReceiveSharingIntent.instance.getTextStream().listen(
-    //   (String value) {
-    //     if (value.isNotEmpty) {
-    //       debugPrint('📤 Received shared text: $value');
-    //       _handleSharedUrl(value);
-    //     }
-    //   },
-    //   onError: (err) {
-    //     debugPrint('❌ Error receiving shared text: $err');
-    //   },
-    // );
+    // Handle shared media stream (앱이 실행 중일 때 공유받은 경우)
+    _intentDataStreamSubscription = ReceiveSharingIntent.instance.getMediaStream().listen(
+      (List<SharedMediaFile> mediaFiles) {
+        for (final file in mediaFiles) {
+          final value = file.path;
+          if (value.isNotEmpty) {
+            AppLogger.d('📤 Received shared media: $value (type: ${file.type})', tag: 'Share');
+            _handleSharedUrl(value);
+          }
+        }
+      },
+      onError: (err) {
+        AppLogger.e('❌ Error receiving shared media: $err', tag: 'Share');
+      },
+    );
   }
 
   void _handleSharedUrl(String text) {
@@ -161,16 +174,17 @@ class _HotlyAppState extends ConsumerState<HotlyApp> {
       final url = match.group(0)!;
       AppLogger.d('Valid URL detected: $url', tag: 'Share');
 
-      // 앱이 완전히 빌드된 후 BottomSheet 표시
+      // 지원하는 URL인지 확인
+      if (!ShareQueueStorageService.isSupportedUrl(url)) {
+        AppLogger.w('Unsupported URL platform: $url', tag: 'Share');
+        return;
+      }
+
+      // ShareQueue에 추가
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
-          // 현재 context 가져오기
-          final context = ref.read(goRouterProvider).routerDelegate.navigatorKey.currentContext;
-          if (context != null) {
-            LinkInputBottomSheet.show(context);
-            // Provider를 통해 URL 미리 설정
-            // ref.read(linkAnalysisProvider.notifier).setInputUrl(url);
-          }
+          ref.read(shareQueueProvider.notifier).addUrl(url);
+          AppLogger.i('URL added to share queue: $url', tag: 'Share');
         }
       });
     } else {

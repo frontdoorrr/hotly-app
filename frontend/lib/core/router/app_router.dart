@@ -15,6 +15,7 @@ import '../../features/auth/presentation/screens/signup_screen.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/onboarding/presentation/providers/onboarding_provider.dart';
+import '../../features/share_queue/presentation/screens/share_queue_results_screen.dart';
 import 'main_shell_screen.dart';
 
 /// App Router Configuration
@@ -177,6 +178,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/onboarding',
         name: 'onboarding',
         builder: (context, state) => const OnboardingScreen(),
+      ),
+
+      // Share Queue Results Screen
+      GoRoute(
+        path: '/share-queue/results',
+        name: 'shareQueueResults',
+        builder: (context, state) => const ShareQueueResultsScreen(),
       ),
     ],
 

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/storage/local_storage.dart';
 import '../../../link_analysis/presentation/widgets/link_input_bottom_sheet.dart';
+import '../../../share_queue/presentation/widgets/share_queue_badge.dart';
 import '../providers/home_provider.dart';
 import '../widgets/place_card.dart';
 
@@ -73,6 +74,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         onRefresh: _loadData,
         child: CustomScrollView(
           slivers: [
+            // ShareQueue 배지 (대기 중인 링크가 있을 때 표시)
+            const SliverToBoxAdapter(
+              child: ShareQueueBadge(),
+            ),
+
             // 추천 장소 섹션
             SliverToBoxAdapter(
               child: _buildRecommendedSection(state),

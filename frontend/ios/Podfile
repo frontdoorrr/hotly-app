@@ -41,9 +41,18 @@ target 'Runner' do
   end
 end
 
+# Share Extension target - minimal dependencies
+target 'ShareExtension' do
+  use_frameworks!
+  # Share Extension doesn't need Flutter pods, just basic iOS frameworks
+end
+
 post_install do |installer|
   installer.pods_project.targets.each do |target|
-    flutter_additional_ios_build_settings(target)
+    # Skip Flutter settings for ShareExtension
+    unless target.name == 'ShareExtension'
+      flutter_additional_ios_build_settings(target)
+    end
 
     # Set minimum deployment target for all pods
     target.build_configurations.each do |config|
@@ -70,5 +79,10 @@ post_install do |installer|
         config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
       end
     end
+  end
+
+  # Fix build cycle issue for ShareExtension
+  installer.pods_project.build_configurations.each do |config|
+    config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
   end
 end
