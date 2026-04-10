@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/storage/local_storage.dart';
-import '../../../link_analysis/presentation/widgets/link_input_bottom_sheet.dart';
+import '../../../archive/presentation/widgets/archive_input_sheet.dart';
 import '../../../share_queue/presentation/widgets/share_queue_badge.dart';
 import '../providers/home_provider.dart';
 import '../widgets/place_card.dart';
@@ -152,11 +152,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          LinkInputBottomSheet.show(context);
+          ArchiveInputSheet.show(context);
         },
-        icon: const Icon(Icons.link),
-        label: const Text('링크 분석'),
-        tooltip: 'SNS 링크 분석하기',
+        icon: const Icon(Icons.add_link),
+        label: const Text('링크 아카이빙'),
+        tooltip: 'SNS 링크 아카이빙하기',
       ),
     );
   }

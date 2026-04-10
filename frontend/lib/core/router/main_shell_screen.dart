@@ -32,6 +32,11 @@ class MainShellScreen extends StatelessWidget {
             label: context.l10n.nav_map,
           ),
           BottomNavigationBarItem(
+            icon: const Icon(Icons.bookmarks_outlined),
+            activeIcon: const Icon(Icons.bookmarks),
+            label: context.l10n.nav_archive,
+          ),
+          BottomNavigationBarItem(
             icon: const Icon(Icons.bookmark_border),
             activeIcon: const Icon(Icons.bookmark),
             label: context.l10n.nav_saved,
@@ -55,9 +60,12 @@ class MainShellScreen extends StatelessWidget {
         context.go('/map');
         break;
       case 2:
-        context.go('/saved');
+        context.go('/archive');
         break;
       case 3:
+        context.go('/saved');
+        break;
+      case 4:
         context.go('/profile');
         break;
     }

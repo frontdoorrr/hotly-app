@@ -20,6 +20,7 @@
   "nav_home": "Home",
   "nav_map": "Map",
   "nav_saved": "Saved",
+  "nav_archive": "Archive",
   "nav_profile": "Profile",
 
   "auth_login": "Log in",

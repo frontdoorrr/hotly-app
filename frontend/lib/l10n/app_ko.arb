@@ -86,6 +86,11 @@
     "description": "저장 탭"
   },
 
+  "nav_archive": "아카이브",
+  "@nav_archive": {
+    "description": "아카이브 탭"
+  },
+
   "nav_profile": "프로필",
   "@nav_profile": {
     "description": "프로필 탭"

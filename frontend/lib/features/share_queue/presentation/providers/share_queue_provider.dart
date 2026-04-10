@@ -1,10 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
+import '../../../archive/data/datasources/archive_remote_datasource.dart';
+import '../../../archive/data/repositories/archive_repository_impl.dart';
+import '../../../archive/domain/repositories/archive_repository.dart';
 import '../../../../core/network/dio_client.dart';
-import '../../../link_analysis/data/datasources/link_analysis_remote_datasource.dart';
-import '../../../link_analysis/data/repositories/link_analysis_repository_impl.dart';
-import '../../../link_analysis/domain/entities/link_analysis_result.dart';
-import '../../../link_analysis/domain/repositories/link_analysis_repository.dart';
 import '../../data/services/share_queue_storage_service.dart';
 import '../../domain/entities/share_queue_item.dart';
 
@@ -22,14 +21,14 @@ final shareQueueStorageServiceProvider =
 /// - 항목 상태 관리
 class ShareQueueNotifier extends StateNotifier<ShareQueueState> {
   final ShareQueueStorageService _storageService;
-  final LinkAnalysisRepository _analysisRepository;
+  final ArchiveRepository _archiveRepository;
   final Logger _logger = Logger();
 
   bool _isDisposed = false;
 
   ShareQueueNotifier(
     this._storageService,
-    this._analysisRepository,
+    this._archiveRepository,
   ) : super(const ShareQueueState()) {
     _loadQueue();
   }
@@ -136,81 +135,24 @@ class ShareQueueNotifier extends StateNotifier<ShareQueueState> {
     _logger.i('ShareQueue: Batch processing completed');
   }
 
-  /// 단일 항목 분석
+  /// 단일 항목 분석 (archive API — 동기 응답, 폴링 불필요)
   Future<void> _analyzeItem(ShareQueueItem item) async {
-    // 상태: analyzing
     _updateItemStatus(item.id, ShareQueueStatus.analyzing);
 
     try {
-      // API 호출
-      final result = await _analysisRepository.analyzeLink(url: item.url);
+      final result = await _archiveRepository.archiveUrl(item.url);
 
       result.fold(
-        (error) {
-          // 실패: failed
-          _updateItemError(item.id, error.toString());
-        },
-        (analysisResult) {
-          if (analysisResult.status == AnalysisStatus.completed &&
-              analysisResult.placeInfo != null) {
-            // 성공: completed
-            _updateItemWithResult(
-              item.id,
-              ShareQueueAnalysisResult.fromLinkAnalysisResult(analysisResult),
-            );
-          } else if (analysisResult.status == AnalysisStatus.failed) {
-            // 분석 실패
-            _updateItemError(item.id, analysisResult.error ?? '분석에 실패했습니다');
-          } else if (analysisResult.status == AnalysisStatus.inProgress) {
-            // 진행 중이면 폴링 시작
-            _pollForResult(item.id, analysisResult.analysisId);
-          } else {
-            // 기타 실패
-            _updateItemError(item.id, '장소 정보를 추출할 수 없습니다');
-          }
-        },
+        (error) => _updateItemError(item.id, error.toString()),
+        (content) => _updateItemWithResult(
+          item.id,
+          ShareQueueAnalysisResult.fromArchivedContent(content),
+        ),
       );
     } catch (e) {
       _logger.e('ShareQueue: Analysis error for ${item.id}: $e');
       _updateItemError(item.id, e.toString());
     }
-  }
-
-  /// 분석 결과 폴링
-  Future<void> _pollForResult(String itemId, String analysisId) async {
-    const maxPolls = 30;
-    const pollInterval = Duration(seconds: 2);
-
-    for (var i = 0; i < maxPolls; i++) {
-      if (_isDisposed) return;
-
-      await Future.delayed(pollInterval);
-
-      final result = await _analysisRepository.getAnalysisStatus(analysisId);
-
-      result.fold(
-        (error) {
-          _updateItemError(itemId, error.toString());
-          return;
-        },
-        (analysisResult) {
-          if (analysisResult.status == AnalysisStatus.completed &&
-              analysisResult.placeInfo != null) {
-            _updateItemWithResult(
-              itemId,
-              ShareQueueAnalysisResult.fromLinkAnalysisResult(analysisResult),
-            );
-            return;
-          } else if (analysisResult.status == AnalysisStatus.failed) {
-            _updateItemError(itemId, analysisResult.error ?? '분석에 실패했습니다');
-            return;
-          }
-        },
-      );
-    }
-
-    // 타임아웃
-    _updateItemError(itemId, '분석 시간 초과');
   }
 
   /// 항목 상태 업데이트
@@ -283,38 +225,21 @@ class ShareQueueNotifier extends StateNotifier<ShareQueueState> {
     await processBatch();
   }
 
-  /// 항목 저장 (장소로)
+  /// 항목 저장 (archive에서 completed 상태로 전환)
   Future<bool> saveItem(String id) async {
     final item = state.items.firstWhere(
       (item) => item.id == id,
       orElse: () => throw Exception('Item not found'),
     );
 
-    if (item.result?.analysisId == null) {
+    if (item.result == null) {
       state = state.copyWith(error: '저장할 분석 결과가 없습니다');
       return false;
     }
 
-    try {
-      final result = await _analysisRepository.saveAnalyzedPlace(
-        item.result!.analysisId!,
-        sourceUrl: item.url,
-      );
-
-      return result.fold(
-        (error) {
-          state = state.copyWith(error: '저장 실패: ${error.toString()}');
-          return false;
-        },
-        (place) {
-          _updateItemStatus(id, ShareQueueStatus.saved);
-          return true;
-        },
-      );
-    } catch (e) {
-      state = state.copyWith(error: '저장 실패: $e');
-      return false;
-    }
+    // archive API는 archiveUrl 시점에 이미 저장 완료
+    _updateItemStatus(id, ShareQueueStatus.saved);
+    return true;
   }
 
   /// 선택된 항목들 일괄 저장
@@ -381,9 +306,9 @@ final shareQueueProvider =
     StateNotifierProvider<ShareQueueNotifier, ShareQueueState>((ref) {
   final storageService = ref.watch(shareQueueStorageServiceProvider);
   final dioClient = ref.watch(dioClientProvider);
-  final dio = dioClient.dio;
-  final remoteDataSource = LinkAnalysisRemoteDataSource(dio);
-  final repository = LinkAnalysisRepositoryImpl(remoteDataSource);
+  final repository = ArchiveRepositoryImpl(
+    ArchiveRemoteDataSource(dioClient.dio),
+  );
 
   return ShareQueueNotifier(storageService, repository);
 });

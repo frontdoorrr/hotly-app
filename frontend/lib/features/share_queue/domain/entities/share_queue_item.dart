@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../../../link_analysis/domain/entities/link_analysis_result.dart';
+import '../../../archive/domain/entities/archived_content.dart';
 
 part 'share_queue_item.freezed.dart';
 part 'share_queue_item.g.dart';
@@ -93,21 +93,19 @@ class ShareQueueAnalysisResult with _$ShareQueueAnalysisResult {
   factory ShareQueueAnalysisResult.fromJson(Map<String, dynamic> json) =>
       _$ShareQueueAnalysisResultFromJson(json);
 
-  /// LinkAnalysisResult에서 변환
-  factory ShareQueueAnalysisResult.fromLinkAnalysisResult(
-    LinkAnalysisResult result,
+  /// ArchivedContent에서 변환
+  factory ShareQueueAnalysisResult.fromArchivedContent(
+    ArchivedContent content,
   ) {
-    final placeInfo = result.placeInfo;
+    final placeData = content.typeSpecificData;
     return ShareQueueAnalysisResult(
-      placeName: placeInfo?.name ?? 'Unknown',
-      category: placeInfo?.category ?? 'Unknown',
-      address: placeInfo?.address,
-      imageUrl: result.contentMetadata?.images.isNotEmpty == true
-          ? result.contentMetadata!.images.first
-          : null,
-      confidence: result.confidence,
-      tags: placeInfo?.tags ?? [],
-      analysisId: result.analysisId,
+      placeName: content.title ?? 'Unknown',
+      category: content.contentType.name,
+      address: placeData?['address'] as String?,
+      imageUrl: content.thumbnailUrl,
+      confidence: 1.0,
+      tags: content.keywordsMain,
+      analysisId: content.id,
     );
   }
 }

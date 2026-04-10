@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../features/archive/presentation/screens/archive_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/course/presentation/screens/course_builder_screen.dart';
 import '../../features/search/presentation/screens/search_screen.dart';
@@ -90,6 +91,17 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                 path: '/map',
                 name: 'map',
                 builder: (context, state) => const MapScreen(),
+              ),
+            ],
+          ),
+
+          // Archive Tab
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/archive',
+                name: 'archive',
+                builder: (context, state) => const ArchiveScreen(),
               ),
             ],
           ),
