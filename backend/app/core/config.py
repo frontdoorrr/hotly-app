@@ -138,10 +138,6 @@ class Settings(BaseSettings):
         default=30, description="Refresh token expiration in days"
     )
     KAKAO_API_KEY: Optional[str] = Field(default=None, description="Kakao Map API key")
-    GEMINI_API_KEY: Optional[str] = Field(
-        default=None, description="Google Gemini API key"
-    )
-
     # Link Analyzer Service
     LINK_ANALYZER_BASE_URL: str = Field(
         default="http://localhost:8000", description="link-analyzer service base URL"

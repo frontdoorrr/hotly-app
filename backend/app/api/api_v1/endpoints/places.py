@@ -389,46 +389,6 @@ async def check_duplicate_place(
         raise HTTPException(status_code=500, detail="Failed to check for duplicates")
 
 
-@router.post("/classify/", response_model=None)
-async def classify_place(
-    *,
-    place_in: PlaceCreate,
-) -> dict:
-    """
-    Classify a place into appropriate category using AI.
-
-    Returns classification result with predicted category, confidence, and reasoning.
-    """
-    try:
-        from app.services.places.place_classification_service import (
-            PlaceClassificationService,
-        )
-
-        # Initialize classification service
-        classification_service = PlaceClassificationService()
-
-        # Classify the place
-        result = await classification_service.classify_place(place_in)
-
-        response = {
-            "predictedCategory": result.predicted_category.value,
-            "confidence": result.confidence,
-            "reasoning": result.reasoning,
-            "classificationTime": result.classification_time,
-            "needsManualReview": result.needs_manual_review,
-        }
-
-        logger.info(
-            f"Place classification completed: {place_in.name} → "
-            f"{result.predicted_category} (confidence: {result.confidence:.2f})"
-        )
-
-        return response
-
-    except Exception as e:
-        logger.error(f"Failed to classify place: {e}")
-        raise HTTPException(status_code=500, detail="Failed to classify place")
-
 
 @router.get("/geographic/clusters", response_model=None)
 async def get_geographic_clusters(
