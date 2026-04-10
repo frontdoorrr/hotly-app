@@ -63,8 +63,12 @@ class ApiEndpoints {
   static const String notificationToken = '/notifications/token';
   static const String notifications = '/notifications';
 
-  // Link Analysis
+  // Link Analysis (legacy)
   static const String linkAnalyze = '/link-analysis/analyze';
   static String linkAnalysisStatus(String analysisId) =>
       '/link-analysis/analyses/$analysisId';
+
+  // Archive
+  static const String archive = '/archive';
+  static String archiveDetail(String id) => '/archive/$id';
 }
