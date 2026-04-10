@@ -142,6 +142,14 @@ class Settings(BaseSettings):
         default=None, description="Google Gemini API key"
     )
 
+    # Link Analyzer Service
+    LINK_ANALYZER_BASE_URL: str = Field(
+        default="http://localhost:8000", description="link-analyzer service base URL"
+    )
+    LINK_ANALYZER_API_KEY: Optional[str] = Field(
+        default=None, description="link-analyzer service API key"
+    )
+
     # Push Notification Configuration
     NOTIFICATION_BATCH_SIZE: int = Field(
         default=500, description="Maximum number of notifications to send in one batch"

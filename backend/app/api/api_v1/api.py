@@ -5,6 +5,7 @@ from fastapi import APIRouter
 from app.api.api_v1.endpoints import (
     advanced_filters,
     ai,
+    archive,
     auth,
     autocomplete,
     cdn,
@@ -29,6 +30,7 @@ from app.api.api_v1.endpoints import (
 
 api_router = APIRouter()
 api_router.include_router(auth.router, prefix="/auth", tags=["authentication"])
+api_router.include_router(archive.router, prefix="/archive", tags=["archive"])
 api_router.include_router(content.router, prefix="/content", tags=["content"])
 api_router.include_router(ai.router, prefix="/ai", tags=["ai"])
 api_router.include_router(link_analysis.router, prefix="/link-analysis", tags=["link-analysis"])

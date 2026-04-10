@@ -6,3 +6,4 @@ from app.db.base_class import Base  # noqa
 
 # Import your models here as they are created
 from app.models.place import Place  # noqa
+from app.models.archived_content import ArchivedContent  # noqa
