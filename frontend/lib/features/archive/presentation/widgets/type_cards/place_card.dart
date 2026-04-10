@@ -14,10 +14,10 @@ class PlaceCard extends StatelessWidget {
 
     return TypeInfoCard(
       children: [
-        TypeInfoRow(icon: Icons.location_on, text: data['address']),
-        TypeInfoRow(icon: Icons.access_time, text: data['hours']),
-        TypeInfoRow(icon: Icons.phone, text: data['phone']),
-        TypeInfoRow(icon: Icons.payments_outlined, text: data['price_range']),
+        TypeInfoRow(icon: Icons.location_on, text: data['address'] as String?),
+        TypeInfoRow(icon: Icons.access_time, text: data['hours'] as String?),
+        TypeInfoRow(icon: Icons.phone, text: data['phone'] as String?),
+        TypeInfoRow(icon: Icons.payments_outlined, text: data['price_range'] as String?),
         if (data['reservation_required'] == true)
           TypeInfoRow(
             icon: Icons.bookmark_border,

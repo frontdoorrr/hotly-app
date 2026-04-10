@@ -60,6 +60,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get nav_saved => '저장';
 
   @override
+  String get nav_archive => '아카이브';
+
+  @override
   String get nav_profile => '프로필';
 
   @override

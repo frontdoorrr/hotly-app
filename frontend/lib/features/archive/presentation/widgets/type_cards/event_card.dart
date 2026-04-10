@@ -16,13 +16,13 @@ class EventCard extends StatelessWidget {
       children: [
         if (dateRange.isNotEmpty)
           TypeInfoRow(icon: Icons.calendar_today, text: dateRange),
-        TypeInfoRow(icon: Icons.access_time, text: data['time']),
-        TypeInfoRow(icon: Icons.location_on, text: data['venue_name']),
-        TypeInfoRow(icon: Icons.map_outlined, text: data['venue_address']),
-        TypeInfoRow(icon: Icons.person_outline, text: data['organizer']),
+        TypeInfoRow(icon: Icons.access_time, text: data['time'] as String?),
+        TypeInfoRow(icon: Icons.location_on, text: data['venue_name'] as String?),
+        TypeInfoRow(icon: Icons.map_outlined, text: data['venue_address'] as String?),
+        TypeInfoRow(icon: Icons.person_outline, text: data['organizer'] as String?),
         TypeInfoRow(
           icon: Icons.confirmation_number_outlined,
-          text: data['ticket_price'],
+          text: data['ticket_price'] as String?,
         ),
         if (data['pre_registration_required'] == true)
           TypeInfoRow(
@@ -35,7 +35,7 @@ class EventCard extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
-              onPressed: () => _launch(data['booking_url']),
+              onPressed: () => _launch(data['booking_url'] as String?),
               icon: const Icon(Icons.open_in_new, size: 16),
               label: const Text('예매하기'),
               style: OutlinedButton.styleFrom(

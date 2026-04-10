@@ -27,11 +27,11 @@ class TipsCard extends StatelessWidget {
             if (data['estimated_time'] != null)
               _InfoChip(
                 icon: Icons.timer_outlined,
-                text: data['estimated_time'],
+                text: data['estimated_time'] as String?,
               ),
             if (data['sub_field'] != null) ...[
               const SizedBox(width: 8),
-              _InfoChip(icon: Icons.category_outlined, text: data['sub_field']),
+              _InfoChip(icon: Icons.category_outlined, text: data['sub_field'] as String?),
             ],
           ],
         ),

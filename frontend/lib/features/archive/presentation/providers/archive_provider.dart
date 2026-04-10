@@ -130,3 +130,12 @@ final archiveListProvider =
     StateNotifierProvider<ArchiveListNotifier, ArchiveListState>((ref) {
   return ArchiveListNotifier(ref.watch(archiveRepositoryProvider));
 });
+
+/// 개별 아카이브 상세 조회
+final archiveDetailProvider = FutureProvider.family<ArchivedContent, String>(
+  (ref, id) async {
+    final repo = ref.watch(archiveRepositoryProvider);
+    final result = await repo.getArchive(id);
+    return result.fold((e) => throw e, (content) => content);
+  },
+);

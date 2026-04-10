@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/archived_content.dart';
@@ -85,11 +86,13 @@ class _ArchiveListViewState extends ConsumerState<ArchiveListView> {
                                 ),
                               );
                             }
+                            final item = state.items[index];
                             return _ArchiveListTile(
-                              content: state.items[index],
+                              content: item,
+                              onTap: () => context.push('/archive/${item.id}'),
                               onDelete: () => ref
                                   .read(archiveListProvider.notifier)
-                                  .delete(state.items[index].id),
+                                  .delete(item.id),
                             );
                           },
                         ),
@@ -160,9 +163,14 @@ class _TypeFilterBar extends StatelessWidget {
 
 class _ArchiveListTile extends StatelessWidget {
   final ArchivedContent content;
+  final VoidCallback onTap;
   final VoidCallback onDelete;
 
-  const _ArchiveListTile({required this.content, required this.onDelete});
+  const _ArchiveListTile({
+    required this.content,
+    required this.onTap,
+    required this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -172,7 +180,10 @@ class _ArchiveListTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(color: Colors.grey[200]!),
       ),
-      child: Padding(
+      clipBehavior: Clip.hardEdge,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
         padding: const EdgeInsets.all(14),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,6 +234,7 @@ class _ArchiveListTile extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }

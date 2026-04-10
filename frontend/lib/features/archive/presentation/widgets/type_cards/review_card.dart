@@ -24,13 +24,13 @@ class ReviewCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  data['product_name'],
+                  data['product_name'] as String,
                   style: AppTextStyles.bodyLarge,
                 ),
               ),
               if (data['brand'] != null)
                 Text(
-                  data['brand'],
+                  data['brand'] as String,
                   style: AppTextStyles.bodySmall
                       .copyWith(color: AppColors.textSecondary),
                 ),
@@ -131,7 +131,7 @@ class ReviewCard extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
-              onPressed: () => _launch(data['purchase_url']),
+              onPressed: () => _launch(data['purchase_url'] as String?),
               icon: const Icon(Icons.open_in_new, size: 16),
               label: const Text('구매하기'),
               style: OutlinedButton.styleFrom(

@@ -200,6 +200,12 @@ abstract class AppLocalizations {
   /// **'저장'**
   String get nav_saved;
 
+  /// 아카이브 탭
+  ///
+  /// In ko, this message translates to:
+  /// **'아카이브'**
+  String get nav_archive;
+
   /// 프로필 탭
   ///
   /// In ko, this message translates to:

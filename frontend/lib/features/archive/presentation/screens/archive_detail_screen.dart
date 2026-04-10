@@ -1,0 +1,328 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_styles.dart';
+import '../../domain/entities/archived_content.dart';
+import '../providers/archive_provider.dart';
+import '../widgets/archive_result_card.dart';
+
+class ArchiveDetailScreen extends ConsumerWidget {
+  final String archiveId;
+
+  const ArchiveDetailScreen({super.key, required this.archiveId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final asyncValue = ref.watch(archiveDetailProvider(archiveId));
+
+    return asyncValue.when(
+      loading: () => Scaffold(
+        appBar: AppBar(),
+        body: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (e, _) => Scaffold(
+        appBar: AppBar(),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 48, color: Colors.grey),
+              const SizedBox(height: 12),
+              Text('불러올 수 없습니다', style: AppTextStyles.body2),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () => ref.invalidate(archiveDetailProvider(archiveId)),
+                child: const Text('다시 시도'),
+              ),
+            ],
+          ),
+        ),
+      ),
+      data: (content) => _DetailView(content: content),
+    );
+  }
+}
+
+class _DetailView extends ConsumerWidget {
+  final ArchivedContent content;
+
+  const _DetailView({required this.content});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          content.title ?? '아카이브 상세',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete_outline),
+            tooltip: '삭제',
+            onPressed: () => _confirmDelete(context, ref),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ArchiveResultCard(content: content, compact: false),
+
+            const SizedBox(height: 16),
+
+            // insights
+            if (content.insights.isNotEmpty) ...[
+              _SectionTitle('인사이트'),
+              const SizedBox(height: 8),
+              ...content.insights.map(
+                (insight) => Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.lightbulb_outline,
+                          size: 16, color: AppColors.primary),
+                      const SizedBox(width: 6),
+                      Expanded(
+                          child: Text(insight, style: AppTextStyles.body2)),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            // 키워드 서브
+            if (content.keywordsSub.isNotEmpty) ...[
+              _SectionTitle('관련 키워드'),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 6,
+                children: [
+                  ...content.keywordsMain.map((k) => _Chip(k, primary: true)),
+                  ...content.keywordsSub.map((k) => _Chip(k)),
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            // 아카이빙 메타
+            _buildMeta(context),
+
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+      bottomNavigationBar: _BottomBar(url: content.url),
+    );
+  }
+
+  Widget _buildMeta(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Column(
+        children: [
+          _MetaRow(
+            label: '플랫폼',
+            value: _platformLabel(content.platform),
+          ),
+          if (content.author != null)
+            _MetaRow(label: '작성자', value: content.author!),
+          if (content.publishedAt != null)
+            _MetaRow(
+              label: '발행일',
+              value: _formatDate(content.publishedAt!),
+            ),
+          _MetaRow(
+            label: '아카이빙',
+            value: _formatDate(content.archivedAt),
+          ),
+          _MetaRow(
+            label: 'URL',
+            value: content.url,
+            onTap: () {
+              Clipboard.setData(ClipboardData(text: content.url));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('URL이 복사됐습니다'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _platformLabel(Platform p) => switch (p) {
+        Platform.youtube => 'YouTube',
+        Platform.instagram => 'Instagram',
+        Platform.naver_blog => '네이버 블로그',
+      };
+
+  String _formatDate(DateTime dt) =>
+      '${dt.year}.${dt.month.toString().padLeft(2, '0')}.${dt.day.toString().padLeft(2, '0')}';
+
+  Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('삭제'),
+        content: const Text('이 아카이브를 삭제할까요?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('삭제', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      await ref.read(archiveListProvider.notifier).delete(content.id);
+      if (context.mounted) Navigator.of(context).pop();
+    }
+  }
+}
+
+// ------------------------------------------------------------------
+// Bottom bar — 원본 링크 열기
+// ------------------------------------------------------------------
+
+class _BottomBar extends StatelessWidget {
+  final String url;
+  const _BottomBar({required this.url});
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+        child: ElevatedButton.icon(
+          onPressed: () => _openUrl(context),
+          icon: const Icon(Icons.open_in_new, size: 18),
+          label: const Text('원본 링크 열기'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            minimumSize: const Size.fromHeight(48),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openUrl(BuildContext context) async {
+    final uri = Uri.tryParse(url);
+    if (uri == null || !await canLaunchUrl(uri)) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('링크를 열 수 없습니다')),
+        );
+      }
+      return;
+    }
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+}
+
+// ------------------------------------------------------------------
+// 공통 소형 위젯들
+// ------------------------------------------------------------------
+
+class _SectionTitle extends StatelessWidget {
+  final String text;
+  const _SectionTitle(this.text);
+
+  @override
+  Widget build(BuildContext context) =>
+      Text(text, style: AppTextStyles.h4);
+}
+
+class _Chip extends StatelessWidget {
+  final String label;
+  final bool primary;
+  const _Chip(this.label, {this.primary = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: primary
+            ? AppColors.primary.withOpacity(0.1)
+            : Colors.grey[100],
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        '#$label',
+        style: AppTextStyles.bodySmall.copyWith(
+          color: primary ? AppColors.primary : AppColors.textSecondary,
+        ),
+      ),
+    );
+  }
+}
+
+class _MetaRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final VoidCallback? onTap;
+
+  const _MetaRow({required this.label, required this.value, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 60,
+            child: Text(
+              label,
+              style: AppTextStyles.bodySmall
+                  .copyWith(color: AppColors.textSecondary),
+            ),
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: onTap,
+              child: Text(
+                value,
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: onTap != null ? AppColors.primary : AppColors.textPrimary,
+                  decoration: onTap != null ? TextDecoration.underline : null,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
