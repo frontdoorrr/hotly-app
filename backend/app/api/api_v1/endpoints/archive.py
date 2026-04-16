@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.db.deps import get_db
 from app.middleware.jwt_middleware import get_current_active_user
 from app.models.archived_content import ArchivedContent
+from app.models.user import User
 from app.schemas.archive import (
     ArchiveDetail,
     ArchiveListItem,
@@ -38,7 +39,7 @@ async def archive_url(
     db: Session = Depends(get_db),
     current_user: Dict[str, Any] = Depends(get_current_active_user),
 ) -> Any:
-    user_id = UUID(current_user["uid"])
+    user_id = _get_user_id(db, current_user)
 
     # 동일 URL 이미 아카이빙된 경우 처리
     existing = (
@@ -93,7 +94,7 @@ def list_archives(
     db: Session = Depends(get_db),
     current_user: Dict[str, Any] = Depends(get_current_active_user),
 ) -> Any:
-    user_id = UUID(current_user["uid"])
+    user_id = _get_user_id(db, current_user)
 
     q = db.query(ArchivedContent).filter(ArchivedContent.user_id == user_id)
     if content_type:
@@ -125,7 +126,7 @@ def get_archive(
     db: Session = Depends(get_db),
     current_user: Dict[str, Any] = Depends(get_current_active_user),
 ) -> Any:
-    user_id = UUID(current_user["uid"])
+    user_id = _get_user_id(db, current_user)
     item = _get_owned_or_404(db, archive_id, user_id)
     return item
 
@@ -140,7 +141,7 @@ def delete_archive(
     db: Session = Depends(get_db),
     current_user: Dict[str, Any] = Depends(get_current_active_user),
 ) -> None:
-    user_id = UUID(current_user["uid"])
+    user_id = _get_user_id(db, current_user)
     item = _get_owned_or_404(db, archive_id, user_id)
     db.delete(item)
     db.commit()
@@ -149,6 +150,15 @@ def delete_archive(
 # ------------------------------------------------------------------
 # Helpers
 # ------------------------------------------------------------------
+
+def _get_user_id(db: Session, current_user: Dict[str, Any]) -> UUID:
+    """firebase_uid로 DB User를 조회해 UUID 반환."""
+    firebase_uid = current_user["uid"]
+    user = db.query(User).filter(User.firebase_uid == firebase_uid).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user.id
+
 
 def _get_owned_or_404(db: Session, archive_id: UUID, user_id: UUID) -> ArchivedContent:
     item = db.query(ArchivedContent).filter(ArchivedContent.id == archive_id).first()
@@ -171,7 +181,7 @@ def _build_model(data: dict, user_id: UUID) -> ArchivedContent:
         user_id=user_id,
         url=data.get("url", ""),
         platform=data.get("platform", ""),
-        content_type=analysis.get("content_type", "unknown"),
+        content_type=analysis.get("content_type") or "unknown",
         title=meta.get("title"),
         author=meta.get("author"),
         published_at=meta.get("published_at"),

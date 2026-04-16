@@ -38,7 +38,7 @@ class ArchiveListItem(BaseModel):
     archived_at: datetime
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 # ------------------------------------------------------------------
@@ -76,7 +76,7 @@ class ArchiveDetail(BaseModel):
     archived_at: datetime
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 # ------------------------------------------------------------------
