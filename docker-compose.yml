@@ -18,6 +18,7 @@ services:
       - BACKEND_CORS_ORIGINS=http://localhost:3000,http://localhost:8080,http://localhost:8000
       - KAKAO_API_KEY=56984781320be9f655289ba1c0b70a5a
       - GEMINI_API_KEY=AIzaSyBYPG6AEK7Vga4pdOQZvcrYPiIsWeiMKAI
+      - LINK_ANALYZER_BASE_URL=http://host.docker.internal:8003
     volumes:
       - ./backend:/backend
     depends_on:
