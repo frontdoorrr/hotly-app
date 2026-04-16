@@ -61,7 +61,8 @@ class ArchiveRemoteDataSource {
   }
 
   Exception _handleError(DioException e) {
-    final detail = e.response?.data?['detail'];
+    final data = e.response?.data;
+    final detail = (data is Map) ? data['detail'] : null;
     switch (e.response?.statusCode) {
       case 400:
         return Exception('지원하지 않는 플랫폼입니다.');
