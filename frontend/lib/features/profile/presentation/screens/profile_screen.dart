@@ -272,8 +272,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
   }
 
   Widget _buildSavedPlacesTab() {
-    return Center(
-      child: Column(
+    return SingleChildScrollView(
+      child: Center(
+        child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -302,13 +303,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             child: Text(context.l10n.profile_findPlaces),
           ),
         ],
+       ),
       ),
     );
   }
 
   Widget _buildMyCoursesTab() {
-    return Center(
-      child: Column(
+    return SingleChildScrollView(
+      child: Center(
+        child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -337,6 +340,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             child: Text(context.l10n.profile_createCourse),
           ),
         ],
+       ),
       ),
     );
   }
