@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'api_endpoints.dart';
-import '../auth/firebase_auth_service.dart';
 import '../utils/app_logger.dart';
 
 /// Dio Instance Provider (raw Dio object)
@@ -152,9 +152,10 @@ class DioClient {
 
       case DioExceptionType.badResponse:
         final statusCode = error.response?.statusCode ?? 500;
-        final message = error.response?.data['message'] as String? ??
-            error.response?.data['error'] as String? ??
-            '서버 오류가 발생했습니다.';
+        final data = error.response?.data;
+        final message = (data is Map)
+            ? (data['message'] as String? ?? data['detail'] as String? ?? data['error'] as String? ?? '서버 오류가 발생했습니다.')
+            : '서버 오류가 발생했습니다.';
 
         if (statusCode >= 500) {
           return ApiException(
@@ -235,9 +236,9 @@ class AuthInterceptor extends Interceptor {
     RequestInterceptorHandler handler,
   ) async {
     try {
-      // Firebase에서 ID Token 가져오기
-      final firebaseAuthService = FirebaseAuthService();
-      final token = await firebaseAuthService.getIdToken();
+      // Firebase에서 ID Token 가져오기 (FirebaseAuth.instance 직접 사용)
+      final user = FirebaseAuth.instance.currentUser;
+      final token = await user?.getIdToken();
 
       if (token != null) {
         options.headers['Authorization'] = 'Bearer $token';

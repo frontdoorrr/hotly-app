@@ -12,19 +12,21 @@ class EventCard extends StatelessWidget {
     final endDate = data['end_date'] as String?;
     final dateRange = [startDate, endDate].where((d) => d != null).join(' ~ ');
 
+    final venue = data['venue'] as Map<String, dynamic>?;
+
     return TypeInfoCard(
       children: [
         if (dateRange.isNotEmpty)
           TypeInfoRow(icon: Icons.calendar_today, text: dateRange),
         TypeInfoRow(icon: Icons.access_time, text: data['time'] as String?),
-        TypeInfoRow(icon: Icons.location_on, text: data['venue_name'] as String?),
-        TypeInfoRow(icon: Icons.map_outlined, text: data['venue_address'] as String?),
+        TypeInfoRow(icon: Icons.location_on, text: venue?['name'] as String?),
+        TypeInfoRow(icon: Icons.map_outlined, text: venue?['address'] as String?),
         TypeInfoRow(icon: Icons.person_outline, text: data['organizer'] as String?),
         TypeInfoRow(
           icon: Icons.confirmation_number_outlined,
           text: data['ticket_price'] as String?,
         ),
-        if (data['pre_registration_required'] == true)
+        if (data['registration_required'] == true)
           TypeInfoRow(
             icon: Icons.app_registration,
             text: '사전 등록 필요',

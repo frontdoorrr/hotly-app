@@ -4,6 +4,8 @@
 Firebase 인증과 내부 사용자 데이터를 연동하는
 인증 및 권한 부여 미들웨어를 구현합니다.
 """
+import base64
+import json
 import uuid
 from datetime import datetime, timedelta
 from typing import Any, Dict
@@ -43,13 +45,23 @@ class FirebaseAuthMiddleware:
             elif token == "invalid.token.here":
                 raise HTTPException(status_code=401, detail="Invalid token")
             else:
-                # 실제 Firebase 토큰 검증 로직
-                # decoded_token = firebase_auth.verify_id_token(token)
-                # return decoded_token
+                # Firebase ID 토큰 디코딩 (서명 검증 없이 — 개발 환경)
+                try:
+                    parts = token.split(".")
+                    if len(parts) == 3:
+                        payload = json.loads(base64.urlsafe_b64decode(parts[1] + "=="))
+                        uid = payload.get("user_id") or payload.get("sub")
+                        if uid:
+                            return {
+                                "uid": uid,
+                                "email": payload.get("email", ""),
+                                "name": payload.get("name", ""),
+                            }
+                except Exception:
+                    pass
 
-                # Mock: 기본적으로 유효한 토큰으로 처리
                 return {
-                    "uid": "mock_user_" + str(uuid.uuid4())[:8],
+                    "uid": "mock_user_dev",
                     "email": "mock@example.com",
                     "name": "Mock User",
                 }

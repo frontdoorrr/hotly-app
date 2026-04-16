@@ -110,8 +110,10 @@ class _ArchiveInputSheetState extends ConsumerState<ArchiveInputSheet> {
               ),
 
               // Input form
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+              if (!hasResult) Expanded(
+               child: SingleChildScrollView(
+                controller: scrollController,
+                padding: EdgeInsets.fromLTRB(20, 0, 20, MediaQuery.of(context).viewInsets.bottom + 16),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -128,6 +130,7 @@ class _ArchiveInputSheetState extends ConsumerState<ArchiveInputSheet> {
                         controller: _controller,
                         decoration: InputDecoration(
                           hintText: 'https://instagram.com/p/...',
+                          hintStyle: const TextStyle(color: Color(0xFFBDBDBD)),
                           prefixIcon: const Icon(Icons.link),
                           suffixIcon: _controller.text.isNotEmpty
                               ? IconButton(
@@ -186,9 +189,8 @@ class _ArchiveInputSheetState extends ConsumerState<ArchiveInputSheet> {
                     ],
                   ),
                 ),
+               ),
               ),
-
-              const SizedBox(height: 16),
 
               // 결과
               if (hasResult)

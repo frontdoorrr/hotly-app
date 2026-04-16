@@ -16,24 +16,28 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # ENUM 타입 생성
-    platform_type = postgresql.ENUM(
-        "youtube", "instagram", "naver_blog",
-        name="platform_type", create_type=False
-    )
-    platform_type.create(op.get_bind(), checkfirst=True)
-
-    content_type_enum = postgresql.ENUM(
-        "place", "event", "tips", "review", "unknown",
-        name="content_type_enum", create_type=False
-    )
-    content_type_enum.create(op.get_bind(), checkfirst=True)
-
-    sentiment_type = postgresql.ENUM(
-        "positive", "neutral", "negative",
-        name="sentiment_type", create_type=False
-    )
-    sentiment_type.create(op.get_bind(), checkfirst=True)
+    # ENUM 타입 생성 (DO 블록으로 중복 방지 — PostgreSQL IF NOT EXISTS는 지원 안 됨)
+    op.execute("""
+        DO $$ BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'platform_type') THEN
+                CREATE TYPE platform_type AS ENUM ('youtube', 'instagram', 'naver_blog');
+            END IF;
+        END $$;
+    """)
+    op.execute("""
+        DO $$ BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'content_type_enum') THEN
+                CREATE TYPE content_type_enum AS ENUM ('place', 'event', 'tips', 'review', 'unknown');
+            END IF;
+        END $$;
+    """)
+    op.execute("""
+        DO $$ BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'sentiment_type') THEN
+                CREATE TYPE sentiment_type AS ENUM ('positive', 'neutral', 'negative');
+            END IF;
+        END $$;
+    """)
 
     # 테이블 생성
     op.create_table(
@@ -48,12 +52,12 @@ def upgrade() -> None:
         sa.Column("url", sa.Text, nullable=False),
         sa.Column(
             "platform",
-            sa.Enum("youtube", "instagram", "naver_blog", name="platform_type"),
+            postgresql.ENUM("youtube", "instagram", "naver_blog", name="platform_type", create_type=False),
             nullable=False,
         ),
         sa.Column(
             "content_type",
-            sa.Enum("place", "event", "tips", "review", "unknown", name="content_type_enum"),
+            postgresql.ENUM("place", "event", "tips", "review", "unknown", name="content_type_enum", create_type=False),
             nullable=False,
         ),
         # 메타데이터
@@ -70,7 +74,7 @@ def upgrade() -> None:
         sa.Column("topic_categories", postgresql.ARRAY(sa.Text), nullable=True),
         sa.Column(
             "sentiment",
-            sa.Enum("positive", "neutral", "negative", name="sentiment_type"),
+            postgresql.ENUM("positive", "neutral", "negative", name="sentiment_type", create_type=False),
             nullable=True,
         ),
         sa.Column("todos", postgresql.ARRAY(sa.Text), nullable=True),

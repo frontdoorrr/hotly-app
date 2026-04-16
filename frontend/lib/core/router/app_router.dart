@@ -45,14 +45,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         return '/';
       }
 
-      // 인증 필요한 페이지 목록
-      final protectedRoutes = ['/profile', '/courses/create'];
-      final needsAuth = protectedRoutes.any(
-        (route) => state.matchedLocation.startsWith(route),
-      );
-
-      // 인증 안 된 상태에서 보호된 페이지 접근 시 로그인으로
-      if (!isAuthenticated && needsAuth) {
+      // 인증 안 된 상태에서 인증/온보딩 외 모든 페이지 → 로그인으로
+      if (!isAuthenticated && !isAuthRoute && !isOnboardingRoute) {
         return '/login?redirect=${state.matchedLocation}';
       }
 

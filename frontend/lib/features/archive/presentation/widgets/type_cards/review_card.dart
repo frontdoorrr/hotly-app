@@ -13,7 +13,8 @@ class ReviewCard extends StatelessWidget {
     final pros = (data['pros'] as List?)?.cast<String>();
     final cons = (data['cons'] as List?)?.cast<String>();
     final recommendedFor = (data['recommended_for'] as List?)?.cast<String>();
-    final price = data['price'] as Map<String, dynamic>?;
+    final priceAmount = data['price'];
+    final priceCurrency = (data['price_currency'] as String?) ?? 'KRW';
     final rating = (data['rating'] as num?)?.toDouble();
 
     return TypeInfoCard(
@@ -62,11 +63,10 @@ class ReviewCard extends StatelessWidget {
         ],
 
         // 가격
-        if (price != null && price['amount'] != null)
+        if (priceAmount != null)
           TypeInfoRow(
             icon: Icons.payments_outlined,
-            text:
-                '${_formatPrice(price['amount'])}${price['currency'] ?? ''}',
+            text: '${_formatPrice(priceAmount)} $priceCurrency',
           ),
 
         // 장점

@@ -44,9 +44,10 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
                 "max-age=31536000; includeSubDomains; preload"
             )
 
-        # Content Security Policy
-        csp = getattr(settings, "CONTENT_SECURITY_POLICY", "default-src 'self'")
-        response.headers["Content-Security-Policy"] = csp
+        # Content Security Policy (개발 환경에서는 비활성화)
+        if settings.ENVIRONMENT != "development":
+            csp = getattr(settings, "CONTENT_SECURITY_POLICY", "default-src 'self'")
+            response.headers["Content-Security-Policy"] = csp
 
         # Referrer 정책
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"

@@ -17,13 +17,13 @@ class ProfileRepositoryImpl implements ProfileRepository {
     try {
       final data = await remoteDataSource.getProfile();
       final user = User(
-        id: (data['id'] ?? '') as String,
-        email: (data['email'] ?? '') as String,
-        name: (data['display_name'] ?? '') as String,
+        id: data['id']?.toString() ?? '',
+        email: data['email']?.toString() ?? '',
+        name: data['display_name']?.toString() ?? '',
         profileImageUrl: data['profile_image_url'] as String?,
         phoneNumber: data['phone_number'] as String?,
         createdAt: data['created_at'] != null
-            ? DateTime.parse(data['created_at'] as String)
+            ? DateTime.parse(data['created_at'].toString())
             : null,
       );
       return Right(user);
@@ -43,13 +43,13 @@ class ProfileRepositoryImpl implements ProfileRepository {
         phoneNumber: phoneNumber,
       );
       final user = User(
-        id: (data['id'] ?? '') as String,
-        email: (data['email'] ?? '') as String,
-        name: (data['display_name'] ?? '') as String,
+        id: data['id']?.toString() ?? '',
+        email: data['email']?.toString() ?? '',
+        name: data['display_name']?.toString() ?? '',
         profileImageUrl: data['profile_image_url'] as String?,
         phoneNumber: data['phone_number'] as String?,
         createdAt: data['created_at'] != null
-            ? DateTime.parse(data['created_at'] as String)
+            ? DateTime.parse(data['created_at'].toString())
             : null,
       );
       AppLogger.d('Profile updated successfully', tag: 'ProfileRepo');

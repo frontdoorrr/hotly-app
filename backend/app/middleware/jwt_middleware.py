@@ -1,14 +1,35 @@
 """JWT 검증 미들웨어."""
+import base64
+import json
 import logging
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from app.core.config import settings
 from app.services.auth.firebase_auth_service import firebase_auth_service
 
 logger = logging.getLogger(__name__)
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
+
+_MOCK_USER = {"uid": "bd3f2ca8-0044-45ee-90aa-8a99ac6a411f", "email": "mock@example.com", "permissions": {}}
+
+
+def _decode_firebase_token_dev(token: str) -> Optional[Dict[str, Any]]:
+    """개발 환경 전용: Firebase ID 토큰을 서명 검증 없이 디코딩."""
+    try:
+        parts = token.split(".")
+        if len(parts) != 3:
+            return None
+        payload_b64 = parts[1] + "=="  # padding
+        payload = json.loads(base64.urlsafe_b64decode(payload_b64))
+        uid = payload.get("user_id") or payload.get("sub")
+        if not uid:
+            return None
+        return {"uid": uid, "email": payload.get("email", ""), "permissions": {}}
+    except Exception:
+        return None
 
 
 async def verify_firebase_token(token: str) -> Dict[str, Any]:
@@ -49,7 +70,7 @@ async def verify_firebase_token(token: str) -> Dict[str, Any]:
 
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
 ) -> Dict[str, Any]:
     """
     현재 로그인한 사용자 정보 조회 (Firebase Authentication).
@@ -64,6 +85,8 @@ async def get_current_user(
         HTTPException: 인증 실패 시
     """
     if not credentials:
+        if settings.ENVIRONMENT == "development":
+            return _MOCK_USER
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Missing authentication credentials",
@@ -77,6 +100,12 @@ async def get_current_user(
         return user_info
 
     except HTTPException:
+        # 개발 환경: 검증 실패 시 토큰 디코딩으로 폴백
+        if settings.ENVIRONMENT == "development":
+            user_info = _decode_firebase_token_dev(token)
+            if user_info:
+                return user_info
+            return _MOCK_USER
         raise
     except Exception as e:
         logger.error(f"Authentication failed: {e}")

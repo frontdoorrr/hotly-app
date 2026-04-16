@@ -9,13 +9,13 @@ class PlaceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final menus = (data['menus'] as List?)?.cast<Map<String, dynamic>>();
+    final menus = (data['menu_items'] as List?)?.cast<Map<String, dynamic>>();
     final visitTips = (data['visit_tips'] as List?)?.cast<String>();
 
     return TypeInfoCard(
       children: [
         TypeInfoRow(icon: Icons.location_on, text: data['address'] as String?),
-        TypeInfoRow(icon: Icons.access_time, text: data['hours'] as String?),
+        TypeInfoRow(icon: Icons.access_time, text: data['operating_hours'] as String?),
         TypeInfoRow(icon: Icons.phone, text: data['phone'] as String?),
         TypeInfoRow(icon: Icons.payments_outlined, text: data['price_range'] as String?),
         if (data['reservation_required'] == true)
