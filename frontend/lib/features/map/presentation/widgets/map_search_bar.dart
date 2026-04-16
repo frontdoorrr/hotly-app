@@ -28,6 +28,7 @@ class _MapSearchBarState extends ConsumerState<MapSearchBar> {
     final state = ref.watch(mapProvider);
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           decoration: BoxDecoration(
@@ -111,6 +112,7 @@ class _MapSearchBarState extends ConsumerState<MapSearchBar> {
             ),
             child: ListView.separated(
               shrinkWrap: true,
+              padding: EdgeInsets.zero,
               itemCount: state.searchResults.length,
               separatorBuilder: (context, index) => const Divider(height: 1),
               itemBuilder: (context, index) {
