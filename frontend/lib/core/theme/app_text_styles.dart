@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 
-/// App Typography System
-/// Based on design system typography tokens
+/// App Typography System — ArchyAI
+///
+/// Font stack: 'Google Sans' (primary) → 'Noto Sans KR' (fallback)
+/// fontFamily is applied globally in app_theme.dart via ThemeData.fontFamily.
 class AppTextStyles {
   AppTextStyles._();
 
-  // Font Family (now using Google Fonts - Noto Sans KR)
-  // No need to specify fontFamily as it's set in app_theme.dart
+  // Font family stack
+  static const String fontFamily = 'Google Sans';
+  static const List<String> fontFamilyFallback = ['Noto Sans KR', 'sans-serif'];
 
   // Font Sizes
   static const double fontSizeXs = 12.0;
@@ -18,12 +21,17 @@ class AppTextStyles {
   static const double fontSize3xl = 30.0;
 
   // Font Weights
-  static const FontWeight fontWeightNormal = FontWeight.w500; // Changed from w400 to w500 (Medium)
-  static const FontWeight fontWeightMedium = FontWeight.w600; // Changed from w500 to w600 (SemiBold)
-  static const FontWeight fontWeightSemibold = FontWeight.w700; // Changed from w600 to w700 (Bold)
-  static const FontWeight fontWeightBold = FontWeight.w800; // Changed from w700 to w800 (ExtraBold)
+  static const FontWeight fontWeightNormal = FontWeight.w500;
+  static const FontWeight fontWeightMedium = FontWeight.w600;
+  static const FontWeight fontWeightSemibold = FontWeight.w700;
+  static const FontWeight fontWeightBold = FontWeight.w800;
 
+  // ──────────────────────────────────────────
   // Text Styles
+  // fontFamily / fontFamilyFallback is set at theme level,
+  // so individual styles don't need to repeat it.
+  // ──────────────────────────────────────────
+
   static const TextStyle h1 = TextStyle(
     fontSize: fontSize3xl,
     fontWeight: fontWeightBold,

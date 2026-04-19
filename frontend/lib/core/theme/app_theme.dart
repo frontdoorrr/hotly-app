@@ -4,7 +4,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 import 'app_text_styles.dart';
 
-/// App Theme Configuration
+/// App Theme Configuration — ArchyAI Dark Theme
+///
+/// 앱은 다크 테마 단일 기준으로 운영됩니다.
+/// lightTheme / darkTheme 모두 동일한 dark 팔레트를 사용합니다.
 class AppTheme {
   AppTheme._();
 
@@ -31,58 +34,77 @@ class AppTheme {
   static const double radius2xl = 16.0;
   static const double radiusFull = 9999.0;
 
-  // Light Theme
-  static ThemeData get lightTheme {
+  static ThemeData get _base {
+    final textTheme = GoogleFonts.notoSansKrTextTheme(
+      TextTheme(
+        displayLarge: AppTextStyles.h1,
+        displayMedium: AppTextStyles.h2,
+        displaySmall: AppTextStyles.h3,
+        headlineMedium: AppTextStyles.h4,
+        titleLarge: AppTextStyles.h3,
+        bodyLarge: AppTextStyles.bodyLarge,
+        bodyMedium: AppTextStyles.bodyMedium,
+        bodySmall: AppTextStyles.bodySmall,
+        labelLarge: AppTextStyles.labelLarge,
+        labelMedium: AppTextStyles.labelMedium,
+        labelSmall: AppTextStyles.labelSmall,
+      ),
+    ).apply(
+      // Google Sans 우선, Noto Sans KR 폴백
+      fontFamily: AppTextStyles.fontFamily,
+      bodyColor: AppColors.textPrimary,
+      displayColor: AppColors.textPrimary,
+    );
+
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.light,
-      primaryColor: AppColors.primary500,
-      scaffoldBackgroundColor: AppColors.backgroundLight,
-      colorScheme: const ColorScheme.light(
-        primary: AppColors.primary500,
+      brightness: Brightness.dark,
+      fontFamily: AppTextStyles.fontFamily,
+      primaryColor: AppColors.teal400,
+      scaffoldBackgroundColor: AppColors.bgBase,
+
+      colorScheme: const ColorScheme.dark(
+        primary: AppColors.teal400,
         onPrimary: AppColors.white,
-        secondary: AppColors.primary600,
+        secondary: AppColors.teal600,
         onSecondary: AppColors.white,
         error: AppColors.error,
         onError: AppColors.white,
-        surface: AppColors.cardLight,
-        onSurface: AppColors.textPrimaryLight,
+        surface: AppColors.surfaceDefault,
+        onSurface: AppColors.textPrimary,
+        outline: AppColors.borderSubtle,
       ),
-      textTheme: GoogleFonts.notoSansKrTextTheme(
-        TextTheme(
-          displayLarge: AppTextStyles.h1,
-          displayMedium: AppTextStyles.h2,
-          displaySmall: AppTextStyles.h3,
-          headlineMedium: AppTextStyles.h4,
-          titleLarge: AppTextStyles.h3, // 섹션 제목용 (오늘의 추천, 인기 장소 등)
-          bodyLarge: AppTextStyles.bodyLarge,
-          bodyMedium: AppTextStyles.bodyMedium,
-          bodySmall: AppTextStyles.bodySmall,
-          labelLarge: AppTextStyles.labelLarge,
-          labelMedium: AppTextStyles.labelMedium,
-          labelSmall: AppTextStyles.labelSmall,
-        ),
-      ),
+
+      textTheme: textTheme,
+
       appBarTheme: AppBarTheme(
         elevation: 0,
-        backgroundColor: AppColors.white,
-        foregroundColor: AppColors.textPrimaryLight,
-        systemOverlayStyle: SystemUiOverlayStyle.dark,
+        backgroundColor: AppColors.bgBase,
+        foregroundColor: AppColors.textPrimary,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
         titleTextStyle: GoogleFonts.notoSansKr(
+          fontFamily: AppTextStyles.fontFamily,
           fontSize: 18,
           fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
         ),
       ),
+
       cardTheme: CardThemeData(
-        color: AppColors.cardLight,
-        elevation: 2,
+        color: AppColors.surfaceDefault,
+        elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radiusLg),
+          side: const BorderSide(
+            color: AppColors.borderSubtle,
+            width: 0.5,
+          ),
         ),
       ),
+
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary500,
+          backgroundColor: AppColors.teal400,
           foregroundColor: AppColors.white,
           textStyle: AppTextStyles.button,
           padding: const EdgeInsets.symmetric(
@@ -95,9 +117,10 @@ class AppTheme {
           elevation: 0,
         ),
       ),
+
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.primary500,
+          foregroundColor: AppColors.teal400,
           textStyle: AppTextStyles.button,
           padding: const EdgeInsets.symmetric(
             horizontal: space6,
@@ -107,14 +130,15 @@ class AppTheme {
             borderRadius: BorderRadius.circular(radiusLg),
           ),
           side: const BorderSide(
-            color: AppColors.primary500,
+            color: AppColors.teal400,
             width: 1.5,
           ),
         ),
       ),
+
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: AppColors.primary500,
+          foregroundColor: AppColors.teal400,
           textStyle: AppTextStyles.button,
           padding: const EdgeInsets.symmetric(
             horizontal: space4,
@@ -122,21 +146,22 @@ class AppTheme {
           ),
         ),
       ),
+
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.gray50,
+        fillColor: AppColors.bgElevated,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(radiusLg),
-          borderSide: const BorderSide(color: AppColors.borderLight),
+          borderSide: const BorderSide(color: AppColors.borderSubtle),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(radiusLg),
-          borderSide: const BorderSide(color: AppColors.borderLight),
+          borderSide: const BorderSide(color: AppColors.borderSubtle),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(radiusLg),
           borderSide: const BorderSide(
-            color: AppColors.primary500,
+            color: AppColors.teal400,
             width: 2,
           ),
         ),
@@ -144,77 +169,29 @@ class AppTheme {
           borderRadius: BorderRadius.circular(radiusLg),
           borderSide: const BorderSide(color: AppColors.error),
         ),
+        hintStyle: const TextStyle(color: AppColors.textTertiary),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: space4,
           vertical: space3,
         ),
       ),
+
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: AppColors.white,
-        selectedItemColor: AppColors.primary500,
-        unselectedItemColor: AppColors.gray500,
+        backgroundColor: AppColors.surfaceDefault,
+        selectedItemColor: AppColors.teal400,
+        unselectedItemColor: AppColors.textTertiary,
         type: BottomNavigationBarType.fixed,
-        elevation: 8,
+        elevation: 0,
+      ),
+
+      dividerTheme: const DividerThemeData(
+        color: AppColors.borderSubtle,
+        thickness: 0.5,
       ),
     );
   }
 
-  // Dark Theme
-  static ThemeData get darkTheme {
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.dark,
-      primaryColor: AppColors.primary500,
-      scaffoldBackgroundColor: AppColors.backgroundDark,
-      colorScheme: const ColorScheme.dark(
-        primary: AppColors.primary500,
-        onPrimary: AppColors.white,
-        secondary: AppColors.primary600,
-        onSecondary: AppColors.white,
-        error: AppColors.error,
-        onError: AppColors.white,
-        surface: AppColors.cardDark,
-        onSurface: AppColors.textPrimaryDark,
-      ),
-      textTheme: GoogleFonts.notoSansKrTextTheme(
-        TextTheme(
-          displayLarge: AppTextStyles.h1,
-          displayMedium: AppTextStyles.h2,
-          displaySmall: AppTextStyles.h3,
-          headlineMedium: AppTextStyles.h4,
-          titleLarge: AppTextStyles.h3, // 섹션 제목용 (오늘의 추천, 인기 장소 등)
-          bodyLarge: AppTextStyles.bodyLarge,
-          bodyMedium: AppTextStyles.bodyMedium,
-          bodySmall: AppTextStyles.bodySmall,
-          labelLarge: AppTextStyles.labelLarge,
-          labelMedium: AppTextStyles.labelMedium,
-          labelSmall: AppTextStyles.labelSmall,
-        ),
-      ),
-      appBarTheme: AppBarTheme(
-        elevation: 0,
-        backgroundColor: AppColors.cardDark,
-        foregroundColor: AppColors.textPrimaryDark,
-        systemOverlayStyle: SystemUiOverlayStyle.light,
-        titleTextStyle: GoogleFonts.notoSansKr(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      cardTheme: CardThemeData(
-        color: AppColors.cardDark,
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(radiusLg),
-        ),
-      ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: AppColors.cardDark,
-        selectedItemColor: AppColors.primary500,
-        unselectedItemColor: AppColors.gray500,
-        type: BottomNavigationBarType.fixed,
-        elevation: 8,
-      ),
-    );
-  }
+  /// 다크 테마 단일 운영 — lightTheme / darkTheme 동일
+  static ThemeData get lightTheme => _base;
+  static ThemeData get darkTheme => _base;
 }
