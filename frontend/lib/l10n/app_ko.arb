@@ -91,6 +91,16 @@
     "description": "아카이브 탭"
   },
 
+  "nav_discover": "발견",
+  "@nav_discover": {
+    "description": "발견 탭"
+  },
+
+  "nav_plan": "계획",
+  "@nav_plan": {
+    "description": "계획 탭"
+  },
+
   "nav_profile": "프로필",
   "@nav_profile": {
     "description": "프로필 탭"

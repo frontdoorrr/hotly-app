@@ -206,6 +206,18 @@ abstract class AppLocalizations {
   /// **'아카이브'**
   String get nav_archive;
 
+  /// 발견 탭
+  ///
+  /// In ko, this message translates to:
+  /// **'발견'**
+  String get nav_discover;
+
+  /// 계획 탭
+  ///
+  /// In ko, this message translates to:
+  /// **'계획'**
+  String get nav_plan;
+
   /// 프로필 탭
   ///
   /// In ko, this message translates to:

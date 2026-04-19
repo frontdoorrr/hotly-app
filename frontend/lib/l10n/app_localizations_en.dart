@@ -63,6 +63,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nav_archive => 'Archive';
 
   @override
+  String get nav_discover => 'Discover';
+
+  @override
+  String get nav_plan => 'Plan';
+
+  @override
   String get nav_profile => 'Profile';
 
   @override

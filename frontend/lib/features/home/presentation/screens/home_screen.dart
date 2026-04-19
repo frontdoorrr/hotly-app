@@ -1,49 +1,20 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/theme/app_theme.dart';
-import '../../../../core/storage/local_storage.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_styles.dart';
+import '../../../archive/domain/entities/archived_content.dart';
+import '../../../archive/presentation/providers/archive_provider.dart';
 import '../../../archive/presentation/widgets/archive_input_sheet.dart';
 import '../../../share_queue/presentation/widgets/share_queue_badge.dart';
-import '../providers/home_provider.dart';
-import '../widgets/place_card.dart';
 
-class HomeScreen extends ConsumerStatefulWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  ConsumerState<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends ConsumerState<HomeScreen> {
-  @override
-  void initState() {
-    super.initState();
-    // 화면 로드 시 데이터 가져오기
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadData();
-    });
-  }
-
-  Future<void> _loadData() async {
-    // mounted 체크를 ref 사용 직전에 수행
-    if (!mounted) return;
-
-    try {
-      final (lat, lng) = LocalStorage.instance.lastLocation;
-      if (!mounted) return; // ref 사용 직전 재확인
-      await ref.read(homeProvider.notifier).refreshAll(lat, lng);
-    } catch (e) {
-      // disposed 상태에서 ref 접근 시 에러 무시
-      if (mounted) {
-        debugPrint('Failed to load data: $e');
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final state = ref.watch(homeProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final recentAsync = ref.watch(recentArchiveProvider);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -51,189 +22,271 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         title: Row(
           children: [
             Icon(Icons.local_fire_department, color: theme.colorScheme.primary),
-            const SizedBox(width: AppTheme.space2),
+            const SizedBox(width: 8),
             const Text('Hotly'),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {
-              // TODO: 알림 화면으로 이동
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.person_outline),
-            onPressed: () {
-              // TODO: 프로필 화면으로 이동
-            },
-          ),
-        ],
       ),
       body: RefreshIndicator(
-        onRefresh: _loadData,
+        onRefresh: () => ref.refresh(recentArchiveProvider.future),
         child: CustomScrollView(
           slivers: [
-            // ShareQueue 배지 (대기 중인 링크가 있을 때 표시)
-            const SliverToBoxAdapter(
-              child: ShareQueueBadge(),
-            ),
+            const SliverToBoxAdapter(child: ShareQueueBadge()),
 
-            // 추천 장소 섹션
-            SliverToBoxAdapter(
-              child: _buildRecommendedSection(state),
-            ),
-
-            // 인기 장소 섹션
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.all(AppTheme.space4),
-                child: Text(
-                  '인기 장소',
-                  style: theme.textTheme.titleLarge,
+                padding: const EdgeInsets.fromLTRB(16, 16, 8, 4),
+                child: Row(
+                  children: [
+                    Text('최근 아카이빙', style: theme.textTheme.titleLarge),
+                    const Spacer(),
+                    TextButton(
+                      onPressed: () => context.go('/discover'),
+                      child: const Text('전체 보기 →'),
+                    ),
+                  ],
                 ),
               ),
             ),
 
-            // 인기 장소 그리드
-            if (state.isLoadingPopular)
-              const SliverToBoxAdapter(
+            recentAsync.when(
+              loading: () => const SliverToBoxAdapter(
                 child: Center(
                   child: Padding(
-                    padding: EdgeInsets.all(AppTheme.space8),
+                    padding: EdgeInsets.all(48),
                     child: CircularProgressIndicator(),
                   ),
                 ),
-              )
-            else if (state.popularPlaces.isEmpty)
-              SliverToBoxAdapter(
+              ),
+              error: (_, __) => SliverToBoxAdapter(
                 child: Center(
                   child: Padding(
-                    padding: const EdgeInsets.all(AppTheme.space8),
+                    padding: const EdgeInsets.all(48),
                     child: Text(
-                      '인기 장소가 없습니다',
+                      '불러오기 실패',
                       style: theme.textTheme.bodyMedium,
                     ),
                   ),
                 ),
-              )
-            else
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: AppTheme.space4),
-                sliver: SliverGrid(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.85,
-                    crossAxisSpacing: AppTheme.space3,
-                    mainAxisSpacing: AppTheme.space3,
-                  ),
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final place = state.popularPlaces[index];
-                      return PlaceCard(
-                        place: place,
-                        isHorizontal: false,
-                        onTap: () {
-                          context.push('/places/${place.id}');
-                        },
-                      );
-                    },
-                    childCount: state.popularPlaces.length,
-                  ),
-                ),
               ),
-
-            // 하단 여백
-            const SliverToBoxAdapter(
-              child: SizedBox(height: AppTheme.space8),
+              data: (items) => items.isEmpty
+                  ? SliverToBoxAdapter(
+                      child: _EmptyState(
+                        onAddTap: () => ArchiveInputSheet.show(context),
+                      ),
+                    )
+                  : SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            if (index.isOdd) {
+                              return const SizedBox(height: 10);
+                            }
+                            final item = items[index ~/ 2];
+                            return _RecentArchiveTile(
+                              content: item,
+                              onTap: () => context.push('/archive/${item.id}'),
+                            );
+                          },
+                          childCount: items.length * 2 - 1,
+                        ),
+                      ),
+                    ),
             ),
+
+            const SliverToBoxAdapter(child: SizedBox(height: 80)),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          ArchiveInputSheet.show(context);
-        },
+        onPressed: () => ArchiveInputSheet.show(context),
         icon: const Icon(Icons.add_link),
         label: const Text('링크 아카이빙'),
-        tooltip: 'SNS 링크 아카이빙하기',
       ),
     );
   }
+}
 
-  Widget _buildRecommendedSection(HomeState state) {
-    final theme = Theme.of(context);
+class _RecentArchiveTile extends StatelessWidget {
+  final ArchivedContent content;
+  final VoidCallback onTap;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(AppTheme.space4),
+  const _RecentArchiveTile({required this.content, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey[200]!),
+      ),
+      clipBehavior: Clip.hardEdge,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(14),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                Icons.local_fire_department,
-                color: theme.colorScheme.primary,
-              ),
-              const SizedBox(width: AppTheme.space2),
-              Text(
-                '오늘의 추천 장소',
-                style: theme.textTheme.titleLarge,
+              _Thumbnail(content: content),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _TypeBadge(type: content.contentType),
+                    const SizedBox(height: 4),
+                    if (content.title != null)
+                      Text(
+                        content.title!,
+                        style: AppTextStyles.bodyLarge,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    if (content.summary != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        content.summary!,
+                        style: AppTextStyles.body2
+                            .copyWith(color: AppColors.textSecondary),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                    const SizedBox(height: 6),
+                    Text(
+                      _formatDate(content.archivedAt),
+                      style: AppTextStyles.bodySmall
+                          .copyWith(color: AppColors.textTertiary),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
         ),
-
-        if (state.isLoadingRecommended)
-          const SizedBox(
-            height: 120,
-            child: Center(child: CircularProgressIndicator()),
-          )
-        else if (state.recommendedPlaces.isEmpty)
-          SizedBox(
-            height: 120,
-            child: Center(
-              child: Text(
-                '추천 장소가 없습니다',
-                style: theme.textTheme.bodyMedium,
-              ),
-            ),
-          )
-        else
-          SizedBox(
-            height: 120,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: AppTheme.space4),
-              itemCount: state.recommendedPlaces.length,
-              itemBuilder: (context, index) {
-                final place = state.recommendedPlaces[index];
-                return Padding(
-                  padding: const EdgeInsets.only(right: AppTheme.space3),
-                  child: PlaceCard(
-                    place: place,
-                    isHorizontal: true,
-                    onTap: () {
-                      context.push('/places/${place.id}');
-                    },
-                  ),
-                );
-              },
-            ),
-          ),
-
-        if (state.recommendedPlaces.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppTheme.space4),
-            child: TextButton(
-              onPressed: () {
-                // TODO: 추천 장소 전체 보기
-              },
-              child: const Text('더보기 →'),
-            ),
-          ),
-      ],
+      ),
     );
   }
 
+  String _formatDate(DateTime dt) =>
+      '${dt.year}.${dt.month.toString().padLeft(2, '0')}.${dt.day.toString().padLeft(2, '0')}';
+}
+
+class _Thumbnail extends StatelessWidget {
+  final ArchivedContent content;
+  const _Thumbnail({required this.content});
+
+  @override
+  Widget build(BuildContext context) {
+    if (content.thumbnailUrl != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: CachedNetworkImage(
+          imageUrl: content.thumbnailUrl!,
+          width: 60,
+          height: 60,
+          fit: BoxFit.cover,
+          errorWidget: (_, __, ___) => _fallback(),
+        ),
+      );
+    }
+    return _fallback();
+  }
+
+  Widget _fallback() {
+    final (icon, color) = switch (content.platform) {
+      Platform.instagram => (Icons.camera_alt, Colors.purple),
+      Platform.naver_blog => (Icons.article, Colors.green),
+      _ => (Icons.play_circle, Colors.red),
+    };
+    return Container(
+      width: 60,
+      height: 60,
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Icon(icon, color: color),
+    );
+  }
+}
+
+class _TypeBadge extends StatelessWidget {
+  final ContentType type;
+  const _TypeBadge({required this.type});
+
+  @override
+  Widget build(BuildContext context) {
+    final (label, icon, color) = switch (type) {
+      ContentType.place => ('장소', Icons.place, Colors.orange),
+      ContentType.event => ('이벤트', Icons.event, Colors.purple),
+      ContentType.tips => ('팁', Icons.lightbulb, Colors.amber),
+      ContentType.review => ('리뷰', Icons.star, Colors.blue),
+      _ => ('기타', Icons.article, Colors.grey),
+    };
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 11, color: color),
+          const SizedBox(width: 3),
+          Text(label,
+              style: TextStyle(
+                  color: color, fontSize: 11, fontWeight: FontWeight.w600)),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  final VoidCallback onAddTap;
+  const _EmptyState({required this.onAddTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(48),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.bookmarks_outlined, size: 64, color: Colors.grey[300]),
+            const SizedBox(height: 16),
+            Text(
+              '아직 아카이빙한 콘텐츠가 없어요',
+              style: AppTextStyles.body2
+                  .copyWith(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '아래 버튼으로 링크를 추가해보세요',
+              style: AppTextStyles.bodySmall
+                  .copyWith(color: AppColors.textTertiary),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: onAddTap,
+              icon: const Icon(Icons.add_link),
+              label: const Text('링크 추가하기'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

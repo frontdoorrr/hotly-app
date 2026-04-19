@@ -20,6 +20,7 @@ class MainShellScreen extends StatelessWidget {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
         onTap: (index) => _onItemTapped(context, index),
+        type: BottomNavigationBarType.fixed,
         items: [
           BottomNavigationBarItem(
             icon: const Icon(Icons.home_outlined),
@@ -27,19 +28,19 @@ class MainShellScreen extends StatelessWidget {
             label: context.l10n.nav_home,
           ),
           BottomNavigationBarItem(
+            icon: const Icon(Icons.explore_outlined),
+            activeIcon: const Icon(Icons.explore),
+            label: context.l10n.nav_discover,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.event_note_outlined),
+            activeIcon: const Icon(Icons.event_note),
+            label: context.l10n.nav_plan,
+          ),
+          BottomNavigationBarItem(
             icon: const Icon(Icons.map_outlined),
             activeIcon: const Icon(Icons.map),
             label: context.l10n.nav_map,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.bookmarks_outlined),
-            activeIcon: const Icon(Icons.bookmarks),
-            label: context.l10n.nav_archive,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.bookmark_border),
-            activeIcon: const Icon(Icons.bookmark),
-            label: context.l10n.nav_saved,
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.person_outline),
@@ -57,13 +58,13 @@ class MainShellScreen extends StatelessWidget {
         context.go('/');
         break;
       case 1:
-        context.go('/map');
+        context.go('/discover');
         break;
       case 2:
-        context.go('/archive');
+        context.go('/plan');
         break;
       case 3:
-        context.go('/saved');
+        context.go('/map');
         break;
       case 4:
         context.go('/profile');

@@ -63,6 +63,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get nav_archive => '아카이브';
 
   @override
+  String get nav_discover => '발견';
+
+  @override
+  String get nav_plan => '계획';
+
+  @override
   String get nav_profile => '프로필';
 
   @override

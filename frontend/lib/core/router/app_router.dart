@@ -3,15 +3,15 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/archive/presentation/screens/archive_detail_screen.dart';
-import '../../features/archive/presentation/screens/archive_screen.dart';
+import '../../features/discover/presentation/screens/discover_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
+import '../../features/plan/presentation/screens/plan_screen.dart';
 import '../../features/course/presentation/screens/course_builder_screen.dart';
 import '../../features/search/presentation/screens/search_screen.dart';
 import '../../features/place/presentation/screens/place_detail_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/profile/presentation/screens/profile_edit_screen.dart';
 import '../../features/map/presentation/screens/map_screen.dart';
-import '../../features/saved/presentation/screens/saved_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/signup_screen.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
@@ -79,6 +79,28 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             ],
           ),
 
+          // Discover Tab
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/discover',
+                name: 'discover',
+                builder: (context, state) => const DiscoverScreen(),
+              ),
+            ],
+          ),
+
+          // Plan Tab
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/plan',
+                name: 'plan',
+                builder: (context, state) => const PlanScreen(),
+              ),
+            ],
+          ),
+
           // Map Tab
           StatefulShellBranch(
             routes: [
@@ -86,38 +108,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                 path: '/map',
                 name: 'map',
                 builder: (context, state) => const MapScreen(),
-              ),
-            ],
-          ),
-
-          // Archive Tab
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/archive',
-                name: 'archive',
-                builder: (context, state) => const ArchiveScreen(),
-                routes: [
-                  GoRoute(
-                    path: ':archiveId',
-                    name: 'archiveDetail',
-                    builder: (context, state) {
-                      final id = state.pathParameters['archiveId']!;
-                      return ArchiveDetailScreen(archiveId: id);
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
-
-          // Saved Tab
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/saved',
-                name: 'saved',
-                builder: (context, state) => const SavedScreen(),
               ),
             ],
           ),
@@ -133,6 +123,16 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             ],
           ),
         ],
+      ),
+
+      // Archive Detail Screen (outside bottom nav)
+      GoRoute(
+        path: '/archive/:archiveId',
+        name: 'archiveDetail',
+        builder: (context, state) {
+          final id = state.pathParameters['archiveId']!;
+          return ArchiveDetailScreen(archiveId: id);
+        },
       ),
 
       // Search Screen (outside bottom nav)

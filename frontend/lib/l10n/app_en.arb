@@ -21,6 +21,8 @@
   "nav_map": "Map",
   "nav_saved": "Saved",
   "nav_archive": "Archive",
+  "nav_discover": "Discover",
+  "nav_plan": "Plan",
   "nav_profile": "Profile",
 
   "auth_login": "Log in",

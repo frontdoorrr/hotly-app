@@ -131,6 +131,13 @@ final archiveListProvider =
   return ArchiveListNotifier(ref.watch(archiveRepositoryProvider));
 });
 
+/// 홈 전용 최근 아카이빙 목록 (상태 격리, 필터 없음, 8개 고정)
+final recentArchiveProvider = FutureProvider<List<ArchivedContent>>((ref) async {
+  final repo = ref.watch(archiveRepositoryProvider);
+  final result = await repo.getArchives(page: 1, pageSize: 8);
+  return result.fold((e) => throw e, (list) => list.items);
+});
+
 /// 개별 아카이브 상세 조회
 final archiveDetailProvider = FutureProvider.family<ArchivedContent, String>(
   (ref, id) async {

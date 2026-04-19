@@ -216,6 +216,17 @@ Automated testing pipeline via GitHub Actions (`.github/workflows/test-automatio
 - **Coverage Reports**: Combined coverage with 80% minimum threshold
 - **Security Scanning**: Bandit and Safety dependency checks
 
+## Flutter 개발 주의사항
+
+### l10n (다국어) 수정
+`frontend/lib/l10n/` 하위의 `.dart` 파일들은 **빌드 시 자동 생성**된다. 직접 수정해도 빌드 때 덮어써진다.
+
+**반드시 ARB 파일을 수정할 것:**
+- `frontend/lib/l10n/app_ko.arb` — 한국어
+- `frontend/lib/l10n/app_en.arb` — 영어
+
+설정: `frontend/l10n.yaml` (template: `app_ko.arb`, output: `app_localizations.dart`)
+
 ## Environment Setup
 
 Key configuration files:
