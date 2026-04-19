@@ -143,17 +143,10 @@ flutter:
     - assets/kakao_map.html
 
   # Fonts
-  fonts: []
-  #     - family: Pretendard
-  #       fonts:
-  #         - asset: assets/fonts/Pretendard/Pretendard-Regular.otf
-  #           weight: 400
-  #         - asset: assets/fonts/Pretendard/Pretendard-Medium.otf
-  #           weight: 500
-  #         - asset: assets/fonts/Pretendard/Pretendard-SemiBold.otf
-  #           weight: 600
-  #         - asset: assets/fonts/Pretendard/Pretendard-Bold.otf
-  #           weight: 700
+  fonts:
+    - family: Google Sans
+      fonts:
+        - asset: assets/fonts/GoogleSans-VariableFont_GRAD_opsz_wght.ttf
 
 # ========== Flutter Launcher Icons 설정 ==========
 flutter_launcher_icons:
