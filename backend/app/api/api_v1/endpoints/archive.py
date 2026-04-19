@@ -1,16 +1,17 @@
 """Archive endpoints — URL 분석 및 아카이빙."""
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.db.deps import get_db
-from app.middleware.jwt_middleware import get_current_active_user
+from app.middleware.auth_middleware import get_current_user
 from app.models.archived_content import ArchivedContent
-from app.models.user import User
+from app.models.user_data import AuthenticatedUser
+from app.crud.user import crud_user
 from app.schemas.archive import (
     ArchiveDetail,
     ArchiveListItem,
@@ -37,7 +38,7 @@ router = APIRouter()
 async def archive_url(
     body: ArchiveRequest,
     db: Session = Depends(get_db),
-    current_user: Dict[str, Any] = Depends(get_current_active_user),
+    current_user: AuthenticatedUser = Depends(get_current_user),
 ) -> Any:
     user_id = _get_user_id(db, current_user)
 
@@ -92,7 +93,7 @@ def list_archives(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db),
-    current_user: Dict[str, Any] = Depends(get_current_active_user),
+    current_user: AuthenticatedUser = Depends(get_current_user),
 ) -> Any:
     user_id = _get_user_id(db, current_user)
 
@@ -124,7 +125,7 @@ def list_archives(
 def get_archive(
     archive_id: UUID,
     db: Session = Depends(get_db),
-    current_user: Dict[str, Any] = Depends(get_current_active_user),
+    current_user: AuthenticatedUser = Depends(get_current_user),
 ) -> Any:
     user_id = _get_user_id(db, current_user)
     item = _get_owned_or_404(db, archive_id, user_id)
@@ -139,7 +140,7 @@ def get_archive(
 def delete_archive(
     archive_id: UUID,
     db: Session = Depends(get_db),
-    current_user: Dict[str, Any] = Depends(get_current_active_user),
+    current_user: AuthenticatedUser = Depends(get_current_user),
 ) -> None:
     user_id = _get_user_id(db, current_user)
     item = _get_owned_or_404(db, archive_id, user_id)
@@ -151,12 +152,13 @@ def delete_archive(
 # Helpers
 # ------------------------------------------------------------------
 
-def _get_user_id(db: Session, current_user: Dict[str, Any]) -> UUID:
-    """firebase_uid로 DB User를 조회해 UUID 반환."""
-    firebase_uid = current_user["uid"]
-    user = db.query(User).filter(User.firebase_uid == firebase_uid).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+def _get_user_id(db: Session, current_user: AuthenticatedUser) -> UUID:
+    """firebase_uid로 DB User를 조회하거나 생성해 UUID 반환."""
+    user = crud_user.get_or_create_by_firebase_uid(
+        db,
+        firebase_uid=current_user.firebase_uid,
+        email=current_user.email or "",
+    )
     return user.id
 
 
