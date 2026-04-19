@@ -83,7 +83,6 @@ class AppTheme {
         foregroundColor: AppColors.textPrimary,
         systemOverlayStyle: SystemUiOverlayStyle.light,
         titleTextStyle: GoogleFonts.notoSansKr(
-          fontFamily: AppTextStyles.fontFamily,
           fontSize: 18,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
