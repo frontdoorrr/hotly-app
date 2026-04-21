@@ -202,6 +202,11 @@ class MapNotifier extends StateNotifier<MapState> {
       selectedSearchResult: null,
     );
   }
+
+  /// Update places displayed on map
+  void updatePlacesOnMap(List<Map<String, dynamic>> places) {
+    state = state.copyWith(placesOnMap: places);
+  }
 }
 
 /// Provider for MapRepository

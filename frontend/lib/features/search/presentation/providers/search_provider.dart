@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../../../core/network/dio_client.dart';
@@ -25,11 +26,18 @@ class SearchState with _$SearchState {
 class SearchNotifier extends StateNotifier<SearchState> {
   final SearchRepository _repository;
   final SearchPlaces _searchPlacesUseCase;
+  Timer? _debounceTimer;
 
   SearchNotifier(this._repository)
       : _searchPlacesUseCase = SearchPlaces(_repository),
         super(const SearchState()) {
     _loadSearchHistory();
+  }
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> search({
@@ -117,8 +125,11 @@ class SearchNotifier extends StateNotifier<SearchState> {
 
   void updateSearchQuery(String query) {
     state = state.copyWith(searchQuery: query);
+    _debounceTimer?.cancel();
     if (query.isNotEmpty) {
-      loadAutocompleteSuggestions(query);
+      _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+        loadAutocompleteSuggestions(query);
+      });
     } else {
       state = state.copyWith(autocompleteSuggestions: []);
     }

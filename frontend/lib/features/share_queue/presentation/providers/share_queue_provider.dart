@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,6 +34,7 @@ class ShareQueueNotifier extends StateNotifier<ShareQueueState> {
   final Logger _logger = Logger();
 
   bool _isDisposed = false;
+  Timer? _saveDebounceTimer;
 
   ShareQueueNotifier(
     this._storageService,
@@ -44,6 +46,7 @@ class ShareQueueNotifier extends StateNotifier<ShareQueueState> {
   @override
   void dispose() {
     _isDisposed = true;
+    _saveDebounceTimer?.cancel();
     super.dispose();
   }
 
@@ -259,7 +262,7 @@ class ShareQueueNotifier extends StateNotifier<ShareQueueState> {
     }).toList();
 
     state = state.copyWith(items: items);
-    _saveQueue();
+    _scheduleSave();
   }
 
   /// 항목에 결과 추가
@@ -276,7 +279,7 @@ class ShareQueueNotifier extends StateNotifier<ShareQueueState> {
     }).toList();
 
     state = state.copyWith(items: items);
-    _saveQueue();
+    _scheduleSave();
   }
 
   /// 항목에 에러 추가
@@ -293,7 +296,7 @@ class ShareQueueNotifier extends StateNotifier<ShareQueueState> {
     }).toList();
 
     state = state.copyWith(items: items);
-    _saveQueue();
+    _scheduleSave();
   }
 
   /// 실패한 항목만 재시도
@@ -385,7 +388,12 @@ class ShareQueueNotifier extends StateNotifier<ShareQueueState> {
     state = state.copyWith(error: null);
   }
 
-  /// 큐 저장 (내부)
+  /// 큐 저장 (내부) — debounce 500ms로 배치 처리 중 반복 I/O 방지
+  void _scheduleSave() {
+    _saveDebounceTimer?.cancel();
+    _saveDebounceTimer = Timer(const Duration(milliseconds: 500), _saveQueue);
+  }
+
   Future<void> _saveQueue() async {
     try {
       await _storageService.saveQueue(state.items);

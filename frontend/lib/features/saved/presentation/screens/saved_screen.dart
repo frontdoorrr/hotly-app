@@ -132,9 +132,8 @@ class SavedScreen extends ConsumerWidget {
       return _buildEmptyState(context);
     }
 
-    // Calculate tag statistics and filtered places from provider
-    final tagStats = notifier.tagStatistics;
-    final filteredPlaces = notifier.filteredPlaces;
+    final tagStats = ref.watch(tagStatisticsProvider);
+    final filteredPlaces = ref.watch(filteredPlacesProvider);
 
     return Column(
       children: [

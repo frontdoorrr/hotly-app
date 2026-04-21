@@ -103,3 +103,26 @@ final savedPlacesProvider =
   final repository = ref.watch(placeRepositoryProvider);
   return SavedPlacesNotifier(repository);
 });
+
+/// build() 안에서 매번 재계산되던 tagStatistics를 provider로 분리
+final tagStatisticsProvider = Provider<Map<String, int>>((ref) {
+  final places = ref.watch(savedPlacesProvider).places;
+  final tagCounts = <String, int>{};
+  for (final place in places) {
+    for (final tag in place.tags) {
+      tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
+    }
+  }
+  final sortedEntries = tagCounts.entries.toList()
+    ..sort((a, b) => b.value.compareTo(a.value));
+  return Map.fromEntries(sortedEntries);
+});
+
+/// build() 안에서 매번 재계산되던 filteredPlaces를 provider로 분리
+final filteredPlacesProvider = Provider<List<Place>>((ref) {
+  final state = ref.watch(savedPlacesProvider);
+  if (state.selectedTags.isEmpty) return state.places;
+  return state.places.where((place) {
+    return place.tags.any((tag) => state.selectedTags.contains(tag));
+  }).toList();
+});

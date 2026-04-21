@@ -15,16 +15,15 @@ class ShareQueueBadge extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final queueState = ref.watch(shareQueueProvider);
-    final pendingCount = queueState.pendingCount;
-    final completedCount = queueState.completedCount;
+    final pendingCount = ref.watch(pendingQueueCountProvider);
+    final isProcessing = ref.watch(isProcessingQueueProvider);
+    final completedCount = ref.watch(shareQueueProvider.select((s) => s.completedCount));
 
-    final bool isVisible =
-        pendingCount > 0 || queueState.isProcessing || completedCount > 0;
+    final bool isVisible = pendingCount > 0 || isProcessing || completedCount > 0;
 
     if (!isVisible) return const SizedBox.shrink();
 
-    final bool isCompleted = !queueState.isProcessing && completedCount > 0 && pendingCount == 0;
+    final bool isCompleted = !isProcessing && completedCount > 0 && pendingCount == 0;
     final Color badgeColor = isCompleted ? AppColors.success : AppColors.primary;
 
     return Container(
@@ -49,8 +48,8 @@ class ShareQueueBadge extends ConsumerWidget {
           borderRadius: BorderRadius.circular(12),
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: queueState.isProcessing
-                ? _buildProcessingContent(queueState)
+            child: isProcessing
+                ? const _ProcessingBadgeContent()
                 : isCompleted
                     ? _buildCompletedContent(completedCount)
                     : _buildPendingContent(pendingCount, ref),
@@ -168,7 +167,29 @@ class ShareQueueBadge extends ConsumerWidget {
     );
   }
 
-  Widget _buildProcessingContent(ShareQueueState state) {
+  void _showProcessingSheet(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const BatchProcessingSheet(),
+    );
+
+    // 분석 시작
+    final notifier = ref.read(shareQueueProvider.notifier);
+    if (!ref.read(shareQueueProvider).isProcessing) {
+      notifier.processBatch();
+    }
+  }
+}
+
+/// 처리 중 콘텐츠 — 진행 상황이 바뀔 때만 이 위젯만 rebuild
+class _ProcessingBadgeContent extends ConsumerWidget {
+  const _ProcessingBadgeContent();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(shareQueueProvider);
     final totalToProcess = state.items
         .where(
           (item) =>
@@ -229,21 +250,6 @@ class ShareQueueBadge extends ConsumerWidget {
         ),
       ],
     );
-  }
-
-  void _showProcessingSheet(BuildContext context, WidgetRef ref) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => const BatchProcessingSheet(),
-    );
-
-    // 분석 시작
-    final notifier = ref.read(shareQueueProvider.notifier);
-    if (!ref.read(shareQueueProvider).isProcessing) {
-      notifier.processBatch();
-    }
   }
 }
 

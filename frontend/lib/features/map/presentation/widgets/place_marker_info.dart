@@ -19,20 +19,17 @@ class PlaceMarkerInfo extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final savedState = ref.watch(savedPlacesProvider);
+    final place = ref.watch(
+      savedPlacesProvider.select((s) {
+        for (final p in s.places) {
+          if (p.id == placeId) return p;
+        }
+        return null;
+      }),
+    );
 
-    // placeId로 Place 객체 찾기
-    try {
-      final place = savedState.places.firstWhere(
-        (p) => p.id == placeId,
-      );
-
-      return _buildInfo(context, theme, place);
-    } catch (e) {
-      // 장소를 찾을 수 없는 경우
-      debugPrint('⚠️ Place not found: $placeId');
-      return const SizedBox.shrink();
-    }
+    if (place == null) return const SizedBox.shrink();
+    return _buildInfo(context, theme, place);
   }
 
   Widget _buildInfo(BuildContext context, ThemeData theme, Place place) {

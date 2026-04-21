@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -16,16 +17,18 @@ class MapSearchBar extends ConsumerStatefulWidget {
 class _MapSearchBarState extends ConsumerState<MapSearchBar> {
   final _controller = TextEditingController();
   bool _showResults = false;
+  Timer? _debounceTimer;
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
     _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(mapProvider);
+    final searchResults = ref.watch(mapProvider.select((s) => s.searchResults));
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -65,11 +68,14 @@ class _MapSearchBarState extends ConsumerState<MapSearchBar> {
             ),
             onChanged: (value) {
               setState(() => _showResults = value.isNotEmpty);
+              _debounceTimer?.cancel();
               if (value.length >= 2) {
-                ref.read(mapProvider.notifier).searchPlaces(
-                      query: value,
-                      radiusKm: 5,
-                    );
+                _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+                  ref.read(mapProvider.notifier).searchPlaces(
+                        query: value,
+                        radiusKm: 5,
+                      );
+                });
               }
             },
             onSubmitted: (value) async {
@@ -95,7 +101,7 @@ class _MapSearchBarState extends ConsumerState<MapSearchBar> {
         ),
 
         // Search results
-        if (_showResults && state.searchResults.isNotEmpty)
+        if (_showResults && searchResults.isNotEmpty)
           Container(
             margin: const EdgeInsets.only(top: 8),
             constraints: const BoxConstraints(maxHeight: 300),
@@ -113,36 +119,38 @@ class _MapSearchBarState extends ConsumerState<MapSearchBar> {
             child: ListView.separated(
               shrinkWrap: true,
               padding: EdgeInsets.zero,
-              itemCount: state.searchResults.length,
+              itemCount: searchResults.length,
               separatorBuilder: (context, index) => const Divider(height: 1),
               itemBuilder: (context, index) {
-                final result = state.searchResults[index];
+                final result = searchResults[index];
                 return ListTile(
                   leading: Icon(
                     Icons.location_on,
                     color: AppColors.primary,
                   ),
-                  title: Text(result.placeName),
+                  title: Text(
+                    result.placeName,
+                    style: const TextStyle(color: Colors.black87),
+                  ),
                   subtitle: Text(
                     result.address,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.black54),
                   ),
                   trailing: result.distance != null
                       ? Text(
                           '${(result.distance! / 1000).toStringAsFixed(1)}km',
-                          style: TextStyle(
-                            color: AppColors.textSecondary,
+                          style: const TextStyle(
+                            color: Colors.black45,
                             fontSize: 12,
                           ),
                         )
                       : null,
                   onTap: () {
-                    // Select search result
                     ref.read(mapProvider.notifier).selectSearchResult(result);
 
-                    // Convert search results to place format for markers
-                    final searchPlaces = state.searchResults
+                    final searchPlaces = searchResults
                         .map((r) => {
                               'id': r.placeId,
                               'name': r.placeName,
@@ -152,13 +160,8 @@ class _MapSearchBarState extends ConsumerState<MapSearchBar> {
                             })
                         .toList();
 
-                    // Update placesOnMap with search results
-                    ref.read(mapProvider.notifier).state =
-                        ref.read(mapProvider).copyWith(
-                              placesOnMap: searchPlaces,
-                            );
+                    ref.read(mapProvider.notifier).updatePlacesOnMap(searchPlaces);
 
-                    // Move camera to selected place
                     widget.onPlaceSelected?.call(
                       result.latitude,
                       result.longitude,

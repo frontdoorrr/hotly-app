@@ -28,6 +28,8 @@ class _MapScreenState extends ConsumerState<MapScreen>
   bool _isMapReady = false;
   bool _markersAdded = false;
   bool _showList = false;
+  KImage? _cachedMarkerIcon;
+  KImage? _cachedCurrentLocationIcon;
 
   // Unique key for KakaoMap widget to prevent recreation issues
   final GlobalKey _mapKey = GlobalKey();
@@ -111,7 +113,9 @@ class _MapScreenState extends ConsumerState<MapScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context); // AutomaticKeepAliveClientMixin 필수
-    final state = ref.watch(mapProvider);
+    final selectedSearchResult = ref.watch(mapProvider.select((s) => s.selectedSearchResult));
+    final selectedPlaceId = ref.watch(mapProvider.select((s) => s.selectedPlaceId));
+    final isLoading = ref.watch(mapProvider.select((s) => s.isLoading));
 
     return Scaffold(
       body: Stack(
@@ -226,26 +230,26 @@ class _MapScreenState extends ConsumerState<MapScreen>
             ),
 
           // Selected search result info (지도 모드일 때만)
-          if (!_showList && state.selectedSearchResult != null)
+          if (!_showList && selectedSearchResult != null)
             Positioned(
               bottom: 16,
               left: 16,
               right: 16,
               child: SearchResultInfo(
-                place: state.selectedSearchResult!,
+                place: selectedSearchResult,
                 onClose: () {
                   ref.read(mapProvider.notifier).selectSearchResult(null);
                 },
               ),
             )
           // Selected saved place info
-          else if (state.selectedPlaceId != null)
+          else if (selectedPlaceId != null)
             Positioned(
               bottom: 16,
               left: 16,
               right: 16,
               child: PlaceMarkerInfo(
-                placeId: state.selectedPlaceId!,
+                placeId: selectedPlaceId,
                 onClose: () {
                   ref.read(mapProvider.notifier).selectPlace(null);
                 },
@@ -253,7 +257,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
             ),
 
           // Loading indicator
-          if (state.isLoading)
+          if (isLoading)
             const Positioned(
               top: 100,
               left: 0,
@@ -322,6 +326,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
 
   /// 마커 아이콘 생성 (간단한 빨간색 핀 모양)
   Future<KImage?> _createMarkerIcon() async {
+    if (_cachedMarkerIcon != null) return _cachedMarkerIcon;
     try {
       final markerWidget = Container(
         width: 16,
@@ -359,6 +364,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
         context: context,
       );
 
+      _cachedMarkerIcon = icon;
       return icon;
     } catch (e) {
       AppLogger.e('Failed to create marker icon', tag: 'Map', error: e);
@@ -400,6 +406,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
 
   /// 현재 위치 아이콘 생성 (파란색 원)
   Future<KImage?> _createCurrentLocationIcon() async {
+    if (_cachedCurrentLocationIcon != null) return _cachedCurrentLocationIcon;
     try {
       final iconWidget = Container(
         width: 12,
@@ -427,6 +434,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
         context: context,
       );
 
+      _cachedCurrentLocationIcon = icon;
       return icon;
     } catch (e) {
       AppLogger.e('Failed to create current location icon', tag: 'Map', error: e);
