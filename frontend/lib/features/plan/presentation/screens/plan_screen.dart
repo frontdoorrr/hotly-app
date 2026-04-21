@@ -188,16 +188,40 @@ class _EventDateRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final startDate = content.typeSpecificData?['start_date'] as String?;
-    if (startDate == null) return const SizedBox.shrink();
+    final endDate = content.typeSpecificData?['end_date'] as String?;
+    final time = content.typeSpecificData?['time'] as String?;
 
-    return Row(
+    if (startDate == null && time == null) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Icon(Icons.calendar_today, size: 12, color: Colors.grey),
-        const SizedBox(width: 4),
-        Text(
-          startDate,
-          style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
-        ),
+        if (startDate != null)
+          Row(
+            children: [
+              const Icon(Icons.calendar_today, size: 12, color: Colors.grey),
+              const SizedBox(width: 4),
+              Text(
+                endDate != null ? '$startDate ~ $endDate' : startDate,
+                style: AppTextStyles.bodySmall
+                    .copyWith(color: AppColors.textTertiary),
+              ),
+            ],
+          ),
+        if (time != null) ...[
+          const SizedBox(height: 2),
+          Row(
+            children: [
+              const Icon(Icons.access_time, size: 12, color: Colors.grey),
+              const SizedBox(width: 4),
+              Text(
+                time,
+                style: AppTextStyles.bodySmall
+                    .copyWith(color: AppColors.textTertiary),
+              ),
+            ],
+          ),
+        ],
       ],
     );
   }
