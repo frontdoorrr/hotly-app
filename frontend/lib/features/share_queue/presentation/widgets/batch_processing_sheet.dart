@@ -61,18 +61,26 @@ class _BatchProcessingSheetState extends ConsumerState<BatchProcessingSheet> {
             ),
           ),
 
-          // 항목 목록
+          // 항목 목록 (saved/ignored 제외)
           Expanded(
-            child: state.items.isEmpty
-                ? _buildEmptyState()
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    itemCount: state.items.length,
-                    itemBuilder: (context, index) {
-                      final item = state.items[index];
-                      return ShareQueueItemTile(item: item);
-                    },
-                  ),
+            child: Builder(
+              builder: (context) {
+                final displayItems = state.items
+                    .where((item) =>
+                        item.status != ShareQueueStatus.saved &&
+                        item.status != ShareQueueStatus.ignored)
+                    .toList();
+                return displayItems.isEmpty
+                    ? _buildEmptyState()
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        itemCount: displayItems.length,
+                        itemBuilder: (context, index) {
+                          return ShareQueueItemTile(item: displayItems[index]);
+                        },
+                      );
+              },
+            ),
           ),
 
           // 하단 버튼

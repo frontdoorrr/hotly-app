@@ -121,6 +121,21 @@ class ShareQueueNotifier extends StateNotifier<ShareQueueState> {
       return;
     }
 
+    // 새 배치 시작 전 이전 세션 종료 항목 정리
+    // (completed, saved, ignored, 재시도 소진 failed)
+    final activeItems = state.items
+        .where((item) =>
+            item.status == ShareQueueStatus.pending ||
+            item.status == ShareQueueStatus.analyzing ||
+            (item.status == ShareQueueStatus.failed && item.retryCount < 3))
+        .toList();
+    if (activeItems.length != state.items.length) {
+      _logger.i(
+          'ShareQueue: Cleaned ${state.items.length - activeItems.length} stale items before batch');
+      state = state.copyWith(items: activeItems);
+      await _storageService.saveQueue(activeItems);
+    }
+
     final processableItems = state.processableItems;
     if (processableItems.isEmpty) {
       _logger.i('ShareQueue: No items to process');
