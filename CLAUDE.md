@@ -44,6 +44,9 @@ cd frontend
 npm run dev
 ```
 
+> **link-analyzer**: 별도 프로세스로 **포트 8003**에서 독립 실행됩니다.
+> `docker-compose`에 포함되지 않으며, 백엔드는 `LINK_ANALYZER_BASE_URL=http://localhost:8003` 환경변수로 연결합니다.
+
 ### Testing (TDD Framework)
 ```bash
 # All commands run from backend directory

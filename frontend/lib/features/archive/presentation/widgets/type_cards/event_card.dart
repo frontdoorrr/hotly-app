@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '_shared.dart';
@@ -12,7 +14,7 @@ class EventCard extends StatelessWidget {
     final endDate = data['end_date'] as String?;
     final dateRange = [startDate, endDate].where((d) => d != null).join(' ~ ');
 
-    final venue = data['venue'] as Map<String, dynamic>?;
+    final venue = _parseVenue(data['venue']);
 
     return TypeInfoCard(
       children: [
@@ -49,6 +51,22 @@ class EventCard extends StatelessWidget {
         ],
       ],
     );
+  }
+
+  /// venue 필드가 Map 또는 JSON 문자열로 올 수 있는 경우를 방어 처리.
+  static Map<String, dynamic>? _parseVenue(Object? raw) {
+    if (raw == null) return null;
+    if (raw is Map<String, dynamic>) return raw;
+    if (raw is String) {
+      try {
+        final decoded = jsonDecode(raw);
+        if (decoded is Map<String, dynamic>) return decoded;
+        return {'name': raw};
+      } catch (_) {
+        return {'name': raw};
+      }
+    }
+    return null;
   }
 
   Future<void> _launch(String? url) async {

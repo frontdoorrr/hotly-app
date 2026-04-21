@@ -89,20 +89,30 @@ class HotlyApp extends ConsumerStatefulWidget {
   ConsumerState<HotlyApp> createState() => _HotlyAppState();
 }
 
-class _HotlyAppState extends ConsumerState<HotlyApp> {
+class _HotlyAppState extends ConsumerState<HotlyApp> with WidgetsBindingObserver {
   StreamSubscription? _intentDataStreamSubscription;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _setupNotificationHandler();
     _setupSharingIntentHandler();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _intentDataStreamSubscription?.cancel();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Share Extension → 앱 복귀 시 App Groups의 새 URL 로드
+      ref.read(shareQueueProvider.notifier).refreshQueue();
+    }
   }
 
   void _setupNotificationHandler() {
@@ -162,33 +172,57 @@ class _HotlyAppState extends ConsumerState<HotlyApp> {
   }
 
   void _handleSharedUrl(String text) {
-    // URL 패턴 검증
     final urlPattern = RegExp(
       r'https?:\/\/(www\.)?(instagram\.com|naver\.com|blog\.naver\.com|youtube\.com|youtu\.be)\/[^\s]+',
       caseSensitive: false,
     );
 
     final match = urlPattern.firstMatch(text);
-    if (match != null) {
-      final url = match.group(0)!;
-      AppLogger.d('Valid URL detected: $url', tag: 'Share');
+    if (match == null) {
+      AppLogger.w('No valid URL found in shared text', tag: 'Share');
+      return;
+    }
 
-      // 지원하는 URL인지 확인
-      if (!ShareQueueStorageService.isSupportedUrl(url)) {
-        AppLogger.w('Unsupported URL platform: $url', tag: 'Share');
-        return;
-      }
+    final url = match.group(0)!;
+    AppLogger.d('Valid URL detected: $url', tag: 'Share');
 
-      // ShareQueue에 추가
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          ref.read(shareQueueProvider.notifier).addUrl(url);
-          AppLogger.i('URL added to share queue: $url', tag: 'Share');
+    if (!ShareQueueStorageService.isSupportedUrl(url)) {
+      AppLogger.w('Unsupported URL platform: $url', tag: 'Share');
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      ref.read(shareQueueProvider.notifier).addUrl(url).then((result) {
+        if (!mounted) return;
+
+        if (result == AddUrlResult.duplicate) {
+          AppLogger.w('Duplicate URL, skipping: $url', tag: 'Share');
+          FCMService().showLocalNotification(
+            id: 1002,
+            title: '이미 추가된 링크',
+            body: '이 링크는 이미 분석 목록에 있어요.',
+          );
+          return;
+        }
+
+        AppLogger.i('URL added to share queue: $url', tag: 'Share');
+
+        // 홈 탭으로 이동하여 배지가 보이도록
+        final router = ref.read(goRouterProvider);
+        router.go('/');
+
+        // 분석 자동 시작
+        if (result == AddUrlResult.added) {
+          Future.delayed(const Duration(milliseconds: 300), () {
+            if (mounted) {
+              ref.read(shareQueueProvider.notifier).processBatch();
+            }
+          });
         }
       });
-    } else {
-      AppLogger.w('No valid URL found in shared text', tag: 'Share');
-    }
+    });
   }
 
   @override

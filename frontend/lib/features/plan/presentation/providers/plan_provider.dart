@@ -5,7 +5,7 @@ import '../../../archive/presentation/providers/archive_provider.dart';
 final planEventProvider = FutureProvider<List<ArchivedContent>>((ref) async {
   final repo = ref.watch(archiveRepositoryProvider);
   final result = await repo.getArchives(
-    contentType: ContentType.event,
+    contentType: 'event',
     page: 1,
     pageSize: 50,
   );
@@ -15,7 +15,7 @@ final planEventProvider = FutureProvider<List<ArchivedContent>>((ref) async {
 final planPlaceProvider = FutureProvider<List<ArchivedContent>>((ref) async {
   final repo = ref.watch(archiveRepositoryProvider);
   final result = await repo.getArchives(
-    contentType: ContentType.place,
+    contentType: 'place',
     page: 1,
     pageSize: 50,
   );

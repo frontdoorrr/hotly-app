@@ -4,6 +4,7 @@ import '../../../../core/network/dio_client.dart';
 import '../../data/datasources/archive_remote_datasource.dart';
 import '../../data/repositories/archive_repository_impl.dart';
 import '../../domain/entities/archived_content.dart';
+import '../../domain/entities/content_type_info.dart';
 import '../../domain/repositories/archive_repository.dart';
 
 part 'archive_provider.freezed.dart';
@@ -55,19 +56,20 @@ class ArchiveListState with _$ArchiveListState {
     @Default(1) int page,
     @Default(false) bool isLoading,
     @Default(false) bool hasMore,
-    ContentType? selectedType,
+    String? selectedType,
     String? error,
   }) = _ArchiveListState;
 }
 
 class ArchiveListNotifier extends StateNotifier<ArchiveListState> {
   final ArchiveRepository _repository;
+  final Ref _ref;
   static const _pageSize = 20;
 
-  ArchiveListNotifier(this._repository) : super(const ArchiveListState());
+  ArchiveListNotifier(this._repository, this._ref) : super(const ArchiveListState());
 
-  Future<void> load({ContentType? contentType, bool refresh = false}) async {
-    final targetType = contentType ?? state.selectedType;
+  Future<void> load({String? contentType, bool overrideType = false, bool refresh = false}) async {
+    final targetType = overrideType ? contentType : (contentType ?? state.selectedType);
     final page = refresh ? 1 : state.page;
 
     if (state.isLoading) return;
@@ -102,14 +104,17 @@ class ArchiveListNotifier extends StateNotifier<ArchiveListState> {
     final result = await _repository.deleteArchive(id);
     result.fold(
       (error) => state = state.copyWith(error: error.toString()),
-      (_) => state = state.copyWith(
-        items: state.items.where((e) => e.id != id).toList(),
-        total: state.total - 1,
-      ),
+      (_) {
+        state = state.copyWith(
+          items: state.items.where((e) => e.id != id).toList(),
+          total: state.total - 1,
+        );
+        _ref.invalidate(recentArchiveProvider);
+      },
     );
   }
 
-  void filterByType(ContentType? type) => load(contentType: type, refresh: true);
+  void filterByType(String? type) => load(contentType: type, overrideType: true, refresh: true);
 }
 
 // ------------------------------------------------------------------
@@ -128,7 +133,14 @@ final archiveInputProvider =
 
 final archiveListProvider =
     StateNotifierProvider<ArchiveListNotifier, ArchiveListState>((ref) {
-  return ArchiveListNotifier(ref.watch(archiveRepositoryProvider));
+  return ArchiveListNotifier(ref.watch(archiveRepositoryProvider), ref);
+});
+
+/// 콘텐츠 타입 목록 (앱 세션 동안 캐시)
+final contentTypesProvider = FutureProvider<List<ContentTypeInfo>>((ref) async {
+  final repo = ref.watch(archiveRepositoryProvider);
+  final result = await repo.getContentTypes();
+  return result.fold((e) => throw e, (list) => list);
 });
 
 /// 홈 전용 최근 아카이빙 목록 (상태 격리, 필터 없음, 8개 고정)

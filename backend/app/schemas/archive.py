@@ -7,7 +7,7 @@ from uuid import UUID
 from pydantic import BaseModel, HttpUrl
 
 
-ContentType = Literal["place", "event", "tips", "review", "unknown"]
+ContentType = str  # DB-managed via content_types table
 Platform = Literal["youtube", "instagram", "naver_blog"]
 Sentiment = Literal["positive", "neutral", "negative"]
 

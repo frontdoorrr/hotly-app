@@ -5,8 +5,10 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/archived_content.dart';
+import '../../domain/entities/content_type_info.dart';
 import '../providers/archive_provider.dart';
 import 'archive_input_sheet.dart';
+import 'content_type_badge.dart';
 
 /// 아카이브 목록 + 타입 필터 탭
 class ArchiveListView extends ConsumerStatefulWidget {
@@ -56,6 +58,7 @@ class _ArchiveListViewState extends ConsumerState<ArchiveListView> {
             selected: state.selectedType,
             onSelect: (type) =>
                 ref.read(archiveListProvider.notifier).filterByType(type),
+            contentTypes: ref.watch(contentTypesProvider).valueOrNull ?? [],
           ),
 
           // 목록
@@ -114,18 +117,15 @@ class _ArchiveListViewState extends ConsumerState<ArchiveListView> {
 // ------------------------------------------------------------------
 
 class _TypeFilterBar extends StatelessWidget {
-  final ContentType? selected;
-  final ValueChanged<ContentType?> onSelect;
+  final String? selected;
+  final ValueChanged<String?> onSelect;
+  final List<ContentTypeInfo> contentTypes;
 
-  const _TypeFilterBar({required this.selected, required this.onSelect});
-
-  static const _filters = [
-    (null, '전체'),
-    (ContentType.place, '장소'),
-    (ContentType.event, '이벤트'),
-    (ContentType.tips, '팁'),
-    (ContentType.review, '리뷰'),
-  ];
+  const _TypeFilterBar({
+    required this.selected,
+    required this.onSelect,
+    required this.contentTypes,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -133,25 +133,41 @@ class _TypeFilterBar extends StatelessWidget {
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Row(
-        children: _filters.map(((ContentType?, String) filter) {
-          final (type, label) = filter;
-          final isSelected = selected == type;
-          return Padding(
+        children: [
+          // 전체 탭
+          Padding(
             padding: const EdgeInsets.only(right: 8),
             child: FilterChip(
-              label: Text(label),
-              selected: isSelected,
-              onSelected: (_) => onSelect(type),
+              label: const Text('전체'),
+              selected: selected == null,
+              onSelected: (_) => onSelect(null),
               selectedColor: AppColors.primary.withOpacity(0.15),
               checkmarkColor: AppColors.primary,
               labelStyle: TextStyle(
-                color: isSelected ? AppColors.primary : AppColors.textSecondary,
-                fontWeight:
-                    isSelected ? FontWeight.w600 : FontWeight.normal,
+                color: selected == null ? AppColors.primary : AppColors.textSecondary,
+                fontWeight: selected == null ? FontWeight.w600 : FontWeight.normal,
               ),
             ),
-          );
-        }).toList(),
+          ),
+          // DB에서 가져온 타입 탭
+          ...contentTypes.map((type) {
+            final isSelected = selected == type.key;
+            return Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: FilterChip(
+                label: Text(type.label),
+                selected: isSelected,
+                onSelected: (_) => onSelect(type.key),
+                selectedColor: AppColors.primary.withOpacity(0.15),
+                checkmarkColor: AppColors.primary,
+                labelStyle: TextStyle(
+                  color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                ),
+              ),
+            );
+          }),
+        ],
       ),
     );
   }
@@ -196,7 +212,7 @@ class _ArchiveListTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _ContentTypeBadge(type: content.contentType),
+                  ContentTypeBadge(contentType: content.contentType),
                   const SizedBox(height: 4),
                   if (content.title != null)
                     Text(
@@ -335,40 +351,3 @@ class _EmptyView extends StatelessWidget {
   }
 }
 
-// ------------------------------------------------------------------
-// 공통 뱃지
-// ------------------------------------------------------------------
-
-class _ContentTypeBadge extends StatelessWidget {
-  final ContentType type;
-  const _ContentTypeBadge({required this.type});
-
-  @override
-  Widget build(BuildContext context) {
-    final (label, icon, color) = switch (type) {
-      ContentType.place => ('장소', Icons.place, Colors.orange),
-      ContentType.event => ('이벤트', Icons.event, Colors.purple),
-      ContentType.tips => ('팁', Icons.lightbulb, Colors.amber),
-      ContentType.review => ('리뷰', Icons.star, Colors.blue),
-      _ => ('기타', Icons.article, Colors.grey),
-    };
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 11, color: color),
-          const SizedBox(width: 3),
-          Text(label,
-              style: TextStyle(
-                  color: color, fontSize: 11, fontWeight: FontWeight.w600)),
-        ],
-      ),
-    );
-  }
-}

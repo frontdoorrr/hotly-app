@@ -66,5 +66,9 @@ class ApiEndpoints {
 
   // Archive
   static const String archive = '/archive';
+  static const String archiveInstagram = '/archive/instagram';
   static String archiveDetail(String id) => '/archive/$id';
+
+  // Content Types
+  static const String contentTypes = '/content-types';
 }

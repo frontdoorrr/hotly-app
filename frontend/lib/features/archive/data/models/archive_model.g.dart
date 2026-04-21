@@ -43,7 +43,8 @@ _$ArchivedContentModelImpl _$$ArchivedContentModelImplFromJson(
               ?.map((e) => e as String)
               .toList() ??
           const [],
-      typeSpecificData: json['type_specific_data'] as Map<String, dynamic>?,
+      typeSpecificData: const _TypeSpecificDataConverter()
+          .fromJson(json['type_specific_data']),
       linkAnalyzerId: json['link_analyzer_id'] as String?,
       archivedAt: json['archived_at'] as String,
     );
@@ -68,7 +69,8 @@ Map<String, dynamic> _$$ArchivedContentModelImplToJson(
       'sentiment': instance.sentiment,
       'todos': instance.todos,
       'insights': instance.insights,
-      'type_specific_data': instance.typeSpecificData,
+      'type_specific_data':
+          const _TypeSpecificDataConverter().toJson(instance.typeSpecificData),
       'link_analyzer_id': instance.linkAnalyzerId,
       'archived_at': instance.archivedAt,
     };

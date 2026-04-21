@@ -7,6 +7,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../archive/domain/entities/archived_content.dart';
 import '../../../archive/presentation/providers/archive_provider.dart';
 import '../../../archive/presentation/widgets/archive_input_sheet.dart';
+import '../../../archive/presentation/widgets/content_type_badge.dart';
 import '../../../share_queue/presentation/widgets/share_queue_badge.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -136,7 +137,7 @@ class _RecentArchiveTile extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _TypeBadge(type: content.contentType),
+                    ContentTypeBadge(contentType: content.contentType),
                     const SizedBox(height: 4),
                     if (content.title != null)
                       Text(
@@ -214,38 +215,6 @@ class _Thumbnail extends StatelessWidget {
   }
 }
 
-class _TypeBadge extends StatelessWidget {
-  final ContentType type;
-  const _TypeBadge({required this.type});
-
-  @override
-  Widget build(BuildContext context) {
-    final (label, icon, color) = switch (type) {
-      ContentType.place => ('장소', Icons.place, Colors.orange),
-      ContentType.event => ('이벤트', Icons.event, Colors.purple),
-      ContentType.tips => ('팁', Icons.lightbulb, Colors.amber),
-      ContentType.review => ('리뷰', Icons.star, Colors.blue),
-      _ => ('기타', Icons.article, Colors.grey),
-    };
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 11, color: color),
-          const SizedBox(width: 3),
-          Text(label,
-              style: TextStyle(
-                  color: color, fontSize: 11, fontWeight: FontWeight.w600)),
-        ],
-      ),
-    );
-  }
-}
 
 class _EmptyState extends StatelessWidget {
   final VoidCallback onAddTap;

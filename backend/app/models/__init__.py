@@ -1,5 +1,6 @@
 """Models package."""
 
+from .content_type import ContentType
 from .item import Item
 from .place import Place, PlaceCategory, PlaceStatus
 from .user import User
@@ -20,6 +21,7 @@ from .user_preference import UserPreference as UserPreferenceSetting
 from .user_settings import UserSettings
 
 __all__ = [
+    "ContentType",
     "Place",
     "PlaceCategory",
     "PlaceStatus",

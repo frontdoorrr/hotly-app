@@ -1,11 +1,19 @@
+import 'package:dartz/dartz.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
 import '../../../archive/data/datasources/archive_remote_datasource.dart';
 import '../../../archive/data/repositories/archive_repository_impl.dart';
+import '../../../archive/data/services/instagram_media_extractor.dart';
+import '../../../archive/domain/entities/archived_content.dart';
 import '../../../archive/domain/repositories/archive_repository.dart';
 import '../../../../core/network/dio_client.dart';
+import '../../../../core/notifications/fcm_service.dart';
 import '../../data/services/share_queue_storage_service.dart';
 import '../../domain/entities/share_queue_item.dart';
+
+/// URL 추가 결과
+enum AddUrlResult { added, duplicate, queueFull, unsupported }
 
 /// ShareQueue Storage Service Provider
 final shareQueueStorageServiceProvider =
@@ -44,8 +52,21 @@ class ShareQueueNotifier extends StateNotifier<ShareQueueState> {
     try {
       final items = await _storageService.loadQueue();
       if (!_isDisposed) {
+        // 앱 강제종료로 analyzing 상태에 stuck된 항목을 pending으로 복구
+        final stuckItems = items.where((i) => i.status == ShareQueueStatus.analyzing).toList();
+        final List<ShareQueueItem> recovered;
+        if (stuckItems.isNotEmpty) {
+          _logger.i('ShareQueue: Recovering ${stuckItems.length} stuck analyzing items');
+          recovered = items.map((item) => item.status == ShareQueueStatus.analyzing
+              ? item.copyWith(status: ShareQueueStatus.pending, errorMessage: null)
+              : item).toList();
+          await _storageService.saveQueue(recovered);
+        } else {
+          recovered = items;
+        }
+
         state = state.copyWith(
-          items: items,
+          items: recovered,
           lastSyncAt: DateTime.now(),
         );
       }
@@ -63,29 +84,31 @@ class ShareQueueNotifier extends StateNotifier<ShareQueueState> {
   }
 
   /// 새 URL 추가
-  Future<bool> addUrl(String url, {String? title}) async {
-    // URL 유효성 검사
+  Future<AddUrlResult> addUrl(String url, {String? title}) async {
     if (!ShareQueueStorageService.isSupportedUrl(url)) {
       state = state.copyWith(error: '지원하지 않는 플랫폼입니다');
-      return false;
+      return AddUrlResult.unsupported;
     }
 
-    final newItem = await _storageService.addItem(
-      url: url,
-      title: title,
-    );
+    if (state.items.any((item) => item.url == url)) {
+      return AddUrlResult.duplicate;
+    }
+
+    if (state.items.length >= 20) {
+      state = state.copyWith(error: '큐가 가득 찼습니다 (최대 20개)');
+      return AddUrlResult.queueFull;
+    }
+
+    final newItem = await _storageService.addItem(url: url, title: title);
 
     if (newItem == null) {
-      state = state.copyWith(error: '링크 추가에 실패했습니다. 이미 추가된 링크이거나 큐가 가득 찼습니다.');
-      return false;
+      state = state.copyWith(error: '링크 추가에 실패했습니다');
+      return AddUrlResult.queueFull;
     }
 
-    state = state.copyWith(
-      items: [...state.items, newItem],
-      error: null,
-    );
-
-    return true;
+    state = state.copyWith(items: [...state.items, newItem], error: null);
+    _logger.i('ShareQueue: URL added to queue — ${newItem.url} (id: ${newItem.id})');
+    return AddUrlResult.added;
   }
 
   /// 일괄 분석 시작
@@ -103,6 +126,9 @@ class ShareQueueNotifier extends StateNotifier<ShareQueueState> {
       _logger.i('ShareQueue: No items to process');
       return;
     }
+
+    // 이번 배치 ID를 미리 캡처해 완료 카운팅에 사용
+    final batchIds = processableItems.map((i) => i.id).toSet();
 
     state = state.copyWith(
       isProcessing: true,
@@ -127,20 +153,48 @@ class ShareQueueNotifier extends StateNotifier<ShareQueueState> {
       }
     }
 
+    // 이번 배치에서 새로 완료된 항목만 카운트
+    final completedCount = state.items
+        .where((item) =>
+            batchIds.contains(item.id) &&
+            item.status == ShareQueueStatus.completed)
+        .length;
+
     state = state.copyWith(
       isProcessing: false,
       processingIndex: 0,
     );
 
     _logger.i('ShareQueue: Batch processing completed');
+
+    // 앱이 백그라운드(paused/hidden/detached) 상태일 때만 로컬 알림 발송
+    final lc = WidgetsBinding.instance.lifecycleState;
+    final isBackgrounded = lc == AppLifecycleState.paused ||
+        lc == AppLifecycleState.hidden ||
+        lc == AppLifecycleState.detached;
+    if (completedCount > 0 && isBackgrounded) {
+      await FCMService().showLocalNotification(
+        id: 1001,
+        title: '분석 완료',
+        body: '$completedCount개 장소 분석이 완료됐어요. 확인해보세요!',
+        payload: 'type=share_queue',
+      );
+    }
   }
 
   /// 단일 항목 분석 (archive API — 동기 응답, 폴링 불필요)
   Future<void> _analyzeItem(ShareQueueItem item) async {
+    _logger.i('ShareQueue: Analysis started — ${item.url} (platform: ${item.platform ?? 'unknown'})');
     _updateItemStatus(item.id, ShareQueueStatus.analyzing);
 
     try {
-      final result = await _archiveRepository.archiveUrl(item.url);
+      final Either<Exception, ArchivedContent> result;
+
+      if (item.platform == 'instagram') {
+        result = await _analyzeInstagram(item);
+      } else {
+        result = await _archiveRepository.archiveUrl(item.url);
+      }
 
       result.fold(
         (error) => _updateItemError(item.id, error.toString()),
@@ -152,6 +206,31 @@ class ShareQueueNotifier extends StateNotifier<ShareQueueState> {
     } catch (e) {
       _logger.e('ShareQueue: Analysis error for ${item.id}: $e');
       _updateItemError(item.id, e.toString());
+    }
+  }
+
+  Future<Either<Exception, ArchivedContent>> _analyzeInstagram(
+      ShareQueueItem item) async {
+    try {
+      final extractor = InstagramMediaExtractor();
+      final extracted = await extractor.extract(item.url);
+      return _archiveRepository.archiveInstagram(
+        url: item.url,
+        mediaFiles: extracted.mediaFiles,
+        caption: extracted.caption,
+        author: extracted.author,
+      );
+    } on InstagramBlockedError catch (e, st) {
+      _logger.w('ShareQueue: Instagram blocked for ${item.id}', error: e, stackTrace: st);
+      return Left(Exception('Instagram 미디어에 접근할 수 없습니다'));
+    } on InstagramParseError catch (e, st) {
+      _logger.w('ShareQueue: Instagram parse error for ${item.id}', error: e, stackTrace: st);
+      return Left(Exception('Instagram 미디어를 찾을 수 없습니다'));
+    } on InstagramMediaDownloadError catch (e, st) {
+      _logger.w('ShareQueue: Instagram download error for ${item.id}', error: e, stackTrace: st);
+      return Left(Exception('Instagram 미디어 다운로드에 실패했습니다'));
+    } on Exception catch (e) {
+      return Left(e);
     }
   }
 
@@ -237,8 +316,8 @@ class ShareQueueNotifier extends StateNotifier<ShareQueueState> {
       return false;
     }
 
-    // archive API는 archiveUrl 시점에 이미 저장 완료
-    _updateItemStatus(id, ShareQueueStatus.saved);
+    // archive API는 archiveUrl 시점에 이미 저장 완료 — 큐에서 즉시 제거
+    await removeItem(id);
     return true;
   }
 
@@ -254,9 +333,9 @@ class ShareQueueNotifier extends StateNotifier<ShareQueueState> {
     return savedCount;
   }
 
-  /// 항목 무시
-  void ignoreItem(String id) {
-    _updateItemStatus(id, ShareQueueStatus.ignored);
+  /// 항목 무시 — 큐에서 즉시 제거
+  Future<void> ignoreItem(String id) async {
+    await removeItem(id);
   }
 
   /// 항목 삭제

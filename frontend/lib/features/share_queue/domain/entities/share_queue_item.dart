@@ -100,7 +100,7 @@ class ShareQueueAnalysisResult with _$ShareQueueAnalysisResult {
     final placeData = content.typeSpecificData;
     return ShareQueueAnalysisResult(
       placeName: content.title ?? 'Unknown',
-      category: content.contentType.name,
+      category: content.contentType,
       address: placeData?['address'] as String?,
       imageUrl: content.thumbnailUrl,
       confidence: 1.0,

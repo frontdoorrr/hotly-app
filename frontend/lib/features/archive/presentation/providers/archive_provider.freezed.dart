@@ -221,7 +221,7 @@ mixin _$ArchiveListState {
   int get page => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
   bool get hasMore => throw _privateConstructorUsedError;
-  ContentType? get selectedType => throw _privateConstructorUsedError;
+  String? get selectedType => throw _privateConstructorUsedError;
   String? get error => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
@@ -241,7 +241,7 @@ abstract class $ArchiveListStateCopyWith<$Res> {
       int page,
       bool isLoading,
       bool hasMore,
-      ContentType? selectedType,
+      String? selectedType,
       String? error});
 }
 
@@ -290,7 +290,7 @@ class _$ArchiveListStateCopyWithImpl<$Res, $Val extends ArchiveListState>
       selectedType: freezed == selectedType
           ? _value.selectedType
           : selectedType // ignore: cast_nullable_to_non_nullable
-              as ContentType?,
+              as String?,
       error: freezed == error
           ? _value.error
           : error // ignore: cast_nullable_to_non_nullable
@@ -313,7 +313,7 @@ abstract class _$$ArchiveListStateImplCopyWith<$Res>
       int page,
       bool isLoading,
       bool hasMore,
-      ContentType? selectedType,
+      String? selectedType,
       String? error});
 }
 
@@ -360,7 +360,7 @@ class __$$ArchiveListStateImplCopyWithImpl<$Res>
       selectedType: freezed == selectedType
           ? _value.selectedType
           : selectedType // ignore: cast_nullable_to_non_nullable
-              as ContentType?,
+              as String?,
       error: freezed == error
           ? _value.error
           : error // ignore: cast_nullable_to_non_nullable
@@ -404,7 +404,7 @@ class _$ArchiveListStateImpl implements _ArchiveListState {
   @JsonKey()
   final bool hasMore;
   @override
-  final ContentType? selectedType;
+  final String? selectedType;
   @override
   final String? error;
 
@@ -455,7 +455,7 @@ abstract class _ArchiveListState implements ArchiveListState {
       final int page,
       final bool isLoading,
       final bool hasMore,
-      final ContentType? selectedType,
+      final String? selectedType,
       final String? error}) = _$ArchiveListStateImpl;
 
   @override
@@ -469,7 +469,7 @@ abstract class _ArchiveListState implements ArchiveListState {
   @override
   bool get hasMore;
   @override
-  ContentType? get selectedType;
+  String? get selectedType;
   @override
   String? get error;
   @override

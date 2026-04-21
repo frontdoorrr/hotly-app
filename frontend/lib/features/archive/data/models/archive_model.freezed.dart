@@ -44,6 +44,7 @@ mixin _$ArchivedContentModel {
   String? get sentiment => throw _privateConstructorUsedError;
   List<String> get todos => throw _privateConstructorUsedError;
   List<String> get insights => throw _privateConstructorUsedError;
+  @_TypeSpecificDataConverter()
   @JsonKey(name: 'type_specific_data')
   Map<String, dynamic>? get typeSpecificData =>
       throw _privateConstructorUsedError;
@@ -82,6 +83,7 @@ abstract class $ArchivedContentModelCopyWith<$Res> {
       String? sentiment,
       List<String> todos,
       List<String> insights,
+      @_TypeSpecificDataConverter()
       @JsonKey(name: 'type_specific_data')
       Map<String, dynamic>? typeSpecificData,
       @JsonKey(name: 'link_analyzer_id') String? linkAnalyzerId,
@@ -234,6 +236,7 @@ abstract class _$$ArchivedContentModelImplCopyWith<$Res>
       String? sentiment,
       List<String> todos,
       List<String> insights,
+      @_TypeSpecificDataConverter()
       @JsonKey(name: 'type_specific_data')
       Map<String, dynamic>? typeSpecificData,
       @JsonKey(name: 'link_analyzer_id') String? linkAnalyzerId,
@@ -381,6 +384,7 @@ class _$ArchivedContentModelImpl implements _ArchivedContentModel {
       this.sentiment,
       final List<String> todos = const [],
       final List<String> insights = const [],
+      @_TypeSpecificDataConverter()
       @JsonKey(name: 'type_specific_data')
       final Map<String, dynamic>? typeSpecificData,
       @JsonKey(name: 'link_analyzer_id') this.linkAnalyzerId,
@@ -477,6 +481,7 @@ class _$ArchivedContentModelImpl implements _ArchivedContentModel {
 
   final Map<String, dynamic>? _typeSpecificData;
   @override
+  @_TypeSpecificDataConverter()
   @JsonKey(name: 'type_specific_data')
   Map<String, dynamic>? get typeSpecificData {
     final value = _typeSpecificData;
@@ -599,6 +604,7 @@ abstract class _ArchivedContentModel implements ArchivedContentModel {
           final String? sentiment,
           final List<String> todos,
           final List<String> insights,
+          @_TypeSpecificDataConverter()
           @JsonKey(name: 'type_specific_data')
           final Map<String, dynamic>? typeSpecificData,
           @JsonKey(name: 'link_analyzer_id') final String? linkAnalyzerId,
@@ -650,6 +656,7 @@ abstract class _ArchivedContentModel implements ArchivedContentModel {
   @override
   List<String> get insights;
   @override
+  @_TypeSpecificDataConverter()
   @JsonKey(name: 'type_specific_data')
   Map<String, dynamic>? get typeSpecificData;
   @override

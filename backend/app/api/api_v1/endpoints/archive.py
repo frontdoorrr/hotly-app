@@ -1,10 +1,13 @@
 """Archive endpoints — URL 분석 및 아카이빙."""
 
+import json as _json
 import logging
-from typing import Any, Optional
+from typing import Any, List, Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from pathlib import Path as FilePath
+
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.db.deps import get_db
@@ -22,12 +25,21 @@ from app.services.link_analyzer_client import (
     ContentExtractionError,
     LinkAnalyzerAuthError,
     LinkAnalyzerError,
+    RateLimitError,
     UnsupportedPlatformError,
     link_analyzer_client,
 )
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+_ALLOWED_MEDIA_MIMES = frozenset({
+    "image/jpeg", "image/png", "image/webp", "video/mp4",
+})
+_MAX_MEDIA_COUNT = 10
+_MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024   # 50MB per file
+_MAX_TOTAL_SIZE_BYTES = 100 * 1024 * 1024  # 100MB total
+_FORCE_UPDATE_PROTECTED_ATTRS = frozenset({"id", "user_id", "created_at", "archived_at"})
 
 
 # ------------------------------------------------------------------
@@ -54,10 +66,13 @@ async def archive_url(
     # link-analyzer 호출
     try:
         result = await link_analyzer_client.analyze(body.url, force=body.force)
+        logger.info("[DEBUG] link-analyzer raw response: %s", result)
     except UnsupportedPlatformError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     except ContentExtractionError as exc:
         raise HTTPException(status_code=422, detail=str(exc))
+    except RateLimitError as exc:
+        raise HTTPException(status_code=429, detail=str(exc))
     except LinkAnalyzerAuthError as exc:
         logger.error("link-analyzer auth error: %s", exc)
         raise HTTPException(status_code=503, detail="분석 서비스 인증 오류입니다.")
@@ -71,6 +86,81 @@ async def archive_url(
         # 기존 레코드 업데이트
         for attr, val in content.__dict__.items():
             if attr.startswith("_"):
+                continue
+            setattr(existing, attr, val)
+        db.commit()
+        db.refresh(existing)
+        return existing
+
+    db.add(content)
+    db.commit()
+    db.refresh(content)
+    return content
+
+
+# ------------------------------------------------------------------
+# POST /archive/instagram — Instagram 미디어 multipart 아카이빙
+# ------------------------------------------------------------------
+
+@router.post("/instagram", response_model=ArchiveDetail, status_code=status.HTTP_201_CREATED)
+async def archive_instagram(
+    url: str = Form(...),
+    caption: Optional[str] = Form(None),
+    author: Optional[str] = Form(None),
+    media: List[UploadFile] = File(...),
+    force: bool = Form(False),
+    db: Session = Depends(get_db),
+    current_user: AuthenticatedUser = Depends(get_current_user),
+) -> Any:
+    user_id = _get_user_id(db, current_user)
+
+    existing = (
+        db.query(ArchivedContent)
+        .filter(ArchivedContent.user_id == user_id, ArchivedContent.url == url)
+        .first()
+    )
+    if existing and not force:
+        return existing
+
+    if len(media) > _MAX_MEDIA_COUNT:
+        raise HTTPException(status_code=400, detail=f"미디어 파일은 최대 {_MAX_MEDIA_COUNT}개까지 허용합니다.")
+
+    media_tuples: list[tuple[str, bytes, str]] = []
+    total_size = 0
+    for i, upload in enumerate(media):
+        mime = upload.content_type or "application/octet-stream"
+        if mime not in _ALLOWED_MEDIA_MIMES:
+            raise HTTPException(status_code=415, detail=f"지원하지 않는 파일 형식입니다: {mime}")
+        file_bytes = await upload.read()
+        if len(file_bytes) > _MAX_FILE_SIZE_BYTES:
+            raise HTTPException(status_code=413, detail="파일 크기가 50MB를 초과합니다.")
+        total_size += len(file_bytes)
+        if total_size > _MAX_TOTAL_SIZE_BYTES:
+            raise HTTPException(status_code=413, detail="전체 업로드 크기가 100MB를 초과합니다.")
+        fname = FilePath(upload.filename or f"media_{i}.bin").name
+        media_tuples.append((fname, file_bytes, mime))
+
+    try:
+        result = await link_analyzer_client.analyze_instagram(url, media_tuples, caption, author)
+        logger.info("[DEBUG] link-analyzer instagram raw response: %s", result)
+    except UnsupportedPlatformError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except ContentExtractionError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+    except RateLimitError as exc:
+        raise HTTPException(status_code=429, detail=str(exc))
+    except LinkAnalyzerAuthError as exc:
+        logger.error("link-analyzer instagram auth error: %s", exc)
+        raise HTTPException(status_code=503, detail="분석 서비스 인증 오류입니다.")
+    except LinkAnalyzerError as exc:
+        logger.error("link-analyzer instagram error: %s", exc)
+        raise HTTPException(status_code=503, detail="분석 서비스를 사용할 수 없습니다.")
+
+    content = _build_model(result, user_id)
+
+    if existing and force:
+        for attr, val in content.__dict__.items():
+            if attr.startswith("_") or attr in _FORCE_UPDATE_PROTECTED_ATTRS:
                 continue
             setattr(existing, attr, val)
         db.commit()
@@ -152,6 +242,35 @@ def delete_archive(
 # Helpers
 # ------------------------------------------------------------------
 
+def _normalize_type_specific_data(data) -> dict | None:
+    """type_specific_data 내부의 JSON 인코딩된 문자열을 재귀적으로 파싱한다.
+
+    link-analyzer가 중첩 필드(venue 등)를 JSON 문자열로 내보내는 경우를 방어한다.
+    """
+    if data is None:
+        return None
+    if isinstance(data, str):
+        try:
+            data = _json.loads(data)
+        except (_json.JSONDecodeError, ValueError):
+            return None
+    if not isinstance(data, dict):
+        return data
+    result: dict = {}
+    for k, v in data.items():
+        if isinstance(v, str):
+            try:
+                parsed = _json.loads(v)
+                result[k] = parsed if isinstance(parsed, (dict, list)) else v
+            except (_json.JSONDecodeError, ValueError):
+                result[k] = v
+        elif isinstance(v, dict):
+            result[k] = _normalize_type_specific_data(v)
+        else:
+            result[k] = v
+    return result
+
+
 def _get_user_id(db: Session, current_user: AuthenticatedUser) -> UUID:
     """firebase_uid로 DB User를 조회하거나 생성해 UUID 반환."""
     user = crud_user.get_or_create_by_firebase_uid(
@@ -179,6 +298,8 @@ def _build_model(data: dict, user_id: UUID) -> ArchivedContent:
     categories = analysis.get("categories") or {}
     action_items = analysis.get("action_items") or {}
 
+    type_specific_data = _normalize_type_specific_data(analysis.get("type_specific_data"))
+
     return ArchivedContent(
         user_id=user_id,
         url=data.get("url", ""),
@@ -197,6 +318,6 @@ def _build_model(data: dict, user_id: UUID) -> ArchivedContent:
         sentiment=analysis.get("sentiment"),
         todos=action_items.get("todos"),
         insights=action_items.get("insights"),
-        type_specific_data=analysis.get("type_specific_data"),
+        type_specific_data=type_specific_data,
         link_analyzer_id=data.get("id"),
     )

@@ -203,6 +203,40 @@ class FCMService {
     return map;
   }
 
+  /// Show a local notification (for in-app triggered alerts)
+  Future<void> showLocalNotification({
+    required int id,
+    required String title,
+    required String body,
+    String? payload,
+  }) async {
+    try {
+      await _localNotifications.show(
+        id,
+        title,
+        body,
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'high_importance_channel',
+            'High Importance Notifications',
+            channelDescription: 'This channel is used for important notifications.',
+            importance: Importance.high,
+            priority: Priority.high,
+            icon: '@mipmap/ic_launcher',
+          ),
+          iOS: DarwinNotificationDetails(
+            presentAlert: true,
+            presentBadge: true,
+            presentSound: true,
+          ),
+        ),
+        payload: payload,
+      );
+    } catch (e) {
+      _logger.e('FCM: Failed to show local notification: $e');
+    }
+  }
+
   /// Subscribe to topic
   Future<void> subscribeToTopic(String topic) async {
     try {

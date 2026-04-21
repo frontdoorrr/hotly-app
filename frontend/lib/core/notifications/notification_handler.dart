@@ -85,6 +85,8 @@ class NotificationHandler {
         return '/search';
       case 'profile':
         return '/profile';
+      case 'share_queue':
+        return '/share-queue/results';
       default:
         return '/';
     }

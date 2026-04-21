@@ -2,8 +2,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'archived_content.freezed.dart';
 
-enum ContentType { place, event, tips, review, unknown }
-
 enum Platform { youtube, instagram, naver_blog }
 
 enum Sentiment { positive, neutral, negative }
@@ -15,7 +13,7 @@ class ArchivedContent with _$ArchivedContent {
     required String id,
     required String url,
     required Platform platform,
-    required ContentType contentType,
+    required String contentType,
 
     // 메타데이터
     String? title,

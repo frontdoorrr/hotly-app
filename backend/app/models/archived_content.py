@@ -27,10 +27,7 @@ class ArchivedContent(Base):
         Enum("youtube", "instagram", "naver_blog", name="platform_type"),
         nullable=False,
     )
-    content_type = Column(
-        Enum("place", "event", "tips", "review", "unknown", name="content_type_enum"),
-        nullable=False,
-    )
+    content_type = Column(String(50), nullable=False)
 
     # --- 콘텐츠 메타데이터 ---
     title = Column(Text, nullable=True)

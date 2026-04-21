@@ -26,7 +26,7 @@
 	<!-- App Groups (for widget/extension sharing) -->
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.com.hotly.hotly_app</string>
+		<string>group.com.hotly.app.sharequeue</string>
 	</array>
 </dict>
 </plist>

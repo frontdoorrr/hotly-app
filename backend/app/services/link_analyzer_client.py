@@ -26,6 +26,10 @@ class LinkAnalyzerAuthError(LinkAnalyzerError):
     pass
 
 
+class RateLimitError(LinkAnalyzerError):
+    pass
+
+
 class LinkAnalyzerClient:
     """Thin HTTP client wrapping the link-analyzer REST API."""
 
@@ -62,6 +66,44 @@ class LinkAnalyzerClient:
 
         return self._handle_response(resp)
 
+    async def analyze_instagram(
+        self,
+        url: str,
+        media_files: list[tuple[str, bytes, str]],
+        caption: Optional[str] = None,
+        author: Optional[str] = None,
+    ) -> dict[str, Any]:
+        """Instagram 미디어 파일을 multipart로 link-analyzer에 전달한다.
+
+        media_files: [(filename, bytes, mime_type), ...]
+        """
+        files = [("media", (name, data, mime)) for name, data, mime in media_files]
+        data: dict[str, str] = {"url": url}
+        if caption:
+            data["caption"] = caption
+        if author:
+            data["author"] = author
+        headers = {"X-API-Key": self._headers["X-API-Key"]}
+        timeout = httpx.Timeout(
+            connect=10.0,
+            read=float(settings.LINK_ANALYZER_INSTAGRAM_TIMEOUT),
+            write=60.0,
+            pool=10.0,
+        )
+
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            try:
+                resp = await client.post(
+                    f"{self._base_url}/api/v1/analyze/instagram",
+                    headers=headers,
+                    data=data,
+                    files=files,
+                )
+            except httpx.RequestError as exc:
+                raise LinkAnalyzerError(f"link-analyzer 연결 실패: {exc}") from exc
+
+        return self._handle_response(resp)
+
     async def get_content(self, content_id: str) -> dict[str, Any]:
         """Fetch a previously analyzed content by its link-analyzer ID."""
         async with httpx.AsyncClient(timeout=30) as client:
@@ -89,13 +131,22 @@ class LinkAnalyzerClient:
         except Exception:
             pass
 
-        code = error_body.get("detail", {}).get("code", "")
-        message = error_body.get("detail", {}).get("message", resp.text)
+        detail = error_body.get("detail", {})
+        if isinstance(detail, dict):
+            code = detail.get("code", "")
+            message = detail.get("message", resp.text)
+        else:
+            code = ""
+            message = str(detail) if detail else resp.text
 
         if resp.status_code == 401:
             raise LinkAnalyzerAuthError(message)
+        if resp.status_code == 429:
+            raise RateLimitError(message)
         if resp.status_code == 400 and code == "UNSUPPORTED_PLATFORM":
             raise UnsupportedPlatformError(message)
+        if resp.status_code == 400 and code == "FILE_TOO_LARGE":
+            raise ContentExtractionError(message)
         if resp.status_code == 500 and code == "EXTRACTION_FAILED":
             raise ContentExtractionError(message)
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/share_queue_item.dart';
@@ -16,20 +17,24 @@ class ShareQueueBadge extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final queueState = ref.watch(shareQueueProvider);
     final pendingCount = queueState.pendingCount;
+    final completedCount = queueState.completedCount;
 
-    // 대기 중인 항목이 없으면 표시하지 않음
-    if (pendingCount == 0 && !queueState.isProcessing) {
-      return const SizedBox.shrink();
-    }
+    final bool isVisible =
+        pendingCount > 0 || queueState.isProcessing || completedCount > 0;
+
+    if (!isVisible) return const SizedBox.shrink();
+
+    final bool isCompleted = !queueState.isProcessing && completedCount > 0 && pendingCount == 0;
+    final Color badgeColor = isCompleted ? AppColors.success : AppColors.primary;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.primary,
+        color: badgeColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.3),
+            color: badgeColor.withOpacity(0.3),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -38,16 +43,74 @@ class ShareQueueBadge extends ConsumerWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => _showProcessingSheet(context, ref),
+          onTap: () => isCompleted
+              ? context.push('/share-queue/results')
+              : _showProcessingSheet(context, ref),
           borderRadius: BorderRadius.circular(12),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: queueState.isProcessing
                 ? _buildProcessingContent(queueState)
-                : _buildPendingContent(pendingCount, ref),
+                : isCompleted
+                    ? _buildCompletedContent(completedCount)
+                    : _buildPendingContent(pendingCount, ref),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildCompletedContent(int completedCount) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppColors.white.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: const Icon(
+            Icons.check_circle,
+            color: AppColors.white,
+            size: 24,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '$completedCount개 장소 분석 완료',
+                style: AppTextStyles.labelLarge.copyWith(
+                  color: AppColors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                '탭하여 결과를 확인하세요',
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.white.withOpacity(0.8),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            '결과 보기',
+            style: AppTextStyles.button.copyWith(
+              color: AppColors.success,
+            ),
+          ),
+        ),
+      ],
     );
   }
 

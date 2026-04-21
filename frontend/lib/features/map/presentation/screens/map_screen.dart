@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kakao_map_sdk/kakao_map_sdk.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../shared/models/place.dart';
+import '../../../home/presentation/widgets/place_card.dart';
 import '../../../saved/presentation/providers/saved_places_provider.dart';
+import '../../../saved/presentation/widgets/tag_filter_chips.dart';
 import '../../domain/entities/map_entities.dart';
 import '../providers/map_provider.dart';
 import '../widgets/map_search_bar.dart';
@@ -22,7 +26,8 @@ class _MapScreenState extends ConsumerState<MapScreen>
     with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
   KakaoMapController? _mapController;
   bool _isMapReady = false;
-  bool _markersAdded = false; // 마커 추가 완료 여부
+  bool _markersAdded = false;
+  bool _showList = false;
 
   // Unique key for KakaoMap widget to prevent recreation issues
   final GlobalKey _mapKey = GlobalKey();
@@ -111,7 +116,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
     return Scaffold(
       body: Stack(
         children: [
-          // Kakao Map
+          // Kakao Map (항상 렌더링 — 상태 유지)
           KakaoMap(
             key: _mapKey,
             option: KakaoMapOption(
@@ -172,29 +177,56 @@ class _MapScreenState extends ConsumerState<MapScreen>
             ),
           ),
 
-          // Current location button
+          // Current location button (지도 모드일 때만)
+          if (!_showList)
+            Positioned(
+              bottom: 100,
+              right: 16,
+              child: FloatingActionButton(
+                heroTag: 'current_location',
+                onPressed: () async {
+                  await ref.read(mapProvider.notifier).getCurrentLocation();
+                  final location = ref.read(mapProvider).currentLocation;
+                  if (location != null) {
+                    _moveToLocation(location.latitude, location.longitude);
+                  }
+                },
+                backgroundColor: Colors.white,
+                child: Icon(
+                  Icons.my_location,
+                  color: AppColors.primary,
+                ),
+              ),
+            ),
+
+          // 목록/지도 토글 버튼
           Positioned(
-            bottom: 100,
+            bottom: 36,
             right: 16,
-            child: FloatingActionButton(
-              heroTag: 'current_location',
-              onPressed: () async {
-                await ref.read(mapProvider.notifier).getCurrentLocation();
-                final location = ref.read(mapProvider).currentLocation;
-                if (location != null) {
-                  _moveToLocation(location.latitude, location.longitude);
-                }
-              },
-              backgroundColor: Colors.white,
-              child: Icon(
-                Icons.my_location,
-                color: AppColors.primary,
+            child: FloatingActionButton.extended(
+              heroTag: 'toggle_list',
+              onPressed: () => setState(() => _showList = !_showList),
+              backgroundColor: AppColors.primary,
+              icon: Icon(
+                _showList ? Icons.map : Icons.list,
+                color: Colors.white,
+              ),
+              label: Text(
+                _showList ? '지도' : '목록',
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
               ),
             ),
           ),
 
-          // Selected search result info
-          if (state.selectedSearchResult != null)
+          // 목록 오버레이
+          if (_showList)
+            Positioned.fill(
+              top: MediaQuery.of(context).padding.top + 56,
+              child: _buildPlacesList(context, ref),
+            ),
+
+          // Selected search result info (지도 모드일 때만)
+          if (!_showList && state.selectedSearchResult != null)
             Positioned(
               bottom: 16,
               left: 16,
@@ -400,6 +432,134 @@ class _MapScreenState extends ConsumerState<MapScreen>
       AppLogger.e('Failed to create current location icon', tag: 'Map', error: e);
       return null;
     }
+  }
+
+  Widget _buildPlacesList(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(savedPlacesProvider);
+    final notifier = ref.read(savedPlacesProvider.notifier);
+
+    return Container(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: _buildListBody(context, state, notifier, ref),
+    );
+  }
+
+  Widget _buildListBody(
+    BuildContext context,
+    SavedPlacesState state,
+    SavedPlacesNotifier notifier,
+    WidgetRef ref,
+  ) {
+    if (state.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (state.hasError) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 64, color: AppColors.error),
+            const SizedBox(height: 16),
+            Text(
+              state.errorMessage ?? '장소를 불러올 수 없습니다.',
+              style: AppTextStyles.body2.copyWith(color: AppColors.textSecondary),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => ref.read(savedPlacesProvider.notifier).refresh(),
+              child: const Text('다시 시도'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (state.places.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.bookmark_border, size: 64, color: AppColors.textSecondary),
+            const SizedBox(height: 16),
+            Text(
+              '저장된 장소가 없습니다.',
+              style: AppTextStyles.body2.copyWith(color: AppColors.textSecondary),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final tagStats = notifier.tagStatistics;
+    final filteredPlaces = notifier.filteredPlaces;
+
+    return Column(
+      children: [
+        if (tagStats.isNotEmpty)
+          TagFilterChips(
+            availableTags: tagStats.keys.toList(),
+            tagCounts: tagStats.values.toList(),
+            selectedTags: state.selectedTags,
+            totalPlacesCount: state.places.length,
+            onTagSelected: (tag) {
+              if (tag.isEmpty) {
+                notifier.clearTagFilters();
+              } else {
+                notifier.toggleTag(tag);
+              }
+            },
+          ),
+        Expanded(
+          child: filteredPlaces.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.search_off, size: 64, color: AppColors.textSecondary),
+                      const SizedBox(height: 16),
+                      Text(
+                        '해당 태그의 장소가 없습니다.',
+                        style: AppTextStyles.body2.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      OutlinedButton(
+                        onPressed: () => notifier.clearTagFilters(),
+                        child: const Text('필터 초기화'),
+                      ),
+                    ],
+                  ),
+                )
+              : RefreshIndicator(
+                  onRefresh: () async {
+                    await ref.read(savedPlacesProvider.notifier).refresh();
+                  },
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(AppTheme.space4),
+                    itemCount: filteredPlaces.length,
+                    itemBuilder: (context, index) {
+                      final place = filteredPlaces[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: AppTheme.space3),
+                        child: PlaceCard(
+                          place: place,
+                          onTap: () {
+                            setState(() => _showList = false);
+                            if (place.latitude != null && place.longitude != null) {
+                              _moveToLocation(place.latitude!, place.longitude!);
+                            }
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+        ),
+      ],
+    );
   }
 
   @override

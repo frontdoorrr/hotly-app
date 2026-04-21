@@ -19,7 +19,7 @@ mixin _$ArchivedContent {
   String get id => throw _privateConstructorUsedError;
   String get url => throw _privateConstructorUsedError;
   Platform get platform => throw _privateConstructorUsedError;
-  ContentType get contentType => throw _privateConstructorUsedError; // 메타데이터
+  String get contentType => throw _privateConstructorUsedError; // 메타데이터
   String? get title => throw _privateConstructorUsedError;
   String? get author => throw _privateConstructorUsedError;
   DateTime? get publishedAt => throw _privateConstructorUsedError;
@@ -54,7 +54,7 @@ abstract class $ArchivedContentCopyWith<$Res> {
       {String id,
       String url,
       Platform platform,
-      ContentType contentType,
+      String contentType,
       String? title,
       String? author,
       DateTime? publishedAt,
@@ -123,7 +123,7 @@ class _$ArchivedContentCopyWithImpl<$Res, $Val extends ArchivedContent>
       contentType: null == contentType
           ? _value.contentType
           : contentType // ignore: cast_nullable_to_non_nullable
-              as ContentType,
+              as String,
       title: freezed == title
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
@@ -204,7 +204,7 @@ abstract class _$$ArchivedContentImplCopyWith<$Res>
       {String id,
       String url,
       Platform platform,
-      ContentType contentType,
+      String contentType,
       String? title,
       String? author,
       DateTime? publishedAt,
@@ -271,7 +271,7 @@ class __$$ArchivedContentImplCopyWithImpl<$Res>
       contentType: null == contentType
           ? _value.contentType
           : contentType // ignore: cast_nullable_to_non_nullable
-              as ContentType,
+              as String,
       title: freezed == title
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
@@ -379,7 +379,7 @@ class _$ArchivedContentImpl implements _ArchivedContent {
   @override
   final Platform platform;
   @override
-  final ContentType contentType;
+  final String contentType;
 // 메타데이터
   @override
   final String? title;
@@ -551,7 +551,7 @@ abstract class _ArchivedContent implements ArchivedContent {
       {required final String id,
       required final String url,
       required final Platform platform,
-      required final ContentType contentType,
+      required final String contentType,
       final String? title,
       final String? author,
       final DateTime? publishedAt,
@@ -576,7 +576,7 @@ abstract class _ArchivedContent implements ArchivedContent {
   @override
   Platform get platform;
   @override
-  ContentType get contentType;
+  String get contentType;
   @override // 메타데이터
   String? get title;
   @override

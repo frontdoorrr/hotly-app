@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hotly_app/core/l10n/l10n_extension.dart';
+import '../../features/share_queue/presentation/widgets/share_queue_badge.dart';
 
 /// Main Shell Screen with Bottom Navigation Bar
 class MainShellScreen extends StatelessWidget {
@@ -23,8 +24,8 @@ class MainShellScreen extends StatelessWidget {
         type: BottomNavigationBarType.fixed,
         items: [
           BottomNavigationBarItem(
-            icon: const Icon(Icons.home_outlined),
-            activeIcon: const Icon(Icons.home),
+            icon: const ShareQueueMiniBadge(child: Icon(Icons.home_outlined)),
+            activeIcon: const ShareQueueMiniBadge(child: Icon(Icons.home)),
             label: context.l10n.nav_home,
           ),
           BottomNavigationBarItem(

@@ -7,6 +7,7 @@ from app.api.api_v1.endpoints import (
     archive,
     auth,
     autocomplete,
+    content_types,
     cdn,
     courses,
     map,
@@ -28,6 +29,7 @@ from app.api.api_v1.endpoints import (
 api_router = APIRouter()
 api_router.include_router(auth.router, prefix="/auth", tags=["authentication"])
 api_router.include_router(archive.router, prefix="/archive", tags=["archive"])
+api_router.include_router(content_types.router, prefix="/content-types", tags=["content-types"])
 api_router.include_router(places.router, prefix="/places", tags=["places"])
 api_router.include_router(onboarding.router, prefix="/onboarding", tags=["onboarding"])
 api_router.include_router(

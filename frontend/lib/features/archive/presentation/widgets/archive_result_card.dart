@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/archived_content.dart';
+import 'content_type_badge.dart';
 import 'type_cards/event_card.dart';
 import 'type_cards/place_card.dart';
 import 'type_cards/review_card.dart';
@@ -79,7 +80,7 @@ class ArchiveResultCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // content_type 뱃지
-              _ContentTypeBadge(type: content.contentType),
+              ContentTypeBadge(contentType: content.contentType),
               const SizedBox(height: 4),
               if (content.title != null)
                 Text(
@@ -142,13 +143,13 @@ class ArchiveResultCard extends StatelessWidget {
     if (data == null) return const SizedBox.shrink();
 
     switch (content.contentType) {
-      case ContentType.place:
+      case 'place':
         return PlaceCard(data: data);
-      case ContentType.event:
+      case 'event':
         return EventCard(data: data);
-      case ContentType.tips:
+      case 'tips':
         return TipsCard(data: data, compact: compact);
-      case ContentType.review:
+      case 'review':
         return ReviewCard(data: data);
       default:
         return const SizedBox.shrink();
@@ -206,42 +207,3 @@ class ArchiveResultCard extends StatelessWidget {
   }
 }
 
-// ------------------------------------------------------------------
-// content_type 뱃지
-// ------------------------------------------------------------------
-
-class _ContentTypeBadge extends StatelessWidget {
-  final ContentType type;
-  const _ContentTypeBadge({required this.type});
-
-  @override
-  Widget build(BuildContext context) {
-    final (label, icon, color) = switch (type) {
-      ContentType.place => ('장소', Icons.place, Colors.orange),
-      ContentType.event => ('이벤트', Icons.event, Colors.purple),
-      ContentType.tips => ('팁', Icons.lightbulb, Colors.amber),
-      ContentType.review => ('리뷰', Icons.star, Colors.blue),
-      _ => ('기타', Icons.article, Colors.grey),
-    };
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12, color: color),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style:
-                AppTextStyles.bodySmall.copyWith(color: color, fontSize: 11),
-          ),
-        ],
-      ),
-    );
-  }
-}

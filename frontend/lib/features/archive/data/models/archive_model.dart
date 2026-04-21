@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../domain/entities/archived_content.dart';
 
@@ -24,6 +26,7 @@ class ArchivedContentModel with _$ArchivedContentModel {
     String? sentiment,
     @Default([]) List<String> todos,
     @Default([]) List<String> insights,
+    @_TypeSpecificDataConverter()
     @JsonKey(name: 'type_specific_data') Map<String, dynamic>? typeSpecificData,
     @JsonKey(name: 'link_analyzer_id') String? linkAnalyzerId,
     @JsonKey(name: 'archived_at') required String archivedAt,
@@ -56,7 +59,7 @@ extension ArchivedContentModelX on ArchivedContentModel {
       id: id,
       url: url,
       platform: _parsePlatform(platform),
-      contentType: _parseContentType(contentType),
+      contentType: contentType,
       title: title,
       author: author,
       publishedAt: publishedAt != null ? DateTime.tryParse(publishedAt!) : null,
@@ -88,21 +91,6 @@ extension ArchiveListModelX on ArchiveListModel {
   }
 }
 
-ContentType _parseContentType(String value) {
-  switch (value) {
-    case 'place':
-      return ContentType.place;
-    case 'event':
-      return ContentType.event;
-    case 'tips':
-      return ContentType.tips;
-    case 'review':
-      return ContentType.review;
-    default:
-      return ContentType.unknown;
-  }
-}
-
 Platform _parsePlatform(String value) {
   switch (value) {
     case 'instagram':
@@ -125,4 +113,26 @@ Sentiment? _parseSentiment(String? value) {
     default:
       return null;
   }
+}
+
+/// type_specific_data가 String으로 내려올 경우(이중 직렬화) 방어 처리.
+class _TypeSpecificDataConverter
+    implements JsonConverter<Map<String, dynamic>?, Object?> {
+  const _TypeSpecificDataConverter();
+
+  @override
+  Map<String, dynamic>? fromJson(Object? json) {
+    if (json == null) return null;
+    if (json is Map<String, dynamic>) return json;
+    if (json is String) {
+      try {
+        final decoded = jsonDecode(json);
+        if (decoded is Map<String, dynamic>) return decoded;
+      } catch (_) {}
+    }
+    return null;
+  }
+
+  @override
+  Object? toJson(Map<String, dynamic>? data) => data;
 }

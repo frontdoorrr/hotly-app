@@ -118,6 +118,17 @@ class _ShareQueueResultsScreenState
               ),
             ],
           ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              const Icon(Icons.info_outline, size: 14, color: AppColors.textTertiary),
+              const SizedBox(width: 4),
+              Text(
+                '분석된 장소는 자동으로 아카이브에 저장됩니다',
+                style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
+              ),
+            ],
+          ),
           const SizedBox(height: 12),
 
           // 필터 토글
@@ -425,47 +436,29 @@ class _ShareQueueResultsScreenState
                       style: TextButton.styleFrom(
                         foregroundColor: AppColors.textSecondary,
                       ),
-                      child: const Text('무시'),
+                      child: const Text('목록에서 숨기기'),
                     ),
-                    // 편집 버튼
-                    TextButton(
-                      onPressed: () {
-                        // TODO: 편집 화면으로 이동
-                      },
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppColors.info,
-                      ),
-                      child: const Text('편집'),
-                    ),
-                    // 저장 버튼
-                    ElevatedButton(
+                    // 확인 버튼
+                    ElevatedButton.icon(
                       onPressed: () async {
-                        final success = await ref
+                        await ref
                             .read(shareQueueProvider.notifier)
                             .saveItem(item.id);
-                        if (success && mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('${result.placeName} 저장됨'),
-                              backgroundColor: AppColors.success,
-                            ),
-                          );
+                        if (mounted) {
+                          context.go('/');
                         }
                       },
+                      icon: const Icon(Icons.check, size: 16),
+                      label: const Text('확인'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
+                        foregroundColor: AppColors.white,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 8,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: Text(
-                        '저장',
-                        style: AppTextStyles.button.copyWith(
-                          color: AppColors.white,
                         ),
                       ),
                     ),
@@ -571,22 +564,17 @@ class _ShareQueueResultsScreenState
             ),
           ),
           const Spacer(),
-          // 선택 저장 버튼
+          // 선택 확인 버튼
           ElevatedButton(
             onPressed: _selectedIds.isEmpty
                 ? null
                 : () async {
-                    final count = await ref
+                    await ref
                         .read(shareQueueProvider.notifier)
                         .saveSelectedItems(_selectedIds.toList());
                     if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('$count개 장소 저장됨'),
-                          backgroundColor: AppColors.success,
-                        ),
-                      );
                       setState(() => _selectedIds.clear());
+                      context.go('/');
                     }
                   },
             style: ElevatedButton.styleFrom(
@@ -602,8 +590,8 @@ class _ShareQueueResultsScreenState
             ),
             child: Text(
               _selectedIds.isEmpty
-                  ? '저장'
-                  : '${_selectedIds.length}개 저장하기',
+                  ? '확인'
+                  : '${_selectedIds.length}개 확인 완료',
               style: AppTextStyles.button.copyWith(
                 color: AppColors.white,
               ),

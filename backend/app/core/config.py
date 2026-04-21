@@ -196,8 +196,14 @@ class Settings(BaseSettings):
 
     # Request Validation
     MAX_REQUEST_SIZE_MB: int = Field(
-        default=10,
+        default=100,
         description="Maximum request body size in MB"
+    )
+
+    # Link Analyzer — Instagram multipart proxy timeout
+    LINK_ANALYZER_INSTAGRAM_TIMEOUT: int = Field(
+        default=300,
+        description="Timeout in seconds for Instagram multipart proxy calls to link-analyzer"
     )
 
     # JWT Configuration
