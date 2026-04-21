@@ -35,6 +35,7 @@ class ArchiveListItem(BaseModel):
     thumbnail_url: Optional[str]
     summary: Optional[str]
     sentiment: Optional[Sentiment]
+    type_specific_data: Optional[Any]
     archived_at: datetime
 
     class Config:
