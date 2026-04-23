@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/share_queue_item.dart';
@@ -54,9 +55,9 @@ class _BatchProcessingSheetState extends ConsumerState<BatchProcessingSheet> {
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                _buildHeader(state, totalCount),
+                _buildHeader(context, state, totalCount),
                 const SizedBox(height: 16),
-                _buildProgressBar(state),
+                _buildProgressBar(context, state),
               ],
             ),
           ),
@@ -71,7 +72,7 @@ class _BatchProcessingSheetState extends ConsumerState<BatchProcessingSheet> {
                         item.status != ShareQueueStatus.ignored)
                     .toList();
                 return displayItems.isEmpty
-                    ? _buildEmptyState()
+                    ? _buildEmptyState(context)
                     : ListView.builder(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         itemCount: displayItems.length,
@@ -90,7 +91,8 @@ class _BatchProcessingSheetState extends ConsumerState<BatchProcessingSheet> {
     );
   }
 
-  Widget _buildHeader(ShareQueueState state, int totalCount) {
+  Widget _buildHeader(BuildContext context, ShareQueueState state, int totalCount) {
+    final l10n = context.l10n;
     final String title;
     final IconData icon;
     final Color iconColor;
@@ -100,15 +102,15 @@ class _BatchProcessingSheetState extends ConsumerState<BatchProcessingSheet> {
       icon = Icons.sync;
       iconColor = AppColors.info;
     } else if (state.completedCount == totalCount && totalCount > 0) {
-      title = '✨ ${state.completedCount}개 장소 분석 완료';
+      title = '✨ ${l10n.shareQueueBadge_analysisComplete(state.completedCount)}';
       icon = Icons.check_circle;
       iconColor = AppColors.success;
     } else if (state.pendingCount > 0) {
-      title = '🔗 ${state.pendingCount}개 링크 대기 중';
+      title = '🔗 ${l10n.shareQueueBadge_pendingLinks(state.pendingCount)}';
       icon = Icons.schedule;
       iconColor = AppColors.warning;
     } else {
-      title = '📋 분석 결과';
+      title = '📋 ${l10n.shareQueue_results}';
       icon = Icons.list_alt;
       iconColor = AppColors.gray500;
     }
@@ -144,7 +146,8 @@ class _BatchProcessingSheetState extends ConsumerState<BatchProcessingSheet> {
     );
   }
 
-  Widget _buildProgressBar(ShareQueueState state) {
+  Widget _buildProgressBar(BuildContext context, ShareQueueState state) {
+    final l10n = context.l10n;
     return Column(
       children: [
         ClipRRect(
@@ -165,14 +168,14 @@ class _BatchProcessingSheetState extends ConsumerState<BatchProcessingSheet> {
             Text(
               state.isProcessing
                   ? '${(state.progress * 100).toInt()}% 완료'
-                  : '분석 완료',
+                  : l10n.batch_analysisComplete,
               style: AppTextStyles.body2.copyWith(
                 color: AppColors.textSecondary,
               ),
             ),
             if (state.isProcessing)
               Text(
-                '약 ${_estimateRemainingTime(state)}',
+                l10n.batch_estimatedTime(_estimateRemainingTime(state)),
                 style: AppTextStyles.bodySmall.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -190,7 +193,7 @@ class _BatchProcessingSheetState extends ConsumerState<BatchProcessingSheet> {
     return '${(seconds / 60).ceil()}분 남음';
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -202,7 +205,7 @@ class _BatchProcessingSheetState extends ConsumerState<BatchProcessingSheet> {
           ),
           const SizedBox(height: 16),
           Text(
-            '공유된 링크가 없습니다',
+            context.l10n.batch_noSharedLinks,
             style: AppTextStyles.labelLarge.copyWith(
               color: AppColors.textSecondary,
             ),
@@ -252,7 +255,7 @@ class _BatchProcessingSheetState extends ConsumerState<BatchProcessingSheet> {
                 ),
               ),
               child: Text(
-                state.isProcessing ? '백그라운드로' : '닫기',
+                state.isProcessing ? context.l10n.batch_runInBackground : context.l10n.batch_close,
                 style: AppTextStyles.button.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -289,12 +292,12 @@ class _BatchProcessingSheetState extends ConsumerState<BatchProcessingSheet> {
               ),
               child: Text(
                 state.isProcessing
-                    ? '분석 취소'
+                    ? context.l10n.batch_cancel
                     : state.completedCount > 0
-                        ? '결과 확인하기'
+                        ? context.l10n.batch_viewResults
                         : state.failedCount > 0
-                            ? '재시도'
-                            : '완료',
+                            ? context.l10n.batch_retry
+                            : context.l10n.batch_done,
                 style: AppTextStyles.button.copyWith(
                   color: AppColors.white,
                 ),
@@ -346,7 +349,7 @@ class ShareQueueItemTile extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
-                _buildSubtitle(),
+                _buildSubtitle(context),
               ],
             ),
           ),
@@ -477,33 +480,34 @@ class ShareQueueItemTile extends StatelessWidget {
     }
   }
 
-  Widget _buildSubtitle() {
+  Widget _buildSubtitle(BuildContext context) {
+    final l10n = context.l10n;
     String text;
     Color color;
 
     switch (item.status) {
       case ShareQueueStatus.pending:
-        text = '대기 중';
+        text = l10n.batch_statusPending;
         color = AppColors.textSecondary;
         break;
       case ShareQueueStatus.analyzing:
-        text = '분석 중...';
+        text = l10n.batch_statusAnalyzing;
         color = AppColors.info;
         break;
       case ShareQueueStatus.completed:
-        text = item.result?.category ?? '분석 완료';
+        text = item.result?.category ?? l10n.batch_statusCompleted;
         color = AppColors.success;
         break;
       case ShareQueueStatus.failed:
-        text = item.errorMessage ?? '분석 실패';
+        text = item.errorMessage ?? l10n.batch_statusFailed;
         color = AppColors.error;
         break;
       case ShareQueueStatus.saved:
-        text = '저장됨';
+        text = l10n.batch_statusSaved;
         color = AppColors.primary;
         break;
       case ShareQueueStatus.ignored:
-        text = '무시됨';
+        text = l10n.batch_statusIgnored;
         color = AppColors.textSecondary;
         break;
     }

@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../archive/domain/entities/archived_content.dart';
@@ -39,11 +40,11 @@ class HomeScreen extends ConsumerWidget {
                 padding: const EdgeInsets.fromLTRB(16, 16, 8, 4),
                 child: Row(
                   children: [
-                    Text('최근 아카이빙', style: theme.textTheme.titleLarge),
+                    Text(context.l10n.home_recentArchives, style: theme.textTheme.titleLarge),
                     const Spacer(),
                     TextButton(
                       onPressed: () => context.go('/discover'),
-                      child: const Text('전체 보기 →'),
+                      child: Text(context.l10n.home_viewAll),
                     ),
                   ],
                 ),
@@ -64,7 +65,7 @@ class HomeScreen extends ConsumerWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(48),
                     child: Text(
-                      '불러오기 실패',
+                      context.l10n.home_loadFailed,
                       style: theme.textTheme.bodyMedium,
                     ),
                   ),
@@ -103,7 +104,7 @@ class HomeScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => ArchiveInputSheet.show(context),
         icon: const Icon(Icons.add_link),
-        label: const Text('링크 아카이빙'),
+        label: Text(context.l10n.home_archivingFab),
       ),
     );
   }
@@ -231,13 +232,13 @@ class _EmptyState extends StatelessWidget {
             Icon(Icons.bookmarks_outlined, size: 64, color: Colors.grey[300]),
             const SizedBox(height: 16),
             Text(
-              '아직 아카이빙한 콘텐츠가 없어요',
+              context.l10n.home_noContent,
               style: AppTextStyles.body2
                   .copyWith(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 8),
             Text(
-              '아래 버튼으로 링크를 추가해보세요',
+              context.l10n.home_addLinkPrompt,
               style: AppTextStyles.bodySmall
                   .copyWith(color: AppColors.textTertiary),
             ),
@@ -245,7 +246,7 @@ class _EmptyState extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: onAddTap,
               icon: const Icon(Icons.add_link),
-              label: const Text('링크 추가하기'),
+              label: Text(context.l10n.home_addLink),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,

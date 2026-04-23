@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../home/presentation/widgets/place_card.dart';
@@ -56,7 +57,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           controller: _searchController,
           focusNode: _searchFocusNode,
           decoration: InputDecoration(
-            hintText: '장소, 태그, 지역 검색...',
+            hintText: context.l10n.search_hint,
             hintStyle: AppTextStyles.body2.copyWith(
               color: AppColors.textSecondary,
             ),
@@ -122,7 +123,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              '검색 중 오류가 발생했습니다',
+              context.l10n.search_error,
               style: AppTextStyles.h4,
             ),
             const SizedBox(height: 8),
@@ -135,7 +136,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () => ref.read(searchProvider.notifier).search(),
-              child: const Text('다시 시도'),
+              child: Text(context.l10n.error_retry),
             ),
           ],
         ),
@@ -158,12 +159,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              '검색 결과가 없습니다',
+              context.l10n.search_noResults,
               style: AppTextStyles.h4,
             ),
             const SizedBox(height: 8),
             Text(
-              '다른 키워드로 검색해보세요',
+              context.l10n.search_tryOtherKeyword,
               style: AppTextStyles.body2.copyWith(
                 color: AppColors.textSecondary,
               ),
@@ -187,7 +188,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '최근 검색어',
+                  context.l10n.search_recentSearches,
                   style: AppTextStyles.h4,
                 ),
                 TextButton(
@@ -195,7 +196,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     ref.read(searchProvider.notifier).clearSearchHistory();
                   },
                   child: Text(
-                    '전체 삭제',
+                    context.l10n.search_clearAll,
                     style: AppTextStyles.label2.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -221,7 +222,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             const SizedBox(height: 32),
           ],
           Text(
-            '인기 검색어',
+            context.l10n.search_popularSearches,
             style: AppTextStyles.h4,
           ),
           const SizedBox(height: 12),
@@ -275,7 +276,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: Text(
-                  '자동완성',
+                  context.l10n.search_autocomplete,
                   style: AppTextStyles.label2.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -297,7 +298,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: Text(
-                  '최근 검색어',
+                  context.l10n.search_recentSearches,
                   style: AppTextStyles.label2.copyWith(
                     color: AppColors.textSecondary,
                   ),

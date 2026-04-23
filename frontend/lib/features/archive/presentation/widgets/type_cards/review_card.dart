@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../../../core/l10n/l10n_extension.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '_shared.dart';
@@ -73,7 +74,7 @@ class ReviewCard extends StatelessWidget {
         if (pros != null && pros.isNotEmpty) ...[
           const SizedBox(height: 10),
           Text(
-            '장점',
+            context.l10n.review_pros,
             style: AppTextStyles.bodySmall.copyWith(color: Colors.green[700]),
           ),
           const SizedBox(height: 4),
@@ -86,7 +87,7 @@ class ReviewCard extends StatelessWidget {
         if (cons != null && cons.isNotEmpty) ...[
           const SizedBox(height: 10),
           Text(
-            '단점',
+            context.l10n.review_cons,
             style: AppTextStyles.bodySmall.copyWith(color: Colors.red[700]),
           ),
           const SizedBox(height: 4),
@@ -97,7 +98,7 @@ class ReviewCard extends StatelessWidget {
         if (recommendedFor != null && recommendedFor.isNotEmpty) ...[
           const SizedBox(height: 10),
           Text(
-            '추천 대상',
+            context.l10n.review_recommendedFor,
             style: AppTextStyles.bodySmall
                 .copyWith(color: AppColors.textSecondary),
           ),
@@ -133,7 +134,7 @@ class ReviewCard extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: () => _launch(data['purchase_url'] as String?),
               icon: const Icon(Icons.open_in_new, size: 16),
-              label: const Text('구매하기'),
+              label: Text(context.l10n.review_purchase),
               style: OutlinedButton.styleFrom(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8)),

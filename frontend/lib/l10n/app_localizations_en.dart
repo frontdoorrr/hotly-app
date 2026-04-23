@@ -339,6 +339,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_buildNumber => 'Build Number';
 
   @override
+  String get settings_notificationPermissionTitle => 'Permission Required';
+
+  @override
+  String get settings_notificationPermissionBody =>
+      'Please allow notification permission in system settings to receive alerts.';
+
+  @override
+  String get settings_openSystemSettings => 'Open Settings';
+
+  @override
   String get auth_logoutConfirm => 'Are you sure you want to log out?';
 
   @override
@@ -579,4 +589,412 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get allPlaces => 'All';
+
+  @override
+  String get error_networkCheck => 'Please check your network connection';
+
+  @override
+  String get error_serverProblem =>
+      'A server error occurred\nPlease try again later';
+
+  @override
+  String get error_dataNotFound => 'The requested data could not be found';
+
+  @override
+  String get error_retry => 'Retry';
+
+  @override
+  String error_searchNoResults(String query) {
+    return 'No results for \"$query\"';
+  }
+
+  @override
+  String get error_searchEmpty => 'No search results';
+
+  @override
+  String get error_searchTryOther => 'Try searching with a different keyword';
+
+  @override
+  String get error_noSavedPlaces => 'No saved places';
+
+  @override
+  String get error_savePlacePrompt => 'Save places you like';
+
+  @override
+  String get error_browsePlaces => 'Browse places';
+
+  @override
+  String get error_noCourses => 'No courses created';
+
+  @override
+  String get error_createCoursePrompt => 'Create your own date course';
+
+  @override
+  String get error_createCourse => 'Create Course';
+
+  @override
+  String get paginated_loadFailed => 'Failed to load data';
+
+  @override
+  String get paginated_noData => 'No data';
+
+  @override
+  String get archive_detailTitle => 'Archive Detail';
+
+  @override
+  String get archive_delete => 'Delete';
+
+  @override
+  String get archive_insights => 'Insights';
+
+  @override
+  String get archive_relatedKeywords => 'Related Keywords';
+
+  @override
+  String get archive_platform => 'Platform';
+
+  @override
+  String get archive_author => 'Author';
+
+  @override
+  String get archive_publishedAt => 'Published';
+
+  @override
+  String get archive_archivedAt => 'Archived';
+
+  @override
+  String get archive_urlCopied => 'URL copied';
+
+  @override
+  String get archive_platformNaverBlog => 'Naver Blog';
+
+  @override
+  String get archive_deleteConfirmTitle => 'Delete';
+
+  @override
+  String get archive_deleteConfirmBody => 'Delete this archive?';
+
+  @override
+  String get archive_openOriginalLink => 'Open Original Link';
+
+  @override
+  String get archive_cannotOpenLink => 'Cannot open link';
+
+  @override
+  String get archive_cannotLoad => 'Cannot load';
+
+  @override
+  String get archiveInput_title => 'Archive Link';
+
+  @override
+  String get archiveInput_urlRequired => 'Please enter a URL';
+
+  @override
+  String get archiveInput_urlInvalid => 'Please enter a valid URL';
+
+  @override
+  String get archiveInput_supportedPlatforms =>
+      'Supported: Instagram · Naver Blog · YouTube';
+
+  @override
+  String get archiveInput_archiveButton => 'Archive';
+
+  @override
+  String get archiveInput_doneButton => 'Done';
+
+  @override
+  String get archiveList_filterAll => 'All';
+
+  @override
+  String get archiveList_deleteTitle => 'Delete';
+
+  @override
+  String get archiveList_deleteBody => 'Delete this archive?';
+
+  @override
+  String get archiveList_noContent => 'No archived content yet';
+
+  @override
+  String get archiveList_addLink => 'Add Link';
+
+  @override
+  String get archive_typePlace => 'Place';
+
+  @override
+  String get archive_typeEvent => 'Event';
+
+  @override
+  String get archive_typeTips => 'Tips';
+
+  @override
+  String get archive_typeReview => 'Review';
+
+  @override
+  String get event_registrationRequired => 'Registration required';
+
+  @override
+  String get event_bookTicket => 'Book Ticket';
+
+  @override
+  String get place_reservationRequired => 'Reservation required';
+
+  @override
+  String get place_menu => 'Menu';
+
+  @override
+  String get place_visitTips => 'Visit Tips';
+
+  @override
+  String get review_pros => 'Pros';
+
+  @override
+  String get review_cons => 'Cons';
+
+  @override
+  String get review_recommendedFor => 'Recommended For';
+
+  @override
+  String get review_purchase => 'Buy Now';
+
+  @override
+  String tips_moreItems(int count) {
+    return '$count more';
+  }
+
+  @override
+  String get tips_materials => 'Materials';
+
+  @override
+  String get tips_cautions => 'Cautions';
+
+  @override
+  String get tips_easy => 'Easy';
+
+  @override
+  String get tips_medium => 'Medium';
+
+  @override
+  String get tips_hard => 'Hard';
+
+  @override
+  String get map_toggleMap => 'Map';
+
+  @override
+  String get map_toggleList => 'List';
+
+  @override
+  String get map_cannotLoadPlaces => 'Cannot load places.';
+
+  @override
+  String get map_noSavedPlaces => 'No saved places.';
+
+  @override
+  String get map_noTagPlaces => 'No places for this tag.';
+
+  @override
+  String get map_clearFilters => 'Clear Filters';
+
+  @override
+  String get map_searchHint => 'Search places, addresses';
+
+  @override
+  String get common_delete => 'Delete';
+
+  @override
+  String get common_viewDetail => 'View Details';
+
+  @override
+  String get common_savePlaceButton => 'Save Place';
+
+  @override
+  String get common_addLink => 'Add Link';
+
+  @override
+  String get home_recentArchives => 'Recent Archives';
+
+  @override
+  String get home_viewAll => 'View All →';
+
+  @override
+  String get home_loadFailed => 'Load failed';
+
+  @override
+  String get home_archivingFab => 'Archive Link';
+
+  @override
+  String get home_noContent => 'No archived content yet';
+
+  @override
+  String get home_addLinkPrompt => 'Add a link using the button below';
+
+  @override
+  String get home_addLink => 'Add Link';
+
+  @override
+  String get plan_tabEvents => 'Events';
+
+  @override
+  String get plan_tabPlaces => 'Places to Visit';
+
+  @override
+  String get plan_loadFailed => 'Load failed';
+
+  @override
+  String get plan_noEvents => 'No upcoming events';
+
+  @override
+  String get plan_noPlaces => 'No places to visit';
+
+  @override
+  String get plan_today => 'Today';
+
+  @override
+  String get plan_ended => 'Ended';
+
+  @override
+  String get plan_addLink => 'Add Link';
+
+  @override
+  String get search_hint => 'Search places, tags, areas...';
+
+  @override
+  String get search_error => 'An error occurred while searching';
+
+  @override
+  String get search_noResults => 'No search results';
+
+  @override
+  String get search_tryOtherKeyword => 'Try searching with a different keyword';
+
+  @override
+  String get search_recentSearches => 'Recent Searches';
+
+  @override
+  String get search_clearAll => 'Clear All';
+
+  @override
+  String get search_popularSearches => 'Popular Searches';
+
+  @override
+  String get search_autocomplete => 'Suggestions';
+
+  @override
+  String get shareQueue_results => 'Analysis Results';
+
+  @override
+  String get shareQueue_deselect => 'Deselect';
+
+  @override
+  String shareQueue_analysisComplete(int count) {
+    return '$count analyzed';
+  }
+
+  @override
+  String shareQueue_highConfidence(int count) {
+    return 'High confidence: $count';
+  }
+
+  @override
+  String get shareQueue_autoSavedInfo =>
+      'Analyzed places are automatically saved to your archive';
+
+  @override
+  String get shareQueue_showAll => 'Show All';
+
+  @override
+  String get shareQueue_showHighConfidenceOnly => 'High confidence only';
+
+  @override
+  String get shareQueue_hideFromList => 'Hide from list';
+
+  @override
+  String get shareQueue_confirm => 'Confirm';
+
+  @override
+  String get shareQueue_noHighConfidence => 'No high-confidence results';
+
+  @override
+  String get shareQueue_noResults => 'No analysis results';
+
+  @override
+  String get shareQueue_selectAll => 'Select All';
+
+  @override
+  String shareQueue_confirmSelected(int count) {
+    return 'Confirm $count';
+  }
+
+  @override
+  String get batch_analysisComplete => 'Analysis complete';
+
+  @override
+  String batch_estimatedTime(String time) {
+    return 'About $time';
+  }
+
+  @override
+  String get batch_noSharedLinks => 'No shared links';
+
+  @override
+  String get batch_runInBackground => 'Background';
+
+  @override
+  String get batch_close => 'Close';
+
+  @override
+  String get batch_cancel => 'Cancel Analysis';
+
+  @override
+  String get batch_viewResults => 'View Results';
+
+  @override
+  String get batch_retry => 'Retry';
+
+  @override
+  String get batch_done => 'Done';
+
+  @override
+  String get batch_statusPending => 'Pending';
+
+  @override
+  String get batch_statusAnalyzing => 'Analyzing...';
+
+  @override
+  String get batch_statusCompleted => 'Completed';
+
+  @override
+  String get batch_statusFailed => 'Failed';
+
+  @override
+  String get batch_statusSaved => 'Saved';
+
+  @override
+  String get batch_statusIgnored => 'Ignored';
+
+  @override
+  String get shareQueueBadge_tapToViewResults => 'Tap to view results';
+
+  @override
+  String get shareQueueBadge_viewResults => 'View Results';
+
+  @override
+  String get shareQueueBadge_tapToStartAnalysis => 'Tap to start analysis';
+
+  @override
+  String get shareQueueBadge_startAnalysis => 'Start Analysis';
+
+  @override
+  String shareQueueBadge_analyzing(int current, int total) {
+    return 'Analyzing... ($current/$total)';
+  }
+
+  @override
+  String shareQueueBadge_analysisComplete(int count) {
+    return '$count places analyzed';
+  }
+
+  @override
+  String shareQueueBadge_pendingLinks(int count) {
+    return '$count links pending';
+  }
 }

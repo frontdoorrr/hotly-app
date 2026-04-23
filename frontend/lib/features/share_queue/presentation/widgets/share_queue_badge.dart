@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/share_queue_item.dart';
@@ -51,15 +52,15 @@ class ShareQueueBadge extends ConsumerWidget {
             child: isProcessing
                 ? const _ProcessingBadgeContent()
                 : isCompleted
-                    ? _buildCompletedContent(completedCount)
-                    : _buildPendingContent(pendingCount, ref),
+                    ? _buildCompletedContent(context, completedCount)
+                    : _buildPendingContent(context, pendingCount, ref),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildCompletedContent(int completedCount) {
+  Widget _buildCompletedContent(BuildContext context, int completedCount) {
     return Row(
       children: [
         Container(
@@ -80,7 +81,7 @@ class ShareQueueBadge extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '$completedCount개 장소 분석 완료',
+                context.l10n.shareQueueBadge_analysisComplete(completedCount),
                 style: AppTextStyles.labelLarge.copyWith(
                   color: AppColors.white,
                   fontWeight: FontWeight.w600,
@@ -88,7 +89,7 @@ class ShareQueueBadge extends ConsumerWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                '탭하여 결과를 확인하세요',
+                context.l10n.shareQueueBadge_tapToViewResults,
                 style: AppTextStyles.bodySmall.copyWith(
                   color: AppColors.white.withOpacity(0.8),
                 ),
@@ -103,7 +104,7 @@ class ShareQueueBadge extends ConsumerWidget {
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
-            '결과 보기',
+            context.l10n.shareQueueBadge_viewResults,
             style: AppTextStyles.button.copyWith(
               color: AppColors.success,
             ),
@@ -113,7 +114,7 @@ class ShareQueueBadge extends ConsumerWidget {
     );
   }
 
-  Widget _buildPendingContent(int pendingCount, WidgetRef ref) {
+  Widget _buildPendingContent(BuildContext context, int pendingCount, WidgetRef ref) {
     return Row(
       children: [
         Container(
@@ -134,7 +135,7 @@ class ShareQueueBadge extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '$pendingCount개 링크 분석 대기 중',
+                context.l10n.shareQueueBadge_pendingLinks(pendingCount),
                 style: AppTextStyles.labelLarge.copyWith(
                   color: AppColors.white,
                   fontWeight: FontWeight.w600,
@@ -142,7 +143,7 @@ class ShareQueueBadge extends ConsumerWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                '탭하여 분석을 시작하세요',
+                context.l10n.shareQueueBadge_tapToStartAnalysis,
                 style: AppTextStyles.bodySmall.copyWith(
                   color: AppColors.white.withOpacity(0.8),
                 ),
@@ -157,7 +158,7 @@ class ShareQueueBadge extends ConsumerWidget {
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
-            '분석 시작',
+            context.l10n.shareQueueBadge_startAnalysis,
             style: AppTextStyles.button.copyWith(
               color: AppColors.primary,
             ),
@@ -221,7 +222,7 @@ class _ProcessingBadgeContent extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '분석 중... (${state.processingIndex + 1}/$totalToProcess)',
+                context.l10n.shareQueueBadge_analyzing(state.processingIndex + 1, totalToProcess),
                 style: AppTextStyles.labelLarge.copyWith(
                   color: AppColors.white,
                   fontWeight: FontWeight.w600,

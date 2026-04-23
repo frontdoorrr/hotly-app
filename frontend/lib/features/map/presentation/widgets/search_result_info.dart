@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/entities/map_entities.dart';
 
@@ -52,7 +53,7 @@ class SearchResultInfo extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.close),
                 onPressed: onClose,
-                tooltip: '닫기',
+                tooltip: context.l10n.common_close,
               ),
             ],
           ),
@@ -129,7 +130,7 @@ class SearchResultInfo extends StatelessWidget {
               child: ElevatedButton.icon(
                 onPressed: onSave,
                 icon: const Icon(Icons.bookmark_add_outlined),
-                label: const Text('장소 저장'),
+                label: Text(context.l10n.common_savePlaceButton),
               ),
             ),
         ],

@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/archived_content.dart';
@@ -59,6 +60,7 @@ class _ArchiveListViewState extends ConsumerState<ArchiveListView> {
             onSelect: (type) =>
                 ref.read(archiveListProvider.notifier).filterByType(type),
             contentTypes: ref.watch(contentTypesProvider).valueOrNull ?? [],
+            filterAllLabel: context.l10n.archiveList_filterAll,
           ),
 
           // 목록
@@ -120,11 +122,13 @@ class _TypeFilterBar extends StatelessWidget {
   final String? selected;
   final ValueChanged<String?> onSelect;
   final List<ContentTypeInfo> contentTypes;
+  final String filterAllLabel;
 
   const _TypeFilterBar({
     required this.selected,
     required this.onSelect,
     required this.contentTypes,
+    required this.filterAllLabel,
   });
 
   @override
@@ -138,7 +142,7 @@ class _TypeFilterBar extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: FilterChip(
-              label: const Text('전체'),
+              label: Text(filterAllLabel),
               selected: selected == null,
               onSelected: (_) => onSelect(null),
               selectedColor: AppColors.primary.withOpacity(0.15),
@@ -293,19 +297,20 @@ class _ArchiveListTile extends StatelessWidget {
   }
 
   Future<void> _showDeleteDialog(BuildContext context) async {
+    final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('삭제'),
-        content: const Text('이 아카이브를 삭제할까요?'),
+        title: Text(l10n.archiveList_deleteTitle),
+        content: Text(l10n.archiveList_deleteBody),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('취소')),
+              child: Text(l10n.common_cancel)),
           TextButton(
               onPressed: () => Navigator.pop(ctx, true),
               child:
-                  const Text('삭제', style: TextStyle(color: Colors.red))),
+                  Text(l10n.archive_delete, style: const TextStyle(color: Colors.red))),
         ],
       ),
     );
@@ -330,14 +335,14 @@ class _EmptyView extends StatelessWidget {
           Icon(Icons.bookmarks_outlined, size: 64, color: Colors.grey[300]),
           const SizedBox(height: 16),
           Text(
-            '아직 아카이빙한 콘텐츠가 없어요',
+            context.l10n.archiveList_noContent,
             style: AppTextStyles.body2.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
             onPressed: onAddTap,
             icon: const Icon(Icons.add),
-            label: const Text('링크 추가하기'),
+            label: Text(context.l10n.archiveList_addLink),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,

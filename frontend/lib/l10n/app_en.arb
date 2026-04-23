@@ -207,5 +207,198 @@
   "notFound": "Requested data not found.",
   "requestCancelled": "Request was cancelled.",
   "checkNetwork": "Please check your network connection.",
-  "allPlaces": "All"
+  "allPlaces": "All",
+
+  "error_networkCheck": "Please check your network connection",
+  "error_serverProblem": "A server error occurred\nPlease try again later",
+  "error_dataNotFound": "The requested data could not be found",
+  "error_retry": "Retry",
+  "error_searchNoResults": "No results for \"{query}\"",
+  "@error_searchNoResults": {
+    "placeholders": {
+      "query": { "type": "String" }
+    }
+  },
+  "error_searchEmpty": "No search results",
+  "error_searchTryOther": "Try searching with a different keyword",
+  "error_noSavedPlaces": "No saved places",
+  "error_savePlacePrompt": "Save places you like",
+  "error_browsePlaces": "Browse places",
+  "error_noCourses": "No courses created",
+  "error_createCoursePrompt": "Create your own date course",
+  "error_createCourse": "Create Course",
+
+  "paginated_loadFailed": "Failed to load data",
+  "paginated_noData": "No data",
+
+  "archive_detailTitle": "Archive Detail",
+  "archive_delete": "Delete",
+  "archive_insights": "Insights",
+  "archive_relatedKeywords": "Related Keywords",
+  "archive_platform": "Platform",
+  "archive_author": "Author",
+  "archive_publishedAt": "Published",
+  "archive_archivedAt": "Archived",
+  "archive_urlCopied": "URL copied",
+  "archive_platformNaverBlog": "Naver Blog",
+  "archive_deleteConfirmTitle": "Delete",
+  "archive_deleteConfirmBody": "Delete this archive?",
+  "archive_openOriginalLink": "Open Original Link",
+  "archive_cannotOpenLink": "Cannot open link",
+  "archive_cannotLoad": "Cannot load",
+
+  "archiveInput_title": "Archive Link",
+  "archiveInput_urlRequired": "Please enter a URL",
+  "archiveInput_urlInvalid": "Please enter a valid URL",
+  "archiveInput_supportedPlatforms": "Supported: Instagram · Naver Blog · YouTube",
+  "archiveInput_archiveButton": "Archive",
+  "archiveInput_doneButton": "Done",
+
+  "archiveList_filterAll": "All",
+  "archiveList_deleteTitle": "Delete",
+  "archiveList_deleteBody": "Delete this archive?",
+  "archiveList_noContent": "No archived content yet",
+  "archiveList_addLink": "Add Link",
+
+  "archive_typePlace": "Place",
+  "archive_typeEvent": "Event",
+  "archive_typeTips": "Tips",
+  "archive_typeReview": "Review",
+
+  "event_registrationRequired": "Registration required",
+  "event_bookTicket": "Book Ticket",
+
+  "place_reservationRequired": "Reservation required",
+  "place_menu": "Menu",
+  "place_visitTips": "Visit Tips",
+
+  "review_pros": "Pros",
+  "review_cons": "Cons",
+  "review_recommendedFor": "Recommended For",
+  "review_purchase": "Buy Now",
+
+  "tips_moreItems": "{count} more",
+  "@tips_moreItems": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "tips_materials": "Materials",
+  "tips_cautions": "Cautions",
+  "tips_easy": "Easy",
+  "tips_medium": "Medium",
+  "tips_hard": "Hard",
+
+  "map_toggleMap": "Map",
+  "map_toggleList": "List",
+  "map_cannotLoadPlaces": "Cannot load places.",
+  "map_noSavedPlaces": "No saved places.",
+  "map_noTagPlaces": "No places for this tag.",
+  "map_clearFilters": "Clear Filters",
+  "map_searchHint": "Search places, addresses",
+
+  "common_delete": "Delete",
+  "common_viewDetail": "View Details",
+  "common_savePlaceButton": "Save Place",
+  "common_addLink": "Add Link",
+
+  "home_recentArchives": "Recent Archives",
+  "home_viewAll": "View All →",
+  "home_loadFailed": "Load failed",
+  "home_archivingFab": "Archive Link",
+  "home_noContent": "No archived content yet",
+  "home_addLinkPrompt": "Add a link using the button below",
+  "home_addLink": "Add Link",
+
+  "plan_tabEvents": "Events",
+  "plan_tabPlaces": "Places to Visit",
+  "plan_loadFailed": "Load failed",
+  "plan_noEvents": "No upcoming events",
+  "plan_noPlaces": "No places to visit",
+  "plan_today": "Today",
+  "plan_ended": "Ended",
+  "plan_addLink": "Add Link",
+
+  "search_hint": "Search places, tags, areas...",
+  "search_error": "An error occurred while searching",
+  "search_noResults": "No search results",
+  "search_tryOtherKeyword": "Try searching with a different keyword",
+  "search_recentSearches": "Recent Searches",
+  "search_clearAll": "Clear All",
+  "search_popularSearches": "Popular Searches",
+  "search_autocomplete": "Suggestions",
+
+  "shareQueue_results": "Analysis Results",
+  "shareQueue_deselect": "Deselect",
+  "shareQueue_analysisComplete": "{count} analyzed",
+  "@shareQueue_analysisComplete": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "shareQueue_highConfidence": "High confidence: {count}",
+  "@shareQueue_highConfidence": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "shareQueue_autoSavedInfo": "Analyzed places are automatically saved to your archive",
+  "shareQueue_showAll": "Show All",
+  "shareQueue_showHighConfidenceOnly": "High confidence only",
+  "shareQueue_hideFromList": "Hide from list",
+  "shareQueue_confirm": "Confirm",
+  "shareQueue_noHighConfidence": "No high-confidence results",
+  "shareQueue_noResults": "No analysis results",
+  "shareQueue_selectAll": "Select All",
+  "shareQueue_confirmSelected": "Confirm {count}",
+  "@shareQueue_confirmSelected": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "batch_analysisComplete": "Analysis complete",
+  "batch_estimatedTime": "About {time}",
+  "@batch_estimatedTime": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "batch_noSharedLinks": "No shared links",
+  "batch_runInBackground": "Background",
+  "batch_close": "Close",
+  "batch_cancel": "Cancel Analysis",
+  "batch_viewResults": "View Results",
+  "batch_retry": "Retry",
+  "batch_done": "Done",
+  "batch_statusPending": "Pending",
+  "batch_statusAnalyzing": "Analyzing...",
+  "batch_statusCompleted": "Completed",
+  "batch_statusFailed": "Failed",
+  "batch_statusSaved": "Saved",
+  "batch_statusIgnored": "Ignored",
+
+  "shareQueueBadge_tapToViewResults": "Tap to view results",
+  "shareQueueBadge_viewResults": "View Results",
+  "shareQueueBadge_tapToStartAnalysis": "Tap to start analysis",
+  "shareQueueBadge_startAnalysis": "Start Analysis",
+  "shareQueueBadge_analyzing": "Analyzing... ({current}/{total})",
+  "@shareQueueBadge_analyzing": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "shareQueueBadge_analysisComplete": "{count} places analyzed",
+  "@shareQueueBadge_analysisComplete": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "shareQueueBadge_pendingLinks": "{count} links pending",
+  "@shareQueueBadge_pendingLinks": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  }
 }

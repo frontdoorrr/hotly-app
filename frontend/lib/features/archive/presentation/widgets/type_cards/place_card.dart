@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../../core/l10n/l10n_extension.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '_shared.dart';
@@ -21,14 +22,14 @@ class PlaceCard extends StatelessWidget {
         if (data['reservation_required'] == true)
           TypeInfoRow(
             icon: Icons.bookmark_border,
-            text: '사전 예약 필요',
+            text: context.l10n.place_reservationRequired,
             color: Colors.orange,
           ),
 
         // 메뉴
         if (menus != null && menus.isNotEmpty) ...[
           const SizedBox(height: 8),
-          Text('메뉴', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
+          Text(context.l10n.place_menu, style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
           const SizedBox(height: 4),
           ...menus.take(4).map(
                 (m) => Padding(
@@ -52,7 +53,7 @@ class PlaceCard extends StatelessWidget {
         // 방문 팁
         if (visitTips != null && visitTips.isNotEmpty) ...[
           const SizedBox(height: 8),
-          Text('방문 팁', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
+          Text(context.l10n.place_visitTips, style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
           const SizedBox(height: 4),
           ...visitTips.take(3).map(
                 (tip) => Padding(

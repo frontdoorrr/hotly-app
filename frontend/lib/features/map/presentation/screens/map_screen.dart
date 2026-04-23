@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kakao_map_sdk/kakao_map_sdk.dart';
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -210,7 +211,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
                 color: Colors.white,
               ),
               label: Text(
-                _showList ? '지도' : '목록',
+                _showList ? context.l10n.map_toggleMap : context.l10n.map_toggleList,
                 style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
               ),
             ),
@@ -380,7 +381,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
         LatLng(location.latitude, location.longitude),
         style: poiStyle,
         id: 'current_location',
-        text: '현재 위치',
+        text: context.l10n.map_currentLocation,
       );
 
       AppLogger.d('Added current location marker', tag: 'Map');
@@ -455,14 +456,14 @@ class _MapScreenState extends ConsumerState<MapScreen>
             Icon(Icons.error_outline, size: 64, color: AppColors.error),
             const SizedBox(height: 16),
             Text(
-              state.errorMessage ?? '장소를 불러올 수 없습니다.',
+              state.errorMessage ?? context.l10n.map_cannotLoadPlaces,
               style: AppTextStyles.body2.copyWith(color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => ref.read(savedPlacesProvider.notifier).refresh(),
-              child: const Text('다시 시도'),
+              child: Text(context.l10n.error_retry),
             ),
           ],
         ),
@@ -477,7 +478,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
             Icon(Icons.bookmark_border, size: 64, color: AppColors.textSecondary),
             const SizedBox(height: 16),
             Text(
-              '저장된 장소가 없습니다.',
+              context.l10n.map_noSavedPlaces,
               style: AppTextStyles.body2.copyWith(color: AppColors.textSecondary),
             ),
           ],
@@ -513,7 +514,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
                       Icon(Icons.search_off, size: 64, color: AppColors.textSecondary),
                       const SizedBox(height: 16),
                       Text(
-                        '해당 태그의 장소가 없습니다.',
+                        context.l10n.map_noTagPlaces,
                         style: AppTextStyles.body2.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -521,7 +522,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
                       const SizedBox(height: 16),
                       OutlinedButton(
                         onPressed: () => notifier.clearTagFilters(),
-                        child: const Text('필터 초기화'),
+                        child: Text(context.l10n.map_clearFilters),
                       ),
                     ],
                   ),

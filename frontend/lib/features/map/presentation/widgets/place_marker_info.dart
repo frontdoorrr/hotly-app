@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/models/place.dart';
 import '../../../saved/presentation/providers/saved_places_provider.dart';
@@ -67,7 +68,7 @@ class PlaceMarkerInfo extends ConsumerWidget {
               IconButton(
                 icon: const Icon(Icons.close),
                 onPressed: onClose,
-                tooltip: '닫기',
+                tooltip: context.l10n.common_close,
               ),
             ],
           ),
@@ -145,7 +146,7 @@ class PlaceMarkerInfo extends ConsumerWidget {
                 // PlaceDetailScreen으로 이동
                 context.push('/place/${place.id}');
               },
-              child: const Text('상세보기'),
+              child: Text(context.l10n.common_viewDetail),
             ),
           ),
         ],

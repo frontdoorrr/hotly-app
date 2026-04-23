@@ -752,6 +752,24 @@ abstract class AppLocalizations {
   /// **'빌드 번호'**
   String get settings_buildNumber;
 
+  /// 알림 권한 다이얼로그 제목
+  ///
+  /// In ko, this message translates to:
+  /// **'알림 권한 필요'**
+  String get settings_notificationPermissionTitle;
+
+  /// 알림 권한 거부 안내 메시지
+  ///
+  /// In ko, this message translates to:
+  /// **'알림을 받으려면 시스템 설정에서 알림 권한을 허용해주세요.'**
+  String get settings_notificationPermissionBody;
+
+  /// 시스템 설정 앱 열기 버튼
+  ///
+  /// In ko, this message translates to:
+  /// **'설정 열기'**
+  String get settings_openSystemSettings;
+
   /// 로그아웃 확인 메시지
   ///
   /// In ko, this message translates to:
@@ -1219,6 +1237,780 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'전체'**
   String get allPlaces;
+
+  /// No description provided for @error_networkCheck.
+  ///
+  /// In ko, this message translates to:
+  /// **'네트워크 연결을 확인해주세요'**
+  String get error_networkCheck;
+
+  /// No description provided for @error_serverProblem.
+  ///
+  /// In ko, this message translates to:
+  /// **'서버에 문제가 발생했습니다\n잠시 후 다시 시도해주세요'**
+  String get error_serverProblem;
+
+  /// No description provided for @error_dataNotFound.
+  ///
+  /// In ko, this message translates to:
+  /// **'요청하신 데이터를 찾을 수 없습니다'**
+  String get error_dataNotFound;
+
+  /// No description provided for @error_retry.
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 시도'**
+  String get error_retry;
+
+  /// No description provided for @error_searchNoResults.
+  ///
+  /// In ko, this message translates to:
+  /// **'\"{query}\"에 대한 검색 결과가 없습니다'**
+  String error_searchNoResults(String query);
+
+  /// No description provided for @error_searchEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'검색 결과가 없습니다'**
+  String get error_searchEmpty;
+
+  /// No description provided for @error_searchTryOther.
+  ///
+  /// In ko, this message translates to:
+  /// **'다른 키워드로 검색해보세요'**
+  String get error_searchTryOther;
+
+  /// No description provided for @error_noSavedPlaces.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장된 장소가 없습니다'**
+  String get error_noSavedPlaces;
+
+  /// No description provided for @error_savePlacePrompt.
+  ///
+  /// In ko, this message translates to:
+  /// **'마음에 드는 장소를 저장해보세요'**
+  String get error_savePlacePrompt;
+
+  /// No description provided for @error_browsePlaces.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소 찾아보기'**
+  String get error_browsePlaces;
+
+  /// No description provided for @error_noCourses.
+  ///
+  /// In ko, this message translates to:
+  /// **'생성된 코스가 없습니다'**
+  String get error_noCourses;
+
+  /// No description provided for @error_createCoursePrompt.
+  ///
+  /// In ko, this message translates to:
+  /// **'나만의 데이트 코스를 만들어보세요'**
+  String get error_createCoursePrompt;
+
+  /// No description provided for @error_createCourse.
+  ///
+  /// In ko, this message translates to:
+  /// **'코스 만들기'**
+  String get error_createCourse;
+
+  /// No description provided for @paginated_loadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터를 불러오지 못했습니다'**
+  String get paginated_loadFailed;
+
+  /// No description provided for @paginated_noData.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터가 없습니다'**
+  String get paginated_noData;
+
+  /// No description provided for @archive_detailTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'아카이브 상세'**
+  String get archive_detailTitle;
+
+  /// No description provided for @archive_delete.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제'**
+  String get archive_delete;
+
+  /// No description provided for @archive_insights.
+  ///
+  /// In ko, this message translates to:
+  /// **'인사이트'**
+  String get archive_insights;
+
+  /// No description provided for @archive_relatedKeywords.
+  ///
+  /// In ko, this message translates to:
+  /// **'관련 키워드'**
+  String get archive_relatedKeywords;
+
+  /// No description provided for @archive_platform.
+  ///
+  /// In ko, this message translates to:
+  /// **'플랫폼'**
+  String get archive_platform;
+
+  /// No description provided for @archive_author.
+  ///
+  /// In ko, this message translates to:
+  /// **'작성자'**
+  String get archive_author;
+
+  /// No description provided for @archive_publishedAt.
+  ///
+  /// In ko, this message translates to:
+  /// **'발행일'**
+  String get archive_publishedAt;
+
+  /// No description provided for @archive_archivedAt.
+  ///
+  /// In ko, this message translates to:
+  /// **'아카이빙'**
+  String get archive_archivedAt;
+
+  /// No description provided for @archive_urlCopied.
+  ///
+  /// In ko, this message translates to:
+  /// **'URL이 복사됐습니다'**
+  String get archive_urlCopied;
+
+  /// No description provided for @archive_platformNaverBlog.
+  ///
+  /// In ko, this message translates to:
+  /// **'네이버 블로그'**
+  String get archive_platformNaverBlog;
+
+  /// No description provided for @archive_deleteConfirmTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제'**
+  String get archive_deleteConfirmTitle;
+
+  /// No description provided for @archive_deleteConfirmBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 아카이브를 삭제할까요?'**
+  String get archive_deleteConfirmBody;
+
+  /// No description provided for @archive_openOriginalLink.
+  ///
+  /// In ko, this message translates to:
+  /// **'원본 링크 열기'**
+  String get archive_openOriginalLink;
+
+  /// No description provided for @archive_cannotOpenLink.
+  ///
+  /// In ko, this message translates to:
+  /// **'링크를 열 수 없습니다'**
+  String get archive_cannotOpenLink;
+
+  /// No description provided for @archive_cannotLoad.
+  ///
+  /// In ko, this message translates to:
+  /// **'불러올 수 없습니다'**
+  String get archive_cannotLoad;
+
+  /// No description provided for @archiveInput_title.
+  ///
+  /// In ko, this message translates to:
+  /// **'링크 아카이브'**
+  String get archiveInput_title;
+
+  /// No description provided for @archiveInput_urlRequired.
+  ///
+  /// In ko, this message translates to:
+  /// **'URL을 입력해주세요'**
+  String get archiveInput_urlRequired;
+
+  /// No description provided for @archiveInput_urlInvalid.
+  ///
+  /// In ko, this message translates to:
+  /// **'유효한 URL을 입력해주세요'**
+  String get archiveInput_urlInvalid;
+
+  /// No description provided for @archiveInput_supportedPlatforms.
+  ///
+  /// In ko, this message translates to:
+  /// **'지원: Instagram · Naver Blog · YouTube'**
+  String get archiveInput_supportedPlatforms;
+
+  /// No description provided for @archiveInput_archiveButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'아카이브'**
+  String get archiveInput_archiveButton;
+
+  /// No description provided for @archiveInput_doneButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'완료'**
+  String get archiveInput_doneButton;
+
+  /// No description provided for @archiveList_filterAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체'**
+  String get archiveList_filterAll;
+
+  /// No description provided for @archiveList_deleteTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제'**
+  String get archiveList_deleteTitle;
+
+  /// No description provided for @archiveList_deleteBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 아카이브를 삭제할까요?'**
+  String get archiveList_deleteBody;
+
+  /// No description provided for @archiveList_noContent.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 아카이빙한 콘텐츠가 없어요'**
+  String get archiveList_noContent;
+
+  /// No description provided for @archiveList_addLink.
+  ///
+  /// In ko, this message translates to:
+  /// **'링크 추가하기'**
+  String get archiveList_addLink;
+
+  /// No description provided for @archive_typePlace.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소'**
+  String get archive_typePlace;
+
+  /// No description provided for @archive_typeEvent.
+  ///
+  /// In ko, this message translates to:
+  /// **'이벤트'**
+  String get archive_typeEvent;
+
+  /// No description provided for @archive_typeTips.
+  ///
+  /// In ko, this message translates to:
+  /// **'팁'**
+  String get archive_typeTips;
+
+  /// No description provided for @archive_typeReview.
+  ///
+  /// In ko, this message translates to:
+  /// **'리뷰'**
+  String get archive_typeReview;
+
+  /// No description provided for @event_registrationRequired.
+  ///
+  /// In ko, this message translates to:
+  /// **'사전 등록 필요'**
+  String get event_registrationRequired;
+
+  /// No description provided for @event_bookTicket.
+  ///
+  /// In ko, this message translates to:
+  /// **'예매하기'**
+  String get event_bookTicket;
+
+  /// No description provided for @place_reservationRequired.
+  ///
+  /// In ko, this message translates to:
+  /// **'사전 예약 필요'**
+  String get place_reservationRequired;
+
+  /// No description provided for @place_menu.
+  ///
+  /// In ko, this message translates to:
+  /// **'메뉴'**
+  String get place_menu;
+
+  /// No description provided for @place_visitTips.
+  ///
+  /// In ko, this message translates to:
+  /// **'방문 팁'**
+  String get place_visitTips;
+
+  /// No description provided for @review_pros.
+  ///
+  /// In ko, this message translates to:
+  /// **'장점'**
+  String get review_pros;
+
+  /// No description provided for @review_cons.
+  ///
+  /// In ko, this message translates to:
+  /// **'단점'**
+  String get review_cons;
+
+  /// No description provided for @review_recommendedFor.
+  ///
+  /// In ko, this message translates to:
+  /// **'추천 대상'**
+  String get review_recommendedFor;
+
+  /// No description provided for @review_purchase.
+  ///
+  /// In ko, this message translates to:
+  /// **'구매하기'**
+  String get review_purchase;
+
+  /// No description provided for @tips_moreItems.
+  ///
+  /// In ko, this message translates to:
+  /// **'외 {count}개 더'**
+  String tips_moreItems(int count);
+
+  /// No description provided for @tips_materials.
+  ///
+  /// In ko, this message translates to:
+  /// **'준비물'**
+  String get tips_materials;
+
+  /// No description provided for @tips_cautions.
+  ///
+  /// In ko, this message translates to:
+  /// **'주의사항'**
+  String get tips_cautions;
+
+  /// No description provided for @tips_easy.
+  ///
+  /// In ko, this message translates to:
+  /// **'쉬움'**
+  String get tips_easy;
+
+  /// No description provided for @tips_medium.
+  ///
+  /// In ko, this message translates to:
+  /// **'보통'**
+  String get tips_medium;
+
+  /// No description provided for @tips_hard.
+  ///
+  /// In ko, this message translates to:
+  /// **'어려움'**
+  String get tips_hard;
+
+  /// No description provided for @map_toggleMap.
+  ///
+  /// In ko, this message translates to:
+  /// **'지도'**
+  String get map_toggleMap;
+
+  /// No description provided for @map_toggleList.
+  ///
+  /// In ko, this message translates to:
+  /// **'목록'**
+  String get map_toggleList;
+
+  /// No description provided for @map_cannotLoadPlaces.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소를 불러올 수 없습니다.'**
+  String get map_cannotLoadPlaces;
+
+  /// No description provided for @map_noSavedPlaces.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장된 장소가 없습니다.'**
+  String get map_noSavedPlaces;
+
+  /// No description provided for @map_noTagPlaces.
+  ///
+  /// In ko, this message translates to:
+  /// **'해당 태그의 장소가 없습니다.'**
+  String get map_noTagPlaces;
+
+  /// No description provided for @map_clearFilters.
+  ///
+  /// In ko, this message translates to:
+  /// **'필터 초기화'**
+  String get map_clearFilters;
+
+  /// No description provided for @map_searchHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소, 주소 검색'**
+  String get map_searchHint;
+
+  /// No description provided for @common_delete.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제'**
+  String get common_delete;
+
+  /// No description provided for @common_viewDetail.
+  ///
+  /// In ko, this message translates to:
+  /// **'상세보기'**
+  String get common_viewDetail;
+
+  /// No description provided for @common_savePlaceButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소 저장'**
+  String get common_savePlaceButton;
+
+  /// No description provided for @common_addLink.
+  ///
+  /// In ko, this message translates to:
+  /// **'링크 추가'**
+  String get common_addLink;
+
+  /// No description provided for @home_recentArchives.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 아카이빙'**
+  String get home_recentArchives;
+
+  /// No description provided for @home_viewAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 보기 →'**
+  String get home_viewAll;
+
+  /// No description provided for @home_loadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'불러오기 실패'**
+  String get home_loadFailed;
+
+  /// No description provided for @home_archivingFab.
+  ///
+  /// In ko, this message translates to:
+  /// **'링크 아카이빙'**
+  String get home_archivingFab;
+
+  /// No description provided for @home_noContent.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 아카이빙한 콘텐츠가 없어요'**
+  String get home_noContent;
+
+  /// No description provided for @home_addLinkPrompt.
+  ///
+  /// In ko, this message translates to:
+  /// **'아래 버튼으로 링크를 추가해보세요'**
+  String get home_addLinkPrompt;
+
+  /// No description provided for @home_addLink.
+  ///
+  /// In ko, this message translates to:
+  /// **'링크 추가하기'**
+  String get home_addLink;
+
+  /// No description provided for @plan_tabEvents.
+  ///
+  /// In ko, this message translates to:
+  /// **'이벤트'**
+  String get plan_tabEvents;
+
+  /// No description provided for @plan_tabPlaces.
+  ///
+  /// In ko, this message translates to:
+  /// **'가볼 곳'**
+  String get plan_tabPlaces;
+
+  /// No description provided for @plan_loadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'불러오기 실패'**
+  String get plan_loadFailed;
+
+  /// No description provided for @plan_noEvents.
+  ///
+  /// In ko, this message translates to:
+  /// **'예정된 이벤트가 없어요'**
+  String get plan_noEvents;
+
+  /// No description provided for @plan_noPlaces.
+  ///
+  /// In ko, this message translates to:
+  /// **'가볼 곳이 없어요'**
+  String get plan_noPlaces;
+
+  /// No description provided for @plan_today.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘'**
+  String get plan_today;
+
+  /// No description provided for @plan_ended.
+  ///
+  /// In ko, this message translates to:
+  /// **'종료'**
+  String get plan_ended;
+
+  /// No description provided for @plan_addLink.
+  ///
+  /// In ko, this message translates to:
+  /// **'링크 추가하기'**
+  String get plan_addLink;
+
+  /// No description provided for @search_hint.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소, 태그, 지역 검색...'**
+  String get search_hint;
+
+  /// No description provided for @search_error.
+  ///
+  /// In ko, this message translates to:
+  /// **'검색 중 오류가 발생했습니다'**
+  String get search_error;
+
+  /// No description provided for @search_noResults.
+  ///
+  /// In ko, this message translates to:
+  /// **'검색 결과가 없습니다'**
+  String get search_noResults;
+
+  /// No description provided for @search_tryOtherKeyword.
+  ///
+  /// In ko, this message translates to:
+  /// **'다른 키워드로 검색해보세요'**
+  String get search_tryOtherKeyword;
+
+  /// No description provided for @search_recentSearches.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 검색어'**
+  String get search_recentSearches;
+
+  /// No description provided for @search_clearAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 삭제'**
+  String get search_clearAll;
+
+  /// No description provided for @search_popularSearches.
+  ///
+  /// In ko, this message translates to:
+  /// **'인기 검색어'**
+  String get search_popularSearches;
+
+  /// No description provided for @search_autocomplete.
+  ///
+  /// In ko, this message translates to:
+  /// **'자동완성'**
+  String get search_autocomplete;
+
+  /// No description provided for @shareQueue_results.
+  ///
+  /// In ko, this message translates to:
+  /// **'분석 결과'**
+  String get shareQueue_results;
+
+  /// No description provided for @shareQueue_deselect.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택 해제'**
+  String get shareQueue_deselect;
+
+  /// No description provided for @shareQueue_analysisComplete.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}개 분석 완료'**
+  String shareQueue_analysisComplete(int count);
+
+  /// No description provided for @shareQueue_highConfidence.
+  ///
+  /// In ko, this message translates to:
+  /// **'신뢰도 높음 {count}개'**
+  String shareQueue_highConfidence(int count);
+
+  /// No description provided for @shareQueue_autoSavedInfo.
+  ///
+  /// In ko, this message translates to:
+  /// **'분석된 장소는 자동으로 아카이브에 저장됩니다'**
+  String get shareQueue_autoSavedInfo;
+
+  /// No description provided for @shareQueue_showAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'모두 보기'**
+  String get shareQueue_showAll;
+
+  /// No description provided for @shareQueue_showHighConfidenceOnly.
+  ///
+  /// In ko, this message translates to:
+  /// **'신뢰도 높은 것만'**
+  String get shareQueue_showHighConfidenceOnly;
+
+  /// No description provided for @shareQueue_hideFromList.
+  ///
+  /// In ko, this message translates to:
+  /// **'목록에서 숨기기'**
+  String get shareQueue_hideFromList;
+
+  /// No description provided for @shareQueue_confirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'확인'**
+  String get shareQueue_confirm;
+
+  /// No description provided for @shareQueue_noHighConfidence.
+  ///
+  /// In ko, this message translates to:
+  /// **'신뢰도 높은 결과가 없습니다'**
+  String get shareQueue_noHighConfidence;
+
+  /// No description provided for @shareQueue_noResults.
+  ///
+  /// In ko, this message translates to:
+  /// **'분석된 결과가 없습니다'**
+  String get shareQueue_noResults;
+
+  /// No description provided for @shareQueue_selectAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 선택'**
+  String get shareQueue_selectAll;
+
+  /// No description provided for @shareQueue_confirmSelected.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}개 확인 완료'**
+  String shareQueue_confirmSelected(int count);
+
+  /// No description provided for @batch_analysisComplete.
+  ///
+  /// In ko, this message translates to:
+  /// **'분석 완료'**
+  String get batch_analysisComplete;
+
+  /// No description provided for @batch_estimatedTime.
+  ///
+  /// In ko, this message translates to:
+  /// **'약 {time}'**
+  String batch_estimatedTime(String time);
+
+  /// No description provided for @batch_noSharedLinks.
+  ///
+  /// In ko, this message translates to:
+  /// **'공유된 링크가 없습니다'**
+  String get batch_noSharedLinks;
+
+  /// No description provided for @batch_runInBackground.
+  ///
+  /// In ko, this message translates to:
+  /// **'백그라운드로'**
+  String get batch_runInBackground;
+
+  /// No description provided for @batch_close.
+  ///
+  /// In ko, this message translates to:
+  /// **'닫기'**
+  String get batch_close;
+
+  /// No description provided for @batch_cancel.
+  ///
+  /// In ko, this message translates to:
+  /// **'분석 취소'**
+  String get batch_cancel;
+
+  /// No description provided for @batch_viewResults.
+  ///
+  /// In ko, this message translates to:
+  /// **'결과 확인하기'**
+  String get batch_viewResults;
+
+  /// No description provided for @batch_retry.
+  ///
+  /// In ko, this message translates to:
+  /// **'재시도'**
+  String get batch_retry;
+
+  /// No description provided for @batch_done.
+  ///
+  /// In ko, this message translates to:
+  /// **'완료'**
+  String get batch_done;
+
+  /// No description provided for @batch_statusPending.
+  ///
+  /// In ko, this message translates to:
+  /// **'대기 중'**
+  String get batch_statusPending;
+
+  /// No description provided for @batch_statusAnalyzing.
+  ///
+  /// In ko, this message translates to:
+  /// **'분석 중...'**
+  String get batch_statusAnalyzing;
+
+  /// No description provided for @batch_statusCompleted.
+  ///
+  /// In ko, this message translates to:
+  /// **'분석 완료'**
+  String get batch_statusCompleted;
+
+  /// No description provided for @batch_statusFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'분석 실패'**
+  String get batch_statusFailed;
+
+  /// No description provided for @batch_statusSaved.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장됨'**
+  String get batch_statusSaved;
+
+  /// No description provided for @batch_statusIgnored.
+  ///
+  /// In ko, this message translates to:
+  /// **'무시됨'**
+  String get batch_statusIgnored;
+
+  /// No description provided for @shareQueueBadge_tapToViewResults.
+  ///
+  /// In ko, this message translates to:
+  /// **'탭하여 결과를 확인하세요'**
+  String get shareQueueBadge_tapToViewResults;
+
+  /// No description provided for @shareQueueBadge_viewResults.
+  ///
+  /// In ko, this message translates to:
+  /// **'결과 보기'**
+  String get shareQueueBadge_viewResults;
+
+  /// No description provided for @shareQueueBadge_tapToStartAnalysis.
+  ///
+  /// In ko, this message translates to:
+  /// **'탭하여 분석을 시작하세요'**
+  String get shareQueueBadge_tapToStartAnalysis;
+
+  /// No description provided for @shareQueueBadge_startAnalysis.
+  ///
+  /// In ko, this message translates to:
+  /// **'분석 시작'**
+  String get shareQueueBadge_startAnalysis;
+
+  /// No description provided for @shareQueueBadge_analyzing.
+  ///
+  /// In ko, this message translates to:
+  /// **'분석 중... ({current}/{total})'**
+  String shareQueueBadge_analyzing(int current, int total);
+
+  /// No description provided for @shareQueueBadge_analysisComplete.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}개 장소 분석 완료'**
+  String shareQueueBadge_analysisComplete(int count);
+
+  /// No description provided for @shareQueueBadge_pendingLinks.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}개 링크 분석 대기 중'**
+  String shareQueueBadge_pendingLinks(int count);
 }
 
 class _AppLocalizationsDelegate

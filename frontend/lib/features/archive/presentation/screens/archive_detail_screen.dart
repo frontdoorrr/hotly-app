@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/archived_content.dart';
@@ -16,6 +17,7 @@ class ArchiveDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncValue = ref.watch(archiveDetailProvider(archiveId));
+    final l10n = context.l10n;
 
     return asyncValue.when(
       loading: () => Scaffold(
@@ -30,11 +32,11 @@ class ArchiveDetailScreen extends ConsumerWidget {
             children: [
               const Icon(Icons.error_outline, size: 48, color: Colors.grey),
               const SizedBox(height: 12),
-              Text('불러올 수 없습니다', style: AppTextStyles.body2),
+              Text(l10n.archive_cannotLoad, style: AppTextStyles.body2),
               const SizedBox(height: 8),
               TextButton(
                 onPressed: () => ref.invalidate(archiveDetailProvider(archiveId)),
-                child: const Text('다시 시도'),
+                child: Text(l10n.error_retry),
               ),
             ],
           ),
@@ -52,17 +54,19 @@ class _DetailView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          content.title ?? '아카이브 상세',
+          content.title ?? l10n.archive_detailTitle,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_outline),
-            tooltip: '삭제',
+            tooltip: l10n.archive_delete,
             onPressed: () => _confirmDelete(context, ref),
           ),
         ],
@@ -78,7 +82,7 @@ class _DetailView extends ConsumerWidget {
 
             // insights
             if (content.insights.isNotEmpty) ...[
-              _SectionTitle('인사이트'),
+              _SectionTitle(l10n.archive_insights),
               const SizedBox(height: 8),
               ...content.insights.map(
                 (insight) => Padding(
@@ -100,7 +104,7 @@ class _DetailView extends ConsumerWidget {
 
             // 키워드 서브
             if (content.keywordsSub.isNotEmpty) ...[
-              _SectionTitle('관련 키워드'),
+              _SectionTitle(l10n.archive_relatedKeywords),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
@@ -125,7 +129,7 @@ class _DetailView extends ConsumerWidget {
   }
 
   Widget _buildMeta(BuildContext context) {
-    final theme = Theme.of(context);
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -136,18 +140,18 @@ class _DetailView extends ConsumerWidget {
       child: Column(
         children: [
           _MetaRow(
-            label: '플랫폼',
-            value: _platformLabel(content.platform),
+            label: l10n.archive_platform,
+            value: _platformLabel(context, content.platform),
           ),
           if (content.author != null)
-            _MetaRow(label: '작성자', value: content.author!),
+            _MetaRow(label: l10n.archive_author, value: content.author!),
           if (content.publishedAt != null)
             _MetaRow(
-              label: '발행일',
+              label: l10n.archive_publishedAt,
               value: _formatDate(content.publishedAt!),
             ),
           _MetaRow(
-            label: '아카이빙',
+            label: l10n.archive_archivedAt,
             value: _formatDate(content.archivedAt),
           ),
           _MetaRow(
@@ -156,9 +160,9 @@ class _DetailView extends ConsumerWidget {
             onTap: () {
               Clipboard.setData(ClipboardData(text: content.url));
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('URL이 복사됐습니다'),
-                  duration: Duration(seconds: 2),
+                SnackBar(
+                  content: Text(l10n.archive_urlCopied),
+                  duration: const Duration(seconds: 2),
                 ),
               );
             },
@@ -168,29 +172,31 @@ class _DetailView extends ConsumerWidget {
     );
   }
 
-  String _platformLabel(Platform p) => switch (p) {
+  String _platformLabel(BuildContext context, Platform p) => switch (p) {
         Platform.youtube => 'YouTube',
         Platform.instagram => 'Instagram',
-        Platform.naver_blog => '네이버 블로그',
+        Platform.naver_blog => context.l10n.archive_platformNaverBlog,
       };
 
   String _formatDate(DateTime dt) =>
       '${dt.year}.${dt.month.toString().padLeft(2, '0')}.${dt.day.toString().padLeft(2, '0')}';
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('삭제'),
-        content: const Text('이 아카이브를 삭제할까요?'),
+        title: Text(l10n.archive_deleteConfirmTitle),
+        content: Text(l10n.archive_deleteConfirmBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('취소'),
+            child: Text(l10n.common_cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('삭제', style: TextStyle(color: Colors.red)),
+            child: Text(l10n.archive_delete,
+                style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -213,13 +219,14 @@ class _BottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
         child: ElevatedButton.icon(
           onPressed: () => _openUrl(context),
           icon: const Icon(Icons.open_in_new, size: 18),
-          label: const Text('원본 링크 열기'),
+          label: Text(l10n.archive_openOriginalLink),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
@@ -238,7 +245,7 @@ class _BottomBar extends StatelessWidget {
     if (uri == null || !await canLaunchUrl(uri)) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('링크를 열 수 없습니다')),
+          SnackBar(content: Text(context.l10n.archive_cannotOpenLink)),
         );
       }
       return;

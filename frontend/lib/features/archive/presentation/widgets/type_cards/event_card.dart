@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../../../core/l10n/l10n_extension.dart';
 import '_shared.dart';
 
 class EventCard extends StatelessWidget {
@@ -31,7 +32,7 @@ class EventCard extends StatelessWidget {
         if (data['registration_required'] == true)
           TypeInfoRow(
             icon: Icons.app_registration,
-            text: '사전 등록 필요',
+            text: context.l10n.event_registrationRequired,
             color: Colors.orange,
           ),
         if (data['booking_url'] != null) ...[
@@ -41,7 +42,7 @@ class EventCard extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: () => _launch(data['booking_url'] as String?),
               icon: const Icon(Icons.open_in_new, size: 16),
-              label: const Text('예매하기'),
+              label: Text(context.l10n.event_bookTicket),
               style: OutlinedButton.styleFrom(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8)),

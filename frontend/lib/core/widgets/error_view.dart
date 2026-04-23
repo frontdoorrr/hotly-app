@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n_extension.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 
@@ -17,28 +18,17 @@ class ErrorView extends StatelessWidget {
 
   /// Network error
   factory ErrorView.network({VoidCallback? onRetry}) {
-    return ErrorView(
-      message: '네트워크 연결을 확인해주세요',
-      icon: Icons.wifi_off,
-      onRetry: onRetry,
-    );
+    return _LocalizedNetworkErrorView(onRetry: onRetry);
   }
 
   /// Server error
   factory ErrorView.server({VoidCallback? onRetry}) {
-    return ErrorView(
-      message: '서버에 문제가 발생했습니다\n잠시 후 다시 시도해주세요',
-      icon: Icons.cloud_off,
-      onRetry: onRetry,
-    );
+    return _LocalizedServerErrorView(onRetry: onRetry);
   }
 
   /// Not found error
   factory ErrorView.notFound() {
-    return const ErrorView(
-      message: '요청하신 데이터를 찾을 수 없습니다',
-      icon: Icons.search_off,
-    );
+    return const _LocalizedNotFoundErrorView();
   }
 
   @override
@@ -67,7 +57,7 @@ class ErrorView extends StatelessWidget {
               ElevatedButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh),
-                label: const Text('다시 시도'),
+                label: Text(context.l10n.error_retry),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
@@ -81,6 +71,47 @@ class ErrorView extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _LocalizedNetworkErrorView extends ErrorView {
+  const _LocalizedNetworkErrorView({VoidCallback? onRetry})
+      : super(message: '', icon: Icons.wifi_off, onRetry: onRetry);
+
+  @override
+  Widget build(BuildContext context) {
+    return ErrorView(
+      message: context.l10n.error_networkCheck,
+      icon: Icons.wifi_off,
+      onRetry: onRetry,
+    );
+  }
+}
+
+class _LocalizedServerErrorView extends ErrorView {
+  const _LocalizedServerErrorView({VoidCallback? onRetry})
+      : super(message: '', icon: Icons.cloud_off, onRetry: onRetry);
+
+  @override
+  Widget build(BuildContext context) {
+    return ErrorView(
+      message: context.l10n.error_serverProblem,
+      icon: Icons.cloud_off,
+      onRetry: onRetry,
+    );
+  }
+}
+
+class _LocalizedNotFoundErrorView extends ErrorView {
+  const _LocalizedNotFoundErrorView()
+      : super(message: '', icon: Icons.search_off);
+
+  @override
+  Widget build(BuildContext context) {
+    return ErrorView(
+      message: context.l10n.error_dataNotFound,
+      icon: Icons.search_off,
     );
   }
 }
@@ -104,33 +135,17 @@ class EmptyView extends StatelessWidget {
 
   /// Empty search results
   factory EmptyView.search({String? query}) {
-    return EmptyView(
-      message: query != null ? '"$query"에 대한 검색 결과가 없습니다' : '검색 결과가 없습니다',
-      subtitle: '다른 키워드로 검색해보세요',
-      icon: Icons.search_off,
-    );
+    return _LocalizedSearchEmptyView(query: query);
   }
 
   /// Empty places list
   factory EmptyView.places({VoidCallback? onAddPlace}) {
-    return EmptyView(
-      message: '저장된 장소가 없습니다',
-      subtitle: '마음에 드는 장소를 저장해보세요',
-      icon: Icons.place_outlined,
-      onAction: onAddPlace,
-      actionLabel: '장소 찾아보기',
-    );
+    return _LocalizedPlacesEmptyView(onAddPlace: onAddPlace);
   }
 
   /// Empty courses list
   factory EmptyView.courses({VoidCallback? onCreateCourse}) {
-    return EmptyView(
-      message: '생성된 코스가 없습니다',
-      subtitle: '나만의 데이트 코스를 만들어보세요',
-      icon: Icons.route_outlined,
-      onAction: onCreateCourse,
-      actionLabel: '코스 만들기',
-    );
+    return _LocalizedCoursesEmptyView(onCreateCourse: onCreateCourse);
   }
 
   @override
@@ -182,6 +197,60 @@ class EmptyView extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _LocalizedSearchEmptyView extends EmptyView {
+  final String? query;
+  const _LocalizedSearchEmptyView({this.query})
+      : super(message: '', icon: Icons.search_off);
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return EmptyView(
+      message: query != null
+          ? l10n.error_searchNoResults(query!)
+          : l10n.error_searchEmpty,
+      subtitle: l10n.error_searchTryOther,
+      icon: Icons.search_off,
+    );
+  }
+}
+
+class _LocalizedPlacesEmptyView extends EmptyView {
+  final VoidCallback? onAddPlace;
+  const _LocalizedPlacesEmptyView({this.onAddPlace})
+      : super(message: '', icon: Icons.place_outlined);
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return EmptyView(
+      message: l10n.error_noSavedPlaces,
+      subtitle: l10n.error_savePlacePrompt,
+      icon: Icons.place_outlined,
+      onAction: onAddPlace,
+      actionLabel: l10n.error_browsePlaces,
+    );
+  }
+}
+
+class _LocalizedCoursesEmptyView extends EmptyView {
+  final VoidCallback? onCreateCourse;
+  const _LocalizedCoursesEmptyView({this.onCreateCourse})
+      : super(message: '', icon: Icons.route_outlined);
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return EmptyView(
+      message: l10n.error_noCourses,
+      subtitle: l10n.error_createCoursePrompt,
+      icon: Icons.route_outlined,
+      onAction: onCreateCourse,
+      actionLabel: l10n.error_createCourse,
     );
   }
 }

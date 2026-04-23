@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../providers/map_provider.dart';
 
@@ -48,7 +49,7 @@ class _MapSearchBarState extends ConsumerState<MapSearchBar> {
           child: TextField(
             controller: _controller,
             decoration: InputDecoration(
-              hintText: '장소, 주소 검색',
+              hintText: context.l10n.map_searchHint,
               prefixIcon: const Icon(Icons.search),
               suffixIcon: _controller.text.isNotEmpty
                   ? IconButton(

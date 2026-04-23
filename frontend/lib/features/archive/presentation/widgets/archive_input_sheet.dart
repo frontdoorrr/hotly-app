@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../providers/archive_provider.dart';
@@ -97,7 +98,7 @@ class _ArchiveInputSheetState extends ConsumerState<ArchiveInputSheet> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('링크 아카이브', style: AppTextStyles.h2),
+                    Text(context.l10n.archiveInput_title, style: AppTextStyles.h2),
                     IconButton(
                       icon: const Icon(Icons.close),
                       onPressed: () {
@@ -120,7 +121,7 @@ class _ArchiveInputSheetState extends ConsumerState<ArchiveInputSheet> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'SNS 링크를 붙여넣으세요',
+                        context.l10n.archiveInput_supportedPlatforms,
                         style: AppTextStyles.body2.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -146,8 +147,8 @@ class _ArchiveInputSheetState extends ConsumerState<ArchiveInputSheet> {
                           ),
                         ),
                         validator: (v) {
-                          if (v == null || v.isEmpty) return 'URL을 입력해주세요';
-                          if (!_isValidUrl(v)) return '유효한 URL을 입력해주세요';
+                          if (v == null || v.isEmpty) return context.l10n.archiveInput_urlRequired;
+                          if (!_isValidUrl(v)) return context.l10n.archiveInput_urlInvalid;
                           return null;
                         },
                         onChanged: (v) =>
@@ -156,7 +157,7 @@ class _ArchiveInputSheetState extends ConsumerState<ArchiveInputSheet> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '지원: Instagram · Naver Blog · YouTube',
+                        context.l10n.archiveInput_supportedPlatforms,
                         style: AppTextStyles.bodySmall
                             .copyWith(color: AppColors.textTertiary),
                       ),
@@ -183,7 +184,7 @@ class _ArchiveInputSheetState extends ConsumerState<ArchiveInputSheet> {
                                         AlwaysStoppedAnimation(Colors.white),
                                   ),
                                 )
-                              : const Text('아카이브'),
+                              : Text(context.l10n.archiveInput_archiveButton),
                         ),
                       ),
                     ],
@@ -222,7 +223,7 @@ class _ArchiveInputSheetState extends ConsumerState<ArchiveInputSheet> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            child: const Text('완료'),
+                            child: Text(context.l10n.archiveInput_doneButton),
                           ),
                         ),
                         const SizedBox(height: 24),

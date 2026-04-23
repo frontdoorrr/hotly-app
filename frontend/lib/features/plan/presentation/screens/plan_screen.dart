@@ -19,10 +19,10 @@ class PlanScreen extends ConsumerWidget {
         appBar: AppBar(
           title: Text(context.l10n.nav_plan),
           automaticallyImplyLeading: false,
-          bottom: const TabBar(
+          bottom: TabBar(
             tabs: [
-              Tab(text: '이벤트'),
-              Tab(text: '가볼 곳'),
+              Tab(text: context.l10n.plan_tabEvents),
+              Tab(text: context.l10n.plan_tabPlaces),
             ],
           ),
         ),
@@ -51,11 +51,11 @@ class _EventTab extends ConsumerWidget {
 
     return async.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (_, __) => const Center(child: Text('불러오기 실패')),
+      error: (_, __) => Center(child: Text(context.l10n.plan_loadFailed)),
       data: (items) => items.isEmpty
           ? _EmptyPlan(
               icon: Icons.event_outlined,
-              message: '예정된 이벤트가 없어요',
+              message: context.l10n.plan_noEvents,
             )
           : RefreshIndicator(
               onRefresh: () => ref.refresh(planEventProvider.future),
@@ -87,11 +87,11 @@ class _PlaceTab extends ConsumerWidget {
 
     return async.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (_, __) => const Center(child: Text('불러오기 실패')),
+      error: (_, __) => Center(child: Text(context.l10n.plan_loadFailed)),
       data: (items) => items.isEmpty
           ? _EmptyPlan(
               icon: Icons.place_outlined,
-              message: '가볼 곳이 없어요',
+              message: context.l10n.plan_noPlaces,
             )
           : RefreshIndicator(
               onRefresh: () => ref.refresh(planPlaceProvider.future),
@@ -239,10 +239,10 @@ class _DDayBadge extends StatelessWidget {
         label = 'D-$diff';
         color = Colors.deepPurple;
       } else if (diff == 0) {
-        label = '오늘';
+        label = context.l10n.plan_today;
         color = Colors.red;
       } else {
-        label = '종료';
+        label = context.l10n.plan_ended;
         color = Colors.grey;
       }
     } catch (_) {

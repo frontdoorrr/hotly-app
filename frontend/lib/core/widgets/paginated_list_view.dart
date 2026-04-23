@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import '../l10n/l10n_extension.dart';
 
 /// Paginated List View with infinite scroll
 class PaginatedListView<T> extends StatefulWidget {
@@ -73,17 +74,18 @@ class _PaginatedListViewState<T> extends State<PaginatedListView<T>> {
   }
 
   Widget _buildErrorIndicator(BuildContext context, VoidCallback onRetry) {
+    final l10n = context.l10n;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(Icons.error_outline, size: 48, color: Colors.red),
           const SizedBox(height: 16),
-          const Text('데이터를 불러오지 못했습니다'),
+          Text(l10n.paginated_loadFailed),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: onRetry,
-            child: const Text('다시 시도'),
+            child: Text(l10n.error_retry),
           ),
         ],
       ),
@@ -91,13 +93,14 @@ class _PaginatedListViewState<T> extends State<PaginatedListView<T>> {
   }
 
   Widget _buildEmptyIndicator(BuildContext context) {
-    return const Center(
+    final l10n = context.l10n;
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.inbox_outlined, size: 64, color: Colors.grey),
-          SizedBox(height: 16),
-          Text('데이터가 없습니다'),
+          const Icon(Icons.inbox_outlined, size: 64, color: Colors.grey),
+          const SizedBox(height: 16),
+          Text(l10n.paginated_noData),
         ],
       ),
     );

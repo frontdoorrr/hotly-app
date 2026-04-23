@@ -1,16 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/content_type_info.dart';
 import '../providers/archive_provider.dart';
-
-/// contentType 문자열에 대한 정적 폴백 맵 (API 로딩 전/실패 시)
-const _fallbackLabels = {
-  'place': '장소',
-  'event': '이벤트',
-  'tips': '팁',
-  'review': '리뷰',
-};
 
 const _fallbackIcons = {
   'place': Icons.place,
@@ -27,7 +20,7 @@ const _fallbackColors = {
 };
 
 /// contentTypesProvider에서 타입 정보를 읽어 배지를 렌더링합니다.
-/// API 로딩 전/실패 시 폴백 맵을 사용합니다.
+/// API 로딩 전/실패 시 l10n 폴백을 사용합니다.
 class ContentTypeBadge extends ConsumerWidget {
   final String contentType;
 
@@ -40,7 +33,7 @@ class ContentTypeBadge extends ConsumerWidget {
         ?.where((t) => t.key == contentType)
         .firstOrNull;
 
-    final label = info?.label ?? _fallbackLabels[contentType] ?? contentType;
+    final label = info?.label ?? _fallbackLabel(context, contentType);
     final icon = _resolveIcon(info);
     final color = _resolveColor(info);
 
@@ -66,6 +59,22 @@ class ContentTypeBadge extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  String _fallbackLabel(BuildContext context, String type) {
+    final l10n = context.l10n;
+    switch (type) {
+      case 'place':
+        return l10n.archive_typePlace;
+      case 'event':
+        return l10n.archive_typeEvent;
+      case 'tips':
+        return l10n.archive_typeTips;
+      case 'review':
+        return l10n.archive_typeReview;
+      default:
+        return type;
+    }
   }
 
   IconData _resolveIcon(ContentTypeInfo? info) {

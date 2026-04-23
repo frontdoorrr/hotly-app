@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../../core/l10n/l10n_extension.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '_shared.dart';
@@ -76,7 +77,7 @@ class TipsCard extends StatelessWidget {
               ),
           if (compact && tips.length > 3)
             Text(
-              '외 ${tips.length - 3}개 더',
+              context.l10n.tips_moreItems(tips.length - 3),
               style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
             ),
         ],
@@ -84,7 +85,7 @@ class TipsCard extends StatelessWidget {
         // 준비물
         if (materials != null && materials.isNotEmpty && !compact) ...[
           const SizedBox(height: 8),
-          Text('준비물', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
+          Text(context.l10n.tips_materials, style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
           const SizedBox(height: 4),
           Wrap(
             spacing: 6,
@@ -107,7 +108,7 @@ class TipsCard extends StatelessWidget {
         // 주의사항
         if (cautions != null && cautions.isNotEmpty && !compact) ...[
           const SizedBox(height: 8),
-          Text('주의사항', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
+          Text(context.l10n.tips_cautions, style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
           const SizedBox(height: 4),
           ...cautions.map(
             (c) => Row(
@@ -131,10 +132,11 @@ class _DifficultyBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final (label, color) = switch (difficulty) {
-      'easy' => ('쉬움', Colors.green),
-      'hard' => ('어려움', Colors.red),
-      _ => ('보통', Colors.orange),
+      'easy' => (l10n.tips_easy, Colors.green),
+      'hard' => (l10n.tips_hard, Colors.red),
+      _ => (l10n.tips_medium, Colors.orange),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),

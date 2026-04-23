@@ -770,5 +770,198 @@
   "notFound": "요청한 데이터를 찾을 수 없습니다.",
   "requestCancelled": "요청이 취소되었습니다.",
   "checkNetwork": "네트워크 연결을 확인해주세요.",
-  "allPlaces": "전체"
+  "allPlaces": "전체",
+
+  "error_networkCheck": "네트워크 연결을 확인해주세요",
+  "error_serverProblem": "서버에 문제가 발생했습니다\n잠시 후 다시 시도해주세요",
+  "error_dataNotFound": "요청하신 데이터를 찾을 수 없습니다",
+  "error_retry": "다시 시도",
+  "error_searchNoResults": "\"{query}\"에 대한 검색 결과가 없습니다",
+  "@error_searchNoResults": {
+    "placeholders": {
+      "query": { "type": "String" }
+    }
+  },
+  "error_searchEmpty": "검색 결과가 없습니다",
+  "error_searchTryOther": "다른 키워드로 검색해보세요",
+  "error_noSavedPlaces": "저장된 장소가 없습니다",
+  "error_savePlacePrompt": "마음에 드는 장소를 저장해보세요",
+  "error_browsePlaces": "장소 찾아보기",
+  "error_noCourses": "생성된 코스가 없습니다",
+  "error_createCoursePrompt": "나만의 데이트 코스를 만들어보세요",
+  "error_createCourse": "코스 만들기",
+
+  "paginated_loadFailed": "데이터를 불러오지 못했습니다",
+  "paginated_noData": "데이터가 없습니다",
+
+  "archive_detailTitle": "아카이브 상세",
+  "archive_delete": "삭제",
+  "archive_insights": "인사이트",
+  "archive_relatedKeywords": "관련 키워드",
+  "archive_platform": "플랫폼",
+  "archive_author": "작성자",
+  "archive_publishedAt": "발행일",
+  "archive_archivedAt": "아카이빙",
+  "archive_urlCopied": "URL이 복사됐습니다",
+  "archive_platformNaverBlog": "네이버 블로그",
+  "archive_deleteConfirmTitle": "삭제",
+  "archive_deleteConfirmBody": "이 아카이브를 삭제할까요?",
+  "archive_openOriginalLink": "원본 링크 열기",
+  "archive_cannotOpenLink": "링크를 열 수 없습니다",
+  "archive_cannotLoad": "불러올 수 없습니다",
+
+  "archiveInput_title": "링크 아카이브",
+  "archiveInput_urlRequired": "URL을 입력해주세요",
+  "archiveInput_urlInvalid": "유효한 URL을 입력해주세요",
+  "archiveInput_supportedPlatforms": "지원: Instagram · Naver Blog · YouTube",
+  "archiveInput_archiveButton": "아카이브",
+  "archiveInput_doneButton": "완료",
+
+  "archiveList_filterAll": "전체",
+  "archiveList_deleteTitle": "삭제",
+  "archiveList_deleteBody": "이 아카이브를 삭제할까요?",
+  "archiveList_noContent": "아직 아카이빙한 콘텐츠가 없어요",
+  "archiveList_addLink": "링크 추가하기",
+
+  "archive_typePlace": "장소",
+  "archive_typeEvent": "이벤트",
+  "archive_typeTips": "팁",
+  "archive_typeReview": "리뷰",
+
+  "event_registrationRequired": "사전 등록 필요",
+  "event_bookTicket": "예매하기",
+
+  "place_reservationRequired": "사전 예약 필요",
+  "place_menu": "메뉴",
+  "place_visitTips": "방문 팁",
+
+  "review_pros": "장점",
+  "review_cons": "단점",
+  "review_recommendedFor": "추천 대상",
+  "review_purchase": "구매하기",
+
+  "tips_moreItems": "외 {count}개 더",
+  "@tips_moreItems": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "tips_materials": "준비물",
+  "tips_cautions": "주의사항",
+  "tips_easy": "쉬움",
+  "tips_medium": "보통",
+  "tips_hard": "어려움",
+
+  "map_toggleMap": "지도",
+  "map_toggleList": "목록",
+  "map_cannotLoadPlaces": "장소를 불러올 수 없습니다.",
+  "map_noSavedPlaces": "저장된 장소가 없습니다.",
+  "map_noTagPlaces": "해당 태그의 장소가 없습니다.",
+  "map_clearFilters": "필터 초기화",
+  "map_searchHint": "장소, 주소 검색",
+
+  "common_delete": "삭제",
+  "common_viewDetail": "상세보기",
+  "common_savePlaceButton": "장소 저장",
+  "common_addLink": "링크 추가",
+
+  "home_recentArchives": "최근 아카이빙",
+  "home_viewAll": "전체 보기 →",
+  "home_loadFailed": "불러오기 실패",
+  "home_archivingFab": "링크 아카이빙",
+  "home_noContent": "아직 아카이빙한 콘텐츠가 없어요",
+  "home_addLinkPrompt": "아래 버튼으로 링크를 추가해보세요",
+  "home_addLink": "링크 추가하기",
+
+  "plan_tabEvents": "이벤트",
+  "plan_tabPlaces": "가볼 곳",
+  "plan_loadFailed": "불러오기 실패",
+  "plan_noEvents": "예정된 이벤트가 없어요",
+  "plan_noPlaces": "가볼 곳이 없어요",
+  "plan_today": "오늘",
+  "plan_ended": "종료",
+  "plan_addLink": "링크 추가하기",
+
+  "search_hint": "장소, 태그, 지역 검색...",
+  "search_error": "검색 중 오류가 발생했습니다",
+  "search_noResults": "검색 결과가 없습니다",
+  "search_tryOtherKeyword": "다른 키워드로 검색해보세요",
+  "search_recentSearches": "최근 검색어",
+  "search_clearAll": "전체 삭제",
+  "search_popularSearches": "인기 검색어",
+  "search_autocomplete": "자동완성",
+
+  "shareQueue_results": "분석 결과",
+  "shareQueue_deselect": "선택 해제",
+  "shareQueue_analysisComplete": "{count}개 분석 완료",
+  "@shareQueue_analysisComplete": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "shareQueue_highConfidence": "신뢰도 높음 {count}개",
+  "@shareQueue_highConfidence": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "shareQueue_autoSavedInfo": "분석된 장소는 자동으로 아카이브에 저장됩니다",
+  "shareQueue_showAll": "모두 보기",
+  "shareQueue_showHighConfidenceOnly": "신뢰도 높은 것만",
+  "shareQueue_hideFromList": "목록에서 숨기기",
+  "shareQueue_confirm": "확인",
+  "shareQueue_noHighConfidence": "신뢰도 높은 결과가 없습니다",
+  "shareQueue_noResults": "분석된 결과가 없습니다",
+  "shareQueue_selectAll": "전체 선택",
+  "shareQueue_confirmSelected": "{count}개 확인 완료",
+  "@shareQueue_confirmSelected": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "batch_analysisComplete": "분석 완료",
+  "batch_estimatedTime": "약 {time}",
+  "@batch_estimatedTime": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "batch_noSharedLinks": "공유된 링크가 없습니다",
+  "batch_runInBackground": "백그라운드로",
+  "batch_close": "닫기",
+  "batch_cancel": "분석 취소",
+  "batch_viewResults": "결과 확인하기",
+  "batch_retry": "재시도",
+  "batch_done": "완료",
+  "batch_statusPending": "대기 중",
+  "batch_statusAnalyzing": "분석 중...",
+  "batch_statusCompleted": "분석 완료",
+  "batch_statusFailed": "분석 실패",
+  "batch_statusSaved": "저장됨",
+  "batch_statusIgnored": "무시됨",
+
+  "shareQueueBadge_tapToViewResults": "탭하여 결과를 확인하세요",
+  "shareQueueBadge_viewResults": "결과 보기",
+  "shareQueueBadge_tapToStartAnalysis": "탭하여 분석을 시작하세요",
+  "shareQueueBadge_startAnalysis": "분석 시작",
+  "shareQueueBadge_analyzing": "분석 중... ({current}/{total})",
+  "@shareQueueBadge_analyzing": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "shareQueueBadge_analysisComplete": "{count}개 장소 분석 완료",
+  "@shareQueueBadge_analysisComplete": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "shareQueueBadge_pendingLinks": "{count}개 링크 분석 대기 중",
+  "@shareQueueBadge_pendingLinks": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  }
 }

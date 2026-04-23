@@ -337,6 +337,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get settings_buildNumber => '빌드 번호';
 
   @override
+  String get settings_notificationPermissionTitle => '알림 권한 필요';
+
+  @override
+  String get settings_notificationPermissionBody =>
+      '알림을 받으려면 시스템 설정에서 알림 권한을 허용해주세요.';
+
+  @override
+  String get settings_openSystemSettings => '설정 열기';
+
+  @override
   String get auth_logoutConfirm => '정말 로그아웃하시겠습니까?';
 
   @override
@@ -572,4 +582,410 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get allPlaces => '전체';
+
+  @override
+  String get error_networkCheck => '네트워크 연결을 확인해주세요';
+
+  @override
+  String get error_serverProblem => '서버에 문제가 발생했습니다\n잠시 후 다시 시도해주세요';
+
+  @override
+  String get error_dataNotFound => '요청하신 데이터를 찾을 수 없습니다';
+
+  @override
+  String get error_retry => '다시 시도';
+
+  @override
+  String error_searchNoResults(String query) {
+    return '\"$query\"에 대한 검색 결과가 없습니다';
+  }
+
+  @override
+  String get error_searchEmpty => '검색 결과가 없습니다';
+
+  @override
+  String get error_searchTryOther => '다른 키워드로 검색해보세요';
+
+  @override
+  String get error_noSavedPlaces => '저장된 장소가 없습니다';
+
+  @override
+  String get error_savePlacePrompt => '마음에 드는 장소를 저장해보세요';
+
+  @override
+  String get error_browsePlaces => '장소 찾아보기';
+
+  @override
+  String get error_noCourses => '생성된 코스가 없습니다';
+
+  @override
+  String get error_createCoursePrompt => '나만의 데이트 코스를 만들어보세요';
+
+  @override
+  String get error_createCourse => '코스 만들기';
+
+  @override
+  String get paginated_loadFailed => '데이터를 불러오지 못했습니다';
+
+  @override
+  String get paginated_noData => '데이터가 없습니다';
+
+  @override
+  String get archive_detailTitle => '아카이브 상세';
+
+  @override
+  String get archive_delete => '삭제';
+
+  @override
+  String get archive_insights => '인사이트';
+
+  @override
+  String get archive_relatedKeywords => '관련 키워드';
+
+  @override
+  String get archive_platform => '플랫폼';
+
+  @override
+  String get archive_author => '작성자';
+
+  @override
+  String get archive_publishedAt => '발행일';
+
+  @override
+  String get archive_archivedAt => '아카이빙';
+
+  @override
+  String get archive_urlCopied => 'URL이 복사됐습니다';
+
+  @override
+  String get archive_platformNaverBlog => '네이버 블로그';
+
+  @override
+  String get archive_deleteConfirmTitle => '삭제';
+
+  @override
+  String get archive_deleteConfirmBody => '이 아카이브를 삭제할까요?';
+
+  @override
+  String get archive_openOriginalLink => '원본 링크 열기';
+
+  @override
+  String get archive_cannotOpenLink => '링크를 열 수 없습니다';
+
+  @override
+  String get archive_cannotLoad => '불러올 수 없습니다';
+
+  @override
+  String get archiveInput_title => '링크 아카이브';
+
+  @override
+  String get archiveInput_urlRequired => 'URL을 입력해주세요';
+
+  @override
+  String get archiveInput_urlInvalid => '유효한 URL을 입력해주세요';
+
+  @override
+  String get archiveInput_supportedPlatforms =>
+      '지원: Instagram · Naver Blog · YouTube';
+
+  @override
+  String get archiveInput_archiveButton => '아카이브';
+
+  @override
+  String get archiveInput_doneButton => '완료';
+
+  @override
+  String get archiveList_filterAll => '전체';
+
+  @override
+  String get archiveList_deleteTitle => '삭제';
+
+  @override
+  String get archiveList_deleteBody => '이 아카이브를 삭제할까요?';
+
+  @override
+  String get archiveList_noContent => '아직 아카이빙한 콘텐츠가 없어요';
+
+  @override
+  String get archiveList_addLink => '링크 추가하기';
+
+  @override
+  String get archive_typePlace => '장소';
+
+  @override
+  String get archive_typeEvent => '이벤트';
+
+  @override
+  String get archive_typeTips => '팁';
+
+  @override
+  String get archive_typeReview => '리뷰';
+
+  @override
+  String get event_registrationRequired => '사전 등록 필요';
+
+  @override
+  String get event_bookTicket => '예매하기';
+
+  @override
+  String get place_reservationRequired => '사전 예약 필요';
+
+  @override
+  String get place_menu => '메뉴';
+
+  @override
+  String get place_visitTips => '방문 팁';
+
+  @override
+  String get review_pros => '장점';
+
+  @override
+  String get review_cons => '단점';
+
+  @override
+  String get review_recommendedFor => '추천 대상';
+
+  @override
+  String get review_purchase => '구매하기';
+
+  @override
+  String tips_moreItems(int count) {
+    return '외 $count개 더';
+  }
+
+  @override
+  String get tips_materials => '준비물';
+
+  @override
+  String get tips_cautions => '주의사항';
+
+  @override
+  String get tips_easy => '쉬움';
+
+  @override
+  String get tips_medium => '보통';
+
+  @override
+  String get tips_hard => '어려움';
+
+  @override
+  String get map_toggleMap => '지도';
+
+  @override
+  String get map_toggleList => '목록';
+
+  @override
+  String get map_cannotLoadPlaces => '장소를 불러올 수 없습니다.';
+
+  @override
+  String get map_noSavedPlaces => '저장된 장소가 없습니다.';
+
+  @override
+  String get map_noTagPlaces => '해당 태그의 장소가 없습니다.';
+
+  @override
+  String get map_clearFilters => '필터 초기화';
+
+  @override
+  String get map_searchHint => '장소, 주소 검색';
+
+  @override
+  String get common_delete => '삭제';
+
+  @override
+  String get common_viewDetail => '상세보기';
+
+  @override
+  String get common_savePlaceButton => '장소 저장';
+
+  @override
+  String get common_addLink => '링크 추가';
+
+  @override
+  String get home_recentArchives => '최근 아카이빙';
+
+  @override
+  String get home_viewAll => '전체 보기 →';
+
+  @override
+  String get home_loadFailed => '불러오기 실패';
+
+  @override
+  String get home_archivingFab => '링크 아카이빙';
+
+  @override
+  String get home_noContent => '아직 아카이빙한 콘텐츠가 없어요';
+
+  @override
+  String get home_addLinkPrompt => '아래 버튼으로 링크를 추가해보세요';
+
+  @override
+  String get home_addLink => '링크 추가하기';
+
+  @override
+  String get plan_tabEvents => '이벤트';
+
+  @override
+  String get plan_tabPlaces => '가볼 곳';
+
+  @override
+  String get plan_loadFailed => '불러오기 실패';
+
+  @override
+  String get plan_noEvents => '예정된 이벤트가 없어요';
+
+  @override
+  String get plan_noPlaces => '가볼 곳이 없어요';
+
+  @override
+  String get plan_today => '오늘';
+
+  @override
+  String get plan_ended => '종료';
+
+  @override
+  String get plan_addLink => '링크 추가하기';
+
+  @override
+  String get search_hint => '장소, 태그, 지역 검색...';
+
+  @override
+  String get search_error => '검색 중 오류가 발생했습니다';
+
+  @override
+  String get search_noResults => '검색 결과가 없습니다';
+
+  @override
+  String get search_tryOtherKeyword => '다른 키워드로 검색해보세요';
+
+  @override
+  String get search_recentSearches => '최근 검색어';
+
+  @override
+  String get search_clearAll => '전체 삭제';
+
+  @override
+  String get search_popularSearches => '인기 검색어';
+
+  @override
+  String get search_autocomplete => '자동완성';
+
+  @override
+  String get shareQueue_results => '분석 결과';
+
+  @override
+  String get shareQueue_deselect => '선택 해제';
+
+  @override
+  String shareQueue_analysisComplete(int count) {
+    return '$count개 분석 완료';
+  }
+
+  @override
+  String shareQueue_highConfidence(int count) {
+    return '신뢰도 높음 $count개';
+  }
+
+  @override
+  String get shareQueue_autoSavedInfo => '분석된 장소는 자동으로 아카이브에 저장됩니다';
+
+  @override
+  String get shareQueue_showAll => '모두 보기';
+
+  @override
+  String get shareQueue_showHighConfidenceOnly => '신뢰도 높은 것만';
+
+  @override
+  String get shareQueue_hideFromList => '목록에서 숨기기';
+
+  @override
+  String get shareQueue_confirm => '확인';
+
+  @override
+  String get shareQueue_noHighConfidence => '신뢰도 높은 결과가 없습니다';
+
+  @override
+  String get shareQueue_noResults => '분석된 결과가 없습니다';
+
+  @override
+  String get shareQueue_selectAll => '전체 선택';
+
+  @override
+  String shareQueue_confirmSelected(int count) {
+    return '$count개 확인 완료';
+  }
+
+  @override
+  String get batch_analysisComplete => '분석 완료';
+
+  @override
+  String batch_estimatedTime(String time) {
+    return '약 $time';
+  }
+
+  @override
+  String get batch_noSharedLinks => '공유된 링크가 없습니다';
+
+  @override
+  String get batch_runInBackground => '백그라운드로';
+
+  @override
+  String get batch_close => '닫기';
+
+  @override
+  String get batch_cancel => '분석 취소';
+
+  @override
+  String get batch_viewResults => '결과 확인하기';
+
+  @override
+  String get batch_retry => '재시도';
+
+  @override
+  String get batch_done => '완료';
+
+  @override
+  String get batch_statusPending => '대기 중';
+
+  @override
+  String get batch_statusAnalyzing => '분석 중...';
+
+  @override
+  String get batch_statusCompleted => '분석 완료';
+
+  @override
+  String get batch_statusFailed => '분석 실패';
+
+  @override
+  String get batch_statusSaved => '저장됨';
+
+  @override
+  String get batch_statusIgnored => '무시됨';
+
+  @override
+  String get shareQueueBadge_tapToViewResults => '탭하여 결과를 확인하세요';
+
+  @override
+  String get shareQueueBadge_viewResults => '결과 보기';
+
+  @override
+  String get shareQueueBadge_tapToStartAnalysis => '탭하여 분석을 시작하세요';
+
+  @override
+  String get shareQueueBadge_startAnalysis => '분석 시작';
+
+  @override
+  String shareQueueBadge_analyzing(int current, int total) {
+    return '분석 중... ($current/$total)';
+  }
+
+  @override
+  String shareQueueBadge_analysisComplete(int count) {
+    return '$count개 장소 분석 완료';
+  }
+
+  @override
+  String shareQueueBadge_pendingLinks(int count) {
+    return '$count개 링크 분석 대기 중';
+  }
 }

@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/share_queue_item.dart';
@@ -47,7 +48,7 @@ class _ShareQueueResultsScreenState
           onPressed: () => context.pop(),
         ),
         title: Text(
-          '분석 결과',
+          context.l10n.shareQueue_results,
           style: AppTextStyles.h3.copyWith(
             color: AppColors.textPrimary,
           ),
@@ -58,7 +59,7 @@ class _ShareQueueResultsScreenState
             TextButton(
               onPressed: () => setState(() => _selectedIds.clear()),
               child: Text(
-                '선택 해제',
+                context.l10n.shareQueue_deselect,
                 style: AppTextStyles.body2.copyWith(
                   color: AppColors.primary,
                 ),
@@ -107,13 +108,13 @@ class _ShareQueueResultsScreenState
             children: [
               _buildSummaryChip(
                 icon: Icons.check_circle,
-                label: '${items.length}개 분석 완료',
+                label: context.l10n.shareQueue_analysisComplete(items.length),
                 color: AppColors.success,
               ),
               const SizedBox(width: 8),
               _buildSummaryChip(
                 icon: Icons.star,
-                label: '신뢰도 높음 $highConfidenceCount개',
+                label: context.l10n.shareQueue_highConfidence(highConfidenceCount),
                 color: AppColors.primary,
               ),
             ],
@@ -124,7 +125,7 @@ class _ShareQueueResultsScreenState
               const Icon(Icons.info_outline, size: 14, color: AppColors.textTertiary),
               const SizedBox(width: 4),
               Text(
-                '분석된 장소는 자동으로 아카이브에 저장됩니다',
+                context.l10n.shareQueue_autoSavedInfo,
                 style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
               ),
             ],
@@ -148,7 +149,7 @@ class _ShareQueueResultsScreenState
                     ),
                     child: Center(
                       child: Text(
-                        '모두 보기',
+                        context.l10n.shareQueue_showAll,
                         style: AppTextStyles.button.copyWith(
                           color: !_showOnlyHighConfidence
                               ? AppColors.white
@@ -174,7 +175,7 @@ class _ShareQueueResultsScreenState
                     ),
                     child: Center(
                       child: Text(
-                        '신뢰도 높은 것만',
+                        context.l10n.shareQueue_showHighConfidenceOnly,
                         style: AppTextStyles.button.copyWith(
                           color: _showOnlyHighConfidence
                               ? AppColors.white
@@ -436,7 +437,7 @@ class _ShareQueueResultsScreenState
                       style: TextButton.styleFrom(
                         foregroundColor: AppColors.textSecondary,
                       ),
-                      child: const Text('목록에서 숨기기'),
+                      child: Text(context.l10n.shareQueue_hideFromList),
                     ),
                     // 확인 버튼
                     ElevatedButton.icon(
@@ -449,7 +450,7 @@ class _ShareQueueResultsScreenState
                         }
                       },
                       icon: const Icon(Icons.check, size: 16),
-                      label: const Text('확인'),
+                      label: Text(context.l10n.shareQueue_confirm),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: AppColors.white,
@@ -485,8 +486,8 @@ class _ShareQueueResultsScreenState
           const SizedBox(height: 16),
           Text(
             _showOnlyHighConfidence
-                ? '신뢰도 높은 결과가 없습니다'
-                : '분석된 결과가 없습니다',
+                ? context.l10n.shareQueue_noHighConfidence
+                : context.l10n.shareQueue_noResults,
             style: AppTextStyles.labelLarge.copyWith(
               color: AppColors.textSecondary,
             ),
@@ -555,7 +556,7 @@ class _ShareQueueResultsScreenState
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  '전체 선택',
+                  context.l10n.shareQueue_selectAll,
                   style: AppTextStyles.body2.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -590,8 +591,8 @@ class _ShareQueueResultsScreenState
             ),
             child: Text(
               _selectedIds.isEmpty
-                  ? '확인'
-                  : '${_selectedIds.length}개 확인 완료',
+                  ? context.l10n.shareQueue_confirm
+                  : context.l10n.shareQueue_confirmSelected(_selectedIds.length),
               style: AppTextStyles.button.copyWith(
                 color: AppColors.white,
               ),
