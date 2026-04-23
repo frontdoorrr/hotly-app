@@ -30,6 +30,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
   bool _showList = false;
   KImage? _cachedMarkerIcon;
   KImage? _cachedCurrentLocationIcon;
+  ProviderSubscription<List<Place>>? _placesSubscription;
 
   // Unique key for KakaoMap widget to prevent recreation issues
   final GlobalKey _mapKey = GlobalKey();
@@ -50,7 +51,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
     });
 
     // 저장된 장소 데이터가 변경될 때 마커 업데이트
-    ref.listenManual(
+    _placesSubscription = ref.listenManual(
       savedPlacesProvider.select((state) => state.places),
       (previous, next) {
         if (_isMapReady && !_markersAdded && next.isNotEmpty) {
@@ -153,26 +154,10 @@ class _MapScreenState extends ConsumerState<MapScreen>
             },
           ),
 
-          // Back button
-          Positioned(
-            top: MediaQuery.of(context).padding.top + 8,
-            left: 8,
-            child: SafeArea(
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => Navigator.of(context).pop(),
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: AppColors.textPrimary,
-                ),
-              ),
-            ),
-          ),
-
           // Search bar overlay
           Positioned(
             top: MediaQuery.of(context).padding.top + 16,
-            left: 64,
+            left: 16,
             right: 16,
             child: MapSearchBar(
               onPlaceSelected: (latitude, longitude) {
@@ -203,6 +188,13 @@ class _MapScreenState extends ConsumerState<MapScreen>
               ),
             ),
 
+          // 목록 오버레이
+          if (_showList)
+            Positioned.fill(
+              top: MediaQuery.of(context).padding.top + 56,
+              child: _buildPlacesList(context, ref),
+            ),
+
           // 목록/지도 토글 버튼
           Positioned(
             bottom: 36,
@@ -221,13 +213,6 @@ class _MapScreenState extends ConsumerState<MapScreen>
               ),
             ),
           ),
-
-          // 목록 오버레이
-          if (_showList)
-            Positioned.fill(
-              top: MediaQuery.of(context).padding.top + 56,
-              child: _buildPlacesList(context, ref),
-            ),
 
           // Selected search result info (지도 모드일 때만)
           if (!_showList && selectedSearchResult != null)
@@ -571,6 +556,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
   @override
   void dispose() {
     AppLogger.d('MapScreen dispose', tag: 'Map');
+    _placesSubscription?.close();
     WidgetsBinding.instance.removeObserver(this);
     _mapController?.finish();
     _mapController = null;
