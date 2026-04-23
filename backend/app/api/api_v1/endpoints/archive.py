@@ -7,7 +7,7 @@ from uuid import UUID
 
 from pathlib import Path as FilePath
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, Query, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.db.deps import get_db
@@ -21,6 +21,7 @@ from app.schemas.archive import (
     ArchiveListResponse,
     ArchiveRequest,
 )
+from app.services.places.place_extractor import PlaceExtractorService
 from app.services.link_analyzer_client import (
     ContentExtractionError,
     LinkAnalyzerAuthError,
@@ -32,6 +33,7 @@ from app.services.link_analyzer_client import (
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+_place_extractor = PlaceExtractorService()
 
 _ALLOWED_MEDIA_MIMES = frozenset({
     "image/jpeg", "image/png", "image/webp", "video/mp4",
@@ -49,6 +51,7 @@ _FORCE_UPDATE_PROTECTED_ATTRS = frozenset({"id", "user_id", "created_at", "archi
 @router.post("", response_model=ArchiveDetail, status_code=status.HTTP_201_CREATED)
 async def archive_url(
     body: ArchiveRequest,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: AuthenticatedUser = Depends(get_current_user),
 ) -> Any:
@@ -90,11 +93,23 @@ async def archive_url(
             setattr(existing, attr, val)
         db.commit()
         db.refresh(existing)
+        if existing.content_type == "place":
+            background_tasks.add_task(
+                _place_extractor.extract_and_create,
+                user_id=user_id,
+                **_to_extraction_snapshot(existing),
+            )
         return existing
 
     db.add(content)
     db.commit()
     db.refresh(content)
+    if content.content_type == "place":
+        background_tasks.add_task(
+            _place_extractor.extract_and_create,
+            user_id=user_id,
+            **_to_extraction_snapshot(content),
+        )
     return content
 
 
@@ -104,6 +119,7 @@ async def archive_url(
 
 @router.post("/instagram", response_model=ArchiveDetail, status_code=status.HTTP_201_CREATED)
 async def archive_instagram(
+    background_tasks: BackgroundTasks,
     url: str = Form(...),
     caption: Optional[str] = Form(None),
     author: Optional[str] = Form(None),
@@ -165,11 +181,23 @@ async def archive_instagram(
             setattr(existing, attr, val)
         db.commit()
         db.refresh(existing)
+        if existing.content_type == "place":
+            background_tasks.add_task(
+                _place_extractor.extract_and_create,
+                user_id=user_id,
+                **_to_extraction_snapshot(existing),
+            )
         return existing
 
     db.add(content)
     db.commit()
     db.refresh(content)
+    if content.content_type == "place":
+        background_tasks.add_task(
+            _place_extractor.extract_and_create,
+            user_id=user_id,
+            **_to_extraction_snapshot(content),
+        )
     return content
 
 
@@ -241,6 +269,22 @@ def delete_archive(
 # ------------------------------------------------------------------
 # Helpers
 # ------------------------------------------------------------------
+
+def _to_extraction_snapshot(content: ArchivedContent) -> dict:
+    """ORM 객체에서 PlaceExtractorService에 필요한 필드를 세션-독립 dict로 복사한다."""
+    import copy
+    return {
+        "content_type": content.content_type,
+        "title": content.title,
+        "url": content.url,
+        "platform": content.platform,
+        "keywords_main": list(content.keywords_main) if content.keywords_main else None,
+        "named_entities": list(content.named_entities) if content.named_entities else None,
+        "type_specific_data": copy.deepcopy(content.type_specific_data)
+        if content.type_specific_data
+        else None,
+    }
+
 
 def _normalize_type_specific_data(data) -> dict | None:
     """type_specific_data 내부의 JSON 인코딩된 문자열을 재귀적으로 파싱한다.

@@ -89,6 +89,9 @@ class PlaceCreate(PlaceBase):
     source_platform: Optional[str] = Field(
         None, max_length=50, description="Source platform"
     )
+    source_content_hash: Optional[str] = Field(
+        None, max_length=64, description="SHA-256 hash for deduplication"
+    )
     ai_confidence: Optional[float] = Field(
         None, ge=0.0, le=1.0, description="AI analysis confidence"
     )
