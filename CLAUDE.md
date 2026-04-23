@@ -4,7 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is **hotly-app**, an AI-based hot place/dating course/restaurant archiving app. The repository contains:
+This is **ArchyAI**, an AI-based SNS content archiving app. Users save links from Instagram, YouTube, TikTok, and other platforms; the app automatically classifies and archives them into:
+
+- **place** — 맛집, 카페, 관광지 등 장소 소개/방문 후기
+- **event** — 팝업, 공연, 전시, 모임 등 기간 한정 이벤트
+- **tips** — 주식/청소/운동/요리 등 실생활 꿀팁·방법 안내
+- **review** — 제품, 서비스, 앱 사용 후기/평가
+- **unknown** — 위 4가지 외 일반 정보, 뉴스, 에세이 등
+
+The repository contains:
 
 - `backend/`: FastAPI backend application with comprehensive service architecture
   - `app/`: Main application code
@@ -155,9 +163,9 @@ frontend/                   # Frontend Next.js application
 - **Error Resilience**: Comprehensive error handling with retry logic and circuit breakers
 
 ### Core Services Integration
-- **Link Analysis Pipeline**: URL → Content Extraction → AI Analysis → Cached Results
-- **Content Extraction**: Platform-specific extractors for Instagram, Naver Blog, YouTube
-- **Place Analysis**: AI-powered categorization and confidence scoring
+- **Link Analysis Pipeline**: URL → Content Extraction → AI Analysis → Content Classification → Cached Results
+- **Content Extraction**: Platform-specific extractors for Instagram, YouTube, TikTok, Naver Blog, etc.
+- **Content Classification**: AI-powered categorization into place / event / tips / review / unknown with confidence scoring
 - **Caching Strategy**: Intelligent cache invalidation with performance optimization
 
 ## TDD Testing Framework

@@ -29,7 +29,7 @@
 ### 3. 스토어 등록 정보
 
 #### 앱 정보
-- [ ] 앱 이름: **Hotly**
+- [ ] 앱 이름: **ArchyAI**
 - [ ] 짧은 설명 (80자): "AI가 추천하는 핫플레이스! 데이트 코스부터 맛집까지, 나만의 장소 컬렉션"
 - [ ] 전체 설명: `store/app-description-ko.md` 참고
 - [ ] 카테고리: **라이프스타일** 또는 **여행 및 지역정보**
@@ -93,7 +93,7 @@
 ### 4. App Store Connect 설정
 
 #### 앱 정보
-- [ ] 앱 이름: **Hotly**
+- [ ] 앱 이름: **ArchyAI**
 - [ ] 부제목 (30자): "AI 핫플레이스 아카이빙"
 - [ ] 카테고리: **라이프스타일**
 - [ ] 콘텐츠 등급: **만 4+**
@@ -120,7 +120,7 @@
 - [ ] 이용약관 URL (선택): https://hotly.app/terms
 - [ ] 지원 URL: https://hotly.app/support
 - [ ] 마케팅 URL: https://hotly.app
-- [ ] 저작권: 2025 Hotly Inc.
+- [ ] 저작권: 2025 ArchyAI Inc.
 
 #### 앱 리뷰 정보
 - [ ] 연락처 이름
@@ -176,7 +176,7 @@ flutter run --release
 **크기**: 1024x500 PNG
 
 **포함 요소**:
-- Hotly 로고
+- ArchyAI 로고
 - 주요 화면 스크린샷 2-3개
 - 캐치프레이즈: "AI가 찾아주는 나만의 핫플레이스"
 - 브랜드 컬러: #FF5722
@@ -282,7 +282,7 @@ flutter run --release
 **App Store Connect 지원**
 - https://developer.apple.com/support/app-store-connect/
 
-**Hotly 내부 지원**
+**ArchyAI 내부 지원**
 - 개발팀: dev@hotly.app
 - 디자인팀: design@hotly.app
 

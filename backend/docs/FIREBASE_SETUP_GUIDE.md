@@ -2,7 +2,7 @@
 
 ## 개요
 
-이 문서는 Hotly 앱에서 Firebase Authentication을 사용하기 위한 설정 방법을 안내합니다.
+이 문서는 ArchyAI 앱에서 Firebase Authentication을 사용하기 위한 설정 방법을 안내합니다.
 
 ## 1. Firebase 프로젝트 생성
 
@@ -18,7 +18,7 @@
 
 1. Firebase Console > 프로젝트 설정 > "iOS 앱 추가" 클릭
 2. iOS 번들 ID 입력: `com.hotly.hotly_app`
-3. 앱 닉네임: `Hotly iOS`
+3. 앱 닉네임: `ArchyAI iOS`
 4. App Store ID: (배포 후 입력)
 
 ### 2.2 GoogleService-Info.plist 다운로드
@@ -42,7 +42,7 @@
 
 1. Firebase Console > 프로젝트 설정 > "Android 앱 추가" 클릭
 2. Android 패키지 이름 입력: `com.hotly.hotly_app`
-3. 앱 닉네임: `Hotly Android`
+3. 앱 닉네임: `ArchyAI Android`
 4. 디버그 서명 인증서 SHA-1 (선택사항):
    ```bash
    cd frontend/android
@@ -297,7 +297,7 @@ flutter build apk --flavor prod --dart-define-from-file=.env.prod
 - [Firebase 공식 문서](https://firebase.google.com/docs)
 - [FlutterFire 문서](https://firebase.flutter.dev/)
 - [Firebase Admin SDK Python](https://firebase.google.com/docs/admin/setup)
-- [Hotly App Firebase 마이그레이션 가이드](./FIREBASE_MIGRATION.md)
+- [ArchyAI App Firebase 마이그레이션 가이드](./FIREBASE_MIGRATION.md)
 
 ## 지원
 

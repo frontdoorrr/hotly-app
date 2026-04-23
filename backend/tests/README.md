@@ -1,4 +1,4 @@
-# Hotly App - Test Suite
+# ArchyAI App - Test Suite
 
 ## 📊 Test Structure Overview
 

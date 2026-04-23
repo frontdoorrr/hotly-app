@@ -2,7 +2,7 @@
 
 ## 개요
 
-Hotly 앱의 인증 시스템이 Supabase Auth에서 Firebase Authentication으로 마이그레이션되었습니다.
+ArchyAI 앱의 인증 시스템이 Supabase Auth에서 Firebase Authentication으로 마이그레이션되었습니다.
 
 ## 주요 변경사항
 

@@ -1,4 +1,4 @@
-# Hotly App — UI Design System
+# ArchyAI App — UI Design System
 
 Flutter 앱 기준으로 실제 구현된 디자인 시스템 현황입니다.
 

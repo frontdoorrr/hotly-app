@@ -1,4 +1,4 @@
-# Hotly App - Main Task Structure
+# ArchyAI App - Main Task Structure
 
 ## 0. 공통 기본 세팅 (Common Setup)
 

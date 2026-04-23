@@ -755,7 +755,7 @@ class ShareMetadataGenerator:
             "og:image": thumbnail_url,
             "og:url": f"{settings.BASE_SHARE_URL}/share/{share_id}",
             "og:type": "article",
-            "og:site_name": "Hotly",
+            "og:site_name": "ArchyAI",
 
             # Twitter Card
             "twitter:card": "summary_large_image",
@@ -800,7 +800,7 @@ class ShareMetadataGenerator:
             self._draw_place_icons(draw, course_info['places'][:5], img_width)
 
         # 브랜드 로고 추가
-        logo_text = "Hotly"
+        logo_text = "ArchyAI"
         logo_font = ImageFont.truetype("fonts/NotoSansKR-Bold.ttf", 32)
         draw.text((50, img_height - 80), logo_text, font=logo_font, fill='#007AFF')
 

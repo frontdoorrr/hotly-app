@@ -1,4 +1,4 @@
-# Hotly App - API Endpoints Documentation
+# ArchyAI App - API Endpoints Documentation
 
 **Version:** 1.0.0
 **Base URL:** `/api/v1`

@@ -33,7 +33,7 @@
 ```
 ┌─────────────────────────────────────┐
 │  ┌───────┐              🔔 👤      │ ← Top App Bar
-│  │ HOTLY │         Hotly            │
+│  │ HOTLY │         ArchyAI            │
 │  └───────┘                          │
 ├─────────────────────────────────────┤
 │                                     │
@@ -88,7 +88,7 @@ HomeScreen (StatelessWidget)
 └─ Scaffold
    ├─ AppBar (TopAppBar)
    │  ├─ Leading: Logo
-   │  ├─ Title: "Hotly"
+   │  ├─ Title: "ArchyAI"
    │  └─ Actions: [NotificationIcon, ProfileIcon]
    │
    ├─ Body: RefreshIndicator
@@ -173,7 +173,7 @@ class TopAppBar extends StatelessWidget implements PreferredSizeWidget {
 
 // 사용 예시
 TopAppBar(
-  title: 'Hotly',
+  title: 'ArchyAI',
   showLogo: true,
   actions: [
     IconButton(

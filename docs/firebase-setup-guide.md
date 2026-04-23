@@ -54,7 +54,7 @@ Firebase Console > 빌드 > Authentication
    a) Apple Developer Console (https://developer.apple.com) 접속
    b) Certificates, Identifiers & Profiles > Identifiers
    c) "+" 버튼 클릭 → Services IDs 선택
-   d) Description: Hotly App Sign In
+   d) Description: ArchyAI App Sign In
    e) Identifier: com.example.hotly.signin
    f) "Configure" 버튼 클릭
       - Sign In with Apple 체크
@@ -65,7 +65,7 @@ Firebase Console > 빌드 > Authentication
 
    h) Keys 메뉴로 이동
    i) "+" 버튼 클릭
-   j) Key Name: Hotly App Sign In with Apple Key
+   j) Key Name: ArchyAI App Sign In with Apple Key
    k) Sign In with Apple 체크 → Configure
    l) Primary App ID 선택 → Save
    m) Continue → Register
@@ -111,7 +111,7 @@ Firebase Console > 프로젝트 설정 (⚙️) > 일반 탭
 1. Android 패키지 이름: com.example.hotly
    (flutter/android/app/build.gradle의 applicationId)
 
-2. 앱 닉네임 (선택사항): Hotly Android
+2. 앱 닉네임 (선택사항): ArchyAI Android
 
 3. 디버그 서명 인증서 SHA-1 (Google 로그인 시 필수):
 
@@ -163,7 +163,7 @@ Firebase Console > 프로젝트 설정 (⚙️) > 일반 탭
 1. iOS 번들 ID: com.example.hotly
    (flutter/ios/Runner.xcodeproj/project.pbxproj의 PRODUCT_BUNDLE_IDENTIFIER)
 
-2. 앱 닉네임 (선택사항): Hotly iOS
+2. 앱 닉네임 (선택사항): ArchyAI iOS
 
 3. App Store ID (선택사항): 나중에 추가 가능
 
@@ -296,7 +296,7 @@ EOF
 ```
 1. https://developers.kakao.com 접속
 2. 내 애플리케이션 > 애플리케이션 추가하기
-3. 앱 이름: Hotly
+3. 앱 이름: ArchyAI
 4. 사업자명: (선택사항)
 5. "저장" 클릭
 

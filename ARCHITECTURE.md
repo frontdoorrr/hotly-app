@@ -1,4 +1,4 @@
-# Hotly App - Backend Architecture Documentation
+# ArchyAI App - Backend Architecture Documentation
 
 > **버전**: 1.0
 > **작성일**: 2025-09-30
@@ -21,7 +21,7 @@
 ## 시스템 개요
 
 ### 프로젝트 소개
-**Hotly App**은 SNS 링크에서 장소 정보를 추출하고, AI 기반으로 최적화된 데이트 코스를 추천하는 모바일 애플리케이션의 백엔드 시스템입니다.
+**ArchyAI App**은 SNS 링크에서 장소 정보를 추출하고, AI 기반으로 최적화된 데이트 코스를 추천하는 모바일 애플리케이션의 백엔드 시스템입니다.
 
 ### 기술 스택
 
@@ -407,7 +407,7 @@ class Place(Base):
 class Settings(BaseSettings):
     # API Configuration
     API_V1_STR: str = "/api/v1"
-    PROJECT_NAME: str = "Hotly App"
+    PROJECT_NAME: str = "ArchyAI App"
 
     # Database URLs (자동 조합)
     @property
@@ -994,4 +994,4 @@ safety check
 **문서 버전**: 1.0
 **최종 수정**: 2025-09-30
 **작성자**: Claude (AI Assistant)
-**검토자**: Hotly Team
+**검토자**: ArchyAI Team

@@ -1,7 +1,7 @@
-# Hotly App - Project Overview
+# ArchyAI App - Project Overview
 
 ## Purpose
-Hotly App is an **AI-based hot place/dating course/restaurant archiving app**. The application helps users:
+ArchyAI App is an **AI-based hot place/dating course/restaurant archiving app**. The application helps users:
 - Analyze SNS links (Instagram, blogs) to extract place information using AI
 - Manage and categorize discovered places
 - Get AI-based course recommendations for dates

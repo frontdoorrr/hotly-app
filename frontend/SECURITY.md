@@ -1,4 +1,4 @@
-# Security Guidelines for Hotly App
+# Security Guidelines for ArchyAI App
 
 ## 코드 난독화 (Obfuscation)
 

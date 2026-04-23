@@ -1,4 +1,4 @@
-# Hotly App Deployment Guide
+# ArchyAI App Deployment Guide
 
 ## 목차
 1. [사전 준비](#사전-준비)
@@ -235,7 +235,7 @@ xcrun altool --upload-app --type ios \
 1. [App Store Connect](https://appstoreconnect.apple.com) 접속
 2. "나의 앱" → "+" → "새로운 앱"
 3. 앱 정보 입력:
-   - 이름: Hotly
+   - 이름: ArchyAI
    - 기본 언어: 한국어
    - Bundle ID: com.hotly.hotly_app
    - SKU: com.hotly.hotly_app

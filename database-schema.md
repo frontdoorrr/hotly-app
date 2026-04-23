@@ -1,4 +1,4 @@
-# Hotly App - Database Schema Documentation
+# ArchyAI App - Database Schema Documentation
 
 ## 1. Core Tables
 

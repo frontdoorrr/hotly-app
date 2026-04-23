@@ -84,7 +84,7 @@ image = soup.find('meta', property='og:image')['content']
 └─────────────────────────────────────────┘
             ↓ REST API
 ┌─────────────────────────────────────────┐
-│ Hotly Backend                            │
+│ ArchyAI Backend                            │
 │ (현재 프로젝트)                          │
 ├─────────────────────────────────────────┤
 │ - HTTP Request로 크롤링 결과 가져오기    │

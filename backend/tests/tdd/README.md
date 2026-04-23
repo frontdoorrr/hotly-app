@@ -1,7 +1,7 @@
 # TDD (Test-Driven Development) Framework
 
 ## Overview
-This directory contains TDD examples, templates, and documentation for implementing test-first development in the Hotly app project.
+This directory contains TDD examples, templates, and documentation for implementing test-first development in the ArchyAI app project.
 
 ## TDD Process
 

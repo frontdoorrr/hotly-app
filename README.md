@@ -1,5 +1,5 @@
-# hotly-app
-AI 기반 핫플레이스 / 데이트 코스 / 맛집 아카이빙 앱
+# ArchyAI
+AI 기반 SNS 콘텐츠 아카이빙 앱 (place / event / tips / review)
 
 ## 프로젝트 구조
 
