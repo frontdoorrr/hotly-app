@@ -8,6 +8,7 @@ abstract class ArchiveRepository {
   Future<Either<Exception, ArchivedContent>> archiveUrl(
     String url, {
     bool force = false,
+    String language = 'ko',
   });
 
   /// Instagram 미디어 파일을 multipart로 업로드하고 아카이빙.
@@ -17,6 +18,7 @@ abstract class ArchiveRepository {
     String? caption,
     String? author,
     bool force = false,
+    String language = 'ko',
   });
 
   /// 콘텐츠 타입 목록 조회

@@ -19,6 +19,7 @@ Sentiment = Literal["positive", "neutral", "negative"]
 class ArchiveRequest(BaseModel):
     url: str
     force: bool = False
+    language: str = "ko"
 
 
 # ------------------------------------------------------------------

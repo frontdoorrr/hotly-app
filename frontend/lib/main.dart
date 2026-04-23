@@ -19,6 +19,7 @@ import 'core/notifications/fcm_service.dart';
 import 'core/notifications/notification_handler.dart';
 import 'core/utils/app_logger.dart';
 import 'core/monitoring/crashlytics_service.dart';
+import 'core/providers/language_provider.dart';
 import 'features/profile/presentation/providers/settings_provider.dart';
 import 'features/share_queue/presentation/providers/share_queue_provider.dart';
 import 'features/share_queue/data/services/share_queue_storage_service.dart';
@@ -230,6 +231,11 @@ class _HotlyAppState extends ConsumerState<HotlyApp> with WidgetsBindingObserver
   Widget build(BuildContext context) {
     final router = ref.watch(goRouterProvider);
     final settings = ref.watch(settingsProvider);
+
+    // settings.language가 바뀌면 languageCodeProvider도 동기화
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(languageCodeProvider.notifier).state = settings.language;
+    });
 
     return MaterialApp.router(
       title: 'Hotly',

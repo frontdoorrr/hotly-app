@@ -70,7 +70,7 @@ async def archive_url(
 
     # link-analyzer 호출
     try:
-        result = await link_analyzer_client.analyze(body.url, force=body.force)
+        result = await link_analyzer_client.analyze(body.url, force=body.force, language=body.language)
         logger.info("[DEBUG] link-analyzer raw response: %s", result)
     except UnsupportedPlatformError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
@@ -127,6 +127,7 @@ async def archive_instagram(
     author: Optional[str] = Form(None),
     media: List[UploadFile] = File(...),
     force: bool = Form(False),
+    language: str = Form("ko"),
     db: Session = Depends(get_db),
     current_user: AuthenticatedUser = Depends(get_current_user),
 ) -> Any:
@@ -159,7 +160,7 @@ async def archive_instagram(
         media_tuples.append((fname, file_bytes, mime))
 
     try:
-        result = await link_analyzer_client.analyze_instagram(url, media_tuples, caption, author)
+        result = await link_analyzer_client.analyze_instagram(url, media_tuples, caption, author, language=language)
         logger.info("[DEBUG] link-analyzer instagram raw response: %s", result)
     except UnsupportedPlatformError as exc:
         raise HTTPException(status_code=400, detail=str(exc))

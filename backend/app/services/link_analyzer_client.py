@@ -44,7 +44,7 @@ class LinkAnalyzerClient:
     # Public API
     # ------------------------------------------------------------------
 
-    async def analyze(self, url: str, force: bool = False) -> dict[str, Any]:
+    async def analyze(self, url: str, force: bool = False, language: str = "ko") -> dict[str, Any]:
         """Submit a URL for analysis and return the ContentResponse dict.
 
         Raises:
@@ -53,7 +53,7 @@ class LinkAnalyzerClient:
             LinkAnalyzerAuthError:    API 키 인증 실패
             LinkAnalyzerError:        기타 오류
         """
-        payload = {"url": url, "force": force}
+        payload = {"url": url, "force": force, "language": language}
         async with httpx.AsyncClient(timeout=120) as client:
             try:
                 resp = await client.post(
@@ -72,13 +72,14 @@ class LinkAnalyzerClient:
         media_files: list[tuple[str, bytes, str]],
         caption: Optional[str] = None,
         author: Optional[str] = None,
+        language: str = "ko",
     ) -> dict[str, Any]:
         """Instagram 미디어 파일을 multipart로 link-analyzer에 전달한다.
 
         media_files: [(filename, bytes, mime_type), ...]
         """
         files = [("media", (name, data, mime)) for name, data, mime in media_files]
-        data: dict[str, str] = {"url": url}
+        data: dict[str, str] = {"url": url, "language": language}
         if caption:
             data["caption"] = caption
         if author:

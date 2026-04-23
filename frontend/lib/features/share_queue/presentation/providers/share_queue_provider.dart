@@ -10,6 +10,7 @@ import '../../../archive/domain/entities/archived_content.dart';
 import '../../../archive/domain/repositories/archive_repository.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/notifications/fcm_service.dart';
+import '../../../../core/providers/language_provider.dart';
 import '../../data/services/share_queue_storage_service.dart';
 import '../../domain/entities/share_queue_item.dart';
 
@@ -31,6 +32,7 @@ final shareQueueStorageServiceProvider =
 class ShareQueueNotifier extends StateNotifier<ShareQueueState> {
   final ShareQueueStorageService _storageService;
   final ArchiveRepository _archiveRepository;
+  final Ref _ref;
   final Logger _logger = Logger();
 
   bool _isDisposed = false;
@@ -39,6 +41,7 @@ class ShareQueueNotifier extends StateNotifier<ShareQueueState> {
   ShareQueueNotifier(
     this._storageService,
     this._archiveRepository,
+    this._ref,
   ) : super(const ShareQueueState()) {
     _loadQueue();
   }
@@ -208,10 +211,11 @@ class ShareQueueNotifier extends StateNotifier<ShareQueueState> {
     try {
       final Either<Exception, ArchivedContent> result;
 
+      final language = _ref.read(languageCodeProvider);
       if (item.platform == 'instagram') {
-        result = await _analyzeInstagram(item);
+        result = await _analyzeInstagram(item, language: language);
       } else {
-        result = await _archiveRepository.archiveUrl(item.url);
+        result = await _archiveRepository.archiveUrl(item.url, language: language);
       }
 
       result.fold(
@@ -228,7 +232,7 @@ class ShareQueueNotifier extends StateNotifier<ShareQueueState> {
   }
 
   Future<Either<Exception, ArchivedContent>> _analyzeInstagram(
-      ShareQueueItem item) async {
+      ShareQueueItem item, {String language = 'ko'}) async {
     try {
       final extractor = InstagramMediaExtractor();
       final extracted = await extractor.extract(item.url);
@@ -237,6 +241,7 @@ class ShareQueueNotifier extends StateNotifier<ShareQueueState> {
         mediaFiles: extracted.mediaFiles,
         caption: extracted.caption,
         author: extracted.author,
+        language: language,
       );
     } on InstagramBlockedError catch (e, st) {
       _logger.w('ShareQueue: Instagram blocked for ${item.id}', error: e, stackTrace: st);
@@ -412,7 +417,7 @@ final shareQueueProvider =
     ArchiveRemoteDataSource(dioClient.dio),
   );
 
-  return ShareQueueNotifier(storageService, repository);
+  return ShareQueueNotifier(storageService, repository, ref);
 });
 
 /// 대기 중인 항목 수 Provider (UI 배지용)

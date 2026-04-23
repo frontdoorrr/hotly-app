@@ -10,11 +10,11 @@ class ArchiveRemoteDataSource {
   ArchiveRemoteDataSource(this._dio);
 
   /// POST /api/v1/archive — URL 분석 및 아카이빙
-  Future<ArchivedContentModel> archiveUrl(String url, {bool force = false}) async {
+  Future<ArchivedContentModel> archiveUrl(String url, {bool force = false, String language = 'ko'}) async {
     try {
       final response = await _dio.post(
         ApiEndpoints.archive,
-        data: {'url': url, 'force': force},
+        data: {'url': url, 'force': force, 'language': language},
       );
       return ArchivedContentModel.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
@@ -29,11 +29,13 @@ class ArchiveRemoteDataSource {
     String? caption,
     String? author,
     bool force = false,
+    String language = 'ko',
   }) async {
     try {
       final formData = FormData();
       formData.fields.add(MapEntry('url', url));
       formData.fields.add(MapEntry('force', force.toString()));
+      formData.fields.add(MapEntry('language', language));
       if (caption != null) {
         formData.fields.add(MapEntry('caption', caption));
       }

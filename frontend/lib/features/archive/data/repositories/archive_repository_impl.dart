@@ -15,9 +15,10 @@ class ArchiveRepositoryImpl implements ArchiveRepository {
   Future<Either<Exception, ArchivedContent>> archiveUrl(
     String url, {
     bool force = false,
+    String language = 'ko',
   }) async {
     try {
-      final model = await _remote.archiveUrl(url, force: force);
+      final model = await _remote.archiveUrl(url, force: force, language: language);
       return Right(model.toEntity());
     } on Exception catch (e) {
       return Left(e);
@@ -31,6 +32,7 @@ class ArchiveRepositoryImpl implements ArchiveRepository {
     String? caption,
     String? author,
     bool force = false,
+    String language = 'ko',
   }) async {
     try {
       final model = await _remote.archiveInstagram(
@@ -39,6 +41,7 @@ class ArchiveRepositoryImpl implements ArchiveRepository {
         caption: caption,
         author: author,
         force: force,
+        language: language,
       );
       return Right(model.toEntity());
     } on Exception catch (e) {

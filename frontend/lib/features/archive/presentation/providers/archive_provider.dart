@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../../../core/network/dio_client.dart';
+import '../../../../core/providers/language_provider.dart';
 import '../../data/datasources/archive_remote_datasource.dart';
 import '../../data/repositories/archive_repository_impl.dart';
 import '../../domain/entities/archived_content.dart';
@@ -25,13 +26,14 @@ class ArchiveInputState with _$ArchiveInputState {
 
 class ArchiveInputNotifier extends StateNotifier<ArchiveInputState> {
   final ArchiveRepository _repository;
+  final Ref _ref;
 
-  ArchiveInputNotifier(this._repository) : super(const ArchiveInputState());
+  ArchiveInputNotifier(this._repository, this._ref) : super(const ArchiveInputState());
 
   Future<void> archiveUrl(String url, {bool force = false}) async {
     state = state.copyWith(isLoading: true, error: null, inputUrl: url);
-
-    final result = await _repository.archiveUrl(url, force: force);
+    final language = _ref.read(languageCodeProvider);
+    final result = await _repository.archiveUrl(url, force: force, language: language);
 
     result.fold(
       (error) => state = state.copyWith(isLoading: false, error: error.toString()),
@@ -128,7 +130,7 @@ final archiveRepositoryProvider = Provider<ArchiveRepository>((ref) {
 
 final archiveInputProvider =
     StateNotifierProvider<ArchiveInputNotifier, ArchiveInputState>((ref) {
-  return ArchiveInputNotifier(ref.watch(archiveRepositoryProvider));
+  return ArchiveInputNotifier(ref.watch(archiveRepositoryProvider), ref);
 });
 
 final archiveListProvider =
