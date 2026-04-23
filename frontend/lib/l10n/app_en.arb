@@ -194,6 +194,9 @@
   "error_rateLimited": "Too many requests. Please try again in a moment.",
   "error_serviceUnavailable": "Service is temporarily unavailable. Please try again later.",
   "error_unknown": "An unknown error occurred.",
+  "error_instagramBlocked": "Unable to access Instagram media.",
+  "error_instagramParseError": "Instagram media not found.",
+  "error_instagramDownloadError": "Failed to download Instagram media."
 
   "loginRequired": "Login required",
   "loginButton": "Log in",

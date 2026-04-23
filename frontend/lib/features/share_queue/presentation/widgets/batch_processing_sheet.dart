@@ -7,6 +7,21 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/share_queue_item.dart';
 import '../providers/share_queue_provider.dart';
 
+String _localizeError(BuildContext context, String? code) {
+  if (code == null) return context.l10n.batch_statusFailed;
+  final l10n = context.l10n;
+  switch (code) {
+    case 'error_instagramBlocked':      return l10n.error_instagramBlocked;
+    case 'error_instagramParseError':   return l10n.error_instagramParseError;
+    case 'error_instagramDownloadError': return l10n.error_instagramDownloadError;
+    case 'error_unsupportedLink':       return l10n.error_unsupportedLink;
+    case 'error_privateOrDeleted':      return l10n.error_privateOrDeleted;
+    case 'error_rateLimited':           return l10n.error_rateLimited;
+    case 'error_serviceUnavailable':    return l10n.error_serviceUnavailable;
+    default:                            return l10n.error_unknown;
+  }
+}
+
 /// 일괄 분석 진행 바텀시트
 ///
 /// 분석 진행 상황을 실시간으로 표시하고,
@@ -499,7 +514,7 @@ class ShareQueueItemTile extends StatelessWidget {
         color = AppColors.success;
         break;
       case ShareQueueStatus.failed:
-        text = item.errorMessage ?? l10n.batch_statusFailed;
+        text = _localizeError(context, item.errorMessage);
         color = AppColors.error;
         break;
       case ShareQueueStatus.saved:

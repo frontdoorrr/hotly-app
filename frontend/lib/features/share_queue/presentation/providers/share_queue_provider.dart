@@ -245,13 +245,13 @@ class ShareQueueNotifier extends StateNotifier<ShareQueueState> {
       );
     } on InstagramBlockedError catch (e, st) {
       _logger.w('ShareQueue: Instagram blocked for ${item.id}', error: e, stackTrace: st);
-      return Left(Exception('Instagram 미디어에 접근할 수 없습니다'));
+      return Left(Exception('error_instagramBlocked'));
     } on InstagramParseError catch (e, st) {
       _logger.w('ShareQueue: Instagram parse error for ${item.id}', error: e, stackTrace: st);
-      return Left(Exception('Instagram 미디어를 찾을 수 없습니다'));
+      return Left(Exception('error_instagramParseError'));
     } on InstagramMediaDownloadError catch (e, st) {
       _logger.w('ShareQueue: Instagram download error for ${item.id}', error: e, stackTrace: st);
-      return Left(Exception('Instagram 미디어 다운로드에 실패했습니다'));
+      return Left(Exception('error_instagramDownloadError'));
     } on Exception catch (e) {
       return Left(e);
     }
