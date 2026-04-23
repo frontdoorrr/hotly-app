@@ -19,6 +19,7 @@ import 'core/notifications/fcm_service.dart';
 import 'core/notifications/notification_handler.dart';
 import 'core/utils/app_logger.dart';
 import 'core/monitoring/crashlytics_service.dart';
+import 'features/profile/presentation/providers/settings_provider.dart';
 import 'features/share_queue/presentation/providers/share_queue_provider.dart';
 import 'features/share_queue/data/services/share_queue_storage_service.dart';
 
@@ -228,13 +229,14 @@ class _HotlyAppState extends ConsumerState<HotlyApp> with WidgetsBindingObserver
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(goRouterProvider);
+    final settings = ref.watch(settingsProvider);
 
     return MaterialApp.router(
       title: 'Hotly',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: settings.themeMode,
       routerConfig: router,
       localizationsDelegates: const [
         AppLocalizations.delegate,
@@ -246,7 +248,7 @@ class _HotlyAppState extends ConsumerState<HotlyApp> with WidgetsBindingObserver
         Locale('ko'),
         Locale('en'),
       ],
-      locale: const Locale('ko'),
+      locale: Locale(settings.language),
     );
   }
 }
