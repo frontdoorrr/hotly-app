@@ -6,7 +6,6 @@ import 'package:hotly_app/core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../archive/domain/entities/archived_content.dart';
-import '../../../archive/presentation/widgets/archive_input_sheet.dart';
 import '../providers/plan_provider.dart';
 
 class PlanScreen extends ConsumerWidget {
@@ -33,11 +32,6 @@ class PlanScreen extends ConsumerWidget {
             _PlaceTab(ref: ref),
           ],
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => ArchiveInputSheet.show(context),
-          backgroundColor: AppColors.primary,
-          child: const Icon(Icons.add_link, color: Colors.white),
-        ),
       ),
     );
   }
@@ -62,7 +56,6 @@ class _EventTab extends ConsumerWidget {
           ? _EmptyPlan(
               icon: Icons.event_outlined,
               message: '예정된 이벤트가 없어요',
-              onAddTap: () => ArchiveInputSheet.show(context),
             )
           : RefreshIndicator(
               onRefresh: () => ref.refresh(planEventProvider.future),
@@ -99,7 +92,6 @@ class _PlaceTab extends ConsumerWidget {
           ? _EmptyPlan(
               icon: Icons.place_outlined,
               message: '가볼 곳이 없어요',
-              onAddTap: () => ArchiveInputSheet.show(context),
             )
           : RefreshIndicator(
               onRefresh: () => ref.refresh(planPlaceProvider.future),
@@ -402,12 +394,10 @@ class _Thumbnail extends StatelessWidget {
 class _EmptyPlan extends StatelessWidget {
   final IconData icon;
   final String message;
-  final VoidCallback onAddTap;
 
   const _EmptyPlan({
     required this.icon,
     required this.message,
-    required this.onAddTap,
   });
 
   @override
@@ -422,18 +412,6 @@ class _EmptyPlan extends StatelessWidget {
             message,
             style:
                 AppTextStyles.body2.copyWith(color: AppColors.textSecondary),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: onAddTap,
-            icon: const Icon(Icons.add_link),
-            label: const Text('링크 추가하기'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-            ),
           ),
         ],
       ),
