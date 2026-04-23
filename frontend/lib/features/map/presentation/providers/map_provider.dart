@@ -58,7 +58,19 @@ class MapNotifier extends StateNotifier<MapState> {
         return;
       }
 
-      // Get position
+      // 마지막으로 알려진 위치로 즉시 업데이트해서 지도 중심을 빠르게 설정
+      final lastKnown = await Geolocator.getLastKnownPosition();
+      if (lastKnown != null) {
+        state = state.copyWith(
+          currentLocation: CoordinatePoint(
+            latitude: lastKnown.latitude,
+            longitude: lastKnown.longitude,
+          ),
+          error: null,
+        );
+      }
+
+      // 실제 현재 위치로 업데이트
       final position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.medium,
       );

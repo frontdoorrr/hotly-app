@@ -46,7 +46,10 @@ class _MapScreenState extends ConsumerState<MapScreen>
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
+        // 위치 요청과 마커 아이콘 렌더링을 WebView 로딩과 병렬로 시작
         ref.read(mapProvider.notifier).getCurrentLocation();
+        _createMarkerIcon();
+        _createCurrentLocationIcon();
       }
     });
 
@@ -136,21 +139,20 @@ class _MapScreenState extends ConsumerState<MapScreen>
               });
               AppLogger.d('Kakao Map is now ready', tag: 'Map');
 
-              // 저장된 장소 마커 추가 (이미 로드된 경우)
               final savedPlacesState = ref.read(savedPlacesProvider);
-              if (!savedPlacesState.isLoading &&
-                  savedPlacesState.places.isNotEmpty &&
-                  !_markersAdded) {
-                AppLogger.d('Places already loaded, adding markers...', tag: 'Map');
-                await _addMarkersToMap(savedPlacesState.places);
-                _markersAdded = true;
-              }
-
-              // 현재 위치 마커 추가
               final currentLocation = ref.read(mapProvider).currentLocation;
-              if (currentLocation != null) {
-                await _addCurrentLocationMarker(currentLocation);
-              }
+
+              // 저장된 장소 마커와 현재 위치 마커를 병렬로 추가
+              await Future.wait([
+                if (!savedPlacesState.isLoading &&
+                    savedPlacesState.places.isNotEmpty &&
+                    !_markersAdded)
+                  _addMarkersToMap(savedPlacesState.places).then((_) {
+                    _markersAdded = true;
+                  }),
+                if (currentLocation != null)
+                  _addCurrentLocationMarker(currentLocation),
+              ]);
             },
           ),
 
