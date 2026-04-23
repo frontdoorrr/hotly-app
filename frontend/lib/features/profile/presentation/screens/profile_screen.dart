@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:hotly_app/core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -17,7 +18,28 @@ class ProfileScreen extends ConsumerStatefulWidget {
   ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+class _ProfileScreenState extends ConsumerState<ProfileScreen>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  // 앱이 포그라운드로 돌아올 때 (시스템 설정에서 돌아온 경우 포함) 재동기화
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      ref.read(settingsProvider.notifier).syncWithOsPermission();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final profileState = ref.watch(profileProvider);
@@ -164,8 +186,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           title: Text(context.l10n.settings_notifications),
           subtitle: Text(context.l10n.settings_notificationsDesc),
           value: settings.notificationsEnabled,
-          onChanged: (value) =>
-              ref.read(settingsProvider.notifier).setNotifications(value),
+          onChanged: (value) async {
+            final result =
+                await ref.read(settingsProvider.notifier).setNotifications(value);
+            if (!mounted) return;
+            if (result == NotificationToggleResult.permanentlyDenied) {
+              _showOpenSettingsDialog();
+            }
+          },
         ),
         ListTile(
           title: Text(context.l10n.settings_theme),
@@ -214,6 +242,29 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       case ThemeMode.dark:
         return context.l10n.settings_themeDark;
     }
+  }
+
+  void _showOpenSettingsDialog() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(context.l10n.settings_notificationPermissionTitle),
+        content: Text(context.l10n.settings_notificationPermissionBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(context.l10n.common_cancel),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              openAppSettings();
+            },
+            child: Text(context.l10n.settings_openSystemSettings),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showThemeDialog() {

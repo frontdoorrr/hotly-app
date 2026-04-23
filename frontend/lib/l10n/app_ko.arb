@@ -546,6 +546,21 @@
     "description": "빌드 번호 레이블"
   },
 
+  "settings_notificationPermissionTitle": "알림 권한 필요",
+  "@settings_notificationPermissionTitle": {
+    "description": "알림 권한 다이얼로그 제목"
+  },
+
+  "settings_notificationPermissionBody": "알림을 받으려면 시스템 설정에서 알림 권한을 허용해주세요.",
+  "@settings_notificationPermissionBody": {
+    "description": "알림 권한 거부 안내 메시지"
+  },
+
+  "settings_openSystemSettings": "설정 열기",
+  "@settings_openSystemSettings": {
+    "description": "시스템 설정 앱 열기 버튼"
+  },
+
   "auth_logoutConfirm": "정말 로그아웃하시겠습니까?",
   "@auth_logoutConfirm": {
     "description": "로그아웃 확인 메시지"
