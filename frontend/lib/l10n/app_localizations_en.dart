@@ -288,7 +288,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profile_createCourse => 'Create Course';
 
   @override
-  String get profile_loginPrompt => 'Log in to save your favorite places';
+  String get profile_loginPrompt => 'Log in and start archiving your content';
+
+  @override
+  String get profile_archivingLabel => 'Archived';
 
   @override
   String get settings_title => 'Settings';

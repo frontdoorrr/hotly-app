@@ -101,7 +101,9 @@
   "profile_noCourses": "No courses created",
   "profile_createCoursePrompt": "Create your own date course",
   "profile_createCourse": "Create Course",
-  "profile_loginPrompt": "Log in to save your favorite places",
+  "profile_loginPrompt": "Log in and start archiving your content",
+
+  "profile_archivingLabel": "Archived",
 
   "settings_title": "Settings",
   "settings_theme": "Theme",

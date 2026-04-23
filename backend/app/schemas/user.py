@@ -61,6 +61,7 @@ class UserProfileResponse(BaseModel):
     profile_image_url: Optional[str] = None
     bio: Optional[str] = None
     is_active: bool = True
+    archive_count: int = 0
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 

@@ -653,8 +653,14 @@ abstract class AppLocalizations {
   /// 로그인 안내 메시지
   ///
   /// In ko, this message translates to:
-  /// **'로그인하고 나만의 장소를 저장해보세요'**
+  /// **'로그인하고 나만의 콘텐츠를 아카이빙해보세요'**
   String get profile_loginPrompt;
+
+  /// 프로필 아카이브 수 레이블
+  ///
+  /// In ko, this message translates to:
+  /// **'아카이빙'**
+  String get profile_archivingLabel;
 
   /// 설정 섹션 제목
   ///

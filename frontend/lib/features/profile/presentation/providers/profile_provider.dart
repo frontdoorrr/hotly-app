@@ -66,7 +66,7 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
         state = state.copyWith(
           isLoading: false,
           user: user,
-          stats: const UserStats(savedPlaces: 0, likedPlaces: 0, courses: 0),
+          stats: UserStats(savedPlaces: user.savedPlacesCount),
           isAuthenticated: true,
         );
       },

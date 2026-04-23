@@ -461,9 +461,14 @@
     "description": "코스 만들기 버튼"
   },
 
-  "profile_loginPrompt": "로그인하고 나만의 장소를 저장해보세요",
+  "profile_loginPrompt": "로그인하고 나만의 콘텐츠를 아카이빙해보세요",
   "@profile_loginPrompt": {
     "description": "로그인 안내 메시지"
+  },
+
+  "profile_archivingLabel": "아카이빙",
+  "@profile_archivingLabel": {
+    "description": "프로필 아카이브 수 레이블"
   },
 
   "settings_title": "설정",

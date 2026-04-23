@@ -12,6 +12,7 @@ from app.api.deps import get_db
 from app.middleware.auth_middleware import get_current_user
 from app.models.user_data import AuthenticatedUser
 from app.crud.user import crud_user, crud_user_preference, crud_user_settings
+from app.models.archived_content import ArchivedContent
 from app.schemas.user import (
     AccountDeleteRequest,
     AccountRestoreRequest,
@@ -55,6 +56,12 @@ async def get_my_profile(
         hashed_password="",  # Firebase handles auth
     )
 
+    archive_count = (
+        db.query(ArchivedContent)
+        .filter(ArchivedContent.user_id == user.id)
+        .count()
+    )
+
     return UserProfileResponse(
         id=user.id,
         firebase_uid=user.firebase_uid,
@@ -64,6 +71,7 @@ async def get_my_profile(
         profile_image_url=user.profile_image_url,
         bio=user.bio,
         is_active=user.is_active,
+        archive_count=archive_count,
         created_at=user.created_at,
         updated_at=user.updated_at,
     )

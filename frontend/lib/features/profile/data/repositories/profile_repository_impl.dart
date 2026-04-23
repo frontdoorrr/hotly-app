@@ -19,9 +19,10 @@ class ProfileRepositoryImpl implements ProfileRepository {
       final user = User(
         id: data['id']?.toString() ?? '',
         email: data['email']?.toString() ?? '',
-        name: data['display_name']?.toString() ?? '',
+        name: data['display_name']?.toString() ?? data['full_name']?.toString() ?? '',
         profileImageUrl: data['profile_image_url'] as String?,
         phoneNumber: data['phone_number'] as String?,
+        savedPlacesCount: (data['archive_count'] as int?) ?? 0,
         createdAt: data['created_at'] != null
             ? DateTime.parse(data['created_at'].toString())
             : null,
@@ -45,9 +46,10 @@ class ProfileRepositoryImpl implements ProfileRepository {
       final user = User(
         id: data['id']?.toString() ?? '',
         email: data['email']?.toString() ?? '',
-        name: data['display_name']?.toString() ?? '',
+        name: data['display_name']?.toString() ?? data['full_name']?.toString() ?? '',
         profileImageUrl: data['profile_image_url'] as String?,
         phoneNumber: data['phone_number'] as String?,
+        savedPlacesCount: (data['archive_count'] as int?) ?? 0,
         createdAt: data['created_at'] != null
             ? DateTime.parse(data['created_at'].toString())
             : null,

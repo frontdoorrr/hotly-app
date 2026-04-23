@@ -286,7 +286,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get profile_createCourse => '코스 만들기';
 
   @override
-  String get profile_loginPrompt => '로그인하고 나만의 장소를 저장해보세요';
+  String get profile_loginPrompt => '로그인하고 나만의 콘텐츠를 아카이빙해보세요';
+
+  @override
+  String get profile_archivingLabel => '아카이빙';
 
   @override
   String get settings_title => '설정';
