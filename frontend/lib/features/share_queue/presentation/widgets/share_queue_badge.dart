@@ -21,42 +21,58 @@ class ShareQueueBadge extends ConsumerWidget {
     final completedCount = ref.watch(shareQueueProvider.select((s) => s.completedCount));
 
     final bool isVisible = pendingCount > 0 || isProcessing || completedCount > 0;
-
-    if (!isVisible) return const SizedBox.shrink();
-
     final bool isCompleted = !isProcessing && completedCount > 0 && pendingCount == 0;
     final Color badgeColor = isCompleted ? AppColors.success : AppColors.primary;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: badgeColor,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: badgeColor.withOpacity(0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => isCompleted
-              ? context.push('/share-queue/results')
-              : _showProcessingSheet(context, ref),
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: isProcessing
-                ? const _ProcessingBadgeContent()
-                : isCompleted
-                    ? _buildCompletedContent(context, completedCount)
-                    : _buildPendingContent(context, pendingCount, ref),
-          ),
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 250),
+      transitionBuilder: (child, animation) => FadeTransition(
+        opacity: animation,
+        child: SizeTransition(
+          sizeFactor: animation,
+          axis: Axis.vertical,
+          axisAlignment: -1,
+          child: child,
         ),
       ),
+      child: isVisible
+          ? Container(
+              key: ValueKey(
+                isCompleted
+                    ? 'completed'
+                    : (isProcessing ? 'processing' : 'pending'),
+              ),
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: badgeColor,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: badgeColor.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => isCompleted
+                      ? context.push('/share-queue/results')
+                      : _showProcessingSheet(context, ref),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: isProcessing
+                        ? const _ProcessingBadgeContent()
+                        : isCompleted
+                            ? _buildCompletedContent(context, completedCount)
+                            : _buildPendingContent(context, pendingCount, ref),
+                  ),
+                ),
+              ),
+            )
+          : const SizedBox.shrink(key: ValueKey('hidden')),
     );
   }
 

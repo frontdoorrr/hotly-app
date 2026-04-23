@@ -8,6 +8,8 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/archived_content.dart';
 import '../../domain/entities/content_type_info.dart';
 import '../providers/archive_provider.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:shimmer/shimmer.dart';
 import 'archive_input_sheet.dart';
 import 'content_type_badge.dart';
 
@@ -66,7 +68,7 @@ class _ArchiveListViewState extends ConsumerState<ArchiveListView> {
           // 목록
           Expanded(
             child: state.isLoading && state.items.isEmpty
-                ? const Center(child: CircularProgressIndicator())
+                ? const _SkeletonLoader()
                 : state.items.isEmpty
                     ? _EmptyView(
                         onAddTap: () => ArchiveInputSheet.show(context),
@@ -92,12 +94,30 @@ class _ArchiveListViewState extends ConsumerState<ArchiveListView> {
                               );
                             }
                             final item = state.items[index];
-                            return _ArchiveListTile(
-                              content: item,
-                              onTap: () => context.push('/archive/${item.id}'),
-                              onDelete: () => ref
-                                  .read(archiveListProvider.notifier)
-                                  .delete(item.id),
+                            final delay = Duration(
+                              milliseconds: (index * 50).clamp(0, 200),
+                            );
+                            return RepaintBoundary(
+                              child: _ArchiveListTile(
+                                content: item,
+                                onTap: () => context.push('/archive/${item.id}'),
+                                onDelete: () => ref
+                                    .read(archiveListProvider.notifier)
+                                    .delete(item.id),
+                              )
+                                  .animate(key: ValueKey(item.id))
+                                  .fadeIn(
+                                    duration: 250.ms,
+                                    delay: delay,
+                                    curve: Curves.easeOut,
+                                  )
+                                  .slideY(
+                                    begin: 0.06,
+                                    end: 0,
+                                    duration: 250.ms,
+                                    delay: delay,
+                                    curve: Curves.easeOut,
+                                  ),
                             );
                           },
                         ),
@@ -315,6 +335,107 @@ class _ArchiveListTile extends StatelessWidget {
       ),
     );
     if (confirmed == true) onDelete();
+  }
+}
+
+// ------------------------------------------------------------------
+// 빈 상태
+// ------------------------------------------------------------------
+
+// ------------------------------------------------------------------
+// 로딩 스켈레톤
+// ------------------------------------------------------------------
+
+class _SkeletonLoader extends StatelessWidget {
+  const _SkeletonLoader();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      padding: const EdgeInsets.all(16),
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: 5,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (_, __) => const _SkeletonArchiveTile(),
+    );
+  }
+}
+
+class _SkeletonArchiveTile extends StatelessWidget {
+  const _SkeletonArchiveTile();
+
+  @override
+  Widget build(BuildContext context) {
+    return RepaintBoundary(
+      child: Card(
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: Colors.grey[200]!),
+        ),
+        child: Shimmer.fromColors(
+          baseColor: Colors.grey[200]!,
+          highlightColor: Colors.grey[100]!,
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 56,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        height: 15,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Container(
+                        height: 13,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        width: 80,
+                        height: 11,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
