@@ -33,7 +33,8 @@ class ContentTypeBadge extends ConsumerWidget {
         ?.where((t) => t.key == contentType)
         .firstOrNull;
 
-    final label = info?.label ?? _fallbackLabel(context, contentType);
+    final locale = Localizations.localeOf(context).languageCode;
+    final label = info?.localizedLabel(locale) ?? _fallbackLabel(context, contentType);
     final icon = _resolveIcon(info);
     final color = _resolveColor(info);
 

@@ -10,6 +10,7 @@ class ContentType(Base):
 
     key = Column(String(50), primary_key=True)
     label = Column(String(100), nullable=False)
+    label_en = Column(String(100), nullable=True)
     icon = Column(String(100), nullable=True)
     color = Column(String(20), nullable=True)
     order = Column(Integer, nullable=False, default=0)
