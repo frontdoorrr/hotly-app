@@ -190,7 +190,8 @@ class AppTheme {
     );
   }
 
-  /// 다크 테마 단일 운영 — lightTheme / darkTheme 동일
+  // TODO(미구현): 라이트 테마 색상 팔레트 미정의. 추후 AppColors에 라이트 팔레트 추가 후 구현.
+  // 현재 lightTheme / darkTheme 모두 동일한 다크 팔레트 반환 — 설정 UI에서 테마 항목 숨김 처리 중.
   static ThemeData get lightTheme => _base;
   static ThemeData get darkTheme => _base;
 }

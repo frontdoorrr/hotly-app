@@ -195,12 +195,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             }
           },
         ),
-        ListTile(
-          title: Text(context.l10n.settings_theme),
-          subtitle: Text(_getThemeLabel(settings.themeMode)),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () => _showThemeDialog(),
-        ),
+        // TODO(미구현): 라이트 테마 미구현으로 현재 숨김 처리. 추후 구현 시 주석 해제.
+        // ListTile(
+        //   title: Text(context.l10n.settings_theme),
+        //   subtitle: Text(_getThemeLabel(settings.themeMode)),
+        //   trailing: const Icon(Icons.chevron_right),
+        //   onTap: () => _showThemeDialog(),
+        // ),
         ListTile(
           title: Text(context.l10n.settings_language),
           subtitle: Text(settings.language == 'ko'
@@ -233,6 +234,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     );
   }
 
+  // TODO(미구현): 라이트/다크 테마 전환 기능 추후 구현 예정. 현재 설정 UI에서 숨김 처리 중.
   String _getThemeLabel(ThemeMode mode) {
     switch (mode) {
       case ThemeMode.system:
@@ -267,6 +269,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     );
   }
 
+  // TODO(미구현): 라이트/다크 테마 전환 기능 추후 구현 예정.
+  // AppTheme.lightTheme == darkTheme (다크 전용)으로 시각적 변화 없어 숨김 처리.
   void _showThemeDialog() {
     final currentTheme = ref.read(settingsProvider).themeMode;
     showDialog(
