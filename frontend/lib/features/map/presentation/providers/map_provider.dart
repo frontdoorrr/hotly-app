@@ -60,7 +60,7 @@ class MapNotifier extends StateNotifier<MapState> {
 
       // Get position
       final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        desiredAccuracy: LocationAccuracy.medium,
       );
 
       state = state.copyWith(

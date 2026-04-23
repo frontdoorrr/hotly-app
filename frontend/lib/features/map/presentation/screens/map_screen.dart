@@ -285,40 +285,38 @@ class _MapScreenState extends ConsumerState<MapScreen>
         return;
       }
 
-      // 각 장소를 Poi로 추가
-      for (final place in places) {
-        // 좌표가 없는 장소는 스킵
-        if (place.latitude == null || place.longitude == null) {
-          AppLogger.w('Skipping place without coordinates: ${place.name}', tag: 'Map');
-          continue;
-        }
+      // PoiStyle은 모든 마커가 동일하므로 한 번만 생성
+      final poiStyle = PoiStyle(
+        icon: markerIcon,
+        anchor: const KPoint(0.5, 1.0),
+        zoomLevel: 0,
+      );
 
-        try {
-          // PoiStyle with icon
-          final poiStyle = PoiStyle(
-            icon: markerIcon,
-            anchor: const KPoint(0.5, 1.0), // 하단 중앙 고정
-            zoomLevel: 0,
-          );
+      final validPlaces = places
+          .where((p) => p.latitude != null && p.longitude != null)
+          .toList();
 
-          await _mapController!.labelLayer.addPoi(
-            LatLng(place.latitude!, place.longitude!),
-            style: poiStyle,
-            id: place.id,
-            text: place.name,
-            onClick: () {
-              AppLogger.d('Marker tapped: ${place.name}', tag: 'Map');
-              ref.read(mapProvider.notifier).selectPlace(place.id);
-            },
-          );
+      // 모든 마커를 병렬로 추가
+      await Future.wait(
+        validPlaces.map((place) async {
+          try {
+            await _mapController!.labelLayer.addPoi(
+              LatLng(place.latitude!, place.longitude!),
+              style: poiStyle,
+              id: place.id,
+              text: place.name,
+              onClick: () {
+                AppLogger.d('Marker tapped: ${place.name}', tag: 'Map');
+                ref.read(mapProvider.notifier).selectPlace(place.id);
+              },
+            );
+          } catch (e) {
+            AppLogger.e('Failed to add marker for ${place.name}', tag: 'Map', error: e);
+          }
+        }),
+      );
 
-          AppLogger.d('Added marker for: ${place.name}', tag: 'Map');
-        } catch (e) {
-          AppLogger.e('Failed to add marker for ${place.name}', tag: 'Map', error: e);
-        }
-      }
-
-      AppLogger.i('Finished adding markers', tag: 'Map');
+      AppLogger.i('Finished adding ${validPlaces.length} markers', tag: 'Map');
     } catch (e) {
       AppLogger.e('Failed to add markers', tag: 'Map', error: e);
     }
