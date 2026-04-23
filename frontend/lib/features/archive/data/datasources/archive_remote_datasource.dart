@@ -122,23 +122,21 @@ class ArchiveRemoteDataSource {
   }
 
   Exception _handleError(DioException e) {
-    final data = e.response?.data;
-    final detail = (data is Map) ? data['detail'] : null;
     switch (e.response?.statusCode) {
       case 400:
-        return Exception('지원하지 않는 링크입니다.');
+        return Exception('error_unsupportedLink');
       case 403:
-        return Exception('접근 권한이 없습니다.');
+        return Exception('error_accessDenied');
       case 404:
-        return Exception('아카이브를 찾을 수 없습니다.');
+        return Exception('error_archiveNotFound');
       case 422:
-        return Exception('비공개 게시물이거나 삭제된 콘텐츠예요.');
+        return Exception('error_privateOrDeleted');
       case 429:
-        return Exception('지금 요청이 몰려있어요. 잠시 후 다시 시도해주세요.');
+        return Exception('error_rateLimited');
       case 503:
-        return Exception('잠시 서비스 점검 중이에요. 나중에 다시 시도해주세요.');
+        return Exception('error_serviceUnavailable');
       default:
-        return Exception(detail?.toString() ?? '알 수 없는 오류가 발생했습니다.');
+        return Exception('error_unknown');
     }
   }
 }

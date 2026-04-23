@@ -187,6 +187,14 @@
   "error_requestCancelled": "Request was cancelled.",
   "error_checkNetwork": "Please check your network connection.",
 
+  "error_unsupportedLink": "This link is not supported.",
+  "error_accessDenied": "You don't have permission to access this.",
+  "error_archiveNotFound": "Archive not found.",
+  "error_privateOrDeleted": "This post is private or has been deleted.",
+  "error_rateLimited": "Too many requests. Please try again in a moment.",
+  "error_serviceUnavailable": "Service is temporarily unavailable. Please try again later.",
+  "error_unknown": "An unknown error occurred.",
+
   "loginRequired": "Login required",
   "loginButton": "Log in",
   "savedPlaces": "Saved Places",
