@@ -21,7 +21,7 @@ class ProfileRemoteDataSource {
     String? phoneNumber,
   }) async {
     final data = <String, dynamic>{};
-    if (displayName != null) data['display_name'] = displayName;
+    if (displayName != null) data['nickname'] = displayName;
     if (phoneNumber != null) data['phone_number'] = phoneNumber;
 
     final response = await _dioClient.put(

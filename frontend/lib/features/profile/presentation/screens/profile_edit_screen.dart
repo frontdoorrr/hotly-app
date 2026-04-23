@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -163,7 +165,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
           radius: 60,
           backgroundColor: AppColors.primaryLight,
           backgroundImage: _newImagePath != null
-              ? AssetImage(_newImagePath!) as ImageProvider
+              ? FileImage(File(_newImagePath!)) as ImageProvider
               : (imageUrl != null ? NetworkImage(imageUrl) : null),
           child: (imageUrl == null && _newImagePath == null)
               ? const Icon(
