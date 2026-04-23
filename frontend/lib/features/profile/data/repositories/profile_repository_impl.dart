@@ -19,7 +19,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
       final user = User(
         id: data['id']?.toString() ?? '',
         email: data['email']?.toString() ?? '',
-        name: data['display_name']?.toString() ?? data['full_name']?.toString() ?? '',
+        name: data['nickname']?.toString() ?? data['full_name']?.toString() ?? '',
         profileImageUrl: data['profile_image_url'] as String?,
         phoneNumber: data['phone_number'] as String?,
         savedPlacesCount: (data['archive_count'] as int?) ?? 0,
@@ -46,7 +46,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
       final user = User(
         id: data['id']?.toString() ?? '',
         email: data['email']?.toString() ?? '',
-        name: data['display_name']?.toString() ?? data['full_name']?.toString() ?? '',
+        name: data['nickname']?.toString() ?? data['full_name']?.toString() ?? '',
         profileImageUrl: data['profile_image_url'] as String?,
         phoneNumber: data['phone_number'] as String?,
         savedPlacesCount: (data['archive_count'] as int?) ?? 0,
@@ -67,7 +67,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
       String imagePath) async {
     try {
       final data = await remoteDataSource.uploadProfileImage(imagePath);
-      final imageUrl = data['image_url'] as String? ?? '';
+      final imageUrl = data['profile_image_url'] as String? ?? '';
       AppLogger.d('Profile image uploaded: $imageUrl', tag: 'ProfileRepo');
       return Right(imageUrl);
     } on ApiException catch (e) {
