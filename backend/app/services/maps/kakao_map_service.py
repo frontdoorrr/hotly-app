@@ -138,6 +138,7 @@ class KakaoMapService:
             Dictionary with 'latitude' and 'longitude' keys
 
         Raises:
+            RuntimeError: If called from an async context (use _address_to_coordinate_async instead)
             ValueError: If address is not found
             KakaoMapServiceError: For API errors
         """
@@ -146,17 +147,16 @@ class KakaoMapService:
             logger.info(f"Cache hit for address: {address}")
             return self._cache[address]
 
-        # Synchronous wrapper for async call
         import asyncio
 
         loop = asyncio.get_event_loop()
         if loop.is_running():
-            # If already in async context, use run_until_complete
-            result = loop.run_until_complete(self._address_to_coordinate_async(address))
-        else:
-            result = asyncio.run(self._address_to_coordinate_async(address))
+            raise RuntimeError(
+                "address_to_coordinate() cannot be called from an async context. "
+                "Use await _address_to_coordinate_async() instead."
+            )
+        result = asyncio.run(self._address_to_coordinate_async(address))
 
-        # Cache result
         if self.enable_cache:
             self._cache[address] = result
 
@@ -200,13 +200,11 @@ class KakaoMapService:
 
         loop = asyncio.get_event_loop()
         if loop.is_running():
-            result = loop.run_until_complete(
-                self._coordinate_to_address_async(latitude, longitude)
+            raise RuntimeError(
+                "coordinate_to_address() cannot be called from an async context. "
+                "Use await _coordinate_to_address_async() instead."
             )
-        else:
-            result = asyncio.run(self._coordinate_to_address_async(latitude, longitude))
-
-        return result
+        return asyncio.run(self._coordinate_to_address_async(latitude, longitude))
 
     async def _coordinate_to_address_async(
         self, latitude: float, longitude: float
@@ -266,19 +264,15 @@ class KakaoMapService:
 
         loop = asyncio.get_event_loop()
         if loop.is_running():
-            result = loop.run_until_complete(
-                self._search_places_async(
-                    keyword, center_latitude, center_longitude, radius_km, limit
-                )
+            raise RuntimeError(
+                "search_places_by_keyword() cannot be called from an async context. "
+                "Use await _search_places_async() instead."
             )
-        else:
-            result = asyncio.run(
-                self._search_places_async(
-                    keyword, center_latitude, center_longitude, radius_km, limit
-                )
+        return asyncio.run(
+            self._search_places_async(
+                keyword, center_latitude, center_longitude, radius_km, limit
             )
-
-        return result
+        )
 
     async def _search_places_async(
         self,
