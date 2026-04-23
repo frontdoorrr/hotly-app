@@ -951,6 +951,23 @@
   "batch_statusFailed": "분석 실패",
   "batch_statusSaved": "저장됨",
   "batch_statusIgnored": "무시됨",
+  "batch_failedCount": "{count}개 실패",
+  "@batch_failedCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "batch_progressPercent": "{percent}% 완료",
+  "@batch_progressPercent": {
+    "placeholders": { "percent": { "type": "int" } }
+  },
+  "batch_remainingSeconds": "{seconds}초 남음",
+  "@batch_remainingSeconds": {
+    "placeholders": { "seconds": { "type": "int" } }
+  },
+  "batch_remainingMinutes": "{minutes}분 남음",
+  "@batch_remainingMinutes": {
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+  "batch_sharePrompt": "Instagram, 네이버 블로그, YouTube에서\n링크를 공유해보세요",
 
   "shareQueueBadge_tapToViewResults": "탭하여 결과를 확인하세요",
   "shareQueueBadge_viewResults": "결과 보기",

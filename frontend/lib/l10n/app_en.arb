@@ -388,6 +388,11 @@
   "batch_statusFailed": "Failed",
   "batch_statusSaved": "Saved",
   "batch_statusIgnored": "Ignored",
+  "batch_failedCount": "{count} failed",
+  "batch_progressPercent": "{percent}% complete",
+  "batch_remainingSeconds": "{seconds}s remaining",
+  "batch_remainingMinutes": "{minutes}m remaining",
+  "batch_sharePrompt": "Share links from Instagram,\nNaver Blog, or YouTube",
 
   "shareQueueBadge_tapToViewResults": "Tap to view results",
   "shareQueueBadge_viewResults": "View Results",

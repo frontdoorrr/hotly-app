@@ -150,7 +150,7 @@ class _BatchProcessingSheetState extends ConsumerState<BatchProcessingSheet> {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              '${state.failedCount}개 실패',
+              context.l10n.batch_failedCount(state.failedCount),
               style: AppTextStyles.bodySmall.copyWith(
                 color: AppColors.error,
                 fontWeight: FontWeight.w600,
@@ -182,7 +182,7 @@ class _BatchProcessingSheetState extends ConsumerState<BatchProcessingSheet> {
           children: [
             Text(
               state.isProcessing
-                  ? '${(state.progress * 100).toInt()}% 완료'
+                  ? context.l10n.batch_progressPercent((state.progress * 100).toInt())
                   : l10n.batch_analysisComplete,
               style: AppTextStyles.body2.copyWith(
                 color: AppColors.textSecondary,
@@ -190,7 +190,7 @@ class _BatchProcessingSheetState extends ConsumerState<BatchProcessingSheet> {
             ),
             if (state.isProcessing)
               Text(
-                l10n.batch_estimatedTime(_estimateRemainingTime(state)),
+                l10n.batch_estimatedTime(_estimateRemainingTime(context, state)),
                 style: AppTextStyles.bodySmall.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -201,11 +201,11 @@ class _BatchProcessingSheetState extends ConsumerState<BatchProcessingSheet> {
     );
   }
 
-  String _estimateRemainingTime(ShareQueueState state) {
+  String _estimateRemainingTime(BuildContext context, ShareQueueState state) {
     final remaining = state.processableItems.length - state.processingIndex;
-    final seconds = remaining * 25; // 평균 25초 예상
-    if (seconds < 60) return '${seconds}초 남음';
-    return '${(seconds / 60).ceil()}분 남음';
+    final seconds = remaining * 25;
+    if (seconds < 60) return context.l10n.batch_remainingSeconds(seconds);
+    return context.l10n.batch_remainingMinutes((seconds / 60).ceil());
   }
 
   Widget _buildEmptyState(BuildContext context) {
@@ -227,7 +227,7 @@ class _BatchProcessingSheetState extends ConsumerState<BatchProcessingSheet> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Instagram, 네이버 블로그, YouTube에서\n링크를 공유해보세요',
+            context.l10n.batch_sharePrompt,
             style: AppTextStyles.body2.copyWith(
               color: AppColors.textSecondary,
             ),
