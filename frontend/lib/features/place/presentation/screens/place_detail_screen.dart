@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -88,9 +89,22 @@ class PlaceDetailScreen extends ConsumerWidget {
             actions: [
               // Like Button
               IconButton(
-                icon: Icon(
-                  state.isLiked ? Icons.favorite : Icons.favorite_border,
-                  color: state.isLiked ? AppColors.error : Colors.white,
+                icon: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  transitionBuilder: (child, animation) => ScaleTransition(
+                    scale: Tween<double>(begin: 0.6, end: 1.0).animate(
+                      CurvedAnimation(
+                        parent: animation,
+                        curve: Curves.elasticOut,
+                      ),
+                    ),
+                    child: child,
+                  ),
+                  child: Icon(
+                    state.isLiked ? Icons.favorite : Icons.favorite_border,
+                    key: ValueKey(state.isLiked),
+                    color: state.isLiked ? AppColors.error : Colors.white,
+                  ),
                 ),
                 onPressed: () {
                   ref.read(placeDetailProvider(placeId).notifier).toggleLike();

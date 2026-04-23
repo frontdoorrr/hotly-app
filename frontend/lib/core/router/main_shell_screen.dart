@@ -4,7 +4,7 @@ import 'package:hotly_app/core/l10n/l10n_extension.dart';
 import '../../features/share_queue/presentation/widgets/share_queue_badge.dart';
 
 /// Main Shell Screen with Bottom Navigation Bar
-class MainShellScreen extends StatelessWidget {
+class MainShellScreen extends StatefulWidget {
   final Widget child;
   final int currentIndex;
 
@@ -15,11 +15,46 @@ class MainShellScreen extends StatelessWidget {
   });
 
   @override
+  State<MainShellScreen> createState() => _MainShellScreenState();
+}
+
+class _MainShellScreenState extends State<MainShellScreen>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _fadeController;
+
+  @override
+  void initState() {
+    super.initState();
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+      value: 1.0,
+    );
+  }
+
+  @override
+  void didUpdateWidget(MainShellScreen old) {
+    super.didUpdateWidget(old);
+    if (old.currentIndex != widget.currentIndex) {
+      _fadeController.forward(from: 0.0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: child,
+      body: FadeTransition(
+        opacity: CurvedAnimation(parent: _fadeController, curve: Curves.easeOut),
+        child: widget.child,
+      ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentIndex,
+        currentIndex: widget.currentIndex,
         onTap: (index) => _onItemTapped(context, index),
         type: BottomNavigationBarType.fixed,
         items: [

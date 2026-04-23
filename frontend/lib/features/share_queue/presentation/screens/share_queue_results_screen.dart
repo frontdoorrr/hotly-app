@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/l10n/l10n_extension.dart';
@@ -81,7 +82,24 @@ class _ShareQueueResultsScreenState
                     itemCount: displayItems.length,
                     itemBuilder: (context, index) {
                       final item = displayItems[index];
-                      return _buildResultCard(item);
+                      final delay = Duration(
+                        milliseconds: (index * 60).clamp(0, 300),
+                      );
+                      return RepaintBoundary(
+                        child: _buildResultCard(item)
+                            .animate(key: ValueKey(item.id))
+                            .fadeIn(
+                              duration: 250.ms,
+                              delay: delay,
+                              curve: Curves.easeOut,
+                            )
+                            .slideY(
+                              begin: 0.05,
+                              end: 0,
+                              duration: 250.ms,
+                              delay: delay,
+                            ),
+                      );
                     },
                   ),
           ),
