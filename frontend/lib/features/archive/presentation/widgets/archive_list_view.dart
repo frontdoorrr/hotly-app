@@ -156,10 +156,11 @@ class _TypeFilterBar extends StatelessWidget {
           // DB에서 가져온 타입 탭
           ...contentTypes.map((type) {
             final isSelected = selected == type.key;
+            final locale = Localizations.localeOf(context).languageCode;
             return Padding(
               padding: const EdgeInsets.only(right: 8),
               child: FilterChip(
-                label: Text(type.label),
+                label: Text(type.localizedLabel(locale)),
                 selected: isSelected,
                 onSelected: (_) => onSelect(type.key),
                 selectedColor: AppColors.primary.withOpacity(0.15),
