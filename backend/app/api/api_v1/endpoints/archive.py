@@ -8,6 +8,8 @@ from uuid import UUID
 from pathlib import Path as FilePath
 
 from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, Query, UploadFile, status
+from sqlalchemy import Text, cast
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Session
 
 from app.db.deps import get_db
@@ -208,6 +210,8 @@ async def archive_instagram(
 @router.get("", response_model=ArchiveListResponse)
 def list_archives(
     content_type: Optional[str] = Query(None, description="place | event | tips | review | unknown"),
+    keyword: Optional[str] = Query(None, description="keywords_main 포함 여부로 필터"),
+    topic: Optional[str] = Query(None, description="topic_categories 포함 여부로 필터"),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db),
@@ -218,6 +222,10 @@ def list_archives(
     q = db.query(ArchivedContent).filter(ArchivedContent.user_id == user_id)
     if content_type:
         q = q.filter(ArchivedContent.content_type == content_type)
+    if keyword:
+        q = q.filter(ArchivedContent.keywords_main.op("@>")(cast([keyword], ARRAY(Text))))
+    if topic:
+        q = q.filter(ArchivedContent.topic_categories.op("@>")(cast([topic], ARRAY(Text))))
 
     total = q.count()
     items = (
