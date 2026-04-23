@@ -5,7 +5,7 @@ enum ButtonVariant { primary, secondary, outline, ghost }
 
 enum ButtonSize { sm, md, lg }
 
-class AppButton extends StatelessWidget {
+class AppButton extends StatefulWidget {
   final String text;
   final VoidCallback? onPressed;
   final ButtonVariant variant;
@@ -28,16 +28,26 @@ class AppButton extends StatelessWidget {
   });
 
   @override
+  State<AppButton> createState() => _AppButtonState();
+}
+
+class _AppButtonState extends State<AppButton> {
+  bool _isPressed = false;
+
+  bool get _canAnimate =>
+      !widget.isDisabled && !widget.isLoading && widget.onPressed != null;
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isEnabled = !isDisabled && !isLoading && onPressed != null;
+    final isEnabled =
+        !widget.isDisabled && !widget.isLoading && widget.onPressed != null;
 
-    // Size configuration
     final EdgeInsets padding;
     final double height;
     final double fontSize;
 
-    switch (size) {
+    switch (widget.size) {
       case ButtonSize.sm:
         padding = const EdgeInsets.symmetric(
           horizontal: AppTheme.space4,
@@ -51,7 +61,7 @@ class AppButton extends StatelessWidget {
           horizontal: AppTheme.space6,
           vertical: AppTheme.space3,
         );
-        height = 44.0; // Minimum touch target
+        height = 44.0;
         fontSize = 16.0;
         break;
       case ButtonSize.lg:
@@ -68,89 +78,108 @@ class AppButton extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (isLoading)
+        if (widget.isLoading)
           SizedBox(
             width: 20,
             height: 20,
             child: CircularProgressIndicator(
               strokeWidth: 2,
               valueColor: AlwaysStoppedAnimation<Color>(
-                variant == ButtonVariant.primary
+                widget.variant == ButtonVariant.primary
                     ? Colors.white
                     : theme.colorScheme.primary,
               ),
             ),
           )
-        else if (icon != null) ...[
-          icon!,
+        else if (widget.icon != null) ...[
+          widget.icon!,
           const SizedBox(width: AppTheme.space2),
         ],
         Text(
-          text,
+          widget.text,
           style: TextStyle(fontSize: fontSize),
         ),
       ],
     );
 
     final ButtonStyle style;
+    Widget button;
 
-    switch (variant) {
+    switch (widget.variant) {
       case ButtonVariant.primary:
         style = ElevatedButton.styleFrom(
           padding: padding,
-          minimumSize: Size(width ?? 0, height),
+          minimumSize: Size(widget.width ?? 0, height),
         );
-        return SizedBox(
-          width: width,
+        button = SizedBox(
+          width: widget.width,
           child: ElevatedButton(
-            onPressed: isEnabled ? onPressed : null,
+            onPressed: isEnabled ? widget.onPressed : null,
             style: style,
             child: buttonChild,
           ),
         );
+        break;
 
       case ButtonVariant.secondary:
         style = ElevatedButton.styleFrom(
           padding: padding,
-          minimumSize: Size(width ?? 0, height),
+          minimumSize: Size(widget.width ?? 0, height),
           backgroundColor: theme.colorScheme.secondary,
         );
-        return SizedBox(
-          width: width,
+        button = SizedBox(
+          width: widget.width,
           child: ElevatedButton(
-            onPressed: isEnabled ? onPressed : null,
+            onPressed: isEnabled ? widget.onPressed : null,
             style: style,
             child: buttonChild,
           ),
         );
+        break;
 
       case ButtonVariant.outline:
         style = OutlinedButton.styleFrom(
           padding: padding,
-          minimumSize: Size(width ?? 0, height),
+          minimumSize: Size(widget.width ?? 0, height),
         );
-        return SizedBox(
-          width: width,
+        button = SizedBox(
+          width: widget.width,
           child: OutlinedButton(
-            onPressed: isEnabled ? onPressed : null,
+            onPressed: isEnabled ? widget.onPressed : null,
             style: style,
             child: buttonChild,
           ),
         );
+        break;
 
       case ButtonVariant.ghost:
         style = TextButton.styleFrom(
           padding: padding,
-          minimumSize: Size(width ?? 0, height),
+          minimumSize: Size(widget.width ?? 0, height),
         );
-        return SizedBox(
-          width: width,
+        button = SizedBox(
+          width: widget.width,
           child: TextButton(
-            onPressed: isEnabled ? onPressed : null,
+            onPressed: isEnabled ? widget.onPressed : null,
             style: style,
             child: buttonChild,
           ),
         );
+        break;
     }
+
+    return GestureDetector(
+      excludeFromSemantics: true,
+      onTapDown: _canAnimate ? (_) => setState(() => _isPressed = true) : null,
+      onTapUp: _canAnimate ? (_) => setState(() => _isPressed = false) : null,
+      onTapCancel:
+          _canAnimate ? () => setState(() => _isPressed = false) : null,
+      child: AnimatedScale(
+        scale: _isPressed ? 0.97 : 1.0,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        child: button,
+      ),
+    );
   }
 }

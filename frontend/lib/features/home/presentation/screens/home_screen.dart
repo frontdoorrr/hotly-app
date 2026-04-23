@@ -1,7 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -52,11 +54,15 @@ class HomeScreen extends ConsumerWidget {
             ),
 
             recentAsync.when(
-              loading: () => const SliverToBoxAdapter(
-                child: Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(48),
-                    child: CircularProgressIndicator(),
+              loading: () => SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (_, __) => const Padding(
+                      padding: EdgeInsets.only(bottom: 10),
+                      child: RepaintBoundary(child: _HomeSkeletonTile()),
+                    ),
+                    childCount: 3,
                   ),
                 ),
               ),
@@ -85,10 +91,28 @@ class HomeScreen extends ConsumerWidget {
                             if (index.isOdd) {
                               return const SizedBox(height: 10);
                             }
-                            final item = items[index ~/ 2];
-                            return _RecentArchiveTile(
-                              content: item,
-                              onTap: () => context.push('/archive/${item.id}'),
+                            final itemIndex = index ~/ 2;
+                            final item = items[itemIndex];
+                            final delay = Duration(
+                              milliseconds: (itemIndex * 50).clamp(0, 200),
+                            );
+                            return RepaintBoundary(
+                              child: _RecentArchiveTile(
+                                content: item,
+                                onTap: () => context.push('/archive/${item.id}'),
+                              )
+                                  .animate(key: ValueKey(item.id))
+                                  .fadeIn(
+                                    duration: 250.ms,
+                                    delay: delay,
+                                    curve: Curves.easeOut,
+                                  )
+                                  .slideY(
+                                    begin: 0.06,
+                                    end: 0,
+                                    duration: 250.ms,
+                                    delay: delay,
+                                  ),
                             );
                           },
                           childCount: items.length * 2 - 1,
@@ -216,6 +240,85 @@ class _Thumbnail extends StatelessWidget {
   }
 }
 
+
+class _HomeSkeletonTile extends StatelessWidget {
+  const _HomeSkeletonTile();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final baseColor = isDark ? Colors.grey[800]! : Colors.grey[200]!;
+    final highlightColor = isDark ? Colors.grey[700]! : Colors.grey[100]!;
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: baseColor),
+      ),
+      child: Shimmer.fromColors(
+        baseColor: baseColor,
+        highlightColor: highlightColor,
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.grey[600]! : Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 56,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.grey[600]! : Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      height: 15,
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.grey[600]! : Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Container(
+                      height: 13,
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.grey[600]! : Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: 80,
+                      height: 11,
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.grey[600]! : Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class _EmptyState extends StatelessWidget {
   final VoidCallback onAddTap;

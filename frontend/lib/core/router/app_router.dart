@@ -129,26 +129,35 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/archive/:archiveId',
         name: 'archiveDetail',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final id = state.pathParameters['archiveId']!;
-          return ArchiveDetailScreen(archiveId: id);
+          return _detailTransitionPage(
+            state: state,
+            child: ArchiveDetailScreen(archiveId: id),
+          );
         },
       ),
 
-      // Search Screen (outside bottom nav)
+      // Search Screen (outside bottom nav) — modal style
       GoRoute(
         path: '/search',
         name: 'search',
-        builder: (context, state) => const SearchScreen(),
+        pageBuilder: (context, state) => _modalTransitionPage(
+          state: state,
+          child: const SearchScreen(),
+        ),
       ),
 
       // Place Detail Screen (outside bottom nav)
       GoRoute(
         path: '/places/:placeId',
         name: 'placeDetail',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final placeId = state.pathParameters['placeId']!;
-          return PlaceDetailScreen(placeId: placeId);
+          return _detailTransitionPage(
+            state: state,
+            child: PlaceDetailScreen(placeId: placeId),
+          );
         },
       ),
 
@@ -156,16 +165,22 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/courses/create',
         name: 'courseCreate',
-        builder: (context, state) => const CourseBuilderScreen(),
+        pageBuilder: (context, state) => _detailTransitionPage(
+          state: state,
+          child: const CourseBuilderScreen(),
+        ),
       ),
 
       // Course Edit Screen (outside bottom nav)
       GoRoute(
         path: '/courses/:courseId/edit',
         name: 'courseEdit',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final courseId = state.pathParameters['courseId']!;
-          return CourseBuilderScreen(courseId: courseId);
+          return _detailTransitionPage(
+            state: state,
+            child: CourseBuilderScreen(courseId: courseId),
+          );
         },
       ),
 
@@ -187,7 +202,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/profile/edit',
         name: 'profileEdit',
-        builder: (context, state) => const ProfileEditScreen(),
+        pageBuilder: (context, state) => _detailTransitionPage(
+          state: state,
+          child: const ProfileEditScreen(),
+        ),
       ),
 
       // Onboarding Screen
@@ -197,11 +215,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const OnboardingScreen(),
       ),
 
-      // Share Queue Results Screen
+      // Share Queue Results Screen — modal style
       GoRoute(
         path: '/share-queue/results',
         name: 'shareQueueResults',
-        builder: (context, state) => const ShareQueueResultsScreen(),
+        pageBuilder: (context, state) => _modalTransitionPage(
+          state: state,
+          child: const ShareQueueResultsScreen(),
+        ),
       ),
     ],
 
@@ -221,3 +242,52 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     ),
   );
 });
+
+/// 상세 화면 전환: fade + 미세한 slideY
+CustomTransitionPage<void> _detailTransitionPage({
+  required GoRouterState state,
+  required Widget child,
+}) {
+  return CustomTransitionPage<void>(
+    key: state.pageKey,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 300),
+    reverseTransitionDuration: const Duration(milliseconds: 250),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      final curved = CurvedAnimation(parent: animation, curve: Curves.easeOut);
+      return FadeTransition(
+        opacity: curved,
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0, 0.04),
+            end: Offset.zero,
+          ).animate(curved),
+          child: child,
+        ),
+      );
+    },
+  );
+}
+
+/// 모달성 화면 전환: fade + scale-up
+CustomTransitionPage<void> _modalTransitionPage({
+  required GoRouterState state,
+  required Widget child,
+}) {
+  return CustomTransitionPage<void>(
+    key: state.pageKey,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 300),
+    reverseTransitionDuration: const Duration(milliseconds: 250),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      final curved = CurvedAnimation(parent: animation, curve: Curves.easeOut);
+      return FadeTransition(
+        opacity: curved,
+        child: ScaleTransition(
+          scale: Tween<double>(begin: 0.97, end: 1.0).animate(curved),
+          child: child,
+        ),
+      );
+    },
+  );
+}

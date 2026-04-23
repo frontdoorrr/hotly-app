@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -154,7 +155,15 @@ class _WelcomeStep extends StatelessWidget {
             Icons.local_fire_department,
             size: 120,
             color: AppColors.primary,
-          ),
+          )
+              .animate()
+              .scale(
+                begin: const Offset(0.7, 0.7),
+                end: const Offset(1.0, 1.0),
+                duration: 400.ms,
+                curve: Curves.elasticOut,
+              )
+              .fadeIn(duration: 300.ms),
           const SizedBox(height: 32),
           Text(
             context.l10n.onboarding_welcome,
@@ -162,7 +171,10 @@ class _WelcomeStep extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
             textAlign: TextAlign.center,
-          ),
+          )
+              .animate(delay: 150.ms)
+              .fadeIn(duration: 300.ms)
+              .slideY(begin: 0.1, end: 0, duration: 300.ms),
           const SizedBox(height: 16),
           Text(
             context.l10n.onboarding_welcomeDesc,
@@ -171,7 +183,9 @@ class _WelcomeStep extends StatelessWidget {
               height: 1.6,
             ),
             textAlign: TextAlign.center,
-          ),
+          )
+              .animate(delay: 250.ms)
+              .fadeIn(duration: 300.ms),
         ],
       ),
     );

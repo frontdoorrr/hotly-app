@@ -349,7 +349,19 @@ class ShareQueueItemTile extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _buildStatusIcon(),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            transitionBuilder: (child, animation) => ScaleTransition(
+              scale: Tween<double>(begin: 0.6, end: 1.0).animate(
+                CurvedAnimation(parent: animation, curve: Curves.elasticOut),
+              ),
+              child: FadeTransition(opacity: animation, child: child),
+            ),
+            child: KeyedSubtree(
+              key: ValueKey(item.status),
+              child: _buildStatusIcon(),
+            ),
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
