@@ -7,20 +7,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../providers/archive_provider.dart';
 import 'archive_result_card.dart';
 
-String _localizeError(BuildContext context, String code) {
-  final l10n = context.l10n;
-  switch (code) {
-    case 'error_unsupportedLink':    return l10n.error_unsupportedLink;
-    case 'error_accessDenied':       return l10n.error_accessDenied;
-    case 'error_archiveNotFound':    return l10n.error_archiveNotFound;
-    case 'error_privateOrDeleted':   return l10n.error_privateOrDeleted;
-    case 'error_rateLimited':        return l10n.error_rateLimited;
-    case 'error_serviceUnavailable': return l10n.error_serviceUnavailable;
-    default:                         return l10n.error_unknown;
-  }
-}
-
-/// URL 입력 + 분석 결과 표시 바텀시트
+/// URL 입력 + 분析 결과 표시 바텀시트
 class ArchiveInputSheet extends ConsumerStatefulWidget {
   const ArchiveInputSheet({super.key});
 
@@ -289,7 +276,7 @@ class _ArchiveInputSheetState extends ConsumerState<ArchiveInputSheet> {
                                                   const SizedBox(width: 12),
                                                   Expanded(
                                                     child: Text(
-                                                      _localizeError(context, state.error!),
+                                                      localizeApiError(context, state.error),
                                                       style: AppTextStyles.body2
                                                           .copyWith(color: Colors.red[700]),
                                                     ),

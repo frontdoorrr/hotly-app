@@ -256,7 +256,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       } else {
         final error = ref.read(profileProvider).error;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${context.l10n.profile_updateFailed}: $error')),
+          SnackBar(content: Text('${context.l10n.profile_updateFailed}: ${localizeApiError(context, error)}')),
         );
       }
     } catch (e) {

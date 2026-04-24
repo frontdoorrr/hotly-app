@@ -187,6 +187,7 @@
   "error_requestCancelled": "Request was cancelled.",
   "error_checkNetwork": "Please check your network connection.",
 
+  "error_unauthorized": "Authentication required. Please log in again.",
   "error_unsupportedLink": "This link is not supported.",
   "error_accessDenied": "You don't have permission to access this.",
   "error_archiveNotFound": "Archive not found.",

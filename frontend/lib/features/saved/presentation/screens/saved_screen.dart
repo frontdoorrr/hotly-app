@@ -110,7 +110,7 @@ class SavedScreen extends ConsumerWidget {
             ),
             const SizedBox(height: AppTheme.space2),
             Text(
-              state.errorMessage ?? context.l10n.place_cannotLoadPlaces,
+              localizeApiError(context, state.errorMessage),
               style: AppTextStyles.body2.copyWith(
                 color: AppColors.textSecondary,
               ),

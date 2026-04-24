@@ -145,39 +145,35 @@ class DioClient {
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
         return ApiException(
-          message: '연결 시간이 초과되었습니다. 다시 시도해주세요.',
+          message: 'error_connectionTimeout',
           statusCode: 408,
           type: ApiExceptionType.timeout,
         );
 
       case DioExceptionType.badResponse:
         final statusCode = error.response?.statusCode ?? 500;
-        final data = error.response?.data;
-        final message = (data is Map)
-            ? (data['message'] as String? ?? data['detail'] as String? ?? data['error'] as String? ?? '서버 오류가 발생했습니다.')
-            : '서버 오류가 발생했습니다.';
 
         if (statusCode >= 500) {
           return ApiException(
-            message: message,
+            message: 'error_serverError',
             statusCode: statusCode,
             type: ApiExceptionType.server,
           );
         } else if (statusCode == 401) {
           return ApiException(
-            message: '인증이 필요합니다. 다시 로그인해주세요.',
+            message: 'error_unauthorized',
             statusCode: statusCode,
             type: ApiExceptionType.unauthorized,
           );
         } else if (statusCode == 404) {
           return ApiException(
-            message: '요청한 데이터를 찾을 수 없습니다.',
+            message: 'error_notFound',
             statusCode: statusCode,
             type: ApiExceptionType.notFound,
           );
         } else {
           return ApiException(
-            message: message,
+            message: 'error_unknown',
             statusCode: statusCode,
             type: ApiExceptionType.badRequest,
           );
@@ -185,7 +181,7 @@ class DioClient {
 
       case DioExceptionType.cancel:
         return ApiException(
-          message: '요청이 취소되었습니다.',
+          message: 'error_requestCancelled',
           type: ApiExceptionType.cancel,
         );
 
@@ -193,7 +189,7 @@ class DioClient {
       case DioExceptionType.unknown:
       default:
         return ApiException(
-          message: '네트워크 연결을 확인해주세요.',
+          message: 'error_checkNetwork',
           type: ApiExceptionType.network,
         );
     }

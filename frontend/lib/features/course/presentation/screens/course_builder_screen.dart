@@ -274,7 +274,7 @@ class _CourseBuilderScreenState extends ConsumerState<CourseBuilderScreen> {
                       Navigator.of(context).pop();
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(state.error!)),
+                        SnackBar(content: Text(localizeApiError(context, state.error))),
                       );
                     }
                   },
