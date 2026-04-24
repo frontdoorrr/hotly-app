@@ -27,7 +27,7 @@ class HomeScreen extends ConsumerWidget {
           children: [
             Icon(Icons.local_fire_department, color: theme.colorScheme.primary),
             const SizedBox(width: 8),
-            const Text('Hotly'),
+            Text(context.l10n.appName),
           ],
         ),
       ),

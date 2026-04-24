@@ -90,7 +90,7 @@ class ShareService {
     buffer.writeln('앱에서 자세히 보기:');
     buffer.writeln(deepLink);
     buffer.writeln();
-    buffer.writeln('#핫플레이스 #데이트코스 #Hotly');
+    buffer.writeln('#핫플레이스 #데이트코스 #ArchyAI');
 
     return buffer.toString();
   }
@@ -116,7 +116,7 @@ class ShareService {
     buffer.writeln('앱에서 자세히 보기:');
     buffer.writeln(deepLink);
     buffer.writeln();
-    buffer.writeln('#데이트코스 #핫플레이스 #Hotly');
+    buffer.writeln('#데이트코스 #핫플레이스 #ArchyAI');
 
     return buffer.toString();
   }

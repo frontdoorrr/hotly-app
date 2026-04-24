@@ -144,7 +144,7 @@ class ShareViewController: UIViewController {
     private func showSuccessAndComplete() {
         DispatchQueue.main.async { [weak self] in
             let alert = UIAlertController(
-                title: "Hotly에 추가됨",
+                title: "ArchyAI에 추가됨",
                 message: "링크가 분석 대기열에 추가되었습니다.",
                 preferredStyle: .alert
             )

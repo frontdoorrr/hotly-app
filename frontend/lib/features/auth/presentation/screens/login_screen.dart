@@ -82,7 +82,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Hotly',
+                  context.l10n.appName,
                   style: AppTextStyles.h1.copyWith(
                     fontWeight: FontWeight.bold,
                   ),

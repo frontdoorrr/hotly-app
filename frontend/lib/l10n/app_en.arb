@@ -1,7 +1,7 @@
 {
   "@@locale": "en",
 
-  "appName": "Hotly",
+  "appName": "ArchyAI",
 
   "common_ok": "OK",
   "common_cancel": "Cancel",
@@ -138,7 +138,7 @@
   "onboarding_activity": "Activity",
   "onboarding_shopping": "Shopping",
   "common_skip": "Skip",
-  "onboarding_welcome": "Welcome to Hotly!",
+  "onboarding_welcome": "Welcome to ArchyAI!",
   "onboarding_welcomeDesc": "Discover AI-recommended hot places\nand create your own date courses",
   "onboarding_selectInterests": "Select your interests",
   "onboarding_interestsDesc": "We'll recommend places based on your interests",
@@ -197,7 +197,7 @@
   "error_unknown": "An unknown error occurred.",
   "error_instagramBlocked": "Unable to access Instagram media.",
   "error_instagramParseError": "Instagram media not found.",
-  "error_instagramDownloadError": "Failed to download Instagram media."
+  "error_instagramDownloadError": "Failed to download Instagram media.",
 
   "loginRequired": "Login required",
   "loginButton": "Log in",

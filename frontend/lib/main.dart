@@ -238,7 +238,7 @@ class _HotlyAppState extends ConsumerState<HotlyApp> with WidgetsBindingObserver
     });
 
     return MaterialApp.router(
-      title: 'Hotly',
+      title: 'ArchyAI',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
