@@ -17,8 +17,6 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$OnboardingState {
   int get currentStep => throw _privateConstructorUsedError;
-  List<String> get selectedInterests => throw _privateConstructorUsedError;
-  List<String> get selectedCategories => throw _privateConstructorUsedError;
   bool get locationPermissionGranted => throw _privateConstructorUsedError;
   bool get notificationPermissionGranted => throw _privateConstructorUsedError;
   bool get isCompleted => throw _privateConstructorUsedError;
@@ -36,8 +34,6 @@ abstract class $OnboardingStateCopyWith<$Res> {
   @useResult
   $Res call(
       {int currentStep,
-      List<String> selectedInterests,
-      List<String> selectedCategories,
       bool locationPermissionGranted,
       bool notificationPermissionGranted,
       bool isCompleted});
@@ -57,8 +53,6 @@ class _$OnboardingStateCopyWithImpl<$Res, $Val extends OnboardingState>
   @override
   $Res call({
     Object? currentStep = null,
-    Object? selectedInterests = null,
-    Object? selectedCategories = null,
     Object? locationPermissionGranted = null,
     Object? notificationPermissionGranted = null,
     Object? isCompleted = null,
@@ -68,14 +62,6 @@ class _$OnboardingStateCopyWithImpl<$Res, $Val extends OnboardingState>
           ? _value.currentStep
           : currentStep // ignore: cast_nullable_to_non_nullable
               as int,
-      selectedInterests: null == selectedInterests
-          ? _value.selectedInterests
-          : selectedInterests // ignore: cast_nullable_to_non_nullable
-              as List<String>,
-      selectedCategories: null == selectedCategories
-          ? _value.selectedCategories
-          : selectedCategories // ignore: cast_nullable_to_non_nullable
-              as List<String>,
       locationPermissionGranted: null == locationPermissionGranted
           ? _value.locationPermissionGranted
           : locationPermissionGranted // ignore: cast_nullable_to_non_nullable
@@ -102,8 +88,6 @@ abstract class _$$OnboardingStateImplCopyWith<$Res>
   @useResult
   $Res call(
       {int currentStep,
-      List<String> selectedInterests,
-      List<String> selectedCategories,
       bool locationPermissionGranted,
       bool notificationPermissionGranted,
       bool isCompleted});
@@ -121,8 +105,6 @@ class __$$OnboardingStateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? currentStep = null,
-    Object? selectedInterests = null,
-    Object? selectedCategories = null,
     Object? locationPermissionGranted = null,
     Object? notificationPermissionGranted = null,
     Object? isCompleted = null,
@@ -132,14 +114,6 @@ class __$$OnboardingStateImplCopyWithImpl<$Res>
           ? _value.currentStep
           : currentStep // ignore: cast_nullable_to_non_nullable
               as int,
-      selectedInterests: null == selectedInterests
-          ? _value._selectedInterests
-          : selectedInterests // ignore: cast_nullable_to_non_nullable
-              as List<String>,
-      selectedCategories: null == selectedCategories
-          ? _value._selectedCategories
-          : selectedCategories // ignore: cast_nullable_to_non_nullable
-              as List<String>,
       locationPermissionGranted: null == locationPermissionGranted
           ? _value.locationPermissionGranted
           : locationPermissionGranted // ignore: cast_nullable_to_non_nullable
@@ -161,37 +135,13 @@ class __$$OnboardingStateImplCopyWithImpl<$Res>
 class _$OnboardingStateImpl implements _OnboardingState {
   const _$OnboardingStateImpl(
       {this.currentStep = 0,
-      final List<String> selectedInterests = const [],
-      final List<String> selectedCategories = const [],
       this.locationPermissionGranted = false,
       this.notificationPermissionGranted = false,
-      this.isCompleted = false})
-      : _selectedInterests = selectedInterests,
-        _selectedCategories = selectedCategories;
+      this.isCompleted = false});
 
   @override
   @JsonKey()
   final int currentStep;
-  final List<String> _selectedInterests;
-  @override
-  @JsonKey()
-  List<String> get selectedInterests {
-    if (_selectedInterests is EqualUnmodifiableListView)
-      return _selectedInterests;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_selectedInterests);
-  }
-
-  final List<String> _selectedCategories;
-  @override
-  @JsonKey()
-  List<String> get selectedCategories {
-    if (_selectedCategories is EqualUnmodifiableListView)
-      return _selectedCategories;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_selectedCategories);
-  }
-
   @override
   @JsonKey()
   final bool locationPermissionGranted;
@@ -204,7 +154,7 @@ class _$OnboardingStateImpl implements _OnboardingState {
 
   @override
   String toString() {
-    return 'OnboardingState(currentStep: $currentStep, selectedInterests: $selectedInterests, selectedCategories: $selectedCategories, locationPermissionGranted: $locationPermissionGranted, notificationPermissionGranted: $notificationPermissionGranted, isCompleted: $isCompleted)';
+    return 'OnboardingState(currentStep: $currentStep, locationPermissionGranted: $locationPermissionGranted, notificationPermissionGranted: $notificationPermissionGranted, isCompleted: $isCompleted)';
   }
 
   @override
@@ -214,10 +164,6 @@ class _$OnboardingStateImpl implements _OnboardingState {
             other is _$OnboardingStateImpl &&
             (identical(other.currentStep, currentStep) ||
                 other.currentStep == currentStep) &&
-            const DeepCollectionEquality()
-                .equals(other._selectedInterests, _selectedInterests) &&
-            const DeepCollectionEquality()
-                .equals(other._selectedCategories, _selectedCategories) &&
             (identical(other.locationPermissionGranted,
                     locationPermissionGranted) ||
                 other.locationPermissionGranted == locationPermissionGranted) &&
@@ -230,14 +176,8 @@ class _$OnboardingStateImpl implements _OnboardingState {
   }
 
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      currentStep,
-      const DeepCollectionEquality().hash(_selectedInterests),
-      const DeepCollectionEquality().hash(_selectedCategories),
-      locationPermissionGranted,
-      notificationPermissionGranted,
-      isCompleted);
+  int get hashCode => Object.hash(runtimeType, currentStep,
+      locationPermissionGranted, notificationPermissionGranted, isCompleted);
 
   @JsonKey(ignore: true)
   @override
@@ -250,18 +190,12 @@ class _$OnboardingStateImpl implements _OnboardingState {
 abstract class _OnboardingState implements OnboardingState {
   const factory _OnboardingState(
       {final int currentStep,
-      final List<String> selectedInterests,
-      final List<String> selectedCategories,
       final bool locationPermissionGranted,
       final bool notificationPermissionGranted,
       final bool isCompleted}) = _$OnboardingStateImpl;
 
   @override
   int get currentStep;
-  @override
-  List<String> get selectedInterests;
-  @override
-  List<String> get selectedCategories;
   @override
   bool get locationPermissionGranted;
   @override

@@ -363,30 +363,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get auth_deleteAccountFailed => '탈퇴 실패';
 
   @override
-  String get onboarding_cafe => '카페';
-
-  @override
-  String get onboarding_restaurant => '맛집';
-
-  @override
-  String get onboarding_date => '데이트';
-
-  @override
-  String get onboarding_view => '뷰맛집';
-
-  @override
-  String get onboarding_mood => '감성';
-
-  @override
-  String get onboarding_healing => '힐링';
-
-  @override
-  String get onboarding_activity => '액티비티';
-
-  @override
-  String get onboarding_shopping => '쇼핑';
-
-  @override
   String get common_skip => 'Skip';
 
   @override
@@ -394,12 +370,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get onboarding_welcomeDesc => 'AI가 추천하는 핫플레이스와\n나만의 데이트 코스를 만들어보세요';
-
-  @override
-  String get onboarding_selectInterests => '관심사를 선택해주세요';
-
-  @override
-  String get onboarding_interestsDesc => '선택한 관심사를 바탕으로 맞춤 장소를 추천해드려요';
 
   @override
   String get onboarding_locationTitle => '위치 권한';
@@ -413,6 +383,13 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get onboarding_locationAllow => '위치 권한 허용';
+
+  @override
+  String get onboarding_locationSettingsGuide =>
+      '위치 권한이 차단되어 있어요. 설정에서 직접 허용해 주세요.';
+
+  @override
+  String get common_openSettings => '설정 열기';
 
   @override
   String get onboarding_later => '나중에 설정하기';
@@ -519,6 +496,39 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get error_checkNetwork => '네트워크 연결을 확인해주세요.';
+
+  @override
+  String get error_unauthorized => '인증이 필요합니다. 다시 로그인해주세요.';
+
+  @override
+  String get error_unsupportedLink => '지원하지 않는 링크입니다.';
+
+  @override
+  String get error_accessDenied => '접근 권한이 없습니다.';
+
+  @override
+  String get error_archiveNotFound => '아카이브를 찾을 수 없습니다.';
+
+  @override
+  String get error_privateOrDeleted => '비공개 게시물이거나 삭제된 콘텐츠예요.';
+
+  @override
+  String get error_rateLimited => '지금 요청이 몰려있어요. 잠시 후 다시 시도해주세요.';
+
+  @override
+  String get error_serviceUnavailable => '잠시 서비스 점검 중이에요. 나중에 다시 시도해주세요.';
+
+  @override
+  String get error_unknown => '알 수 없는 오류가 발생했습니다.';
+
+  @override
+  String get error_instagramBlocked => 'Instagram 미디어에 접근할 수 없습니다.';
+
+  @override
+  String get error_instagramParseError => 'Instagram 미디어를 찾을 수 없습니다.';
+
+  @override
+  String get error_instagramDownloadError => 'Instagram 미디어 다운로드에 실패했습니다.';
 
   @override
   String get loginRequired => '로그인이 필요합니다';
@@ -961,6 +971,29 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get batch_statusIgnored => '무시됨';
+
+  @override
+  String batch_failedCount(int count) {
+    return '$count개 실패';
+  }
+
+  @override
+  String batch_progressPercent(int percent) {
+    return '$percent% 완료';
+  }
+
+  @override
+  String batch_remainingSeconds(int seconds) {
+    return '$seconds초 남음';
+  }
+
+  @override
+  String batch_remainingMinutes(int minutes) {
+    return '$minutes분 남음';
+  }
+
+  @override
+  String get batch_sharePrompt => 'Instagram, 네이버 블로그, YouTube에서\n링크를 공유해보세요';
 
   @override
   String get shareQueueBadge_tapToViewResults => '탭하여 결과를 확인하세요';

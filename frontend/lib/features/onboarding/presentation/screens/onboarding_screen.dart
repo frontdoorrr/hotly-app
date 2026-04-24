@@ -64,7 +64,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
-              children: List.generate(4, (index) {
+              children: List.generate(3, (index) {
                 return Expanded(
                   child: Container(
                     height: 4,
@@ -88,7 +88,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               onPageChanged: _onPageChanged,
               children: const [
                 _WelcomeStep(),
-                _InterestsStep(),
                 _LocationPermissionStep(),
                 _NotificationPermissionStep(),
               ],
@@ -116,12 +115,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 if (onboardingState.currentStep > 0) const SizedBox(width: 12),
                 Expanded(
                   child: AppButton(
-                    text: onboardingState.currentStep == 3
+                    text: onboardingState.currentStep == 2
                         ? context.l10n.common_start
                         : context.l10n.common_next,
                     variant: ButtonVariant.primary,
                     onPressed: () {
-                      if (onboardingState.currentStep == 3) {
+                      if (onboardingState.currentStep == 2) {
                         _handleComplete();
                       } else {
                         _pageController.nextPage(
@@ -192,86 +191,88 @@ class _WelcomeStep extends StatelessWidget {
   }
 }
 
-class _InterestsStep extends ConsumerWidget {
-  const _InterestsStep();
+class _LocationPermissionStep extends ConsumerStatefulWidget {
+  const _LocationPermissionStep();
 
-  List<String> _getInterests(BuildContext context) {
-    return [
-      context.l10n.onboarding_cafe,
-      context.l10n.onboarding_restaurant,
-      context.l10n.onboarding_date,
-      context.l10n.onboarding_view,
-      context.l10n.onboarding_mood,
-      context.l10n.onboarding_healing,
-      context.l10n.onboarding_activity,
-      context.l10n.onboarding_shopping,
-    ];
+  @override
+  ConsumerState<_LocationPermissionStep> createState() =>
+      _LocationPermissionStepState();
+}
+
+class _LocationPermissionStepState
+    extends ConsumerState<_LocationPermissionStep> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _syncStatus();
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final selectedInterests = ref.watch(
-      onboardingProvider.select((s) => s.selectedInterests),
-    );
-    final interests = _getInterests(context);
-
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            context.l10n.onboarding_selectInterests,
-            style: AppTextStyles.h2.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            context.l10n.onboarding_interestsDesc,
-            style: AppTextStyles.body2.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          ),
-          const SizedBox(height: 32),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: interests.map((interest) {
-              final isSelected = selectedInterests.contains(interest);
-              return ChoiceChip(
-                label: Text(interest),
-                selected: isSelected,
-                onSelected: (_) {
-                  ref
-                      .read(onboardingProvider.notifier)
-                      .toggleInterest(interest);
-                },
-                selectedColor: AppColors.primary,
-                labelStyle: AppTextStyles.button.copyWith(
-                  color: isSelected ? Colors.white : AppColors.textPrimary,
-                ),
-              );
-            }).toList(),
-          ),
-        ],
-      ),
-    );
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
-}
 
-class _LocationPermissionStep extends ConsumerWidget {
-  const _LocationPermissionStep();
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _syncStatus();
+    }
+  }
 
-  Future<void> _requestLocationPermission(WidgetRef ref) async {
-    final status = await Permission.location.request();
+  Future<void> _syncStatus() async {
+    final status = await Permission.location.status;
+    if (!mounted) return;
     ref
         .read(onboardingProvider.notifier)
         .setLocationPermission(status.isGranted);
   }
 
+  Future<void> _requestLocationPermission() async {
+    final current = await Permission.location.status;
+    var status = current;
+    if (!current.isGranted && !current.isPermanentlyDenied) {
+      status = await Permission.location.request();
+    }
+
+    if (!mounted) return;
+    ref
+        .read(onboardingProvider.notifier)
+        .setLocationPermission(status.isGranted);
+
+    if (status.isPermanentlyDenied || status.isRestricted) {
+      await _showOpenSettingsDialog();
+    }
+  }
+
+  Future<void> _showOpenSettingsDialog() async {
+    final shouldOpen = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(dialogContext.l10n.onboarding_locationTitle),
+          content: Text(dialogContext.l10n.onboarding_locationSettingsGuide),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(dialogContext.l10n.common_cancel),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(dialogContext.l10n.common_openSettings),
+            ),
+          ],
+        );
+      },
+    );
+    if (shouldOpen ?? false) {
+      await openAppSettings();
+    }
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final granted = ref.watch(
       onboardingProvider.select((s) => s.locationPermissionGranted),
     );
@@ -309,7 +310,7 @@ class _LocationPermissionStep extends ConsumerWidget {
                 ? context.l10n.onboarding_permissionGranted
                 : context.l10n.onboarding_locationAllow,
             variant: granted ? ButtonVariant.secondary : ButtonVariant.primary,
-            onPressed: granted ? null : () => _requestLocationPermission(ref),
+            onPressed: granted ? null : _requestLocationPermission,
           ),
           const SizedBox(height: 16),
           TextButton(

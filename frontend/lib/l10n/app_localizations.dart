@@ -800,54 +800,6 @@ abstract class AppLocalizations {
   /// **'탈퇴 실패'**
   String get auth_deleteAccountFailed;
 
-  /// 온보딩 관심사 - 카페
-  ///
-  /// In ko, this message translates to:
-  /// **'카페'**
-  String get onboarding_cafe;
-
-  /// 온보딩 관심사 - 맛집
-  ///
-  /// In ko, this message translates to:
-  /// **'맛집'**
-  String get onboarding_restaurant;
-
-  /// 온보딩 관심사 - 데이트
-  ///
-  /// In ko, this message translates to:
-  /// **'데이트'**
-  String get onboarding_date;
-
-  /// 온보딩 관심사 - 뷰맛집
-  ///
-  /// In ko, this message translates to:
-  /// **'뷰맛집'**
-  String get onboarding_view;
-
-  /// 온보딩 관심사 - 감성
-  ///
-  /// In ko, this message translates to:
-  /// **'감성'**
-  String get onboarding_mood;
-
-  /// 온보딩 관심사 - 힐링
-  ///
-  /// In ko, this message translates to:
-  /// **'힐링'**
-  String get onboarding_healing;
-
-  /// 온보딩 관심사 - 액티비티
-  ///
-  /// In ko, this message translates to:
-  /// **'액티비티'**
-  String get onboarding_activity;
-
-  /// 온보딩 관심사 - 쇼핑
-  ///
-  /// In ko, this message translates to:
-  /// **'쇼핑'**
-  String get onboarding_shopping;
-
   /// 건너뛰기 버튼
   ///
   /// In ko, this message translates to:
@@ -865,18 +817,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'AI가 추천하는 핫플레이스와\n나만의 데이트 코스를 만들어보세요'**
   String get onboarding_welcomeDesc;
-
-  /// 관심사 선택 제목
-  ///
-  /// In ko, this message translates to:
-  /// **'관심사를 선택해주세요'**
-  String get onboarding_selectInterests;
-
-  /// 관심사 선택 설명
-  ///
-  /// In ko, this message translates to:
-  /// **'선택한 관심사를 바탕으로 맞춤 장소를 추천해드려요'**
-  String get onboarding_interestsDesc;
 
   /// 위치 권한 제목
   ///
@@ -901,6 +841,18 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'위치 권한 허용'**
   String get onboarding_locationAllow;
+
+  /// 위치 권한 영구 거부 시 설정 안내
+  ///
+  /// In ko, this message translates to:
+  /// **'위치 권한이 차단되어 있어요. 설정에서 직접 허용해 주세요.'**
+  String get onboarding_locationSettingsGuide;
+
+  /// 앱 설정 열기 버튼
+  ///
+  /// In ko, this message translates to:
+  /// **'설정 열기'**
+  String get common_openSettings;
 
   /// 나중에 설정하기 버튼
   ///
@@ -1111,6 +1063,72 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'네트워크 연결을 확인해주세요.'**
   String get error_checkNetwork;
+
+  /// No description provided for @error_unauthorized.
+  ///
+  /// In ko, this message translates to:
+  /// **'인증이 필요합니다. 다시 로그인해주세요.'**
+  String get error_unauthorized;
+
+  /// No description provided for @error_unsupportedLink.
+  ///
+  /// In ko, this message translates to:
+  /// **'지원하지 않는 링크입니다.'**
+  String get error_unsupportedLink;
+
+  /// No description provided for @error_accessDenied.
+  ///
+  /// In ko, this message translates to:
+  /// **'접근 권한이 없습니다.'**
+  String get error_accessDenied;
+
+  /// No description provided for @error_archiveNotFound.
+  ///
+  /// In ko, this message translates to:
+  /// **'아카이브를 찾을 수 없습니다.'**
+  String get error_archiveNotFound;
+
+  /// No description provided for @error_privateOrDeleted.
+  ///
+  /// In ko, this message translates to:
+  /// **'비공개 게시물이거나 삭제된 콘텐츠예요.'**
+  String get error_privateOrDeleted;
+
+  /// No description provided for @error_rateLimited.
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 요청이 몰려있어요. 잠시 후 다시 시도해주세요.'**
+  String get error_rateLimited;
+
+  /// No description provided for @error_serviceUnavailable.
+  ///
+  /// In ko, this message translates to:
+  /// **'잠시 서비스 점검 중이에요. 나중에 다시 시도해주세요.'**
+  String get error_serviceUnavailable;
+
+  /// No description provided for @error_unknown.
+  ///
+  /// In ko, this message translates to:
+  /// **'알 수 없는 오류가 발생했습니다.'**
+  String get error_unknown;
+
+  /// No description provided for @error_instagramBlocked.
+  ///
+  /// In ko, this message translates to:
+  /// **'Instagram 미디어에 접근할 수 없습니다.'**
+  String get error_instagramBlocked;
+
+  /// No description provided for @error_instagramParseError.
+  ///
+  /// In ko, this message translates to:
+  /// **'Instagram 미디어를 찾을 수 없습니다.'**
+  String get error_instagramParseError;
+
+  /// No description provided for @error_instagramDownloadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'Instagram 미디어 다운로드에 실패했습니다.'**
+  String get error_instagramDownloadError;
 
   /// No description provided for @loginRequired.
   ///
@@ -1969,6 +1987,36 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'무시됨'**
   String get batch_statusIgnored;
+
+  /// No description provided for @batch_failedCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}개 실패'**
+  String batch_failedCount(int count);
+
+  /// No description provided for @batch_progressPercent.
+  ///
+  /// In ko, this message translates to:
+  /// **'{percent}% 완료'**
+  String batch_progressPercent(int percent);
+
+  /// No description provided for @batch_remainingSeconds.
+  ///
+  /// In ko, this message translates to:
+  /// **'{seconds}초 남음'**
+  String batch_remainingSeconds(int seconds);
+
+  /// No description provided for @batch_remainingMinutes.
+  ///
+  /// In ko, this message translates to:
+  /// **'{minutes}분 남음'**
+  String batch_remainingMinutes(int minutes);
+
+  /// No description provided for @batch_sharePrompt.
+  ///
+  /// In ko, this message translates to:
+  /// **'Instagram, 네이버 블로그, YouTube에서\n링크를 공유해보세요'**
+  String get batch_sharePrompt;
 
   /// No description provided for @shareQueueBadge_tapToViewResults.
   ///

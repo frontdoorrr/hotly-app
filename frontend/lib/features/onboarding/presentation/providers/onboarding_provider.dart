@@ -8,8 +8,6 @@ part 'onboarding_provider.freezed.dart';
 class OnboardingState with _$OnboardingState {
   const factory OnboardingState({
     @Default(0) int currentStep,
-    @Default([]) List<String> selectedInterests,
-    @Default([]) List<String> selectedCategories,
     @Default(false) bool locationPermissionGranted,
     @Default(false) bool notificationPermissionGranted,
     @Default(false) bool isCompleted,
@@ -22,7 +20,7 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
   OnboardingNotifier(this._localStorage) : super(const OnboardingState());
 
   void nextStep() {
-    if (state.currentStep < 3) {
+    if (state.currentStep < 2) {
       state = state.copyWith(currentStep: state.currentStep + 1);
     }
   }
@@ -35,26 +33,6 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
 
   void goToStep(int step) {
     state = state.copyWith(currentStep: step);
-  }
-
-  void toggleInterest(String interest) {
-    final interests = List<String>.from(state.selectedInterests);
-    if (interests.contains(interest)) {
-      interests.remove(interest);
-    } else {
-      interests.add(interest);
-    }
-    state = state.copyWith(selectedInterests: interests);
-  }
-
-  void toggleCategory(String category) {
-    final categories = List<String>.from(state.selectedCategories);
-    if (categories.contains(category)) {
-      categories.remove(category);
-    } else {
-      categories.add(category);
-    }
-    state = state.copyWith(selectedCategories: categories);
   }
 
   void setLocationPermission(bool granted) {
