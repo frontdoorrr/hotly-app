@@ -63,7 +63,7 @@ import 'app_localizations_ko.dart';
 /// property.
 abstract class AppLocalizations {
   AppLocalizations(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -86,16 +86,16 @@ abstract class AppLocalizations {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-        delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ];
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('ko'),
+    Locale('ko')
   ];
 
   /// 앱 이름
@@ -1748,6 +1748,36 @@ abstract class AppLocalizations {
   /// **'장소, 주소 검색'**
   String get map_searchHint;
 
+  /// No description provided for @map_openInKakaoMap.
+  ///
+  /// In ko, this message translates to:
+  /// **'카카오맵에서 열기'**
+  String get map_openInKakaoMap;
+
+  /// No description provided for @map_cannotOpenExternal.
+  ///
+  /// In ko, this message translates to:
+  /// **'외부 앱을 열 수 없습니다'**
+  String get map_cannotOpenExternal;
+
+  /// No description provided for @map_phone.
+  ///
+  /// In ko, this message translates to:
+  /// **'전화'**
+  String get map_phone;
+
+  /// No description provided for @map_roadAddress.
+  ///
+  /// In ko, this message translates to:
+  /// **'도로명'**
+  String get map_roadAddress;
+
+  /// No description provided for @map_category.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리'**
+  String get map_category;
+
   /// No description provided for @common_delete.
   ///
   /// In ko, this message translates to:
@@ -2178,9 +2208,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-    'an issue with the localizations generation tool. Please file an issue '
-    'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
-  );
+      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+      'an issue with the localizations generation tool. Please file an issue '
+      'on GitHub with a reproducible sample app and the gen-l10n configuration '
+      'that was used.');
 }

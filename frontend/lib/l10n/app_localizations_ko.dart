@@ -846,6 +846,21 @@ class AppLocalizationsKo extends AppLocalizations {
   String get map_searchHint => '장소, 주소 검색';
 
   @override
+  String get map_openInKakaoMap => '카카오맵에서 열기';
+
+  @override
+  String get map_cannotOpenExternal => '외부 앱을 열 수 없습니다';
+
+  @override
+  String get map_phone => '전화';
+
+  @override
+  String get map_roadAddress => '도로명';
+
+  @override
+  String get map_category => '카테고리';
+
+  @override
   String get common_delete => '삭제';
 
   @override

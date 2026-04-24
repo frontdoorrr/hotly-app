@@ -320,6 +320,11 @@
   "map_noTagPlaces": "No places for this tag.",
   "map_clearFilters": "Clear Filters",
   "map_searchHint": "Search places, addresses",
+  "map_openInKakaoMap": "Open in Kakao Map",
+  "map_cannotOpenExternal": "Cannot open external app",
+  "map_phone": "Phone",
+  "map_roadAddress": "Road",
+  "map_category": "Category",
 
   "common_delete": "Delete",
   "common_viewDetail": "View Details",
