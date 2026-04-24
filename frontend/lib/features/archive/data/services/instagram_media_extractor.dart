@@ -67,23 +67,23 @@ class InstagramMediaExtractor {
 
   Future<InstagramExtractResult> extract(String url) async {
     if (!_isValidInstagramUrl(url)) {
-      throw const InstagramParseError('Instagram URL이 아닙니다');
+      throw const InstagramParseError('Not a valid Instagram URL');
     }
     // Stories는 og 태그를 노출하지 않으므로 조기 반환
     if (url.contains('/stories/')) {
-      throw const InstagramParseError('Instagram Stories는 지원하지 않습니다');
+      throw const InstagramParseError('Instagram Stories are not supported');
     }
 
     final html = await _fetchPageHtml(url);
     final mediaUrls = _parseOgMediaUrls(html);
 
     if (mediaUrls.isEmpty) {
-      throw const InstagramParseError('Instagram 미디어를 찾을 수 없습니다');
+      throw const InstagramParseError('No Instagram media found');
     }
 
     final validUrls = mediaUrls.where(_isValidMediaUrl).toList();
     if (validUrls.isEmpty) {
-      throw const InstagramParseError('허용되지 않은 미디어 호스트에서 미디어를 찾을 수 없습니다');
+      throw const InstagramParseError('No media found from allowed hosts');
     }
 
     final files = await Future.wait(
@@ -122,10 +122,10 @@ class InstagramMediaExtractor {
       final response = await request.close();
 
       if (response.statusCode == 403 || response.statusCode == 401) {
-        throw InstagramBlockedError('Instagram 페이지 접근이 차단되었습니다 (${response.statusCode})');
+        throw InstagramBlockedError('Instagram page access blocked (${response.statusCode})');
       }
       if (response.statusCode != 200) {
-        throw InstagramBlockedError('Instagram 페이지 요청 실패 (${response.statusCode})');
+        throw InstagramBlockedError('Instagram page request failed (${response.statusCode})');
       }
 
       final buffer = StringBuffer();
@@ -136,7 +136,7 @@ class InstagramMediaExtractor {
     } on InstagramBlockedError {
       rethrow;
     } on SocketException catch (e) {
-      throw InstagramBlockedError('네트워크 연결 실패: $e');
+      throw InstagramBlockedError('Network error: $e');
     } finally {
       client.close();
     }
@@ -207,14 +207,14 @@ class InstagramMediaExtractor {
 
       final response = await request.close();
       if (response.statusCode != 200) {
-        throw InstagramMediaDownloadError('미디어 다운로드 실패 (${response.statusCode}): $url');
+        throw InstagramMediaDownloadError('Media download failed (${response.statusCode}): $url');
       }
 
       final builder = BytesBuilder();
       await for (final chunk in response) {
         builder.add(chunk);
         if (builder.length > _maxFileSizeBytes) {
-          throw InstagramMediaDownloadError('파일 크기가 100MB를 초과합니다: $url');
+          throw InstagramMediaDownloadError('File size exceeds 100MB: $url');
         }
       }
 
@@ -226,7 +226,7 @@ class InstagramMediaExtractor {
     } on InstagramMediaDownloadError {
       rethrow;
     } on SocketException catch (e) {
-      throw InstagramMediaDownloadError('네트워크 연결 실패: $e');
+      throw InstagramMediaDownloadError('Network error: $e');
     } finally {
       client.close();
     }
