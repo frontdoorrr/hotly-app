@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/l10n_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/archived_content.dart';
@@ -19,6 +20,9 @@ class ArchiveResultCard extends StatelessWidget {
     required this.content,
     this.compact = false,
   });
+
+  /// 장소는 '할 일' / '인사이트' 섹션이 의미 없으므로 숨긴다.
+  bool get _hidesTodoAndInsights => content.contentType == 'place';
 
   @override
   Widget build(BuildContext context) {
@@ -45,10 +49,12 @@ class ArchiveResultCard extends StatelessWidget {
           _buildKeywords(),
         ],
 
-        // Todos/Insights (compact 아닐 때만)
-        if (!compact && content.todos.isNotEmpty) ...[
+        // Todos (장소 제외, compact 아닐 때만)
+        if (!compact &&
+            !_hidesTodoAndInsights &&
+            content.todos.isNotEmpty) ...[
           const SizedBox(height: 12),
-          _buildTodos(),
+          _buildTodos(context),
         ],
       ],
     );
@@ -181,11 +187,11 @@ class ArchiveResultCard extends StatelessWidget {
     );
   }
 
-  Widget _buildTodos() {
+  Widget _buildTodos(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('할 일', style: AppTextStyles.h4),
+        Text(context.l10n.archive_todos, style: AppTextStyles.h4),
         const SizedBox(height: 8),
         ...content.todos.take(3).map(
               (todo) => Padding(

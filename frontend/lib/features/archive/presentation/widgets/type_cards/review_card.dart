@@ -11,9 +11,9 @@ class ReviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final pros = (data['pros'] as List?)?.cast<String>();
-    final cons = (data['cons'] as List?)?.cast<String>();
-    final recommendedFor = (data['recommended_for'] as List?)?.cast<String>();
+    final pros = _parseStringList(data['pros']);
+    final cons = _parseStringList(data['cons']);
+    final recommendedFor = _parseStringList(data['recommended_for']);
     final priceAmount = data['price'];
     final priceCurrency = (data['price_currency'] as String?) ?? 'KRW';
     final rating = (data['rating'] as num?)?.toDouble();
@@ -181,4 +181,16 @@ class _BulletRow extends StatelessWidget {
       ),
     );
   }
+}
+
+List<String>? _parseStringList(Object? raw) {
+  if (raw == null) return null;
+  if (raw is List) {
+    return raw
+        .where((e) => e != null)
+        .map((e) => e.toString())
+        .where((s) => s.isNotEmpty)
+        .toList();
+  }
+  return null;
 }

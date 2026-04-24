@@ -36,6 +36,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get common_refresh => 'Refresh';
 
   @override
+  String get common_apply => 'Apply';
+
+  @override
   String get common_retry => 'Retry';
 
   @override
@@ -662,6 +665,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get archive_insights => 'Insights';
 
   @override
+  String get archive_todos => 'Todos';
+
+  @override
+  String get archive_reanalyzeInCurrentLanguage =>
+      'Re-analyze in current language';
+
+  @override
+  String get archive_reanalyzing => 'Re-analyzing…';
+
+  @override
+  String get archive_reanalyzeSuccess => 'Re-analyzed successfully';
+
+  @override
+  String get archive_reanalyzeFailed => 'Failed to re-analyze';
+
+  @override
   String get archive_relatedKeywords => 'Related Keywords';
 
   @override
@@ -757,6 +776,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get place_visitTips => 'Visit Tips';
+
+  @override
+  String place_priceWon(String amount) {
+    return '$amount KRW';
+  }
 
   @override
   String get review_pros => 'Pros';

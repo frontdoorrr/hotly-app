@@ -42,6 +42,7 @@
   },
 
   "common_refresh": "새로고침",
+  "common_apply": "적용",
   "@common_refresh": {
     "description": "새로고침 버튼"
   },
@@ -769,6 +770,11 @@
   "archive_detailTitle": "아카이브 상세",
   "archive_delete": "삭제",
   "archive_insights": "인사이트",
+  "archive_todos": "할 일",
+  "archive_reanalyzeInCurrentLanguage": "현재 언어로 다시 분석",
+  "archive_reanalyzing": "다시 분석 중…",
+  "archive_reanalyzeSuccess": "다시 분석했어요",
+  "archive_reanalyzeFailed": "다시 분석하지 못했어요",
   "archive_relatedKeywords": "관련 키워드",
   "archive_platform": "플랫폼",
   "archive_author": "작성자",
@@ -806,6 +812,12 @@
   "place_reservationRequired": "사전 예약 필요",
   "place_menu": "메뉴",
   "place_visitTips": "방문 팁",
+  "place_priceWon": "{amount}원",
+  "@place_priceWon": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
 
   "review_pros": "장점",
   "review_cons": "단점",

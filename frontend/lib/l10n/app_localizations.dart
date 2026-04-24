@@ -63,7 +63,7 @@ import 'app_localizations_ko.dart';
 /// property.
 abstract class AppLocalizations {
   AppLocalizations(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -86,16 +86,16 @@ abstract class AppLocalizations {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('ko')
+    Locale('ko'),
   ];
 
   /// 앱 이름
@@ -151,6 +151,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'새로고침'**
   String get common_refresh;
+
+  /// No description provided for @common_apply.
+  ///
+  /// In ko, this message translates to:
+  /// **'적용'**
+  String get common_apply;
 
   /// 재시도 버튼
   ///
@@ -1364,6 +1370,36 @@ abstract class AppLocalizations {
   /// **'인사이트'**
   String get archive_insights;
 
+  /// No description provided for @archive_todos.
+  ///
+  /// In ko, this message translates to:
+  /// **'할 일'**
+  String get archive_todos;
+
+  /// No description provided for @archive_reanalyzeInCurrentLanguage.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 언어로 다시 분석'**
+  String get archive_reanalyzeInCurrentLanguage;
+
+  /// No description provided for @archive_reanalyzing.
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 분석 중…'**
+  String get archive_reanalyzing;
+
+  /// No description provided for @archive_reanalyzeSuccess.
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 분석했어요'**
+  String get archive_reanalyzeSuccess;
+
+  /// No description provided for @archive_reanalyzeFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 분석하지 못했어요'**
+  String get archive_reanalyzeFailed;
+
   /// No description provided for @archive_relatedKeywords.
   ///
   /// In ko, this message translates to:
@@ -1555,6 +1591,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'방문 팁'**
   String get place_visitTips;
+
+  /// No description provided for @place_priceWon.
+  ///
+  /// In ko, this message translates to:
+  /// **'{amount}원'**
+  String place_priceWon(String amount);
 
   /// No description provided for @review_pros.
   ///
@@ -2088,8 +2130,9 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
 }

@@ -36,6 +36,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get common_refresh => '새로고침';
 
   @override
+  String get common_apply => '적용';
+
+  @override
   String get common_retry => '다시 시도';
 
   @override
@@ -650,6 +653,21 @@ class AppLocalizationsKo extends AppLocalizations {
   String get archive_insights => '인사이트';
 
   @override
+  String get archive_todos => '할 일';
+
+  @override
+  String get archive_reanalyzeInCurrentLanguage => '현재 언어로 다시 분석';
+
+  @override
+  String get archive_reanalyzing => '다시 분석 중…';
+
+  @override
+  String get archive_reanalyzeSuccess => '다시 분석했어요';
+
+  @override
+  String get archive_reanalyzeFailed => '다시 분석하지 못했어요';
+
+  @override
   String get archive_relatedKeywords => '관련 키워드';
 
   @override
@@ -745,6 +763,11 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get place_visitTips => '방문 팁';
+
+  @override
+  String place_priceWon(String amount) {
+    return '$amount원';
+  }
 
   @override
   String get review_pros => '장점';

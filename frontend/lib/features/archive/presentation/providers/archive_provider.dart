@@ -37,7 +37,19 @@ class ArchiveInputNotifier extends StateNotifier<ArchiveInputState> {
 
     result.fold(
       (error) => state = state.copyWith(isLoading: false, error: error.toString()),
-      (content) => state = state.copyWith(isLoading: false, result: content),
+      (content) {
+        state = state.copyWith(isLoading: false, result: content);
+        _notifyArchiveSaved();
+      },
+    );
+  }
+
+  /// 아카이브 저장 성공 시 목록/홈 프로바이더에 새 항목 반영.
+  void _notifyArchiveSaved() {
+    _ref.invalidate(recentArchiveProvider);
+    // 목록은 notifier가 살아있는 경우만 새로고침 (listen 하지 않음).
+    Future.microtask(
+      () => _ref.read(archiveListProvider.notifier).load(refresh: true),
     );
   }
 
