@@ -843,6 +843,11 @@
   "map_noTagPlaces": "해당 태그의 장소가 없습니다.",
   "map_clearFilters": "필터 초기화",
   "map_searchHint": "장소, 주소 검색",
+  "map_openInKakaoMap": "카카오맵에서 열기",
+  "map_cannotOpenExternal": "외부 앱을 열 수 없습니다",
+  "map_phone": "전화",
+  "map_roadAddress": "도로명",
+  "map_category": "카테고리",
 
   "common_delete": "삭제",
   "common_viewDetail": "상세보기",

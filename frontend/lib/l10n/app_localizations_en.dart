@@ -836,6 +836,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get map_searchHint => 'Search places, addresses';
 
   @override
+  String get map_openInKakaoMap => 'Open in Kakao Map';
+
+  @override
+  String get map_cannotOpenExternal => 'Cannot open external app';
+
+  @override
+  String get map_phone => 'Phone';
+
+  @override
+  String get map_roadAddress => 'Road';
+
+  @override
+  String get map_category => 'Category';
+
+  @override
   String get common_delete => 'Delete';
 
   @override
