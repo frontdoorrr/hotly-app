@@ -365,30 +365,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auth_deleteAccountFailed => 'Delete failed';
 
   @override
-  String get onboarding_cafe => 'Cafe';
-
-  @override
-  String get onboarding_restaurant => 'Restaurant';
-
-  @override
-  String get onboarding_date => 'Date';
-
-  @override
-  String get onboarding_view => 'Scenic';
-
-  @override
-  String get onboarding_mood => 'Mood';
-
-  @override
-  String get onboarding_healing => 'Healing';
-
-  @override
-  String get onboarding_activity => 'Activity';
-
-  @override
-  String get onboarding_shopping => 'Shopping';
-
-  @override
   String get common_skip => 'Skip';
 
   @override
@@ -397,13 +373,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get onboarding_welcomeDesc =>
       'Discover AI-recommended hot places\nand create your own date courses';
-
-  @override
-  String get onboarding_selectInterests => 'Select your interests';
-
-  @override
-  String get onboarding_interestsDesc =>
-      'We\'ll recommend places based on your interests';
 
   @override
   String get onboarding_locationTitle => 'Location Permission';
@@ -417,6 +386,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboarding_locationAllow => 'Allow Location';
+
+  @override
+  String get onboarding_locationSettingsGuide =>
+      'Location permission is blocked. Please enable it from Settings.';
+
+  @override
+  String get common_openSettings => 'Open Settings';
 
   @override
   String get onboarding_later => 'Set up later';
@@ -526,6 +502,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get error_checkNetwork => 'Please check your network connection.';
+
+  @override
+  String get error_unauthorized =>
+      'Authentication required. Please log in again.';
+
+  @override
+  String get error_unsupportedLink => 'This link is not supported.';
+
+  @override
+  String get error_accessDenied => 'You don\'t have permission to access this.';
+
+  @override
+  String get error_archiveNotFound => 'Archive not found.';
+
+  @override
+  String get error_privateOrDeleted =>
+      'This post is private or has been deleted.';
+
+  @override
+  String get error_rateLimited =>
+      'Too many requests. Please try again in a moment.';
+
+  @override
+  String get error_serviceUnavailable =>
+      'Service is temporarily unavailable. Please try again later.';
+
+  @override
+  String get error_unknown => 'An unknown error occurred.';
+
+  @override
+  String get error_instagramBlocked => 'Unable to access Instagram media.';
+
+  @override
+  String get error_instagramParseError => 'Instagram media not found.';
+
+  @override
+  String get error_instagramDownloadError =>
+      'Failed to download Instagram media.';
 
   @override
   String get loginRequired => 'Login required';
@@ -970,6 +984,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get batch_statusIgnored => 'Ignored';
+
+  @override
+  String batch_failedCount(int count) {
+    return '$count failed';
+  }
+
+  @override
+  String batch_progressPercent(int percent) {
+    return '$percent% complete';
+  }
+
+  @override
+  String batch_remainingSeconds(int seconds) {
+    return '${seconds}s remaining';
+  }
+
+  @override
+  String batch_remainingMinutes(int minutes) {
+    return '${minutes}m remaining';
+  }
+
+  @override
+  String get batch_sharePrompt =>
+      'Share links from Instagram,\nNaver Blog, or YouTube';
 
   @override
   String get shareQueueBadge_tapToViewResults => 'Tap to view results';
