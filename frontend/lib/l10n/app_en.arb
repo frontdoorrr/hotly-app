@@ -11,6 +11,7 @@
   "common_previous": "Previous",
   "common_start": "Get Started",
   "common_refresh": "Refresh",
+  "common_apply": "Apply",
   "common_retry": "Retry",
   "common_all": "All",
   "common_more": "More",
@@ -197,7 +198,7 @@
   "error_unknown": "An unknown error occurred.",
   "error_instagramBlocked": "Unable to access Instagram media.",
   "error_instagramParseError": "Instagram media not found.",
-  "error_instagramDownloadError": "Failed to download Instagram media."
+  "error_instagramDownloadError": "Failed to download Instagram media.",
 
   "loginRequired": "Login required",
   "loginButton": "Log in",
@@ -246,6 +247,11 @@
   "archive_detailTitle": "Archive Detail",
   "archive_delete": "Delete",
   "archive_insights": "Insights",
+  "archive_todos": "Todos",
+  "archive_reanalyzeInCurrentLanguage": "Re-analyze in current language",
+  "archive_reanalyzing": "Re-analyzing…",
+  "archive_reanalyzeSuccess": "Re-analyzed successfully",
+  "archive_reanalyzeFailed": "Failed to re-analyze",
   "archive_relatedKeywords": "Related Keywords",
   "archive_platform": "Platform",
   "archive_author": "Author",
@@ -283,6 +289,12 @@
   "place_reservationRequired": "Reservation required",
   "place_menu": "Menu",
   "place_visitTips": "Visit Tips",
+  "place_priceWon": "{amount} KRW",
+  "@place_priceWon": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
 
   "review_pros": "Pros",
   "review_cons": "Cons",

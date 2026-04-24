@@ -36,6 +36,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get common_refresh => 'Refresh';
 
   @override
+  String get common_apply => 'Apply';
+
+  @override
   String get common_retry => 'Retry';
 
   @override
@@ -528,6 +531,44 @@ class AppLocalizationsEn extends AppLocalizations {
   String get error_checkNetwork => 'Please check your network connection.';
 
   @override
+  String get error_unauthorized =>
+      'Authentication required. Please log in again.';
+
+  @override
+  String get error_unsupportedLink => 'This link is not supported.';
+
+  @override
+  String get error_accessDenied => 'You don\'t have permission to access this.';
+
+  @override
+  String get error_archiveNotFound => 'Archive not found.';
+
+  @override
+  String get error_privateOrDeleted =>
+      'This post is private or has been deleted.';
+
+  @override
+  String get error_rateLimited =>
+      'Too many requests. Please try again in a moment.';
+
+  @override
+  String get error_serviceUnavailable =>
+      'Service is temporarily unavailable. Please try again later.';
+
+  @override
+  String get error_unknown => 'An unknown error occurred.';
+
+  @override
+  String get error_instagramBlocked => 'Unable to access Instagram media.';
+
+  @override
+  String get error_instagramParseError => 'Instagram media not found.';
+
+  @override
+  String get error_instagramDownloadError =>
+      'Failed to download Instagram media.';
+
+  @override
   String get loginRequired => 'Login required';
 
   @override
@@ -648,6 +689,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get archive_insights => 'Insights';
 
   @override
+  String get archive_todos => 'Todos';
+
+  @override
+  String get archive_reanalyzeInCurrentLanguage =>
+      'Re-analyze in current language';
+
+  @override
+  String get archive_reanalyzing => 'Re-analyzing…';
+
+  @override
+  String get archive_reanalyzeSuccess => 'Re-analyzed successfully';
+
+  @override
+  String get archive_reanalyzeFailed => 'Failed to re-analyze';
+
+  @override
   String get archive_relatedKeywords => 'Related Keywords';
 
   @override
@@ -743,6 +800,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get place_visitTips => 'Visit Tips';
+
+  @override
+  String place_priceWon(String amount) {
+    return '$amount KRW';
+  }
 
   @override
   String get review_pros => 'Pros';
@@ -970,6 +1032,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get batch_statusIgnored => 'Ignored';
+
+  @override
+  String batch_failedCount(int count) {
+    return '$count failed';
+  }
+
+  @override
+  String batch_progressPercent(int percent) {
+    return '$percent% complete';
+  }
+
+  @override
+  String batch_remainingSeconds(int seconds) {
+    return '${seconds}s remaining';
+  }
+
+  @override
+  String batch_remainingMinutes(int minutes) {
+    return '${minutes}m remaining';
+  }
+
+  @override
+  String get batch_sharePrompt =>
+      'Share links from Instagram,\nNaver Blog, or YouTube';
 
   @override
   String get shareQueueBadge_tapToViewResults => 'Tap to view results';

@@ -63,7 +63,7 @@ import 'app_localizations_ko.dart';
 /// property.
 abstract class AppLocalizations {
   AppLocalizations(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -86,16 +86,16 @@ abstract class AppLocalizations {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('ko')
+    Locale('ko'),
   ];
 
   /// 앱 이름
@@ -151,6 +151,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'새로고침'**
   String get common_refresh;
+
+  /// No description provided for @common_apply.
+  ///
+  /// In ko, this message translates to:
+  /// **'적용'**
+  String get common_apply;
 
   /// 재시도 버튼
   ///
@@ -1112,6 +1118,72 @@ abstract class AppLocalizations {
   /// **'네트워크 연결을 확인해주세요.'**
   String get error_checkNetwork;
 
+  /// No description provided for @error_unauthorized.
+  ///
+  /// In ko, this message translates to:
+  /// **'인증이 필요합니다. 다시 로그인해주세요.'**
+  String get error_unauthorized;
+
+  /// No description provided for @error_unsupportedLink.
+  ///
+  /// In ko, this message translates to:
+  /// **'지원하지 않는 링크입니다.'**
+  String get error_unsupportedLink;
+
+  /// No description provided for @error_accessDenied.
+  ///
+  /// In ko, this message translates to:
+  /// **'접근 권한이 없습니다.'**
+  String get error_accessDenied;
+
+  /// No description provided for @error_archiveNotFound.
+  ///
+  /// In ko, this message translates to:
+  /// **'아카이브를 찾을 수 없습니다.'**
+  String get error_archiveNotFound;
+
+  /// No description provided for @error_privateOrDeleted.
+  ///
+  /// In ko, this message translates to:
+  /// **'비공개 게시물이거나 삭제된 콘텐츠예요.'**
+  String get error_privateOrDeleted;
+
+  /// No description provided for @error_rateLimited.
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 요청이 몰려있어요. 잠시 후 다시 시도해주세요.'**
+  String get error_rateLimited;
+
+  /// No description provided for @error_serviceUnavailable.
+  ///
+  /// In ko, this message translates to:
+  /// **'잠시 서비스 점검 중이에요. 나중에 다시 시도해주세요.'**
+  String get error_serviceUnavailable;
+
+  /// No description provided for @error_unknown.
+  ///
+  /// In ko, this message translates to:
+  /// **'알 수 없는 오류가 발생했습니다.'**
+  String get error_unknown;
+
+  /// No description provided for @error_instagramBlocked.
+  ///
+  /// In ko, this message translates to:
+  /// **'Instagram 미디어에 접근할 수 없습니다.'**
+  String get error_instagramBlocked;
+
+  /// No description provided for @error_instagramParseError.
+  ///
+  /// In ko, this message translates to:
+  /// **'Instagram 미디어를 찾을 수 없습니다.'**
+  String get error_instagramParseError;
+
+  /// No description provided for @error_instagramDownloadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'Instagram 미디어 다운로드에 실패했습니다.'**
+  String get error_instagramDownloadError;
+
   /// No description provided for @loginRequired.
   ///
   /// In ko, this message translates to:
@@ -1346,6 +1418,36 @@ abstract class AppLocalizations {
   /// **'인사이트'**
   String get archive_insights;
 
+  /// No description provided for @archive_todos.
+  ///
+  /// In ko, this message translates to:
+  /// **'할 일'**
+  String get archive_todos;
+
+  /// No description provided for @archive_reanalyzeInCurrentLanguage.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 언어로 다시 분석'**
+  String get archive_reanalyzeInCurrentLanguage;
+
+  /// No description provided for @archive_reanalyzing.
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 분석 중…'**
+  String get archive_reanalyzing;
+
+  /// No description provided for @archive_reanalyzeSuccess.
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 분석했어요'**
+  String get archive_reanalyzeSuccess;
+
+  /// No description provided for @archive_reanalyzeFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 분석하지 못했어요'**
+  String get archive_reanalyzeFailed;
+
   /// No description provided for @archive_relatedKeywords.
   ///
   /// In ko, this message translates to:
@@ -1537,6 +1639,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'방문 팁'**
   String get place_visitTips;
+
+  /// No description provided for @place_priceWon.
+  ///
+  /// In ko, this message translates to:
+  /// **'{amount}원'**
+  String place_priceWon(String amount);
 
   /// No description provided for @review_pros.
   ///
@@ -1970,6 +2078,36 @@ abstract class AppLocalizations {
   /// **'무시됨'**
   String get batch_statusIgnored;
 
+  /// No description provided for @batch_failedCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}개 실패'**
+  String batch_failedCount(int count);
+
+  /// No description provided for @batch_progressPercent.
+  ///
+  /// In ko, this message translates to:
+  /// **'{percent}% 완료'**
+  String batch_progressPercent(int percent);
+
+  /// No description provided for @batch_remainingSeconds.
+  ///
+  /// In ko, this message translates to:
+  /// **'{seconds}초 남음'**
+  String batch_remainingSeconds(int seconds);
+
+  /// No description provided for @batch_remainingMinutes.
+  ///
+  /// In ko, this message translates to:
+  /// **'{minutes}분 남음'**
+  String batch_remainingMinutes(int minutes);
+
+  /// No description provided for @batch_sharePrompt.
+  ///
+  /// In ko, this message translates to:
+  /// **'Instagram, 네이버 블로그, YouTube에서\n링크를 공유해보세요'**
+  String get batch_sharePrompt;
+
   /// No description provided for @shareQueueBadge_tapToViewResults.
   ///
   /// In ko, this message translates to:
@@ -2040,8 +2178,9 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
 }

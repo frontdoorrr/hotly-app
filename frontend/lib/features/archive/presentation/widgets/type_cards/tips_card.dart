@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import '../../../../../core/l10n/l10n_extension.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -11,10 +13,10 @@ class TipsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tips = (data['tip_list'] as List?)?.cast<Map<String, dynamic>>();
-    final materials = (data['materials'] as List?)?.cast<String>();
-    final cautions = (data['cautions'] as List?)?.cast<String>();
-    final difficulty = data['difficulty'] as String?;
+    final tips = _parseTipList(data['tip_list']);
+    final materials = _parseStringList(data['materials']);
+    final cautions = _parseStringList(data['cautions']);
+    final difficulty = data['difficulty']?.toString();
 
     return TypeInfoCard(
       children: [
@@ -67,7 +69,7 @@ class TipsCard extends StatelessWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          tip['description']?.toString() ?? '',
+                          (tip['description'] ?? tip['text'] ?? '').toString(),
                           style: AppTextStyles.body2,
                         ),
                       ),
@@ -169,4 +171,63 @@ class _InfoChip extends StatelessWidget {
       ],
     );
   }
+}
+
+/// tip_list 원소가 Map이 아니라 String으로 오는 경우까지 허용하도록 방어 처리.
+List<Map<String, dynamic>>? _parseTipList(Object? raw) {
+  final list = _asList(raw);
+  if (list == null) return null;
+  final out = <Map<String, dynamic>>[];
+  var stepCounter = 1;
+  for (final item in list) {
+    final map = _asMap(item);
+    if (map != null) {
+      if (map['step'] == null) {
+        map['step'] = stepCounter;
+      }
+      out.add(map);
+    } else if (item is String && item.isNotEmpty) {
+      out.add({'step': stepCounter, 'description': item});
+    } else {
+      continue;
+    }
+    stepCounter++;
+  }
+  return out;
+}
+
+List<String>? _parseStringList(Object? raw) {
+  final list = _asList(raw);
+  if (list == null) return null;
+  return list
+      .where((e) => e != null)
+      .map((e) => e.toString())
+      .where((s) => s.isNotEmpty)
+      .toList();
+}
+
+List<dynamic>? _asList(Object? raw) {
+  if (raw == null) return null;
+  if (raw is List) return raw;
+  if (raw is String) {
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is List) return decoded;
+    } catch (_) {}
+  }
+  return null;
+}
+
+Map<String, dynamic>? _asMap(Object? raw) {
+  if (raw == null) return null;
+  if (raw is Map<String, dynamic>) return Map<String, dynamic>.from(raw);
+  if (raw is Map) return raw.map((k, v) => MapEntry(k.toString(), v));
+  if (raw is String) {
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is Map<String, dynamic>) return Map<String, dynamic>.from(decoded);
+      if (decoded is Map) return decoded.map((k, v) => MapEntry(k.toString(), v));
+    } catch (_) {}
+  }
+  return null;
 }

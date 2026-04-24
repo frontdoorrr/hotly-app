@@ -36,6 +36,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get common_refresh => '새로고침';
 
   @override
+  String get common_apply => '적용';
+
+  @override
   String get common_retry => '다시 시도';
 
   @override
@@ -521,6 +524,39 @@ class AppLocalizationsKo extends AppLocalizations {
   String get error_checkNetwork => '네트워크 연결을 확인해주세요.';
 
   @override
+  String get error_unauthorized => '인증이 필요합니다. 다시 로그인해주세요.';
+
+  @override
+  String get error_unsupportedLink => '지원하지 않는 링크입니다.';
+
+  @override
+  String get error_accessDenied => '접근 권한이 없습니다.';
+
+  @override
+  String get error_archiveNotFound => '아카이브를 찾을 수 없습니다.';
+
+  @override
+  String get error_privateOrDeleted => '비공개 게시물이거나 삭제된 콘텐츠예요.';
+
+  @override
+  String get error_rateLimited => '지금 요청이 몰려있어요. 잠시 후 다시 시도해주세요.';
+
+  @override
+  String get error_serviceUnavailable => '잠시 서비스 점검 중이에요. 나중에 다시 시도해주세요.';
+
+  @override
+  String get error_unknown => '알 수 없는 오류가 발생했습니다.';
+
+  @override
+  String get error_instagramBlocked => 'Instagram 미디어에 접근할 수 없습니다.';
+
+  @override
+  String get error_instagramParseError => 'Instagram 미디어를 찾을 수 없습니다.';
+
+  @override
+  String get error_instagramDownloadError => 'Instagram 미디어 다운로드에 실패했습니다.';
+
+  @override
   String get loginRequired => '로그인이 필요합니다';
 
   @override
@@ -640,6 +676,21 @@ class AppLocalizationsKo extends AppLocalizations {
   String get archive_insights => '인사이트';
 
   @override
+  String get archive_todos => '할 일';
+
+  @override
+  String get archive_reanalyzeInCurrentLanguage => '현재 언어로 다시 분석';
+
+  @override
+  String get archive_reanalyzing => '다시 분석 중…';
+
+  @override
+  String get archive_reanalyzeSuccess => '다시 분석했어요';
+
+  @override
+  String get archive_reanalyzeFailed => '다시 분석하지 못했어요';
+
+  @override
   String get archive_relatedKeywords => '관련 키워드';
 
   @override
@@ -735,6 +786,11 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get place_visitTips => '방문 팁';
+
+  @override
+  String place_priceWon(String amount) {
+    return '$amount원';
+  }
 
   @override
   String get review_pros => '장점';
@@ -961,6 +1017,29 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get batch_statusIgnored => '무시됨';
+
+  @override
+  String batch_failedCount(int count) {
+    return '$count개 실패';
+  }
+
+  @override
+  String batch_progressPercent(int percent) {
+    return '$percent% 완료';
+  }
+
+  @override
+  String batch_remainingSeconds(int seconds) {
+    return '$seconds초 남음';
+  }
+
+  @override
+  String batch_remainingMinutes(int minutes) {
+    return '$minutes분 남음';
+  }
+
+  @override
+  String get batch_sharePrompt => 'Instagram, 네이버 블로그, YouTube에서\n링크를 공유해보세요';
 
   @override
   String get shareQueueBadge_tapToViewResults => '탭하여 결과를 확인하세요';

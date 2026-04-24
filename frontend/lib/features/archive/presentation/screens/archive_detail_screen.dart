@@ -9,6 +9,9 @@ import '../../domain/entities/archived_content.dart';
 import '../providers/archive_provider.dart';
 import '../widgets/archive_result_card.dart';
 
+/// 상세 화면 재분석 진행 여부 (로컬 UI 상태)
+final _reanalyzingProvider = StateProvider.autoDispose<bool>((_) => false);
+
 class ArchiveDetailScreen extends ConsumerWidget {
   final String archiveId;
 
@@ -78,10 +81,14 @@ class _DetailView extends ConsumerWidget {
           children: [
             ArchiveResultCard(content: content, compact: false),
 
+            // 앱 언어와 저장된 콘텐츠 언어가 다를 때 재분석 옵션 제공
+            _LanguageMismatchBanner(content: content),
+
             const SizedBox(height: 16),
 
-            // insights
-            if (content.insights.isNotEmpty) ...[
+            // insights (장소 타입은 숨김)
+            if (content.contentType != 'place' &&
+                content.insights.isNotEmpty) ...[
               _SectionTitle(l10n.archive_insights),
               const SizedBox(height: 8),
               ...content.insights.map(
@@ -289,6 +296,98 @@ class _Chip extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _LanguageMismatchBanner extends ConsumerWidget {
+  final ArchivedContent content;
+  const _LanguageMismatchBanner({required this.content});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final stored = content.language;
+    if (stored == null || stored.isEmpty) return const SizedBox.shrink();
+    final current = Localizations.localeOf(context).languageCode;
+    if (stored == current) return const SizedBox.shrink();
+
+    final l10n = context.l10n;
+    final isLoading = ref.watch(_reanalyzingProvider);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.primary.withOpacity(0.06),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppColors.primary.withOpacity(0.25)),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.translate, size: 18, color: AppColors.primary),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                isLoading
+                    ? l10n.archive_reanalyzing
+                    : l10n.archive_reanalyzeInCurrentLanguage,
+                style: AppTextStyles.bodySmall
+                    .copyWith(color: AppColors.textPrimary),
+              ),
+            ),
+            if (isLoading)
+              const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            else
+              TextButton(
+                onPressed: () => _reanalyze(context, ref, current),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  minimumSize: const Size(0, 32),
+                ),
+                child: Text(l10n.common_apply),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _reanalyze(
+    BuildContext context,
+    WidgetRef ref,
+    String language,
+  ) async {
+    ref.read(_reanalyzingProvider.notifier).state = true;
+    final l10n = context.l10n;
+    try {
+      final repo = ref.read(archiveRepositoryProvider);
+      final result =
+          await repo.archiveUrl(content.url, force: true, language: language);
+      if (!context.mounted) return;
+      result.fold(
+        (error) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.archive_reanalyzeFailed)),
+          );
+        },
+        (_) {
+          ref.invalidate(archiveDetailProvider(content.id));
+          ref.invalidate(recentArchiveProvider);
+          ref.read(archiveListProvider.notifier).load(refresh: true);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.archive_reanalyzeSuccess)),
+          );
+        },
+      );
+    } finally {
+      if (context.mounted) {
+        ref.read(_reanalyzingProvider.notifier).state = false;
+      }
+    }
   }
 }
 

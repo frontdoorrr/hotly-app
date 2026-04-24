@@ -8,6 +8,7 @@ import '../../../archive/data/repositories/archive_repository_impl.dart';
 import '../../../archive/data/services/instagram_media_extractor.dart';
 import '../../../archive/domain/entities/archived_content.dart';
 import '../../../archive/domain/repositories/archive_repository.dart';
+import '../../../archive/presentation/providers/archive_provider.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/notifications/fcm_service.dart';
 import '../../../../core/providers/language_provider.dart';
@@ -220,10 +221,17 @@ class ShareQueueNotifier extends StateNotifier<ShareQueueState> {
 
       result.fold(
         (error) => _updateItemError(item.id, error.toString()),
-        (content) => _updateItemWithResult(
-          item.id,
-          ShareQueueAnalysisResult.fromArchivedContent(content),
-        ),
+        (content) {
+          _updateItemWithResult(
+            item.id,
+            ShareQueueAnalysisResult.fromArchivedContent(content),
+          );
+          // Share Queue 분석이 곧 아카이브 저장이므로, 목록/홈도 함께 갱신.
+          _ref.invalidate(recentArchiveProvider);
+          Future.microtask(
+            () => _ref.read(archiveListProvider.notifier).load(refresh: true),
+          );
+        },
       );
     } catch (e) {
       _logger.e('ShareQueue: Analysis error for ${item.id}: $e');
