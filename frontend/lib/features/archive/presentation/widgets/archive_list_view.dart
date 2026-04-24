@@ -24,6 +24,11 @@ class ArchiveListView extends ConsumerStatefulWidget {
 class _ArchiveListViewState extends ConsumerState<ArchiveListView> {
   final _scrollController = ScrollController();
 
+  // 필터 전환 시 스켈레톤(하얀 박스) 플래시를 막기 위해
+  // 직전에 그렸던 목록을 위젯 로컬에 캐시한다.
+  List<ArchivedContent> _displayItems = const [];
+  bool _hasEverLoaded = false;
+
   @override
   void initState() {
     super.initState();
@@ -53,6 +58,79 @@ class _ArchiveListViewState extends ConsumerState<ArchiveListView> {
   Widget build(BuildContext context) {
     final state = ref.watch(archiveListProvider);
 
+    // 로딩이 끝났거나 새 데이터가 들어온 시점에만 표시용 목록을 갱신한다.
+    // 필터 refresh로 items가 일시적으로 []가 되는 동안에는 직전 목록을 유지해
+    // 스켈레톤이 번쩍이는 현상을 방지한다.
+    if (!state.isLoading) {
+      _displayItems = state.items;
+      _hasEverLoaded = true;
+    } else if (state.items.isNotEmpty) {
+      _displayItems = state.items;
+      _hasEverLoaded = true;
+    }
+
+    final showInitialSkeleton = state.isLoading && !_hasEverLoaded;
+    final isRefreshing = state.isLoading && _hasEverLoaded;
+    final items = _displayItems;
+
+    Widget body;
+    if (showInitialSkeleton) {
+      body = const _SkeletonLoader(key: ValueKey('skeleton'));
+    } else if (items.isEmpty) {
+      body = _EmptyView(
+        key: const ValueKey('empty'),
+        onAddTap: () => ArchiveInputSheet.show(context),
+      );
+    } else {
+      body = RefreshIndicator(
+        key: const ValueKey('list'),
+        onRefresh: () =>
+            ref.read(archiveListProvider.notifier).load(refresh: true),
+        child: ListView.separated(
+          controller: _scrollController,
+          padding: const EdgeInsets.all(16),
+          itemCount: items.length + (state.hasMore ? 1 : 0),
+          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            if (index == items.length) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+            final item = items[index];
+            final delay = Duration(
+              milliseconds: (index * 50).clamp(0, 200),
+            );
+            return RepaintBoundary(
+              child: _ArchiveListTile(
+                content: item,
+                onTap: () => context.push('/archive/${item.id}'),
+                onDelete: () => ref
+                    .read(archiveListProvider.notifier)
+                    .delete(item.id),
+              )
+                  .animate(key: ValueKey(item.id))
+                  .fadeIn(
+                    duration: 250.ms,
+                    delay: delay,
+                    curve: Curves.easeOut,
+                  )
+                  .slideY(
+                    begin: 0.06,
+                    end: 0,
+                    duration: 250.ms,
+                    delay: delay,
+                    curve: Curves.easeOut,
+                  ),
+            );
+          },
+        ),
+      );
+    }
+
     return Scaffold(
       body: Column(
         children: [
@@ -65,63 +143,32 @@ class _ArchiveListViewState extends ConsumerState<ArchiveListView> {
             filterAllLabel: context.l10n.archiveList_filterAll,
           ),
 
-          // 목록
+          // 필터 전환/새로고침 중임을 알려주는 얇은 인디케이터
+          SizedBox(
+            height: 2,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 150),
+              child: isRefreshing
+                  ? const LinearProgressIndicator(
+                      key: ValueKey('refresh-bar'),
+                      minHeight: 2,
+                    )
+                  : const SizedBox(key: ValueKey('refresh-bar-empty')),
+            ),
+          ),
+
+          // 목록 (상태 전환 시 하드컷 대신 페이드)
           Expanded(
-            child: state.isLoading && state.items.isEmpty
-                ? const _SkeletonLoader()
-                : state.items.isEmpty
-                    ? _EmptyView(
-                        onAddTap: () => ArchiveInputSheet.show(context),
-                      )
-                    : RefreshIndicator(
-                        onRefresh: () => ref
-                            .read(archiveListProvider.notifier)
-                            .load(refresh: true),
-                        child: ListView.separated(
-                          controller: _scrollController,
-                          padding: const EdgeInsets.all(16),
-                          itemCount:
-                              state.items.length + (state.hasMore ? 1 : 0),
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: 12),
-                          itemBuilder: (context, index) {
-                            if (index == state.items.length) {
-                              return const Center(
-                                child: Padding(
-                                  padding: EdgeInsets.all(16),
-                                  child: CircularProgressIndicator(),
-                                ),
-                              );
-                            }
-                            final item = state.items[index];
-                            final delay = Duration(
-                              milliseconds: (index * 50).clamp(0, 200),
-                            );
-                            return RepaintBoundary(
-                              child: _ArchiveListTile(
-                                content: item,
-                                onTap: () => context.push('/archive/${item.id}'),
-                                onDelete: () => ref
-                                    .read(archiveListProvider.notifier)
-                                    .delete(item.id),
-                              )
-                                  .animate(key: ValueKey(item.id))
-                                  .fadeIn(
-                                    duration: 250.ms,
-                                    delay: delay,
-                                    curve: Curves.easeOut,
-                                  )
-                                  .slideY(
-                                    begin: 0.06,
-                                    end: 0,
-                                    duration: 250.ms,
-                                    delay: delay,
-                                    curve: Curves.easeOut,
-                                  ),
-                            );
-                          },
-                        ),
-                      ),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 220),
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeInCubic,
+              transitionBuilder: (child, animation) => FadeTransition(
+                opacity: animation,
+                child: child,
+              ),
+              child: body,
+            ),
           ),
         ],
       ),
@@ -348,7 +395,7 @@ class _ArchiveListTile extends StatelessWidget {
 // ------------------------------------------------------------------
 
 class _SkeletonLoader extends StatelessWidget {
-  const _SkeletonLoader();
+  const _SkeletonLoader({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -446,7 +493,7 @@ class _SkeletonArchiveTile extends StatelessWidget {
 
 class _EmptyView extends StatelessWidget {
   final VoidCallback onAddTap;
-  const _EmptyView({required this.onAddTap});
+  const _EmptyView({super.key, required this.onAddTap});
 
   @override
   Widget build(BuildContext context) {
