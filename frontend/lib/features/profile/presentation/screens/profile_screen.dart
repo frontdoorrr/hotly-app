@@ -334,8 +334,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               groupValue: currentLanguage,
               onChanged: (value) {
                 if (value != null) {
-                  ref.read(settingsProvider.notifier).setLanguage(value);
                   Navigator.pop(dialogContext);
+                  ref.read(settingsProvider.notifier).setLanguage(value);
                 }
               },
             ),
@@ -345,8 +345,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               groupValue: currentLanguage,
               onChanged: (value) {
                 if (value != null) {
-                  ref.read(settingsProvider.notifier).setLanguage(value);
                   Navigator.pop(dialogContext);
+                  ref.read(settingsProvider.notifier).setLanguage(value);
                 }
               },
             ),
