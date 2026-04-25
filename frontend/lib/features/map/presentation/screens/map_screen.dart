@@ -27,11 +27,12 @@ class _MapScreenState extends ConsumerState<MapScreen>
     with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
   KakaoMapController? _mapController;
   bool _isMapReady = false;
-  bool _markersAdded = false;
   bool _showList = false;
   KImage? _cachedMarkerIcon;
   KImage? _cachedCurrentLocationIcon;
   ProviderSubscription<List<Place>>? _placesSubscription;
+  // 이미 지도에 추가한 Place id 집합 (저장 후 refresh로 들어오는 신규 Place만 증분 추가)
+  final Set<String> _addedMarkerIds = <String>{};
 
   // Unique key for KakaoMap widget to prevent recreation issues
   final GlobalKey _mapKey = GlobalKey();
@@ -58,11 +59,15 @@ class _MapScreenState extends ConsumerState<MapScreen>
     _placesSubscription = ref.listenManual(
       savedPlacesProvider.select((state) => state.places),
       (previous, next) {
-        if (_isMapReady && !_markersAdded && next.isNotEmpty) {
-          AppLogger.d('Places loaded, adding markers...', tag: 'Map');
-          _addMarkersToMap(next);
-          _markersAdded = true;
-        }
+        if (!_isMapReady || next.isEmpty) return;
+        final newOnes =
+            next.where((p) => !_addedMarkerIds.contains(p.id)).toList();
+        if (newOnes.isEmpty) return;
+        AppLogger.d(
+          'Places updated: +${newOnes.length} (total ${next.length})',
+          tag: 'Map',
+        );
+        _addMarkersToMap(newOnes);
       },
     );
   }
@@ -144,13 +149,12 @@ class _MapScreenState extends ConsumerState<MapScreen>
               final currentLocation = ref.read(mapProvider).currentLocation;
 
               // 저장된 장소 마커와 현재 위치 마커를 병렬로 추가
+              final pendingPlaces = savedPlacesState.places
+                  .where((p) => !_addedMarkerIds.contains(p.id))
+                  .toList();
               await Future.wait([
-                if (!savedPlacesState.isLoading &&
-                    savedPlacesState.places.isNotEmpty &&
-                    !_markersAdded)
-                  _addMarkersToMap(savedPlacesState.places).then((_) {
-                    _markersAdded = true;
-                  }),
+                if (!savedPlacesState.isLoading && pendingPlaces.isNotEmpty)
+                  _addMarkersToMap(pendingPlaces),
                 if (currentLocation != null)
                   _addCurrentLocationMarker(currentLocation),
               ]);
@@ -281,7 +285,10 @@ class _MapScreenState extends ConsumerState<MapScreen>
       );
 
       final validPlaces = places
-          .where((p) => p.latitude != null && p.longitude != null)
+          .where((p) =>
+              p.latitude != null &&
+              p.longitude != null &&
+              !_addedMarkerIds.contains(p.id))
           .toList();
 
       // 모든 마커를 병렬로 추가
@@ -298,6 +305,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
                 ref.read(mapProvider.notifier).selectPlace(place.id);
               },
             );
+            _addedMarkerIds.add(place.id);
           } catch (e) {
             AppLogger.e('Failed to add marker for ${place.name}', tag: 'Map', error: e);
           }

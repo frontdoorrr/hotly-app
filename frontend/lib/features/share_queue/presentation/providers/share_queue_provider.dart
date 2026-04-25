@@ -9,6 +9,7 @@ import '../../../archive/data/services/instagram_media_extractor.dart';
 import '../../../archive/domain/entities/archived_content.dart';
 import '../../../archive/domain/repositories/archive_repository.dart';
 import '../../../archive/presentation/providers/archive_provider.dart';
+import '../../../saved/presentation/providers/saved_places_provider.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/notifications/fcm_service.dart';
 import '../../../../core/providers/language_provider.dart';
@@ -231,6 +232,16 @@ class ShareQueueNotifier extends StateNotifier<ShareQueueState> {
           Future.microtask(
             () => _ref.read(archiveListProvider.notifier).load(refresh: true),
           );
+          // Place 타입은 백엔드 지오코딩 완료 후 Map의 저장된 장소 목록을 새로 고침.
+          if (content.contentType == 'place') {
+            Future.delayed(const Duration(seconds: 3), () {
+              try {
+                _ref.read(savedPlacesProvider.notifier).refresh();
+              } catch (_) {
+                // 프로바이더가 아직 초기화되지 않은 경우 무시
+              }
+            });
+          }
         },
       );
     } catch (e) {

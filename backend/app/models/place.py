@@ -6,6 +6,7 @@ from enum import Enum
 from typing import Optional
 
 from geoalchemy2 import Geography
+from geoalchemy2.shape import to_shape
 from sqlalchemy import (
     Boolean,
     Column,
@@ -124,17 +125,23 @@ class Place(Base):
 
     @property
     def latitude(self) -> Optional[float]:
-        """Extract latitude from coordinates."""
-        if self.coordinates:
-            return float(self.coordinates.data["coordinates"][1])
-        return None
+        """Extract latitude from PostGIS coordinates (WKBElement → Shapely Point)."""
+        if self.coordinates is None:
+            return None
+        try:
+            return float(to_shape(self.coordinates).y)
+        except Exception:
+            return None
 
     @property
     def longitude(self) -> Optional[float]:
-        """Extract longitude from coordinates."""
-        if self.coordinates:
-            return float(self.coordinates.data["coordinates"][0])
-        return None
+        """Extract longitude from PostGIS coordinates (WKBElement → Shapely Point)."""
+        if self.coordinates is None:
+            return None
+        try:
+            return float(to_shape(self.coordinates).x)
+        except Exception:
+            return None
 
     def set_coordinates(self, latitude: float, longitude: float) -> None:
         """Set geographical coordinates."""

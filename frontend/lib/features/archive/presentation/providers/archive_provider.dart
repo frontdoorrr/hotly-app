@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/providers/language_provider.dart';
+import '../../../saved/presentation/providers/saved_places_provider.dart';
 import '../../data/datasources/archive_remote_datasource.dart';
 import '../../data/repositories/archive_repository_impl.dart';
 import '../../domain/entities/archived_content.dart';
@@ -39,18 +40,29 @@ class ArchiveInputNotifier extends StateNotifier<ArchiveInputState> {
       (error) => state = state.copyWith(isLoading: false, error: error.toString()),
       (content) {
         state = state.copyWith(isLoading: false, result: content);
-        _notifyArchiveSaved();
+        _notifyArchiveSaved(content);
       },
     );
   }
 
   /// 아카이브 저장 성공 시 목록/홈 프로바이더에 새 항목 반영.
-  void _notifyArchiveSaved() {
+  void _notifyArchiveSaved(ArchivedContent content) {
     _ref.invalidate(recentArchiveProvider);
     // 목록은 notifier가 살아있는 경우만 새로고침 (listen 하지 않음).
     Future.microtask(
       () => _ref.read(archiveListProvider.notifier).load(refresh: true),
     );
+    // Place 타입은 백엔드가 주소 → 좌표 지오코딩을 background task로 실행한다.
+    // 지오코딩이 끝날 시간을 주고 Map(저장된 장소) 프로바이더를 새로 고친다.
+    if (content.contentType == 'place') {
+      Future.delayed(const Duration(seconds: 3), () {
+        try {
+          _ref.read(savedPlacesProvider.notifier).refresh();
+        } catch (_) {
+          // 프로바이더가 아직 초기화되지 않은 경우 무시
+        }
+      });
+    }
   }
 
   void setInputUrl(String url) => state = state.copyWith(inputUrl: url);
