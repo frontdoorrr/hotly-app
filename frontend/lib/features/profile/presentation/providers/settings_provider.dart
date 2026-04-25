@@ -21,40 +21,47 @@ class AppSettings with _$AppSettings {
 class SettingsNotifier extends StateNotifier<AppSettings> {
   final LocalStorage _localStorage;
 
+  // 알림 토픽 — FCM 서버 구독 상태의 단일 진실 원천(state.notificationsEnabled)을 따른다.
+  static const List<String> _notificationTopics = [
+    'all_users',
+    'recommendations',
+  ];
+
   SettingsNotifier(this._localStorage) : super(const AppSettings()) {
-    _loadSettings();
+    _init();
   }
 
-  Future<void> _loadSettings() async {
+  Future<void> _init() async {
     final themeString = _localStorage.themeMode;
     final language = _localStorage.language;
-
-    bool notificationsEnabled = _localStorage.notificationsEnabled;
-    // 앱 설정이 ON이더라도 실제 OS 권한이 없으면 OFF로 동기화
-    if (notificationsEnabled) {
-      final status = await Permission.notification.status;
-      if (!status.isGranted) {
-        notificationsEnabled = false;
-        await _localStorage.setNotificationsEnabled(false);
-      }
-    }
-
     state = state.copyWith(
       themeMode: _parseThemeMode(themeString),
-      notificationsEnabled: notificationsEnabled,
       language: language,
     );
+    await _reconcile();
   }
 
-  // 화면 진입 시 OS 권한 상태와 앱 설정을 재동기화
-  Future<void> syncWithOsPermission() async {
-    if (!state.notificationsEnabled) return;
-    final status = await Permission.notification.status;
-    if (!status.isGranted) {
-      state = state.copyWith(notificationsEnabled: false);
+  /// OS 권한이 알림 설정의 단일 진실 원천(source of truth).
+  /// `state.notificationsEnabled`는 (사용자 opt-in) AND (OS 권한 허용)의 결과.
+  /// 드리프트 케이스(시스템 설정에서 권한 회수 등)는 로컬 opt-in과 토픽 구독을 정리.
+  Future<void> _reconcile() async {
+    final permGranted = (await Permission.notification.status).isGranted;
+    final userOptedIn = _localStorage.notificationsEnabled;
+    final effective = permGranted && userOptedIn;
+
+    // 드리프트: 사용자는 켜놨지만 OS 권한이 없는 경우 → 정리
+    if (userOptedIn && !permGranted) {
       await _localStorage.setNotificationsEnabled(false);
+      await _syncTopics(subscribe: false);
+    }
+
+    if (state.notificationsEnabled != effective) {
+      state = state.copyWith(notificationsEnabled: effective);
     }
   }
+
+  /// 화면 진입/포그라운드 복귀 시 OS 권한과 재동기화.
+  Future<void> syncWithOsPermission() => _reconcile();
 
   Future<void> setThemeMode(ThemeMode mode) async {
     state = state.copyWith(themeMode: mode);
@@ -63,10 +70,9 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
 
   Future<NotificationToggleResult> setNotifications(bool enabled) async {
     if (!enabled) {
-      state = state.copyWith(notificationsEnabled: false);
       await _localStorage.setNotificationsEnabled(false);
-      await FCMService().unsubscribeFromTopic('all_users');
-      await FCMService().unsubscribeFromTopic('recommendations');
+      await _syncTopics(subscribe: false);
+      state = state.copyWith(notificationsEnabled: false);
       return NotificationToggleResult.granted;
     }
 
@@ -81,10 +87,9 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
         status.isGranted ? status : await Permission.notification.request();
 
     if (effectiveStatus.isGranted) {
-      state = state.copyWith(notificationsEnabled: true);
       await _localStorage.setNotificationsEnabled(true);
-      await FCMService().subscribeToTopic('all_users');
-      await FCMService().subscribeToTopic('recommendations');
+      await _syncTopics(subscribe: true);
+      state = state.copyWith(notificationsEnabled: true);
       return NotificationToggleResult.granted;
     }
 
@@ -93,6 +98,17 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
     }
 
     return NotificationToggleResult.denied;
+  }
+
+  Future<void> _syncTopics({required bool subscribe}) async {
+    final fcm = FCMService();
+    for (final topic in _notificationTopics) {
+      if (subscribe) {
+        await fcm.subscribeToTopic(topic);
+      } else {
+        await fcm.unsubscribeFromTopic(topic);
+      }
+    }
   }
 
   Future<void> setLanguage(String language) async {

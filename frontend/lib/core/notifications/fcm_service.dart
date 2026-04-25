@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -31,8 +32,10 @@ class FCMService {
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
         _logger.i('FCM: User granted notification permission');
 
-        // Get FCM token
-        await _getFCMToken();
+        // FCM 토큰 발급은 iOS APNS 등록을 기다려야 하므로
+        // 앱 부팅을 막지 않도록 백그라운드로 실행.
+        // 실패해도 onTokenRefresh가 추후 토큰을 채워줌.
+        unawaited(_getFCMToken());
 
         // Initialize local notifications
         await _initializeLocalNotifications();
@@ -65,6 +68,17 @@ class FCMService {
   /// Get FCM token
   Future<String?> _getFCMToken() async {
     try {
+      // iOS: APNS 토큰이 먼저 등록되어야 FCM 토큰을 발급할 수 있음.
+      // 시스템이 APNS에 등록을 마치기 전까지 getToken()이 실패하므로 폴링으로 대기.
+      if (!kIsWeb && Platform.isIOS) {
+        final apnsReady = await _waitForAPNSToken();
+        if (!apnsReady) {
+          _logger.w('FCM: APNS token not available yet; '
+              'will retry on next launch or token refresh');
+          return null;
+        }
+      }
+
       _fcmToken = await _messaging.getToken();
       _logger.i('FCM Token: $_fcmToken');
 
@@ -80,6 +94,27 @@ class FCMService {
       _logger.e('Failed to get FCM token: $e');
       return null;
     }
+  }
+
+  /// iOS에서 APNS 토큰 등록을 대기 (최대 [timeout]).
+  /// 등록되면 true, 타임아웃 시 false.
+  Future<bool> _waitForAPNSToken({
+    Duration timeout = const Duration(seconds: 10),
+    Duration interval = const Duration(milliseconds: 500),
+  }) async {
+    final deadline = DateTime.now().add(timeout);
+    while (DateTime.now().isBefore(deadline)) {
+      try {
+        final apnsToken = await _messaging.getAPNSToken();
+        if (apnsToken != null && apnsToken.isNotEmpty) {
+          return true;
+        }
+      } catch (e) {
+        _logger.d('FCM: getAPNSToken transient error: $e');
+      }
+      await Future.delayed(interval);
+    }
+    return false;
   }
 
   /// Initialize local notifications for foreground display
