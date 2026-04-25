@@ -9,7 +9,7 @@ class AppLocalizationsKo extends AppLocalizations {
   AppLocalizationsKo([String locale = 'ko']) : super(locale);
 
   @override
-  String get appName => 'Hotly';
+  String get appName => 'ArchyAI';
 
   @override
   String get common_ok => '확인';
@@ -369,7 +369,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get common_skip => 'Skip';
 
   @override
-  String get onboarding_welcome => 'Hotly에 오신 것을 환영합니다!';
+  String get onboarding_welcome => 'ArchyAI에 오신 것을 환영합니다!';
 
   @override
   String get onboarding_welcomeDesc => 'AI가 추천하는 핫플레이스와\n나만의 데이트 코스를 만들어보세요';

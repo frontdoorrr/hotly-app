@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// 앱 이름
   ///
   /// In ko, this message translates to:
-  /// **'Hotly'**
+  /// **'ArchyAI'**
   String get appName;
 
   /// 확인 버튼
@@ -815,7 +815,7 @@ abstract class AppLocalizations {
   /// 온보딩 환영 메시지
   ///
   /// In ko, this message translates to:
-  /// **'Hotly에 오신 것을 환영합니다!'**
+  /// **'ArchyAI에 오신 것을 환영합니다!'**
   String get onboarding_welcome;
 
   /// 온보딩 환영 설명

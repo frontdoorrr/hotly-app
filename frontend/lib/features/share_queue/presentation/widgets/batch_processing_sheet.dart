@@ -98,7 +98,7 @@ class _BatchProcessingSheetState extends ConsumerState<BatchProcessingSheet> {
     final Color iconColor;
 
     if (state.isProcessing) {
-      title = '📦 ${l10n.shareQueueBadge_analyzing(current: state.processingIndex + 1, total: totalCount)}';
+      title = '📦 ${l10n.shareQueueBadge_analyzing(state.processingIndex + 1, totalCount)}';
       icon = Icons.sync;
       iconColor = AppColors.info;
     } else if (state.completedCount == totalCount && totalCount > 0) {

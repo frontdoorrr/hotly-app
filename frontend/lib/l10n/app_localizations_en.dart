@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appName => 'Hotly';
+  String get appName => 'ArchyAI';
 
   @override
   String get common_ok => 'OK';
@@ -371,7 +371,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get common_skip => 'Skip';
 
   @override
-  String get onboarding_welcome => 'Welcome to Hotly!';
+  String get onboarding_welcome => 'Welcome to ArchyAI!';
 
   @override
   String get onboarding_welcomeDesc =>
