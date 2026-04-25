@@ -226,3 +226,11 @@ gemini_analysis_result.json
 *.mp4
 *.mov
 *.avi
+
+# Claude Code 로컬 세션·설정·워크트리
+.claude/
+
+# 로컬 빌드 에러/디버깅 덤프
+error.txt
+errors.txt
+build-error*.txt
