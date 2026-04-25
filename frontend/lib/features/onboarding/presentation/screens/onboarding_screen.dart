@@ -150,10 +150,11 @@ class _WelcomeStep extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.local_fire_department,
-            size: 120,
-            color: AppColors.primary,
+          Image.asset(
+            'assets/images/logo/logo-icon-512.png',
+            width: 120,
+            height: 120,
+            fit: BoxFit.contain,
           )
               .animate()
               .scale(

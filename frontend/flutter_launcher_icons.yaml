@@ -15,12 +15,6 @@ flutter_launcher_icons:
   # iOS specific
   remove_alpha_ios: true
 
-  # Platform specific configurations
-  android:
-    generate: true
-  ios:
-    generate: true
-
   # Web (if needed later)
   web:
     generate: false

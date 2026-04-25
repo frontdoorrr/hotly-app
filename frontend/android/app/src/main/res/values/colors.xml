@@ -5,4 +5,5 @@
     <color name="primary_color">#FF5722</color>
     <color name="primary_dark">#D84315</color>
     <color name="accent_color">#FFC107</color>
+	<color name="ic_launcher_background">#FF5722</color>
 </resources>

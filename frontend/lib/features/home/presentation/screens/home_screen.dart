@@ -25,7 +25,12 @@ class HomeScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Row(
           children: [
-            Icon(Icons.local_fire_department, color: theme.colorScheme.primary),
+            Image.asset(
+              'assets/images/logo/logo-icon-64.png',
+              width: 28,
+              height: 28,
+              fit: BoxFit.contain,
+            ),
             const SizedBox(width: 8),
             Text(context.l10n.appName),
           ],
