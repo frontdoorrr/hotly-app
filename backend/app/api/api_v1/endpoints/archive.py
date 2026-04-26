@@ -141,6 +141,16 @@ async def archive_instagram(
     if existing and not force:
         return existing
 
+    logger.info(
+        "[insta-archive] received url=%s media_count=%d caption_len=%s author=%s lang=%s force=%s",
+        url,
+        len(media),
+        len(caption) if caption else 0,
+        author,
+        language,
+        force,
+    )
+
     if len(media) > _MAX_MEDIA_COUNT:
         raise HTTPException(status_code=400, detail=f"미디어 파일은 최대 {_MAX_MEDIA_COUNT}개까지 허용합니다.")
 
@@ -158,10 +168,22 @@ async def archive_instagram(
             raise HTTPException(status_code=413, detail="전체 업로드 크기가 100MB를 초과합니다.")
         fname = FilePath(upload.filename or f"media_{i}.bin").name
         media_tuples.append((fname, file_bytes, mime))
+        logger.info("[insta-archive] media[%d] name=%s mime=%s bytes=%d", i, fname, mime, len(file_bytes))
+
+    logger.info(
+        "[insta-archive] forwarding to link-analyzer: files=%d total_bytes=%d",
+        len(media_tuples),
+        total_size,
+    )
 
     try:
         result = await link_analyzer_client.analyze_instagram(url, media_tuples, caption, author, language=language)
-        logger.info("[DEBUG] link-analyzer instagram raw response: %s", result)
+        logger.info(
+            "[insta-archive] link-analyzer ok: keys=%s images_analyzed=%s content_type=%s",
+            list(result.keys()) if isinstance(result, dict) else type(result).__name__,
+            (result.get("images_analyzed") if isinstance(result, dict) else None),
+            (result.get("content_type") if isinstance(result, dict) else None),
+        )
     except UnsupportedPlatformError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     except ContentExtractionError as exc:

@@ -92,6 +92,16 @@ class LinkAnalyzerClient:
             pool=10.0,
         )
 
+        total_bytes = sum(len(b) for _, b, _ in media_files)
+        logger.info(
+            "[link-analyzer] POST /analyze/instagram url=%s files=%d total_bytes=%d "
+            "manifest=%s",
+            url,
+            len(media_files),
+            total_bytes,
+            [(name, mime, len(b)) for name, b, mime in media_files],
+        )
+
         async with httpx.AsyncClient(timeout=timeout) as client:
             try:
                 resp = await client.post(
@@ -103,6 +113,11 @@ class LinkAnalyzerClient:
             except httpx.RequestError as exc:
                 raise LinkAnalyzerError(f"link-analyzer 연결 실패: {exc}") from exc
 
+        logger.info(
+            "[link-analyzer] response status=%s bytes=%d",
+            resp.status_code,
+            len(resp.content) if resp.content is not None else 0,
+        )
         return self._handle_response(resp)
 
     async def get_content(self, content_id: str) -> dict[str, Any]:
