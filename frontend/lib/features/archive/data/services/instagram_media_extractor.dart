@@ -1,6 +1,11 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 import 'dart:io';
 import 'dart:typed_data';
+
+void _log(String message) {
+  developer.log(message, name: 'InstagramExtractor');
+}
 
 class InstagramMediaFile {
   final String filename;
@@ -84,31 +89,53 @@ class InstagramMediaExtractor {
       throw const InstagramParseError('Instagram Stories are not supported');
     }
 
+    _log('extract start url=$url');
     final html = await _fetchPageHtml(url);
+    _log('html fetched bytes=${html.length}');
 
     // 캐러셀(sidecar) 우선 — 임베디드 GraphQL JSON에서 전체 슬라이드 추출
     var candidates = _extractSidecarMedia(html);
     final fromSidecar = candidates.isNotEmpty;
+    _log('sidecar parse result: count=${candidates.length} '
+        'fromSidecar=$fromSidecar');
 
     // sidecar 미존재(단일 이미지/릴스) 또는 파싱 실패 시 OG 메타태그 폴백
     if (candidates.isEmpty) {
-      candidates = _parseOgMediaUrls(html)
+      final ogUrls = _parseOgMediaUrls(html);
+      _log('OG fallback: og_count=${ogUrls.length}');
+      candidates = ogUrls
           .map((u) => _MediaCandidate(url: u, isVideo: u.contains('.mp4')))
           .toList();
     }
 
     if (candidates.isEmpty) {
+      _log('extract FAIL: no media found in sidecar nor OG');
       throw const InstagramParseError('No Instagram media found');
     }
 
     final validCandidates =
         candidates.where((c) => _isValidMediaUrl(c.url)).toList();
+    final filteredOut = candidates.length - validCandidates.length;
+    if (filteredOut > 0) {
+      _log('CDN host filter dropped $filteredOut candidate(s)');
+    }
     if (validCandidates.isEmpty) {
+      _log('extract FAIL: all candidates rejected by CDN host filter');
       throw const InstagramParseError('No media found from allowed hosts');
     }
 
     // 서버 처리 한도 + 인스타 캐러셀 한도(10장) 매치, 순서 보존
     final capped = validCandidates.take(_maxMediaCount).toList();
+    if (validCandidates.length > _maxMediaCount) {
+      _log('capped from ${validCandidates.length} to $_maxMediaCount');
+    }
+
+    for (var i = 0; i < capped.length; i++) {
+      final c = capped[i];
+      _log('candidate[$i] isVideo=${c.isVideo} '
+          'urlHost=${Uri.tryParse(c.url)?.host} '
+          'urlPath=${Uri.tryParse(c.url)?.path}');
+    }
 
     final files = await Future.wait(
       capped.indexed.map((e) => _downloadMedia(
@@ -117,6 +144,8 @@ class InstagramMediaExtractor {
             isVideoHint: e.$2.isVideo,
           )),
     );
+    _log('downloaded ${files.length} files: '
+        '${files.map((f) => "${f.filename}(${f.mimeType},${f.bytes.length}B)").join(", ")}');
 
     final caption = _parseCaption(html);
     final author = _parseAuthorFromUrl(url);
@@ -139,24 +168,35 @@ class InstagramMediaExtractor {
       caseSensitive: false,
     );
 
-    for (final match in scriptPattern.allMatches(html)) {
-      final raw = match.group(1);
+    final allMatches = scriptPattern.allMatches(html).toList();
+    _log('sidecar scan: ${allMatches.length} <script type="application/json"> tag(s)');
+
+    var jsonOk = 0;
+    var sidecarSeen = 0;
+    for (var i = 0; i < allMatches.length; i++) {
+      final raw = allMatches[i].group(1);
       if (raw == null || raw.isEmpty) continue;
 
       dynamic decoded;
       try {
         decoded = jsonDecode(raw);
+        jsonOk++;
       } catch (_) {
         continue;
       }
 
       final sidecar = _findSidecarNode(decoded);
       if (sidecar == null) continue;
+      sidecarSeen++;
 
       final edges = sidecar['edges'];
-      if (edges is! List) continue;
+      if (edges is! List) {
+        _log('sidecar[$i] found but edges not a List (type=${edges.runtimeType})');
+        continue;
+      }
 
       final result = <_MediaCandidate>[];
+      var skippedNoUrl = 0;
       for (final edge in edges) {
         if (edge is! Map) continue;
         final node = edge['node'];
@@ -164,14 +204,22 @@ class InstagramMediaExtractor {
 
         final isVideo = node['is_video'] == true;
         final url = isVideo ? node['video_url'] : node['display_url'];
-        if (url is! String || url.isEmpty) continue;
+        if (url is! String || url.isEmpty) {
+          skippedNoUrl++;
+          continue;
+        }
 
         result.add(_MediaCandidate(url: url, isVideo: isVideo));
       }
 
+      _log('sidecar[$i] edges=${edges.length} extracted=${result.length} '
+          'skipped(no_url)=$skippedNoUrl');
+
       if (result.isNotEmpty) return result;
     }
 
+    _log('sidecar scan done: jsonDecodeOk=$jsonOk sidecarNodesFound=$sidecarSeen '
+        '→ no usable sidecar');
     return [];
   }
 
@@ -312,6 +360,7 @@ class InstagramMediaExtractor {
 
       final response = await request.close();
       if (response.statusCode != 200) {
+        _log('download[$index] FAIL status=${response.statusCode} url=$url');
         throw InstagramMediaDownloadError('Media download failed (${response.statusCode}): $url');
       }
 
