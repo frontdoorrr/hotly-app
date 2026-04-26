@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:dio/dio.dart';
 import '../../../../core/network/api_endpoints.dart';
 import '../models/archive_model.dart';
@@ -54,6 +56,13 @@ class ArchiveRemoteDataSource {
           ),
         );
       }
+      final totalBytes = mediaFiles.fold<int>(0, (s, f) => s + f.bytes.length);
+      developer.log(
+        'POST ${ApiEndpoints.archiveInstagram} '
+        'url=$url media_count=${mediaFiles.length} total_bytes=$totalBytes '
+        'files=[${mediaFiles.map((f) => "${f.filename}(${f.mimeType},${f.bytes.length}B)").join(", ")}]',
+        name: 'ArchiveRemoteDataSource',
+      );
       final response = await _dio.post(
         ApiEndpoints.archiveInstagram,
         data: formData,
@@ -61,6 +70,11 @@ class ArchiveRemoteDataSource {
           sendTimeout: const Duration(minutes: 5),
           receiveTimeout: const Duration(minutes: 5),
         ),
+      );
+      developer.log(
+        'response status=${response.statusCode} '
+        'images_analyzed=${(response.data is Map) ? (response.data as Map)["images_analyzed"] ?? (response.data as Map)["imagesAnalyzed"] : "?"}',
+        name: 'ArchiveRemoteDataSource',
       );
       return ArchivedContentModel.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
