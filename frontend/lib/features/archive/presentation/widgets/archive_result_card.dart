@@ -36,7 +36,11 @@ class ArchiveResultCard extends StatelessWidget {
 
         // 요약
         if (content.summary != null && content.summary!.isNotEmpty)
-          _buildSummary(),
+          _ExpandableSummary(
+            text: content.summary!,
+            collapsedMaxLines: compact ? 2 : 4,
+            allowExpand: !compact,
+          ),
 
         const SizedBox(height: 12),
 
@@ -135,15 +139,6 @@ class ArchiveResultCard extends StatelessWidget {
     );
   }
 
-  Widget _buildSummary() {
-    return Text(
-      content.summary!,
-      style: AppTextStyles.body2.copyWith(color: AppColors.textSecondary),
-      maxLines: compact ? 2 : 4,
-      overflow: TextOverflow.ellipsis,
-    );
-  }
-
   Widget _buildTypeCard() {
     final data = content.typeSpecificData;
     if (data == null) return const SizedBox.shrink();
@@ -209,6 +204,96 @@ class ArchiveResultCard extends StatelessWidget {
               ),
             ),
       ],
+    );
+  }
+}
+
+/// 긴 요약을 collapsedMaxLines 만큼 보여주고, 넘칠 때만 더보기/접기 토글을 노출.
+/// allowExpand=false 면 기존처럼 ellipsis 로만 잘라 표시.
+class _ExpandableSummary extends StatefulWidget {
+  final String text;
+  final int collapsedMaxLines;
+  final bool allowExpand;
+
+  const _ExpandableSummary({
+    required this.text,
+    required this.collapsedMaxLines,
+    required this.allowExpand,
+  });
+
+  @override
+  State<_ExpandableSummary> createState() => _ExpandableSummaryState();
+}
+
+class _ExpandableSummaryState extends State<_ExpandableSummary> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final style =
+        AppTextStyles.body2.copyWith(color: AppColors.textSecondary);
+
+    if (!widget.allowExpand) {
+      return Text(
+        widget.text,
+        style: style,
+        maxLines: widget.collapsedMaxLines,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final tp = TextPainter(
+          text: TextSpan(text: widget.text, style: style),
+          maxLines: widget.collapsedMaxLines,
+          textDirection: Directionality.of(context),
+          textScaler: MediaQuery.textScalerOf(context),
+        )..layout(maxWidth: constraints.maxWidth);
+
+        final overflows = tp.didExceedMaxLines;
+        final l10n = context.l10n;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.text,
+              style: style,
+              maxLines: _expanded ? null : widget.collapsedMaxLines,
+              overflow:
+                  _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
+            ),
+            if (overflows)
+              InkWell(
+                onTap: () => setState(() => _expanded = !_expanded),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _expanded ? l10n.common_less : l10n.common_more,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      Icon(
+                        _expanded
+                            ? Icons.keyboard_arrow_up
+                            : Icons.keyboard_arrow_down,
+                        size: 16,
+                        color: AppColors.primary,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }

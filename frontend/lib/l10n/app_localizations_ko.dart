@@ -48,6 +48,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get common_more => '더보기';
 
   @override
+  String get common_less => '접기';
+
+  @override
   String get common_detail => '상세보기';
 
   @override

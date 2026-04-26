@@ -48,6 +48,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get common_more => 'More';
 
   @override
+  String get common_less => 'Less';
+
+  @override
   String get common_detail => 'View Details';
 
   @override

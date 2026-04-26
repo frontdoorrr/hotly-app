@@ -62,6 +62,11 @@
     "description": "더보기 버튼"
   },
 
+  "common_less": "접기",
+  "@common_less": {
+    "description": "펼쳐진 본문을 접는 버튼"
+  },
+
   "common_detail": "상세보기",
   "@common_detail": {
     "description": "상세보기 버튼"
