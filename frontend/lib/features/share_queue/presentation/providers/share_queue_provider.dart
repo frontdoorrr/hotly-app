@@ -255,6 +255,23 @@ class ShareQueueNotifier extends StateNotifier<ShareQueueState> {
     try {
       final extractor = InstagramMediaExtractor();
       final extracted = await extractor.extract(item.url);
+
+      // 캐러셀 추출 가시성 — 운영 모니터링용
+      _logger.i(
+        'ShareQueue: Instagram extracted ${extracted.mediaFiles.length} media '
+        '(sidecar: ${extracted.fromSidecar}) for ${item.id}',
+      );
+      // img_index가 붙어있는데 1장만 추출된 경우 = 캐러셀이지만 sidecar 파싱 실패 의심
+      final hasImgIndex =
+          Uri.tryParse(item.url)?.queryParameters['img_index'] != null;
+      if (hasImgIndex && extracted.mediaFiles.length <= 1) {
+        _logger.w(
+          'ShareQueue: Suspected carousel parsed as single media — '
+          'url=${item.url}, count=${extracted.mediaFiles.length}, '
+          'sidecar=${extracted.fromSidecar}',
+        );
+      }
+
       return _archiveRepository.archiveInstagram(
         url: item.url,
         mediaFiles: extracted.mediaFiles,

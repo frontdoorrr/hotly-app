@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -17,8 +18,16 @@ class InstagramExtractResult {
   final List<InstagramMediaFile> mediaFiles;
   final String? caption;
   final String? author;
+  /// true: 임베디드 JSON sidecar 파싱 성공(캐러셀 전체 슬라이드)
+  /// false: OG 메타태그 폴백(단일 이미지/릴스 또는 sidecar 파싱 실패)
+  final bool fromSidecar;
 
-  const InstagramExtractResult({required this.mediaFiles, this.caption, this.author});
+  const InstagramExtractResult({
+    required this.mediaFiles,
+    this.caption,
+    this.author,
+    this.fromSidecar = false,
+  });
 }
 
 class InstagramBlockedError implements Exception {
@@ -48,6 +57,7 @@ class InstagramMediaExtractor {
       'AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
 
   static const _maxFileSizeBytes = 100 * 1024 * 1024; // 100MB
+  static const _maxMediaCount = 10;
 
   static bool _isValidInstagramUrl(String url) {
     final uri = Uri.tryParse(url);
@@ -75,24 +85,115 @@ class InstagramMediaExtractor {
     }
 
     final html = await _fetchPageHtml(url);
-    final mediaUrls = _parseOgMediaUrls(html);
 
-    if (mediaUrls.isEmpty) {
+    // 캐러셀(sidecar) 우선 — 임베디드 GraphQL JSON에서 전체 슬라이드 추출
+    var candidates = _extractSidecarMedia(html);
+    final fromSidecar = candidates.isNotEmpty;
+
+    // sidecar 미존재(단일 이미지/릴스) 또는 파싱 실패 시 OG 메타태그 폴백
+    if (candidates.isEmpty) {
+      candidates = _parseOgMediaUrls(html)
+          .map((u) => _MediaCandidate(url: u, isVideo: u.contains('.mp4')))
+          .toList();
+    }
+
+    if (candidates.isEmpty) {
       throw const InstagramParseError('No Instagram media found');
     }
 
-    final validUrls = mediaUrls.where(_isValidMediaUrl).toList();
-    if (validUrls.isEmpty) {
+    final validCandidates =
+        candidates.where((c) => _isValidMediaUrl(c.url)).toList();
+    if (validCandidates.isEmpty) {
       throw const InstagramParseError('No media found from allowed hosts');
     }
 
+    // 서버 처리 한도 + 인스타 캐러셀 한도(10장) 매치, 순서 보존
+    final capped = validCandidates.take(_maxMediaCount).toList();
+
     final files = await Future.wait(
-      validUrls.indexed.map((e) => _downloadMedia(e.$2, e.$1)),
+      capped.indexed.map((e) => _downloadMedia(
+            e.$2.url,
+            e.$1,
+            isVideoHint: e.$2.isVideo,
+          )),
     );
 
     final caption = _parseCaption(html);
     final author = _parseAuthorFromUrl(url);
-    return InstagramExtractResult(mediaFiles: files, caption: caption, author: author);
+    return InstagramExtractResult(
+      mediaFiles: files,
+      caption: caption,
+      author: author,
+      fromSidecar: fromSidecar,
+    );
+  }
+
+  /// 임베디드 `<script type="application/json">` 안의 GraphQL payload에서
+  /// 캐러셀(sidecar) 슬라이드 전체를 추출한다.
+  ///
+  /// Instagram이 외부에 공식 보장하는 인터페이스가 아니므로
+  /// 키 위치 변경에 대비해 재귀 탐색하고, 실패 시 빈 리스트를 반환한다.
+  List<_MediaCandidate> _extractSidecarMedia(String html) {
+    final scriptPattern = RegExp(
+      r'<script[^>]*type="application/json"[^>]*>([\s\S]*?)</script>',
+      caseSensitive: false,
+    );
+
+    for (final match in scriptPattern.allMatches(html)) {
+      final raw = match.group(1);
+      if (raw == null || raw.isEmpty) continue;
+
+      dynamic decoded;
+      try {
+        decoded = jsonDecode(raw);
+      } catch (_) {
+        continue;
+      }
+
+      final sidecar = _findSidecarNode(decoded);
+      if (sidecar == null) continue;
+
+      final edges = sidecar['edges'];
+      if (edges is! List) continue;
+
+      final result = <_MediaCandidate>[];
+      for (final edge in edges) {
+        if (edge is! Map) continue;
+        final node = edge['node'];
+        if (node is! Map) continue;
+
+        final isVideo = node['is_video'] == true;
+        final url = isVideo ? node['video_url'] : node['display_url'];
+        if (url is! String || url.isEmpty) continue;
+
+        result.add(_MediaCandidate(url: url, isVideo: isVideo));
+      }
+
+      if (result.isNotEmpty) return result;
+    }
+
+    return [];
+  }
+
+  /// `edge_sidecar_to_children` 노드를 재귀 탐색해 반환.
+  /// 인스타가 키 위치를 자주 바꾸므로 깊이 제한 없는 DFS로 탐색한다.
+  Map<String, dynamic>? _findSidecarNode(dynamic json) {
+    if (json is Map) {
+      final sidecar = json['edge_sidecar_to_children'];
+      if (sidecar is Map<String, dynamic> && sidecar['edges'] is List) {
+        return sidecar;
+      }
+      for (final value in json.values) {
+        final found = _findSidecarNode(value);
+        if (found != null) return found;
+      }
+    } else if (json is List) {
+      for (final item in json) {
+        final found = _findSidecarNode(item);
+        if (found != null) return found;
+      }
+    }
+    return null;
   }
 
   /// URL에서 username 추출: instagram.com/{username}/p/{shortcode}/
@@ -196,7 +297,11 @@ class InstagramMediaExtractor {
     return raw != null ? _decodeHtmlEntities(raw) : null;
   }
 
-  Future<InstagramMediaFile> _downloadMedia(String url, int index) async {
+  Future<InstagramMediaFile> _downloadMedia(
+    String url,
+    int index, {
+    bool isVideoHint = false,
+  }) async {
     final client = HttpClient();
     client.connectionTimeout = const Duration(seconds: 30);
 
@@ -219,7 +324,7 @@ class InstagramMediaExtractor {
       }
 
       final bytes = builder.toBytes();
-      final mime = _inferMimeType(url);
+      final mime = _inferMimeType(url, isVideoHint: isVideoHint);
       final filename = _inferFilename(url, index, mime);
 
       return InstagramMediaFile(filename: filename, bytes: bytes, mimeType: mime);
@@ -232,12 +337,14 @@ class InstagramMediaExtractor {
     }
   }
 
-  String _inferMimeType(String url) {
+  String _inferMimeType(String url, {bool isVideoHint = false}) {
     final path = Uri.tryParse(url)?.path.toLowerCase() ?? '';
     if (path.endsWith('.mp4')) return 'video/mp4';
     if (path.endsWith('.mov')) return 'video/quicktime';
     if (path.endsWith('.png')) return 'image/png';
     if (path.endsWith('.webp')) return 'image/webp';
+    // 인스타 CDN의 video_url은 확장자가 항상 명확하지 않으므로 hint 우선
+    if (isVideoHint) return 'video/mp4';
     return 'image/jpeg';
   }
 
@@ -245,4 +352,10 @@ class InstagramMediaExtractor {
     final ext = mime.contains('video') ? 'mp4' : mime.contains('png') ? 'png' : 'jpg';
     return 'instagram_media_$index.$ext';
   }
+}
+
+class _MediaCandidate {
+  final String url;
+  final bool isVideo;
+  const _MediaCandidate({required this.url, required this.isVideo});
 }
