@@ -2,6 +2,7 @@
 
 import hashlib
 import logging
+import re
 from typing import List, Optional
 from uuid import UUID
 
@@ -15,6 +16,14 @@ from app.services.maps.kakao_map_service import (
 )
 
 logger = logging.getLogger(__name__)
+
+_GENERIC_ENTITY_BLOCKLIST = {
+    "맛집", "카페", "식당", "술집", "바", "음식점", "핫플",
+    "cafe", "brunch", "restaurant", "bar",
+}
+_REGION_SUFFIX_RE = re.compile(r"^[가-힣]{1,4}(시|군|구|동|읍|면)(청|사무소|역)?$")
+_NAME_DISPLAY_MAX = 80
+_KEYWORD_FALLBACK_MAX = 20
 
 _CATEGORY_KEYWORDS: List[tuple[PlaceCategory, List[str]]] = [
     (PlaceCategory.CAFE, ["카페", "커피", "coffee", "cafe"]),
@@ -44,6 +53,106 @@ def _safe_str(value, max_len: int) -> Optional[str]:
         return None
     s = str(value).strip()
     return s[:max_len] if s else None
+
+
+def _extract_region_token(
+    named_entities: List[str], keywords_main: List[str]
+) -> Optional[str]:
+    """named_entities/keywords_main에서 지역(구/동/시 등) 토큰을 추출."""
+    candidates: List[str] = []
+    for src in (named_entities or []):
+        if not src:
+            continue
+        candidates.extend(str(src).split())
+    for src in (keywords_main or []):
+        if not src:
+            continue
+        candidates.extend(str(src).split())
+    for token in candidates:
+        token = token.strip()
+        if _REGION_SUFFIX_RE.match(token):
+            return token
+    return None
+
+
+def _choose_entity(named_entities: List[str]) -> Optional[str]:
+    """named_entities에서 generic이 아닌 첫 토큰을 반환."""
+    for entity in (named_entities or []):
+        if not entity:
+            continue
+        text = str(entity).strip()
+        if not text:
+            continue
+        if text.lower() in _GENERIC_ENTITY_BLOCKLIST:
+            continue
+        return text
+    return None
+
+
+def _build_keyword_candidates(
+    name: Optional[str],
+    named_entities: List[str],
+    keywords_main: List[str],
+) -> List[str]:
+    """Kakao 키워드 검색에 시도할 후보 쿼리를 우선순위 순으로 생성."""
+    region = _extract_region_token(named_entities, keywords_main)
+    entity = _choose_entity(named_entities)
+    short_name = (name or "").strip()[:_KEYWORD_FALLBACK_MAX]
+
+    raw_candidates: List[Optional[str]] = []
+    if region and entity:
+        raw_candidates.append(f"{region} {entity}")
+    if entity:
+        raw_candidates.append(entity)
+    if region and short_name:
+        raw_candidates.append(f"{region} {short_name}")
+    if short_name:
+        raw_candidates.append(short_name)
+
+    seen: set[str] = set()
+    result: List[str] = []
+    for cand in raw_candidates:
+        if not cand:
+            continue
+        c = cand.strip()
+        if not c or c in seen:
+            continue
+        seen.add(c)
+        result.append(c)
+    return result
+
+
+def _pick_best_result(
+    results: List[dict], entity: Optional[str]
+) -> Optional[dict]:
+    """Kakao 결과에서 entity 이름과 가장 잘 매칭되는 항목을 선택."""
+    if not results:
+        return None
+    if entity:
+        needle = entity.lower().replace(" ", "")
+        for r in results:
+            place_name = str(r.get("place_name") or "").lower().replace(" ", "")
+            if needle and needle in place_name:
+                if r.get("latitude") is not None and r.get("longitude") is not None:
+                    return r
+    first = results[0]
+    if first.get("latitude") is not None and first.get("longitude") is not None:
+        return first
+    return None
+
+
+def _choose_place_name(
+    title: Optional[str], named_entities: List[str]
+) -> Optional[str]:
+    """place.name 컬럼에 들어갈 깔끔한 가게명을 결정."""
+    entity = _choose_entity(named_entities)
+    if entity:
+        return entity[:_NAME_DISPLAY_MAX]
+    if title:
+        cleaned = title.strip()
+        if cleaned:
+            return cleaned[:_NAME_DISPLAY_MAX]
+    return None
 
 
 class PlaceExtractorService:
@@ -91,12 +200,16 @@ class PlaceExtractorService:
         type_specific_data: dict,
         user_id: UUID,
     ) -> None:
-        name = (title or "").strip() or (
+        # 기존 의미의 raw_name — source_content_hash 입력 보존용 (dedup 호환)
+        raw_name = (title or "").strip() or (
             (named_entities or [None])[0] if named_entities else None
         )
-        if not name:
+        if not raw_name:
             logger.info("Skipping place extraction: no usable name for url=%s", url)
             return
+
+        # place.name 컬럼에 저장할 깔끔한 표시명
+        display_name = _choose_place_name(title, named_entities or []) or raw_name
 
         tsd = type_specific_data
         address = _safe_str(tsd.get("address"), 500)
@@ -112,11 +225,17 @@ class PlaceExtractorService:
             website = None
 
         source_hash = hashlib.sha256(
-            f"{name}_{address or ''}_{url}".encode()
+            f"{raw_name}_{address or ''}_{url}".encode()
         ).hexdigest()
 
+        # 캡션이 entity와 다르면 description으로 보존
+        description: Optional[str] = None
+        if title and title.strip() and title.strip() != display_name:
+            description = title.strip()[:2000]
+
         place_create = PlaceCreate(
-            name=name[:255],
+            name=display_name[:255],
+            description=description,
             address=address,
             phone=_safe_str(tsd.get("phone"), 50),
             website=website,
@@ -130,7 +249,12 @@ class PlaceExtractorService:
             ai_confidence=0.8 if address else 0.5,
         )
 
-        latitude, longitude = await self._get_coordinates(name, address)
+        latitude, longitude = await self._get_coordinates(
+            name=display_name,
+            address=address,
+            named_entities=named_entities or [],
+            keywords_main=keywords_main or [],
+        )
         if latitude is not None and longitude is not None:
             place_create.latitude = latitude
             place_create.longitude = longitude
@@ -148,13 +272,21 @@ class PlaceExtractorService:
                 return
 
             created = place_crud.create_with_user(db, obj_in=place_create, user_id=user_id)
-            logger.info(
-                "Place created: id=%s name=%s lat=%s lng=%s",
-                created.id,
-                created.name,
-                latitude,
-                longitude,
-            )
+            if latitude is None or longitude is None:
+                logger.warning(
+                    "Place created without coordinates: id=%s name=%s url=%s",
+                    created.id,
+                    created.name,
+                    url,
+                )
+            else:
+                logger.info(
+                    "Place created: id=%s name=%s lat=%s lng=%s",
+                    created.id,
+                    created.name,
+                    latitude,
+                    longitude,
+                )
         except Exception:
             db.rollback()
             raise
@@ -162,7 +294,12 @@ class PlaceExtractorService:
             db.close()
 
     async def _get_coordinates(
-        self, name: str, address: Optional[str]
+        self,
+        *,
+        name: str,
+        address: Optional[str],
+        named_entities: List[str],
+        keywords_main: List[str],
     ) -> tuple[Optional[float], Optional[float]]:
         try:
             kakao = KakaoMapService()
@@ -181,11 +318,24 @@ class PlaceExtractorService:
             except Exception as exc:
                 logger.warning("Kakao geocoding failed for address %r: %s", address, exc)
 
-        try:
-            results = await kakao._search_places_async(name, None, None, None, 3)
-            if results and results[0].get("latitude") is not None:
-                return results[0]["latitude"], results[0]["longitude"]
-        except Exception as exc:
-            logger.warning("Kakao keyword search failed for %r: %s", name, exc)
+        entity = _choose_entity(named_entities)
+        candidates = _build_keyword_candidates(name, named_entities, keywords_main)
+        for kw in candidates:
+            try:
+                results = await kakao._search_places_async(kw, None, None, None, 5)
+            except Exception as exc:
+                logger.warning("Kakao keyword search failed for %r: %s", kw, exc)
+                continue
+            picked = _pick_best_result(results or [], entity)
+            if picked:
+                logger.info(
+                    "Kakao keyword hit: query=%r picked=%r",
+                    kw,
+                    picked.get("place_name"),
+                )
+                return picked["latitude"], picked["longitude"]
 
+        logger.info(
+            "Kakao keyword search exhausted candidates=%s", candidates
+        )
         return None, None

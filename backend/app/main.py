@@ -15,11 +15,14 @@ from fastapi.staticfiles import StaticFiles
 from app.api.api_v1.api import api_router
 from app.api.health import router as health_router
 from app.core.config import settings
+from app.core.logging import configure_logging
 from app.middleware.rate_limit_middleware import RateLimitMiddleware
 from app.middleware.security_middleware import (
     SecurityHeadersMiddleware,
     RequestValidationMiddleware,
 )
+
+configure_logging()
 
 
 def create_app() -> FastAPI:
