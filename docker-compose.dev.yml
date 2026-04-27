@@ -1,17 +1,7 @@
 # Development override for docker-compose
-# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+# Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#
+# 현재는 별도 override가 없습니다. (link-analyzer는 docker-compose에 포함되지 않으며
+# 호스트 8003 포트에서 독립 실행됩니다 — CLAUDE.md 참조.)
 
-services:
-  link-analyzer:
-    build:
-      context: ./link-analyzer
-      target: development  # Use development stage with hot reload
-    environment:
-      - DEBUG=true  # Enable debug mode
-      - LOG_LEVEL=DEBUG
-    volumes:
-      # Mount source code for hot reload
-      - ./link-analyzer/app:/app/app:ro  # Read-only mount for security
-      - ./link-analyzer/tests:/app/tests:ro
-    # Override command to use hot reload
-    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
+services: {}

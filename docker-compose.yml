@@ -28,36 +28,8 @@ services:
     networks:
       - hotly-network
 
-  link-analyzer:
-    build:
-      context: ./link-analyzer
-      target: runtime
-    ports:
-      - "8001:8001"
-    env_file:
-      - ./link-analyzer/.env
-    environment:
-      # Override specific env vars for Docker environment
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_DB=1
-      - DEBUG=false
-      - LOG_LEVEL=INFO
-      - BACKEND_CORS_ORIGINS=http://localhost:3000,http://localhost:8000,http://localhost:8001
-      # API keys come from .env file via env_file directive above
-      # Do not override them here unless you want to set specific values
-    depends_on:
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    restart: unless-stopped
-    networks:
-      - hotly-network
+  # link-analyzer는 별도 프로세스로 호스트 8003 포트에서 독립 실행됩니다 (CLAUDE.md 참조).
+  # backend는 LINK_ANALYZER_BASE_URL=http://host.docker.internal:8003 으로 연결합니다.
 
   # Frontend service removed - Flutter app runs locally on iOS/Android simulators
   # Use: flutter run -d 'iPhone 16 Pro' or flutter run -d <android-device>

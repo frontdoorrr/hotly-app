@@ -29,10 +29,13 @@ class FirebaseAuthMiddleware:
         # Firebase Admin SDK 초기화는 실제 환경에서는 설정 파일로부터
 
     def verify_firebase_token(self, token: str) -> Dict[str, Any]:
-        """Firebase 토큰 검증"""
+        """Firebase 토큰 검증.
+
+        TODO(prod): firebase_admin.auth.verify_id_token(token)으로 교체.
+        현재는 dev 환경용 — 서명 검증 없이 JWT 페이로드만 디코드한다.
+        """
         try:
-            # 실제 환경에서는 firebase_auth.verify_id_token(token) 사용
-            # 테스트를 위한 Mock 구현
+            # 테스트 fixture 토큰 매칭 + dev 환경 JWT 디코드
             if token == "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...":
                 return {
                     "uid": "firebase_user_123",
@@ -86,28 +89,28 @@ class UserAuthenticationMiddleware:
         self.activity_service = UserActivityLogService()
 
     def authenticate_user(self, firebase_claims: Dict[str, Any]) -> AuthenticatedUser:
-        """Firebase 클레임으로 사용자 인증"""
+        """Firebase 클레임으로 사용자 조회 또는 생성 (idempotent).
+
+        반환 객체의 `id`는 DB user.id와 동일해 archive/places 등 다른 테이블의
+        user_id 외래키와 일관된다.
+        """
         firebase_uid = firebase_claims.get("uid")
         email = firebase_claims.get("email")
         display_name = firebase_claims.get("name")
 
-        # 기존 사용자 조회
         existing_user = self.user_service.get_by_firebase_uid(firebase_uid)
+        is_new_user = existing_user is None
 
-        if existing_user:
-            # 기존 사용자: 마지막 로그인 시간 업데이트
-            existing_user.last_login_at = datetime.utcnow()
-            return existing_user
-        else:
-            # 새 사용자: 자동 생성
-            new_user = self.user_service.create_from_firebase_auth(
-                firebase_uid=firebase_uid, email=email, display_name=display_name
-            )
-            new_user.last_login_at = datetime.utcnow()
+        # get_or_create로 idempotent 처리. 신규 row 생성 시에도 동일 user.id 반환.
+        user = self.user_service.create_from_firebase_auth(
+            firebase_uid=firebase_uid, email=email, display_name=display_name
+        )
+        user.last_login_at = datetime.utcnow()
 
-            # 첫 로그인 활동 로깅
+        if is_new_user:
+            # 첫 로그인 활동 로깅 (활동 로그 서비스는 현재 in-memory; TODO 참조)
             self.activity_service.log_activity(
-                user_id=str(new_user.id),
+                user_id=str(user.id),
                 activity_type="first_login",
                 activity_data={
                     "firebase_uid": firebase_uid,
@@ -116,7 +119,7 @@ class UserAuthenticationMiddleware:
                 },
             )
 
-            return new_user
+        return user
 
 
 class AuthorizationMiddleware:

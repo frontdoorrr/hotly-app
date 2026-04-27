@@ -4,12 +4,16 @@
 인증된 사용자 로직 및 개인별 데이터 연동을 위한
 비즈니스 로직 서비스들을 구현합니다.
 """
+import logging
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
+from uuid import UUID
 
 from sqlalchemy.orm import Session
 
+from app.crud.user import crud_user
 from app.db.session import get_db
+from app.models.user import User as DBUser
 from app.models.user_data import (
     AuthenticatedUser,
     UserActivityLog,
@@ -19,9 +23,28 @@ from app.models.user_data import (
     UserSettingsData,
 )
 
+logger = logging.getLogger(__name__)
+
+
+def _to_authenticated_user(user: DBUser) -> AuthenticatedUser:
+    """DB User → 요청 컨텍스트용 AuthenticatedUser DTO.
+
+    SQLAlchemy 인스턴스로 만들지만 세션에 add 하지 않으므로 영속화되지 않는다.
+    `current_user.id`가 DB user.id와 동일해 다른 테이블의 user_id 외래키와 일관된다.
+    """
+    return AuthenticatedUser(
+        id=user.id,
+        firebase_uid=user.firebase_uid,
+        email=user.email,
+        display_name=user.full_name or user.nickname,
+        is_active=bool(user.is_active) if user.is_active is not None else True,
+        created_at=user.created_at,
+        updated_at=user.updated_at,
+    )
+
 
 class AuthenticatedUserService:
-    """인증된 사용자 서비스"""
+    """인증된 사용자 서비스 (DB User 테이블 기반)."""
 
     def __init__(self, db: Session = None):
         self.db = db or next(get_db())
@@ -29,69 +52,83 @@ class AuthenticatedUserService:
     def create_from_firebase_auth(
         self, firebase_uid: str, email: str = None, display_name: str = None
     ) -> AuthenticatedUser:
-        """Firebase 인증 정보로 사용자 생성"""
-        user = AuthenticatedUser(
+        """Firebase 인증 정보로 사용자 조회 또는 생성 (idempotent)."""
+        user = crud_user.get_or_create_by_firebase_uid(
+            self.db,
             firebase_uid=firebase_uid,
-            email=email,
-            display_name=display_name,
-            is_active=True,
-            created_at=datetime.utcnow(),
-            last_login_at=datetime.utcnow(),
+            email=email or "",
+            full_name=display_name,
         )
-
-        # 데이터 검증
-        user.validate()
-
-        return user
+        # 기존 row의 full_name이 비어있고 신규 display_name이 있으면 채움
+        if display_name and not user.full_name:
+            user.full_name = display_name
+            user.updated_at = datetime.utcnow()
+            self.db.add(user)
+            self.db.commit()
+            self.db.refresh(user)
+        return _to_authenticated_user(user)
 
     def get_by_firebase_uid(self, firebase_uid: str) -> Optional[AuthenticatedUser]:
-        """Firebase UID로 사용자 조회"""
-        # 실제로는 데이터베이스에서 조회하지만, 테스트를 위해 Mock 사용자 반환
-        if firebase_uid == "existing_user_123":
-            return AuthenticatedUser(
-                firebase_uid=firebase_uid,
-                email="existing@example.com",
-                display_name="Existing User",
-                is_active=True,
-            )
-        return None
+        """Firebase UID로 DB 사용자 조회."""
+        if not firebase_uid:
+            return None
+        user = crud_user.get_by_firebase_uid(self.db, firebase_uid=firebase_uid)
+        return _to_authenticated_user(user) if user else None
 
     def update_profile(
         self, user_id: str, profile_updates: Dict[str, Any]
     ) -> AuthenticatedUser:
-        """사용자 프로필 업데이트"""
-        # 사용자 조회 (Mock)
-        user = AuthenticatedUser(
-            firebase_uid="test_firebase_uid",
-            email="test@example.com",
-            display_name="Original Name",
-        )
-
-        # 프로필 업데이트
-        for key, value in profile_updates.items():
-            if hasattr(user, key):
-                setattr(user, key, value)
-
+        """사용자 프로필 업데이트."""
+        user = self._fetch_user_by_id(user_id)
+        # AuthenticatedUser 외부 필드명 → DB User 컬럼 매핑
+        field_map = {
+            "display_name": "full_name",
+            "email": "email",
+            "is_active": "is_active",
+            "nickname": "nickname",
+            "profile_image_url": "profile_image_url",
+            "bio": "bio",
+        }
+        for src_key, value in profile_updates.items():
+            dest_attr = field_map.get(src_key)
+            if dest_attr and hasattr(user, dest_attr):
+                setattr(user, dest_attr, value)
         user.updated_at = datetime.utcnow()
-
-        return user
+        self.db.add(user)
+        self.db.commit()
+        self.db.refresh(user)
+        return _to_authenticated_user(user)
 
     def deactivate_user(self, user_id: str) -> AuthenticatedUser:
-        """사용자 비활성화"""
-        # 사용자 조회 (Mock)
-        user = AuthenticatedUser(
-            firebase_uid="test_firebase_uid", email="test@example.com", is_active=True
-        )
-
-        # 비활성화
+        """사용자 비활성화."""
+        user = self._fetch_user_by_id(user_id)
         user.is_active = False
         user.updated_at = datetime.utcnow()
+        self.db.add(user)
+        self.db.commit()
+        self.db.refresh(user)
+        return _to_authenticated_user(user)
 
+    def _fetch_user_by_id(self, user_id: str) -> DBUser:
+        try:
+            uid = UUID(str(user_id))
+        except (ValueError, TypeError) as exc:
+            raise ValueError(f"Invalid user_id format: {user_id}") from exc
+        user = self.db.query(DBUser).filter(DBUser.id == uid).first()
+        if not user:
+            raise ValueError(f"User not found: {user_id}")
         return user
+
+
+# TODO: UserPersonalDataService / UserActivityLogService / UserSettingsService /
+# UserDataPrivacyService / UserDataAccessService 들은 아직 in-memory mock 동작이며
+# 실제 DB 테이블·CRUD가 마련되어 있지 않다. AuthenticatedUserService 경로(인증/플레이스
+# 외래키)는 이번 변경에서 실제 DB로 전환되어 더 이상 mock이 아니다. 나머지 보조 서비스들은
+# 사용 시점에 단계적으로 실제 구현으로 대체할 것.
 
 
 class UserPersonalDataService:
-    """사용자 개인 데이터 서비스"""
+    """사용자 개인 데이터 서비스 (TODO: 실제 DB 백킹으로 교체 필요)."""
 
     def __init__(self, db: Session = None):
         self.db = db or next(get_db())
